@@ -17,6 +17,10 @@ export default {
 </script>
 
 <style>
+    body {
+        margin: 0 !important;
+    }
+
 
     #app {
         font-family: Camphor, Open Sans, Segoe UI, sans-serif;
@@ -24,6 +28,7 @@ export default {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         color: #2c3e50;
+        margin: 0;
     }
 
     .button {
