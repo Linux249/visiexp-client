@@ -18,20 +18,39 @@ class Node {
         // This is a very simple and unsafe constructor. All we're doing is checking if the values exist.
         // "x || 0" just means "if there is a value for x, use that. Otherwise use 0."
         // But we aren't checking anything else! We could put "Lalala" for the value of x
+        this.name = data.name
+
         this.x = data.x;
         this.y = data.y;
-        this.w = 80;
-        this.h = 80;
+        this.iconWidth = 80;
+        this.iconHeight = 80;
+
+        this.imageWidth = 180
+        this.imageHeight = 180
         // this.scale = 1;
-        this.img = new Image();
-        this.img.src = `data:image/jpeg;base64,${data.buffer}`;
+        this.icon = new Image();
+        this.icon.src = `data:image/jpeg;base64,${data.buffer}`;
+
+        this.isActive = false; // handle clicked node
+        this.hasImage = false; // is there detailed image?
+
+        this.image = new Image();
+        //this.image.src = `data:image/jpeg;base64,${data.buffer}`;
+
+        this.value = data.value;
     }
 
 
     draw(ctx, scale) {
         console.log('start draw Image');
-        // ctx.drawImage(this.img, this.x, this.y, this.w / scale, this.h / scale);
-        ctx.drawImage(this.img, this.x, this.y, this.w / scale, this.h / scale);
+        if (this.isActive && !this.hasImage) {
+            // show icon bigger
+            ctx.drawImage(this.icon, this.x, this.y,  this.imageWidth / scale, this.imageHeight / scale);
+        } else if (this.isActive && this.hasImage) {
+            ctx.drawImage(this.image, this.x, this.y,  this.imageWidth / scale, this.imageHeight / scale);
+        } else {
+            ctx.drawImage(this.icon, this.x, this.y, this.iconWidth / scale, this.iconHeight / scale);
+        }
     }
 
     contains(mx, my, scale, translateX, translateY) {
@@ -39,13 +58,21 @@ class Node {
         // the shape's X and (X + Width) and its Y and (Y + Height)
         const x = (mx - translateX) / scale;
         const y = (my - translateY) / scale;
-        const w = this.w / scale;
-        const h = this.h / scale;
+        const w = this.iconWidth / scale;
+        const h = this.iconHeight / scale;
 
 
         /* const contains = (this.x <= x) && (this.x + w >= x) &&
             (this.y <= y) && (this.y + h >= y); */
         return (x >= this.x) && (x >= this.x + w) && (y >= this.y) && (y >= this.y + h);
+    }
+
+    addNeighbour() {
+
+    }
+
+    removeNeighbour() {
+
     }
 }
 
@@ -82,13 +109,14 @@ class CanvasState {
         // this.ctx.translate(this.translateX / 2, this.translateY / 2);
         // this.ctx.scale(this.scale, this.scale);
 
-        this.selection = null
+        this.selection = null;
         // add event listener
 
         this.canvas.onmousewheel = this.zoom;
         this.canvas.onmousedown = this.handleMouseDown;
         this.canvas.onmousemove = this.handleMouseMove;
         this.canvas.onmouseup = this.handleMouseUp;
+        this.canvas.ondblclick = this.handleDoubleClick;
 
         setInterval(() => this.draw(), this.interval);
     }
@@ -174,14 +202,10 @@ class CanvasState {
         // TODO test if mouse hits Image and set their drag flag
 
         console.log('mousedown');
-        console.log(e.offsetX);
-        console.log(e.offsetY);
+        //console.log(e.offsetX);
+        //console.log(e.offsetY);
 
-        this.nodes.map((node) => {
-            if(node.contains(e.offsetX, e.offsetY, this.scale, this.translateX, this.translateY)) this.selection = node
-        });
 
-        if(this.selection) console.log(this.selection)
         // save start position
         this.startX = e.offsetX;
         this.startY = e.offsetY;
@@ -214,6 +238,37 @@ class CanvasState {
     handleMouseUp = (event) => {
         console.log('mouseup');
         this.dragging = false;
+    }
+
+    handleDoubleClick = (e) => {
+        console.log("Double click")
+
+        // reset selection
+        this.selection = null
+
+        // todo how to remove selection?
+        this.nodes.map((node) => {
+            if (node.contains(e.offsetX, e.offsetY, this.scale, this.translateX, this.translateY)) {
+                console.log('node behind dbclick');
+                this.selection = node;
+
+                // test if node has allready load image
+            }
+        });
+
+        // if there is a selection
+        if (this.selection) {
+            console.log("selected Node")
+            console.log(this.selection);
+
+            const activeNode = this.selection
+            activeNode.isActive = true
+            if (!activeNode.hasImage) {
+                console.log("request image")
+                socket.emit("requestImage", activeNode.name);
+            }
+            this.valid = false
+        }
     }
 }
 
@@ -257,12 +312,30 @@ export default {
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         const s = new CanvasState(canvas);
-        socket.on('connect', socket => console.log(socket));
-        socket.on('image', (data) => {
+        socket.on('connect', (soc) => {
+            if(!soc) {
+                console.log("no conection")
+            } else {
+                console.log("conected")
+                console.log(soc)
+            }
+
+        });
+        socket.on('node', (data) => {
+            console.log('receive node');
             console.log(data);
-            if (data.image) {
+            if (data) {
                 s.addNode(new Node(data));
             }
+        });
+        socket.on('receiveImage', (data) => {
+            console.log('receive image data');
+            console.log(data);
+            const node = s.nodes.find(n => n.name === data.name);
+            console.log(node)
+            node.image.src = `data:image/jpeg;base64,${data.buffer}`
+            node.hasImage = true
+            s.valid = false;
         });
         // this.updateCanvas();
     },
