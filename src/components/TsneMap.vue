@@ -1,70 +1,112 @@
 <template>
     <div>
+        <div class="info-box">
+            <div v-on:click="sendData">Send Data</div>
+            <div>{{exampleContent}}</div>
+            <div>Scale: {{scale}}</div>
+            <div>Selection: {{selectedNode}}</div>
+            <div># Neighbours: {{selectedNodeNeighboursCount}}</div>
+        </div>
         <canvas  ref="canvas" id="canvas" width="1600" height="800"></canvas>
     </div>
 </template>
 
 <script>
-import logo from '../assets/logo.png';
 import io from 'socket.io-client';
+// import logo from '../assets/logo.png';
 
 const socket = io('http://localhost:3000');
-
-const scale = 30;
-
 
 class Node {
     constructor(data) {
         // This is a very simple and unsafe constructor. All we're doing is checking if the values exist.
         // "x || 0" just means "if there is a value for x, use that. Otherwise use 0."
         // But we aren't checking anything else! We could put "Lalala" for the value of x
-        this.name = data.name
+        this.name = data.name;
+        this.neighbours = data.neighbours;
 
         this.x = data.x;
         this.y = data.y;
-        this.iconWidth = 80;
-        this.iconHeight = 80;
+        this.w = 40;
+        this.h = 40;
 
-        this.imageWidth = 180
-        this.imageHeight = 180
+        this.imageScale = 5; // showing images bigger
         // this.scale = 1;
         this.icon = new Image();
         this.icon.src = `data:image/jpeg;base64,${data.buffer}`;
 
         this.isActive = false; // handle clicked node
+        this.isActiveNeighbour = false; // is this a neighbour of a active node?
         this.hasImage = false; // is there detailed image?
 
         this.image = new Image();
-        //this.image.src = `data:image/jpeg;base64,${data.buffer}`;
+        // this.image.src = `data:image/jpeg;base64,${data.buffer}`;
 
-        this.value = data.value;
+        this.v = null; // value will be set by the active nodes neighbour-values
+    }
+
+    get width() {
+        if (this.isActive) return this.w + (this.w * this.imageScale);
+        if (this.isActiveNeighbour) return this.w + (this.w * this.imageScale * (this.value / 10));
+        return this.w;
+    }
+
+    get height() {
+        if (this.isActive) return this.h + (this.h * this.imageScale);
+        if (this.isActiveNeighbour) return this.h + (this.h * this.imageScale * (this.value / 10));
+        return this.h;
+    }
+
+    get value() {
+        return this.v;
+    }
+
+    set value(v) {
+        if (v < 1) this.v = 1;
+        else if (v > 10) this.v = 10;
+        else this.v = v;
     }
 
 
     draw(ctx, scale) {
         console.log('start draw Image');
-        if (this.isActive && !this.hasImage) {
-            // show icon bigger
-            ctx.drawImage(this.icon, this.x, this.y,  this.imageWidth / scale, this.imageHeight / scale);
-        } else if (this.isActive && this.hasImage) {
-            ctx.drawImage(this.image, this.x, this.y,  this.imageWidth / scale, this.imageHeight / scale);
+        // check which picture to use
+        const imgData = (this.isActive || this.isActiveNeighbour) && this.hasImage ? this.image : this.icon;
+
+        if (this.isActive) {
+            console.log(`Active node while draw: ${this.name}}`);
+            console.log(this);
+            ctx.globalAlpha = 1;
+            ctx.drawImage(imgData, this.x, this.y, this.width / scale, this.height / scale);
+            // ctx.rect(this.x,this.y, this.width/scale,this.height/scale);
+            // ctx.stroke();
+        } else if (this.isActiveNeighbour) {
+            console.log(`Neighbour node while draw: ${this.name}}`);
+            console.log(this);
+            ctx.globalAlpha = 1;
+            ctx.drawImage(imgData, this.x, this.y, this.width / scale, this.height / scale);
         } else {
-            ctx.drawImage(this.icon, this.x, this.y, this.iconWidth / scale, this.iconHeight / scale);
+            ctx.globalAlpha = 0.5;
+            ctx.drawImage(imgData, this.x, this.y, this.width / scale, this.height / scale);
         }
     }
 
     contains(mx, my, scale, translateX, translateY) {
         // All we have to do is make sure the Mouse X,Y fall in the area between
-        // the shape's X and (X + Width) and its Y and (Y + Height)
+        // the Node X and (X + Width) and its Y and (Y + Height)
         const x = (mx - translateX) / scale;
         const y = (my - translateY) / scale;
-        const w = this.iconWidth / scale;
-        const h = this.iconHeight / scale;
+        const w = this.width / scale;
+        const h = this.height / scale;
+
+        // const contains = (x >= this.x) && (x <= this.x + w) && (y >= this.y) && (y <= this.y + h);
+        return (x >= this.x) && (x <= this.x + w) && (y >= this.y) && (y <= this.y + h);
+        // console.log(contains);
+        // console.log(this);
+        // console.log({ mx, my, x, y, w, h });
 
 
-        /* const contains = (this.x <= x) && (this.x + w >= x) &&
-            (this.y <= y) && (this.y + h >= y); */
-        return (x >= this.x) && (x >= this.x + w) && (y >= this.y) && (y >= this.y + h);
+        // return contains;
     }
 
     addNeighbour() {
@@ -94,6 +136,7 @@ class CanvasState {
         this.dragoffx = 0; // See mousedown and mousemove events for explanation
         this.dragoffy = 0;
         this.myState = this;
+        this.freeze = false // freeze for handling selection
 
         this.scale = 30;
         this.interval = 100;
@@ -119,6 +162,10 @@ class CanvasState {
         this.canvas.ondblclick = this.handleDoubleClick;
 
         setInterval(() => this.draw(), this.interval);
+    }
+
+    getScale() {
+        return this.scale;
     }
 
     addNode = (node) => {
@@ -167,31 +214,114 @@ class CanvasState {
     zoom = (wheelEvent) => {
         wheelEvent.preventDefault();
         // this.scale += 1;
-        console.log(wheelEvent);
+        // console.log(wheelEvent);
         // console.log(`Client: ${wheelEvent.clientX} : ${wheelEvent.clientY}`);  client = page
         // console.log(`Page ${wheelEvent.pageX} : ${wheelEvent.pageY}`); // page = total window, with header and all
-        console.log(`Offset: ${wheelEvent.offsetX} : ${wheelEvent.offsetY}`); // inside the canvas, untouched by transform/scale
+        // console.log(`Offset: ${wheelEvent.offsetX} : ${wheelEvent.offsetY}`); // inside the canvas, untouched by transform/scale
         // console.log(`Screen ${wheelEvent.screenX} : ${wheelEvent.screenY}`); // no idea what this is
 
+        if (!this.selection) {
+            // Zoom in = increase = wheel up = negativ delta Y
+            if (wheelEvent.wheelDelta > 0) {
+                console.log('zoom in');
+                this.ctx.scale(2, 2);
+                this.scale += 1;
+            }
 
-        // Zoom in = increase = wheel up = negativ delta Y
-        if (wheelEvent.wheelDelta > 0) {
-            console.log('zoom in');
-            this.ctx.scale(2, 2);
-            this.scale += 1;
+            // Zoom out = decrease = wheel down = positiv delta Y
+            if (wheelEvent.wheelDelta < 0) {
+                console.log('zoom out');
+                this.ctx.scale(0.5, 0.5);
+                this.scale = this.scale - 1;
+            }
+            this.valid = false;
+        } else {
+            const nodeUnderMouse = this.findNodeByMousePosition(wheelEvent.offsetX, wheelEvent.offsetY);
+            if (nodeUnderMouse && nodeUnderMouse.isActiveNeighbour) {
+                console.log('nodeUnderMouse');
+                console.log(nodeUnderMouse.name);
+
+                if (wheelEvent.wheelDelta > 0) {
+                    console.log('zoom in - image smaller');
+                    nodeUnderMouse.value -= 1;
+                }
+
+                // Zoom out = decrease = wheel down = positiv delta Y
+                if (wheelEvent.wheelDelta < 0) {
+                    console.log('zoom out - image bigger');
+                    nodeUnderMouse.value += 1;
+                }
+
+                this.valid = false;
+            } else {
+                // no node under mouse oder the node is not a active neighbour
+                // Todo add different handling of this
+                console.log('no node under mouse oder the node is not a active neighbour');
+            }
         }
 
-        // Zoom out = decrease = wheel down = positiv delta Y
-        if (wheelEvent.wheelDelta < 0) {
-            console.log('zoom out');
-            this.ctx.scale(0.5, 0.5);
-            this.scale = this.scale - 1;
-        }
-
-        console.log(this.scale);
+        // console.log(this.scale);
         // this.ctx.scale(this.scale, this.scale);
-        this.valid = false;
         return false;
+    }
+
+    findNodeByMousePosition(x, y) {
+        // find 'first' node under click
+        // slice makes copy of array
+        return this.nodes.slice(0).reverse().find(
+            node => node.contains(x, y, this.scale, this.translateX, this.translateY),
+        );
+    }
+
+    selectNode(node) {
+        // delete old node
+        if (this.selection && this.selection !== node) this.removeSelection();
+        this.selection = node;
+        console.log('selected Node');
+        console.log(this.selection);
+
+        // const activeNode = this.selection;
+        // mark node as active
+        node.isActive = true;
+
+        // load detail image
+        if (!node.hasImage) {
+            console.log('request image');
+            socket.emit('requestImage', node.name);
+        }
+
+        // mark neighbours
+        node.neighbours.forEach((n) => {
+            // console.log(n.target);
+            if (n.target < this.nodes.length) {
+                // mark as neighbour of a active note
+                this.nodes[n.target].isActiveNeighbour = true;
+                // set value
+                this.nodes[n.target].value = n.value;
+                // load neighbours detailed image
+                if (!this.nodes[n.target].hasImage) socket.emit('requestImage', this.nodes[n.target].name);
+
+                // console.error(`FOUND Neighbours ID: ${n.target} Name: ${this.nodes[n.target].name} Value: ${n.value} isActive ${this.nodes[n.target].isActiveNeighbour}`);
+            } else {
+                // console.error(`Neighbours ID: ${n.target} is not a not found in nodes`);
+            }
+        });
+
+        this.valid = false;
+    }
+
+    removeSelection() {
+        this.selection.isActive = false;
+        // mark the neighbours as not active
+        this.selection.neighbours.forEach((n) => {
+            // todo their should not be a case where n.target is outside the array
+            if (n.target < this.nodes.length) {
+                this.nodes[n.target].isActiveNeighbour = false;
+            }
+        });
+        // remove selection
+        this.selection = null;
+        this.valid = false; // redraw
     }
 
     handleMouseDown = (e) => {
@@ -202,9 +332,8 @@ class CanvasState {
         // TODO test if mouse hits Image and set their drag flag
 
         console.log('mousedown');
-        //console.log(e.offsetX);
-        //console.log(e.offsetY);
-
+        // console.log(e.offsetX);
+        // console.log(e.offsetY);
 
         // save start position
         this.startX = e.offsetX;
@@ -215,24 +344,41 @@ class CanvasState {
     }
 
     handleMouseMove = (e) => {
-        // console.log('mousemove');
-        // console.log(event)
+        // there is a freeze and not freeze mode - different interaction based ob if a node is active or node
+        const nodeUnderMouse = this.findNodeByMousePosition(e.offsetX, e.offsetY);
 
-        // save mouse position
+        if(this.freeze) {
 
-        if (this.dragging) {
-            const moveX = e.offsetX - this.startX; // +80 means move 80px to right
-            const moveY = e.offsetY - this.startY; // -50 means move 50 to top
-            console.log({ moveX, moveY });
-            this.startX = e.offsetX;
-            this.startY = e.offsetY;
+        } else {
+            // no freeze mode
+            if (this.dragging) {
+                const moveX = e.offsetX - this.startX; // +80 means move 80px to right
+                const moveY = e.offsetY - this.startY; // -50 means move 50 to top
+                console.log({ moveX, moveY });
+                this.startX = e.offsetX;
+                this.startY = e.offsetY;
 
-            this.translateX += moveX;
-            this.translateY += moveY;
+                this.translateX += moveX;
+                this.translateY += moveY;
 
-            // start drawing
-            this.valid = false;
+                // start drawing
+                this.valid = false;
+            } else {
+                if (!nodeUnderMouse && this.selection) this.removeSelection();
+                // mouse over picture and no picture before
+                else if (!this.selection && nodeUnderMouse) this.selectNode(nodeUnderMouse);
+                // mouse over picture but not the is allread selected = new picture selected
+                else if (nodeUnderMouse && nodeUnderMouse !== this.selection) this.selectNode(nodeUnderMouse);
+            }
+
         }
+
+
+
+        // mouse over empty area
+
+
+
     }
 
     handleMouseUp = (event) => {
@@ -241,66 +387,33 @@ class CanvasState {
     }
 
     handleDoubleClick = (e) => {
-        console.log("Double click")
+        console.log('Double click');
 
-        // reset selection
-        this.selection = null
-
-        // todo how to remove selection?
-        this.nodes.map((node) => {
-            if (node.contains(e.offsetX, e.offsetY, this.scale, this.translateX, this.translateY)) {
-                console.log('node behind dbclick');
-                this.selection = node;
-
-                // test if node has allready load image
-            }
-        });
-
-        // if there is a selection
-        if (this.selection) {
-            console.log("selected Node")
-            console.log(this.selection);
-
-            const activeNode = this.selection
-            activeNode.isActive = true
-            if (!activeNode.hasImage) {
-                console.log("request image")
-                socket.emit("requestImage", activeNode.name);
-            }
-            this.valid = false
-        }
+        // the selction handle the mousemove
+        if(this.freeze) this.freeze = !this.freeze
+        else if (this.selection) this.freeze = true
     }
 }
 
 
 export default {
     name: 'TsneMap',
-    data() {
-        return {
-            exampleContent: 'This is TEXT',
-            items: [],
-        };
-    },
+    data: () => ({
+        exampleContent: 'This is TEXT',
+        items: [],
+        store: null,
+    }),
     methods: {
         updateCanvas: () => {
-            const canvas = document.getElementById('canvas');
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // const canvas = document.getElementById('canvas');
+            // const ctx = canvas.getContext('2d');
+            // ctx.clearRect(0, 0, canvas.width, canvas.height);
             // ctx.translate(canvas.width / 2, canvas.height / 2);
-            ctx.scale(scale, scale);
-
-            /*
-            const img = new Image();
-            img.onload = () => {
-                ctx.drawImage(img, 0, 0);
-               ctx.beginPath();
-                ctx.moveTo(30, 96);
-                ctx.lineTo(70, 66);
-                ctx.lineTo(103, 76);
-                ctx.lineTo(170, 15);
-                ctx.stroke();
-            };
-            img.src = logo; */
+            // ctx.scale(scale, scale);
+        },
+        getScale: () => (this.store ? this.store.scale : 'no store defined'),
+        sendData() {
+            console.log(this.store.nodes);
         },
     },
     watch: {
@@ -308,19 +421,35 @@ export default {
             this.updateCanvas();
         },
     },
+    computed: {
+        scale() {
+            return this.store && this.store.scale;
+        },
+        selectedNode() {
+            return this.store && this.store.selection && this.store.selection.name;
+        },
+        selectedNodeNeighboursCount() {
+            return this.store && this.store.selection && this.store.selection.neighbours && this.store.selection.neighbours.length;
+        },
+    },
     mounted() {
         const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
+        // const ctx = canvas.getContext('2d');
         const s = new CanvasState(canvas);
+        this.store = s;
+        // console.log('scale on mounting before + after adding');
+        // console.log(this.scale);
+        // this.scale = () => s.getScale();
+        // console.log(this.scale);
         socket.on('connect', (soc) => {
-            if(!soc) {
-                console.log("no conection")
+            if (!soc) {
+                console.log('no conection');
             } else {
-                console.log("conected")
-                console.log(soc)
+                console.log('conected');
+                console.log(soc);
             }
-
         });
+
         socket.on('node', (data) => {
             console.log('receive node');
             console.log(data);
@@ -332,9 +461,9 @@ export default {
             console.log('receive image data');
             console.log(data);
             const node = s.nodes.find(n => n.name === data.name);
-            console.log(node)
-            node.image.src = `data:image/jpeg;base64,${data.buffer}`
-            node.hasImage = true
+            console.log(node);
+            node.image.src = `data:image/jpeg;base64,${data.buffer}`;
+            node.hasImage = true;
             s.valid = false;
         });
         // this.updateCanvas();
@@ -345,8 +474,16 @@ export default {
 </script>
 
 <style scoped>
+    .info-box {
+        display: flex;
+    }
+
+    .info-box > div{
+        padding: 0.5rem;
+    }
+
     #canvas {
-        margin: 50px;
+        margin: 5px;
         background-color: antiquewhite;
     }
 </style>
