@@ -24,7 +24,7 @@ class Node {
         // But we aren't checking anything else! We could put "Lalala" for the value of x
         this.name = data.name;
         this.neighbours = data.neighbours;
-
+        this.index = data.index;
         this.x = data.x;
         this.y = data.y;
         this.w = 40;
@@ -42,7 +42,7 @@ class Node {
         this.image = new Image();
         // this.image.src = `data:image/jpeg;base64,${data.buffer}`;
 
-        this.v = null; // value will be set by the active nodes neighbour-values
+        this.v = null; // value will be set by the active nodes neighbour-values, default is 5
     }
 
     get width() {
@@ -68,9 +68,13 @@ class Node {
     }
 
 
+    // ctx is the canvas context
+    // scale change through zooming and is used for positioning the images
     draw(ctx, scale) {
         console.log('start draw Image');
         // check which picture to use
+        if ((this.isActive || this.isActiveNeighbour) && !this.hasImage) socket.emit('requestImage', { name: this.name, index: this.index });
+        // eif(thi) socket.emit('requestImage', node.name);
         const imgData = (this.isActive || this.isActiveNeighbour) && this.hasImage ? this.image : this.icon;
 
         if (this.isActive) {
@@ -91,11 +95,9 @@ class Node {
         }
     }
 
-    contains(mx, my, scale, translateX, translateY) {
+    contains(x, y, scale) {
         // All we have to do is make sure the Mouse X,Y fall in the area between
         // the Node X and (X + Width) and its Y and (Y + Height)
-        const x = (mx - translateX) / scale;
-        const y = (my - translateY) / scale;
         const w = this.width / scale;
         const h = this.height / scale;
 
@@ -129,14 +131,13 @@ class CanvasState {
         // **** Keep track of state! ****
 
         this.valid = false; // when set to false, the canvas will redraw everything
-        this.nodes = []; // the collection of things to be drawn
-        this.dragging = false; // Keep track of when we are dragging
-        // the current selected object. In the future we could turn this into an array for multiple selection
+        this.nodes = {}; // hash for all nodes
+        this.dragging = false; // Keep track of when we are dragging + save the node for dragging
+
+        // the current selected object. TODO  In the future we could turn this into an array for multiple selection
         this.selection = null;
-        this.dragoffx = 0; // See mousedown and mousemove events for explanation
-        this.dragoffy = 0;
-        this.myState = this;
-        this.freeze = false // freeze for handling selection
+
+        this.freeze = false; // freeze for handling selection
 
         this.scale = 30;
         this.interval = 100;
@@ -152,25 +153,22 @@ class CanvasState {
         // this.ctx.translate(this.translateX / 2, this.translateY / 2);
         // this.ctx.scale(this.scale, this.scale);
 
-        this.selection = null;
-        // add event listener
 
-        this.canvas.onmousewheel = this.zoom;
+        // add event listener
         this.canvas.onmousedown = this.handleMouseDown;
         this.canvas.onmousemove = this.handleMouseMove;
         this.canvas.onmouseup = this.handleMouseUp;
+        this.canvas.onlclick = this.handleClick;
         this.canvas.ondblclick = this.handleDoubleClick;
+        this.canvas.onmousewheel = this.zoom;
 
         setInterval(() => this.draw(), this.interval);
     }
 
-    getScale() {
-        return this.scale;
-    }
 
     addNode = (node) => {
         console.log('Node addded');
-        this.nodes.push(node);
+        this.nodes[node.index] = node;
         this.valid = false; // for redrawing
     }
 
@@ -188,14 +186,16 @@ class CanvasState {
         if (!this.valid) {
             console.log('reDraw started');
             const ctx = this.ctx;
-            const nodes = this.nodes;
+            // const nodes = this.nodes;
             this.clear();
 
             // ** Add stuff you want drawn in the background all the time here **
-
+            if (this.freeze) {
+                this.canvas.style.background = '#e2e2e2';
+            } else this.canvas.style.background = '#fff';
             // enlarge coordinates
             // draw all nodes
-            nodes.map((node) => {
+            Object.values(this.nodes).map((node) => {
                 // We can skip the drawing of elements that have moved off the screen:
                 // TODO handle elements offside the screen
                 /* if (shape.x > this.width || shape.y > this.height ||
@@ -268,8 +268,11 @@ class CanvasState {
     findNodeByMousePosition(x, y) {
         // find 'first' node under click
         // slice makes copy of array
-        return this.nodes.slice(0).reverse().find(
-            node => node.contains(x, y, this.scale, this.translateX, this.translateY),
+        // translate X/Y to node x/y
+        const nodeX = (x - this.translateX) / this.scale;
+        const nodeY = (y - this.translateY) / this.scale;
+        return Object.values(this.nodes).slice(0).reverse().find(
+            node => node.contains(nodeX, nodeY, this.scale),
         );
     }
 
@@ -285,21 +288,21 @@ class CanvasState {
         node.isActive = true;
 
         // load detail image
-        if (!node.hasImage) {
+        /*if (!node.hasImage) {
             console.log('request image');
             socket.emit('requestImage', node.name);
-        }
+        }*/
 
         // mark neighbours
         node.neighbours.forEach((n) => {
             // console.log(n.target);
-            if (n.target < this.nodes.length) {
+            if (this.nodes[n.target]) {
                 // mark as neighbour of a active note
                 this.nodes[n.target].isActiveNeighbour = true;
-                // set value
+                // set value from links to nodes
                 this.nodes[n.target].value = n.value;
                 // load neighbours detailed image
-                if (!this.nodes[n.target].hasImage) socket.emit('requestImage', this.nodes[n.target].name);
+                //if (!this.nodes[n.target].hasImage) socket.emit('requestImage', { name: this.nodes[n.target].name, index: this.nodes[n.target].index });
 
                 // console.error(`FOUND Neighbours ID: ${n.target} Name: ${this.nodes[n.target].name} Value: ${n.value} isActive ${this.nodes[n.target].isActiveNeighbour}`);
             } else {
@@ -315,8 +318,10 @@ class CanvasState {
         // mark the neighbours as not active
         this.selection.neighbours.forEach((n) => {
             // todo their should not be a case where n.target is outside the array
-            if (n.target < this.nodes.length) {
+            if (this.nodes[n.target]) {
                 this.nodes[n.target].isActiveNeighbour = false;
+                //update (new) values in links
+                n.value = this.nodes[n.target].value
             }
         });
         // remove selection
@@ -326,8 +331,12 @@ class CanvasState {
 
     handleMouseDown = (e) => {
         // tell the browser we're handling this mouse event
-        e.preventDefault();
-        e.stopPropagation();
+        // e.preventDefault();
+        // e.stopPropagation();
+        // console.log(e)
+        const shiftKeyPressed = e.shiftKey;
+
+        const nodeUnderMouse = this.findNodeByMousePosition(e.offsetX, e.offsetY);
 
         // TODO test if mouse hits Image and set their drag flag
 
@@ -339,22 +348,76 @@ class CanvasState {
         this.startX = e.offsetX;
         this.startY = e.offsetY;
 
-        // if nothing is clicked
-        this.dragging = true;
+        if (this.freeze && shiftKeyPressed) {
+            // if node is active neighbour: remove as a neighbour
+            if (nodeUnderMouse.isActiveNeighbour) {
+                nodeUnderMouse.isActiveNeighbour = false;
+                this.selection.neighbours = this.selection.neighbours.filter(item => item.target !== nodeUnderMouse.index);
+                this.valid = false;
+            }
+            // if node is is not active neighbour and not the active node itself : add as neigfbour
+            else if (this.selection !== nodeUnderMouse) {
+                nodeUnderMouse.isActiveNeighbour = true;
+                // nodeUnderMouse.v = 5
+                this.selection.neighbours.push({ target: nodeUnderMouse.index, value: 5 });
+                this.valid = false;
+            }
+        }
+
+        if (this.freeze && nodeUnderMouse.isActive) {
+            // save the node for dragging
+            this.dragging = nodeUnderMouse;
+        } else {
+            // if nothing is clicked
+            this.dragging = true;
+        }
     }
 
     handleMouseMove = (e) => {
         // there is a freeze and not freeze mode - different interaction based ob if a node is active or node
         const nodeUnderMouse = this.findNodeByMousePosition(e.offsetX, e.offsetY);
 
-        if(this.freeze) {
+        // freeze mode is toggled with dbclick
+        if (this.freeze) {
+            // mouse is over a neighbour
+            if (this.dragging instanceof Node) {
+                // drag the node and al of his neighbour
+                // TODO later the 'moving weighted with values# should be toggled with a button
 
+                // get mouse movement based on the last triggered event
+                const moveX = e.offsetX - this.startX; // +80 means move 80px to right
+                const moveY = e.offsetY - this.startY; // -50 means move 50 to top
+                // console.log({ moveX, moveY });
+
+                // save new mouse position for next event
+                this.startX = e.offsetX;
+                this.startY = e.offsetY;
+
+                // scale the X/Y
+                const nodeX = moveX / this.scale;
+                const nodeY = moveY / this.scale;
+                // console.log({ nodeX, nodeY });
+
+                // change the Node position
+                this.dragging.x += nodeX;
+                this.dragging.y += nodeY;
+
+                // change position of neighbours
+                this.dragging.neighbours.forEach((n) => {
+                    // todo their should not be a case where n.target is outside the array
+                    if (this.nodes[n.target]) {
+                        this.nodes[n.target].x += nodeX / this.nodes[n.target].value;
+                        this.nodes[n.target].y += nodeY / this.nodes[n.target].value;
+                    }
+                });
+                this.valid = false;
+            }
         } else {
             // no freeze mode
             if (this.dragging) {
                 const moveX = e.offsetX - this.startX; // +80 means move 80px to right
                 const moveY = e.offsetY - this.startY; // -50 means move 50 to top
-                console.log({ moveX, moveY });
+                // console.log({ moveX, moveY });
                 this.startX = e.offsetX;
                 this.startY = e.offsetY;
 
@@ -364,21 +427,20 @@ class CanvasState {
                 // start drawing
                 this.valid = false;
             } else {
+                // mouse moves over empty area after being over a node
                 if (!nodeUnderMouse && this.selection) this.removeSelection();
                 // mouse over picture and no picture before
                 else if (!this.selection && nodeUnderMouse) this.selectNode(nodeUnderMouse);
                 // mouse over picture but not the is allread selected = new picture selected
-                else if (nodeUnderMouse && nodeUnderMouse !== this.selection) this.selectNode(nodeUnderMouse);
+                else if (nodeUnderMouse && nodeUnderMouse !== this.selection) {
+                    this.removeSelection();
+                    this.selectNode(nodeUnderMouse);
+                }
             }
-
         }
 
 
-
         // mouse over empty area
-
-
-
     }
 
     handleMouseUp = (event) => {
@@ -386,12 +448,17 @@ class CanvasState {
         this.dragging = false;
     }
 
+    handleClick = (e) => {
+        console.log('click');
+    }
+
     handleDoubleClick = (e) => {
         console.log('Double click');
 
         // the selction handle the mousemove
-        if(this.freeze) this.freeze = !this.freeze
-        else if (this.selection) this.freeze = true
+        if (this.freeze) this.freeze = !this.freeze;
+        else if (this.selection) this.freeze = true;
+        this.valid = false;
     }
 }
 
@@ -460,7 +527,7 @@ export default {
         socket.on('receiveImage', (data) => {
             console.log('receive image data');
             console.log(data);
-            const node = s.nodes.find(n => n.name === data.name);
+            const node = s.nodes[data.index];
             console.log(node);
             node.image.src = `data:image/jpeg;base64,${data.buffer}`;
             node.hasImage = true;
@@ -468,8 +535,6 @@ export default {
         });
         // this.updateCanvas();
     },
-
-
 };
 </script>
 
@@ -484,6 +549,6 @@ export default {
 
     #canvas {
         margin: 5px;
-        background-color: antiquewhite;
+       // background-color: antiquewhite;
     }
 </style>
