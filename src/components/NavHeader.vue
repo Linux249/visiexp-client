@@ -2,8 +2,7 @@
     <div id="header">
         <router-link :to="{ name: 'Welcome' }">Home</router-link>
         <router-link to="/TsneMap">TsneMap</router-link>
-        <router-link to="/coins/ethereum">Ethereum</router-link>
-        <router-link to="/coins/bitcoin">Bitcoin</router-link>
+        <router-link to="/about">About</router-link>
     </div>
 </template>
 

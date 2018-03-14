@@ -1,11 +1,14 @@
 <template>
     <div>
-        <div class="info-box">
-            <div v-on:click="sendData">Send Data</div>
-            <div>{{exampleContent}}</div>
-            <div>Scale: {{scale}}</div>
-            <div>Selection: {{selectedNode}}</div>
-            <div># Neighbours: {{selectedNodeNeighboursCount}}</div>
+        <div class="sub-header">
+            <div class="info-box">
+                <div>Scale: {{scale}}</div>
+                <div>Selection: {{selectedNode}}</div>
+                <div>Neighbours #: {{selectedNodeNeighboursCount}}</div>
+                <div>x: {{selectedNodeX}}</div>
+                <div>y: {{selectedNodeY}}</div>
+            </div>
+            <div v-on:click="sendData" class="btn">Update Data</div>
         </div>
         <canvas  ref="canvas" id="canvas" width="1600" height="800"></canvas>
     </div>
@@ -15,10 +18,9 @@
 import io from 'socket.io-client';
 // import logo from '../assets/logo.png';
 
-const socket = io('http://localhost:3000');
 
 class Node {
-    constructor(data) {
+    constructor(data, triggerDraw) {
         // This is a very simple and unsafe constructor. All we're doing is checking if the values exist.
         // "x || 0" just means "if there is a value for x, use that. Otherwise use 0."
         // But we aren't checking anything else! We could put "Lalala" for the value of x
@@ -30,17 +32,22 @@ class Node {
         this.w = 40;
         this.h = 40;
 
+        this.triggerDraw = triggerDraw;
+
         this.imageScale = 5; // showing images bigger
         // this.scale = 1;
         this.icon = new Image();
         this.icon.src = `data:image/jpeg;base64,${data.buffer}`;
 
-        this.isActive = false; // handle clicked node
+        this.active = false; // handle clicked node
         this.isActiveNeighbour = false; // is this a neighbour of a active node?
         this.hasImage = false; // is there detailed image?
 
         this.image = new Image();
         // this.image.src = `data:image/jpeg;base64,${data.buffer}`;
+
+        //
+        this.timerId = 0;
 
         this.v = null; // value will be set by the active nodes neighbour-values, default is 5
     }
@@ -67,26 +74,62 @@ class Node {
         else this.v = v;
     }
 
+    get isActive() {
+        return this.active;
+    }
+
+    set isActive(v) {
+        this.active = v;
+
+        /*if(this.timerId) clearInterval(this.timerId);
+        this.active = v;
+        if (v === true) {
+            this.active = v;
+            this.timerId = setInterval(() => {
+                console.log(this.imageScale)
+                this.imageScale += 0.1;
+                ;
+                if (this.imageScale >= 5) {
+                    clearInterval(this.timerId);
+                    this.imageScale = 5
+                }
+                this.triggerDraw()
+            }, 100);
+        } else if(v === false) {
+            this.timerId = setInterval(() => {
+                this.imageScale -= 0.1;
+                this.triggerDraw();
+
+                if (this.imageScale <= 1) {
+                    this.active = v;
+                    clearInterval(this.timerId);
+                    this.imageScale = 1
+                }
+                this.triggerDraw();
+            }, 100);
+        }*/
+    }
+
 
     // ctx is the canvas context
     // scale change through zooming and is used for positioning the images
     draw(ctx, scale) {
-        console.log('start draw Image');
+        // console.log('start draw Image');
         // check which picture to use
-        if ((this.isActive || this.isActiveNeighbour) && !this.hasImage) socket.emit('requestImage', { name: this.name, index: this.index });
+
         // eif(thi) socket.emit('requestImage', node.name);
         const imgData = (this.isActive || this.isActiveNeighbour) && this.hasImage ? this.image : this.icon;
 
         if (this.isActive) {
-            console.log(`Active node while draw: ${this.name}}`);
-            console.log(this);
+            // console.log(`Active node while draw: ${this.name}}`);
+            // console.log(this);
             ctx.globalAlpha = 1;
             ctx.drawImage(imgData, this.x, this.y, this.width / scale, this.height / scale);
             // ctx.rect(this.x,this.y, this.width/scale,this.height/scale);
             // ctx.stroke();
         } else if (this.isActiveNeighbour) {
-            console.log(`Neighbour node while draw: ${this.name}}`);
-            console.log(this);
+            // console.log(`Neighbour node while draw: ${this.name}}`);
+            // console.log(this);
             ctx.globalAlpha = 1;
             ctx.drawImage(imgData, this.x, this.y, this.width / scale, this.height / scale);
         } else {
@@ -111,18 +154,13 @@ class Node {
         // return contains;
     }
 
-    addNeighbour() {
-
-    }
-
-    removeNeighbour() {
-
-    }
 }
 
 
 class CanvasState {
-    constructor(canvas) {
+    constructor(canvas, socket) {
+        this.socket = socket;
+
         this.canvas = canvas;
         this.width = canvas.width;
         this.height = canvas.height;
@@ -158,11 +196,16 @@ class CanvasState {
         this.canvas.onmousedown = this.handleMouseDown;
         this.canvas.onmousemove = this.handleMouseMove;
         this.canvas.onmouseup = this.handleMouseUp;
-        this.canvas.onlclick = this.handleClick;
+        // this.canvas.onlclick = this.handleClick;
         this.canvas.ondblclick = this.handleDoubleClick;
-        this.canvas.onmousewheel = this.zoom;
+        this.canvas.onwheel = this.zoom;
 
         setInterval(() => this.draw(), this.interval);
+    }
+
+    triggerDraw() {
+        console.log("triggerDraw")
+        this.valid = false;
     }
 
 
@@ -170,6 +213,15 @@ class CanvasState {
         console.log('Node addded');
         this.nodes[node.index] = node;
         this.valid = false; // for redrawing
+    }
+
+    getNodes() {
+        return this.nodes;
+    }
+
+    resetStore() {
+        this.nodes = {};
+        this.valid = false;
     }
 
     clear() {
@@ -203,7 +255,6 @@ class CanvasState {
                 node.draw(ctx, this.scale);
             });
 
-
             // ** Add stuff you want drawn on top all the time here **
 
 
@@ -212,13 +263,10 @@ class CanvasState {
     }
 
     zoom = (wheelEvent) => {
+        console.log("zoom event")
         wheelEvent.preventDefault();
-        // this.scale += 1;
-        // console.log(wheelEvent);
-        // console.log(`Client: ${wheelEvent.clientX} : ${wheelEvent.clientY}`);  client = page
-        // console.log(`Page ${wheelEvent.pageX} : ${wheelEvent.pageY}`); // page = total window, with header and all
-        // console.log(`Offset: ${wheelEvent.offsetX} : ${wheelEvent.offsetY}`); // inside the canvas, untouched by transform/scale
-        // console.log(`Screen ${wheelEvent.screenX} : ${wheelEvent.screenY}`); // no idea what this is
+        wheelEvent.stopPropagation();
+
 
         if (!this.selection) {
             // Zoom in = increase = wheel up = negativ delta Y
@@ -288,10 +336,10 @@ class CanvasState {
         node.isActive = true;
 
         // load detail image
-        /*if (!node.hasImage) {
+        /* if (!node.hasImage) {
             console.log('request image');
             socket.emit('requestImage', node.name);
-        }*/
+        } */
 
         // mark neighbours
         node.neighbours.forEach((n) => {
@@ -302,7 +350,7 @@ class CanvasState {
                 // set value from links to nodes
                 this.nodes[n.target].value = n.value;
                 // load neighbours detailed image
-                //if (!this.nodes[n.target].hasImage) socket.emit('requestImage', { name: this.nodes[n.target].name, index: this.nodes[n.target].index });
+                // if (!this.nodes[n.target].hasImage) socket.emit('requestImage', { name: this.nodes[n.target].name, index: this.nodes[n.target].index });
 
                 // console.error(`FOUND Neighbours ID: ${n.target} Name: ${this.nodes[n.target].name} Value: ${n.value} isActive ${this.nodes[n.target].isActiveNeighbour}`);
             } else {
@@ -316,14 +364,16 @@ class CanvasState {
     removeSelection() {
         this.selection.isActive = false;
         // mark the neighbours as not active
-        this.selection.neighbours.forEach((n) => {
+        if (this.selection) {
+            this.selection.neighbours.forEach((n) => {
             // todo their should not be a case where n.target is outside the array
-            if (this.nodes[n.target]) {
-                this.nodes[n.target].isActiveNeighbour = false;
-                //update (new) values in links
-                n.value = this.nodes[n.target].value
-            }
-        });
+                if (this.nodes[n.target]) {
+                    this.nodes[n.target].isActiveNeighbour = false;
+                    // update (new) values in links
+                    n.value = this.nodes[n.target].value;
+                }
+            });
+        }
         // remove selection
         this.selection = null;
         this.valid = false; // redraw
@@ -331,8 +381,8 @@ class CanvasState {
 
     handleMouseDown = (e) => {
         // tell the browser we're handling this mouse event
-        // e.preventDefault();
-        // e.stopPropagation();
+        e.preventDefault();
+        e.stopPropagation();
         // console.log(e)
         const shiftKeyPressed = e.shiftKey;
 
@@ -348,25 +398,29 @@ class CanvasState {
         this.startX = e.offsetX;
         this.startY = e.offsetY;
 
-        if (this.freeze && shiftKeyPressed) {
-            // if node is active neighbour: remove as a neighbour
-            if (nodeUnderMouse.isActiveNeighbour) {
-                nodeUnderMouse.isActiveNeighbour = false;
-                this.selection.neighbours = this.selection.neighbours.filter(item => item.target !== nodeUnderMouse.index);
-                this.valid = false;
-            }
-            // if node is is not active neighbour and not the active node itself : add as neigfbour
-            else if (this.selection !== nodeUnderMouse) {
-                nodeUnderMouse.isActiveNeighbour = true;
-                // nodeUnderMouse.v = 5
-                this.selection.neighbours.push({ target: nodeUnderMouse.index, value: 5 });
-                this.valid = false;
-            }
-        }
 
-        if (this.freeze && nodeUnderMouse.isActive) {
-            // save the node for dragging
-            this.dragging = nodeUnderMouse;
+        // if there is no mouse under mouse then move everything
+        if (nodeUnderMouse) {
+            if (this.freeze && shiftKeyPressed) {
+                // if node is active neighbour: remove as a neighbour
+                if (nodeUnderMouse.isActiveNeighbour) {
+                    nodeUnderMouse.isActiveNeighbour = false;
+                    this.selection.neighbours = this.selection.neighbours.filter(item => item.target !== nodeUnderMouse.index);
+                    this.valid = false;
+                }
+                // if node is is not active neighbour and not the active node itself : add as neigfbour
+                else if (this.selection !== nodeUnderMouse) {
+                    nodeUnderMouse.isActiveNeighbour = true;
+                    // nodeUnderMouse.v = 5
+                    this.selection.neighbours.push({ target: nodeUnderMouse.index, value: 5 });
+                    this.valid = false;
+                }
+            }
+
+            if (this.freeze && nodeUnderMouse.isActive) {
+                // save the node for dragging
+                this.dragging = nodeUnderMouse;
+            }
         } else {
             // if nothing is clicked
             this.dragging = true;
@@ -376,6 +430,8 @@ class CanvasState {
     handleMouseMove = (e) => {
         // there is a freeze and not freeze mode - different interaction based ob if a node is active or node
         const nodeUnderMouse = this.findNodeByMousePosition(e.offsetX, e.offsetY);
+
+        if (nodeUnderMouse && !nodeUnderMouse.hasImage) this.socket.emit('requestImage', { name: nodeUnderMouse.name, index: nodeUnderMouse.index });
 
         // freeze mode is toggled with dbclick
         if (this.freeze) {
@@ -406,8 +462,8 @@ class CanvasState {
                 this.dragging.neighbours.forEach((n) => {
                     // todo their should not be a case where n.target is outside the array
                     if (this.nodes[n.target]) {
-                        this.nodes[n.target].x += nodeX / this.nodes[n.target].value;
-                        this.nodes[n.target].y += nodeY / this.nodes[n.target].value;
+                        this.nodes[n.target].x += nodeX * this.nodes[n.target].value / 10;
+                        this.nodes[n.target].y += nodeY * this.nodes[n.target].value / 10;
                     }
                 });
                 this.valid = false;
@@ -448,9 +504,6 @@ class CanvasState {
         this.dragging = false;
     }
 
-    handleClick = (e) => {
-        console.log('click');
-    }
 
     handleDoubleClick = (e) => {
         console.log('Double click');
@@ -469,6 +522,7 @@ export default {
         exampleContent: 'This is TEXT',
         items: [],
         store: null,
+        socket: null,
     }),
     methods: {
         updateCanvas: () => {
@@ -478,9 +532,12 @@ export default {
             // ctx.translate(canvas.width / 2, canvas.height / 2);
             // ctx.scale(scale, scale);
         },
-        getScale: () => (this.store ? this.store.scale : 'no store defined'),
         sendData() {
-            console.log(this.store.nodes);
+            console.log('send data clicked');
+            const nodes = this.store.getNodes();
+            // this.store.clear()
+            this.store.resetStore();
+            this.socket.emit('updateNodes', JSON.stringify(nodes));
         },
     },
     watch: {
@@ -495,19 +552,24 @@ export default {
         selectedNode() {
             return this.store && this.store.selection && this.store.selection.name;
         },
+        selectedNodeX() {
+            return this.store && this.store.selection && this.store.selection.x;
+        },
+        selectedNodeY() {
+            return this.store && this.store.selection && this.store.selection.y;
+        },
         selectedNodeNeighboursCount() {
             return this.store && this.store.selection && this.store.selection.neighbours && this.store.selection.neighbours.length;
         },
     },
     mounted() {
+        const socket = io('http://localhost:3000');
         const canvas = document.getElementById('canvas');
         // const ctx = canvas.getContext('2d');
-        const s = new CanvasState(canvas);
+        const s = new CanvasState(canvas, socket);
         this.store = s;
-        // console.log('scale on mounting before + after adding');
-        // console.log(this.scale);
-        // this.scale = () => s.getScale();
-        // console.log(this.scale);
+        this.socket = socket;
+
         socket.on('connect', (soc) => {
             if (!soc) {
                 console.log('no conection');
@@ -521,7 +583,7 @@ export default {
             console.log('receive node');
             console.log(data);
             if (data) {
-                s.addNode(new Node(data));
+                s.addNode(new Node(data, s.triggerDraw));
             }
         });
         socket.on('receiveImage', (data) => {
@@ -534,6 +596,9 @@ export default {
             s.valid = false;
         });
         // this.updateCanvas();
+    },
+    beforeDestroy() {
+        if (this.socket) this.socket.disconnect();
     },
 };
 </script>
@@ -549,6 +614,34 @@ export default {
 
     #canvas {
         margin: 5px;
-       // background-color: antiquewhite;
     }
+
+    .btn {
+        text-decoration: none;
+        margin: 10px;
+        height: 20px;
+        line-height: 20px;
+        padding: 0 14px;
+        box-shadow: 0 4px 6px rgba(50, 50, 93, .11), 0 1px 3px rgba(0, 0, 0, .08);
+        background: #fff;
+        color: #6772e5;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .025em;
+        transition: all .15s ease;
+        cursor: pointer;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08);
+    }
+
+    .sub-header {
+        display: flex;
+        justify-content: space-between;
+    }
+
 </style>
