@@ -130,6 +130,7 @@ class Node {
             // console.log(this);
             ctx.globalAlpha = 1;
             ctx.drawImage(imgData, this.x, this.y, this.width / scale, this.height / scale);
+            ctx.globalAlpha = 0.3;
             // ctx.rect(this.x,this.y, this.width/scale,this.height/scale);
             // ctx.stroke();
         } else if (this.isActiveNeighbour) {
@@ -137,8 +138,8 @@ class Node {
             // console.log(this);
             ctx.globalAlpha = 1;
             ctx.drawImage(imgData, this.x, this.y, this.width / scale, this.height / scale);
+            ctx.globalAlpha = 0.3;
         } else {
-            ctx.globalAlpha = 0.5;
             ctx.drawImage(imgData, this.x, this.y, this.width / scale, this.height / scale);
         }
     }
@@ -246,19 +247,37 @@ class CanvasState {
             this.clear();
 
             // ** Add stuff you want drawn in the background all the time here **
+
+
+            if (this.selection) ctx.globalAlpha = 0.3;
+            else ctx.globalAlpha = 1;
+
+            Object.values(this.nodes).map(node => node.draw(ctx, this.scale, this.freeze));
+            /*
             if (this.freeze) {
-                this.canvas.style.background = '#e2e2e2';
-            } else this.canvas.style.background = '#fff';
+                ctx.globalAlpha = 0.1;
+                Object.values(this.nodes).map((node) => {
+                    // TODO skip the drawing of elements that have moved off the screen:
+                    if (node.isActive || node.isActiveNeighbour) ctx.globalAlpha = 1;
+                    node.draw(ctx, this.scale);
+                    if (node.isActive || node.isActiveNeighbour) ctx.globalAlpha = 0.1;
+                });
+            } else {
+                ctx.globalAlpha = 1;
+
+            }
+
             // enlarge coordinates
             // draw all nodes
             Object.values(this.nodes).map((node) => {
                 // We can skip the drawing of elements that have moved off the screen:
                 // TODO handle elements offside the screen
-                /* if (shape.x > this.width || shape.y > this.height ||
-                    shape.x + shape.w < 0 || shape.y + shape.h < 0) continue; */
-                node.draw(ctx, this.scale);
-            });
 
+                if (node.isActive || node.isActiveNeighbour) ctx.globalAlpha = 1;
+                node.draw(ctx, this.scale);
+                if (node.isActive || node.isActiveNeighbour) ctx.globalAlpha = 1;
+            });
+*/
             // ** Add stuff you want drawn on top all the time here **
 
 
