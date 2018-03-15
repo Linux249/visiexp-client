@@ -18,19 +18,16 @@
 import io from 'socket.io-client';
 // import logo from '../assets/logo.png';
 
-
+/* eslint no-underscore-dangle: ["error", { "allowAfterThis": true }] */
 class Node {
     constructor(data, triggerDraw) {
-        // This is a very simple and unsafe constructor. All we're doing is checking if the values exist.
-        // "x || 0" just means "if there is a value for x, use that. Otherwise use 0."
-        // But we aren't checking anything else! We could put "Lalala" for the value of x
         this.name = data.name;
         this.neighbours = data.neighbours;
         this.index = data.index;
-        this.x = data.x;
-        this.y = data.y;
-        this.w = 40;
-        this.h = 40;
+        this._x = data.x;
+        this._y = data.y;
+        this._width = 40;
+        this._height = 40;
 
         // x,y for reseting
         this.initX = data.x;
@@ -44,7 +41,7 @@ class Node {
         this.icon = new Image();
         this.icon.src = `data:image/jpeg;base64,${data.buffer}`;
 
-        this.active = false; // handle clicked node
+        this._isActive = false; // handle clicked node
         this.isActiveNeighbour = false; // is this a neighbour of a active node?
         this.hasImage = false; // is there detailed image?
 
@@ -54,42 +51,42 @@ class Node {
         //
         this.timerId = 0;
 
-        this.v = null; // value will be set by the active nodes neighbour-values, default is 5
+        this._value = null; // value will be set by the active nodes neighbour-values, default is 5
     }
 
     get width() {
-        if (this.isActive) return this.w + (this.w * this.imageScale);
-        if (this.isActiveNeighbour) return this.w + (this.w * this.imageScale * this.value);
-        return this.w;
+        if (this.isActive) return this._width + (this._width * this.imageScale);
+        if (this.isActiveNeighbour) return this._width + (this._width * this.imageScale * this.value);
+        return this._width;
     }
 
     get height() {
-        if (this.isActive) return this.h + (this.h * this.imageScale);
-        if (this.isActiveNeighbour) return this.h + (this.h * this.imageScale * this.value);
-        return this.h;
+        if (this.isActive) return this._height + (this._height * this.imageScale);
+        if (this.isActiveNeighbour) return this._height + (this._height * this.imageScale * this.value);
+        return this._height;
     }
 
     get value() {
-        return this.v;
+        return this._value;
     }
 
     set value(v) {
-        if (v < 0.1) this.v = 0.1;
-        else if (v > 1) this.v = 1;
-        else this.v = v;
+        if (v < 0.1) this._value = 0.1;
+        else if (v > 1) this._value = 1;
+        else this._value = v;
     }
 
     get isActive() {
-        return this.active;
+        return this._isActive;
     }
 
     set isActive(v) {
-        this.active = v;
+        this._isActive = v;
 
         /* if(this.timerId) clearInterval(this.timerId);
-        this.active = v;
+        this._isActive = v;
         if (v === true) {
-            this.active = v;
+            this._isActive = v;
             this.timerId = setInterval(() => {
                 console.log(this.imageScale)
                 this.imageScale += 0.1;
@@ -106,13 +103,29 @@ class Node {
                 this.triggerDraw();
 
                 if (this.imageScale <= 1) {
-                    this.active = v;
+                    this._isActive = v;
                     clearInterval(this.timerId);
                     this.imageScale = 1
                 }
                 this.triggerDraw();
             }, 100);
         } */
+    }
+
+    get x() {
+        return this._x;
+    }
+
+    set x(value) {
+        this._x = value;
+    }
+
+    get y() {
+        return this._y;
+    }
+
+    set y(value) {
+        this._y = value;
     }
 
 
@@ -129,7 +142,7 @@ class Node {
             // console.log(`Active node while draw: ${this.name}}`);
             // console.log(this);
             ctx.globalAlpha = 1;
-            ctx.drawImage(imgData, this.x, this.y, this.width / scale, this.height / scale);
+            ctx.drawImage(imgData, this._x, this._y, this.width / scale, this.height / scale);
             ctx.globalAlpha = 0.3;
             // ctx.rect(this.x,this.y, this.width/scale,this.height/scale);
             // ctx.stroke();
@@ -137,10 +150,10 @@ class Node {
             // console.log(`Neighbour node while draw: ${this.name}}`);
             // console.log(this);
             ctx.globalAlpha = 1;
-            ctx.drawImage(imgData, this.x, this.y, this.width / scale, this.height / scale);
+            ctx.drawImage(imgData, this.__x, this._y, this.width / scale, this.height / scale);
             ctx.globalAlpha = 0.3;
         } else {
-            ctx.drawImage(imgData, this.x, this.y, this.width / scale, this.height / scale);
+            ctx.drawImage(imgData, this._x, this._y, this.width / scale, this.height / scale);
         }
     }
 
@@ -151,7 +164,7 @@ class Node {
         const h = this.height / scale;
 
         // const contains = (x >= this.x) && (x <= this.x + w) && (y >= this.y) && (y <= this.y + h);
-        return (x >= this.x) && (x <= this.x + w) && (y >= this.y) && (y <= this.y + h);
+        return (x >= this._x) && (x <= this._x + w) && (y >= this._y) && (y <= this._y + h);
         // console.log(contains);
         // console.log(this);
         // console.log({ mx, my, x, y, w, h });
@@ -436,7 +449,7 @@ class CanvasState {
                     nodeUnderMouse.isActiveNeighbour = true;
                     // nodeUnderMouse.v = 5
                     this.selection.neighbours.push({ target: nodeUnderMouse.index, value: 0.5 });
-                    nodeUnderMouse.value = 0.5
+                    nodeUnderMouse.value = 0.5;
                     this.valid = false;
                 }
             }
@@ -476,7 +489,7 @@ class CanvasState {
                 // scale the X/Y
                 const nodeX = moveX / this.scale;
                 const nodeY = moveY / this.scale;
-                //console.log({ nodeX, nodeY });
+                // console.log({ nodeX, nodeY });
 
                 // change the Node position
                 this.dragging.x += nodeX;
