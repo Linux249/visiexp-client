@@ -406,7 +406,7 @@ class CanvasState {
         // if there is no mouse under mouse then move everything
         if (nodeUnderMouse) {
             if (this.freeze && shiftKeyPressed) {
-                // if node is active neighbour: remove as a neighbour
+                // remove neighbour
                 if (nodeUnderMouse.isActiveNeighbour) {
                     nodeUnderMouse.isActiveNeighbour = false;
                     this.selection.neighbours = this.selection.neighbours.filter(item => item.target !== nodeUnderMouse.index);
@@ -417,6 +417,7 @@ class CanvasState {
                     nodeUnderMouse.isActiveNeighbour = true;
                     // nodeUnderMouse.v = 5
                     this.selection.neighbours.push({ target: nodeUnderMouse.index, value: 0.5 });
+                    nodeUnderMouse.value = 0.5
                     this.valid = false;
                 }
             }
@@ -456,7 +457,7 @@ class CanvasState {
                 // scale the X/Y
                 const nodeX = moveX / this.scale;
                 const nodeY = moveY / this.scale;
-                console.log({ nodeX, nodeY });
+                //console.log({ nodeX, nodeY });
 
                 // change the Node position
                 this.dragging.x += nodeX;
@@ -467,10 +468,6 @@ class CanvasState {
                     const neighbour = this.nodes[n.target];
                     // todo their should not be a case where n.target is outside the array
                     if (neighbour) {
-                        console.log(neighbour)
-                        console.log(neighbour.value)
-                        console.log(nodeX * neighbour.value)
-                        console.log(nodeY * neighbour.value)
                         neighbour.x += nodeX * neighbour.value;
                         neighbour.y += nodeY * neighbour.value;
                     }
