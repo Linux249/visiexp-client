@@ -26,8 +26,8 @@ class Node {
         this.index = data.index;
         this.x = data.x;
         this.y = data.y;
-        this.w = 40;
-        this.h = 40;
+        this.width = 40;
+        this.height = 40;
 
         // x,y for reseting
         this.initX = data.x;
@@ -48,6 +48,7 @@ class Node {
         this.image = new Image();
         // this.image.src = `data:image/jpeg;base64,${data.buffer}`;
 
+        this.scale = null; // will be updated through this.draw()
         //
         this.timerId = 0;
 
@@ -60,10 +61,18 @@ class Node {
         return this._width;
     }
 
+    set width(value) {
+        this._width = value;
+    }
+
     get height() {
         if (this.isActive) return this._height + (this._height * this.imageScale);
         if (this.isActiveNeighbour) return this._height + (this._height * this.imageScale * this.value);
         return this._height;
+    }
+
+    set height(value) {
+        this._height = value;
     }
 
     get value() {
@@ -112,8 +121,15 @@ class Node {
         } */
     }
 
+    // if isActive
+    // scale x to real/current 2d-coords
+    // subtract half width for moving left, width scaled with ImageScale
+    // scale back to Node x/y
+    // TODO the last point is because of the context is scaling it again - maybe we could get rid of this?
+
     get x() {
-        return this._x;
+        return this._x - (this.width / 2 / this.scale);
+        // return this._x;
     }
 
     set x(value) {
@@ -121,11 +137,19 @@ class Node {
     }
 
     get y() {
-        return this._y;
+        return this._y - (this.height / 2 / this.scale);
+        // return this._y;
     }
 
     set y(value) {
         this._y = value;
+    }
+
+    // simple changing the x/y is not possible because
+    // they have special getters witch would be use while setting/+= values
+    move(x, y) {
+        this._x += x;
+        this._y += y;
     }
 
 
@@ -134,7 +158,7 @@ class Node {
     draw(ctx, scale) {
         // console.log('start draw Image');
         // check which picture to use
-
+        this.scale = scale;
         // eif(thi) socket.emit('requestImage', node.name);
         const imgData = (this.isActive || this.isActiveNeighbour) && this.hasImage ? this.image : this.icon;
 
@@ -153,6 +177,8 @@ class Node {
             ctx.drawImage(imgData, this.x, this.y, this.width / scale, this.height / scale);
             ctx.globalAlpha = 0.3;
         } else {
+            // console.log('draw image');
+            // console.log(this);
             ctx.drawImage(imgData, this.x, this.y, this.width / scale, this.height / scale);
         }
     }
@@ -235,6 +261,11 @@ class CanvasState {
 
     getNodes() {
         return this.nodes;
+    }
+
+    // used by nodes who are active/activeNeighbours to get actuall scale
+    getScale() {
+        return this.scale;
     }
 
     resetStore() {
@@ -401,6 +432,8 @@ class CanvasState {
         this.selection.isActive = false;
         // mark the neighbours as not active
         if (this.selection) {
+            // console.log("remove selection")
+            // console.log(this.selection)
             this.selection.neighbours.forEach((n) => {
             // todo their should not be a case where n.target is outside the array
                 if (this.nodes[n.target]) {
@@ -454,7 +487,7 @@ class CanvasState {
                 }
             }
 
-            if (this.freeze && nodeUnderMouse.isActive) {
+            if (this.freeze) {
                 // save the node for dragging
                 this.dragging = nodeUnderMouse;
             }
@@ -473,7 +506,7 @@ class CanvasState {
         // freeze mode is toggled with dbclick
         if (this.freeze) {
             // mouse is over a neighbour
-            if (this.dragging instanceof Node) {
+            if (this.dragging.isActive || this.dragging.isActiveNeighbour) {
                 // drag the node and al of his neighbour
                 // TODO later the 'moving weighted with values# should be toggled with a button
 
@@ -492,44 +525,43 @@ class CanvasState {
                 // console.log({ nodeX, nodeY });
 
                 // change the Node position
-                this.dragging.x += nodeX;
-                this.dragging.y += nodeY;
+                this.dragging.move(nodeX, nodeY);
+                // console.log(this.dragging)
+                if(this.dragging.isActive) {
+                    // change position of neighbours
+                    this.dragging.neighbours.forEach((n) => {
+                        const neighbour = this.nodes[n.target];
+                        // todo their should not be a case where n.target is outside the array
+                        if (neighbour) {
+                            neighbour.move(nodeX * neighbour.value, nodeY * neighbour.value);
+                        }
+                    });
+                }
 
-                // change position of neighbours
-                this.dragging.neighbours.forEach((n) => {
-                    const neighbour = this.nodes[n.target];
-                    // todo their should not be a case where n.target is outside the array
-                    if (neighbour) {
-                        neighbour.x += nodeX * neighbour.value;
-                        neighbour.y += nodeY * neighbour.value;
-                    }
-                });
                 this.valid = false;
             }
+        } else if (this.dragging === true) {
+            console.log('dragging');
+            const moveX = e.offsetX - this.startX; // +80 means move 80px to right
+            const moveY = e.offsetY - this.startY; // -50 means move 50 to top
+            // console.log({ moveX, moveY });
+            this.startX = e.offsetX;
+            this.startY = e.offsetY;
+
+            this.translateX += moveX;
+            this.translateY += moveY;
+
+            // start drawing
+            this.valid = false;
         } else {
-            // no freeze mode
-            if (this.draggin === true) {
-                const moveX = e.offsetX - this.startX; // +80 means move 80px to right
-                const moveY = e.offsetY - this.startY; // -50 means move 50 to top
-                // console.log({ moveX, moveY });
-                this.startX = e.offsetX;
-                this.startY = e.offsetY;
-
-                this.translateX += moveX;
-                this.translateY += moveY;
-
-                // start drawing
-                this.valid = false;
-            } else {
-                // mouse moves over empty area after being over a node
-                if (!nodeUnderMouse && this.selection) this.removeSelection();
-                // mouse over picture and no picture before
-                else if (!this.selection && nodeUnderMouse) this.selectNode(nodeUnderMouse);
-                // mouse over picture but not the is allread selected = new picture selected
-                else if (nodeUnderMouse && nodeUnderMouse !== this.selection) {
-                    this.removeSelection();
-                    this.selectNode(nodeUnderMouse);
-                }
+            // mouse moves over empty area after being over a node
+            if (!nodeUnderMouse && this.selection) this.removeSelection();
+            // mouse over picture and no picture before
+            else if (!this.selection && nodeUnderMouse) this.selectNode(nodeUnderMouse);
+            // mouse over picture but not the is allread selected = new picture selected
+            else if (nodeUnderMouse && nodeUnderMouse !== this.selection) {
+                this.removeSelection();
+                this.selectNode(nodeUnderMouse);
             }
         }
 
