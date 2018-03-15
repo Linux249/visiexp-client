@@ -32,6 +32,11 @@ class Node {
         this.w = 40;
         this.h = 40;
 
+        // x,y for reseting
+        this.initX = data.x
+        this.initY = data.y
+
+        //callback for drawing everything
         this.triggerDraw = triggerDraw;
 
         this.imageScale = 5; // showing images bigger
@@ -266,18 +271,18 @@ class CanvasState {
         console.log("zoom event")
         wheelEvent.preventDefault();
         wheelEvent.stopPropagation();
-
+        console.log(wheelEvent)
 
         if (!this.selection) {
             // Zoom in = increase = wheel up = negativ delta Y
-            if (wheelEvent.wheelDelta > 0) {
+            if (wheelEvent.deltaY < 0) {
                 console.log('zoom in');
                 this.ctx.scale(2, 2);
                 this.scale += 1;
             }
 
             // Zoom out = decrease = wheel down = positiv delta Y
-            if (wheelEvent.wheelDelta < 0) {
+            if (wheelEvent.deltaY > 0) {
                 console.log('zoom out');
                 this.ctx.scale(0.5, 0.5);
                 this.scale = this.scale - 1;
@@ -289,13 +294,13 @@ class CanvasState {
                 console.log('nodeUnderMouse');
                 console.log(nodeUnderMouse.name);
 
-                if (wheelEvent.wheelDelta > 0) {
+                if (wheelEvent.deltaY < 0) {
                     console.log('zoom in - image smaller');
                     nodeUnderMouse.value -= 1;
                 }
 
                 // Zoom out = decrease = wheel down = positiv delta Y
-                if (wheelEvent.wheelDelta < 0) {
+                if (wheelEvent.deltaY > 0) {
                     console.log('zoom out - image bigger');
                     nodeUnderMouse.value += 1;
                 }
@@ -573,10 +578,12 @@ export default {
         socket.on('connect', (soc) => {
             if (!soc) {
                 console.log('no conection');
+                console.log(soc);
             } else {
-                console.log('conected');
+                console.log('conected'); // das wirft immer unde
                 console.log(soc);
             }
+            socket.emit('updateNodes');
         });
 
         socket.on('node', (data) => {
