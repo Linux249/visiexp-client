@@ -24,10 +24,10 @@ class Node {
         this.name = data.name;
         this.neighbours = data.neighbours;
         this.index = data.index;
-        this._x = data.x;
-        this._y = data.y;
-        this._width = 50;
-        this._height = 50;
+        this.x = data.x;
+        this.y = data.y;
+        this.w = 40;
+        this.h = 40;
 
         // x,y for reseting
         this.initX = data.x;
