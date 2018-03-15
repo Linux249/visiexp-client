@@ -33,10 +33,10 @@ class Node {
         this.h = 40;
 
         // x,y for reseting
-        this.initX = data.x
-        this.initY = data.y
+        this.initX = data.x;
+        this.initY = data.y;
 
-        //callback for drawing everything
+        // callback for drawing everything
         this.triggerDraw = triggerDraw;
 
         this.imageScale = 5; // showing images bigger
@@ -59,13 +59,13 @@ class Node {
 
     get width() {
         if (this.isActive) return this.w + (this.w * this.imageScale);
-        if (this.isActiveNeighbour) return this.w + (this.w * this.imageScale * (this.value / 10));
+        if (this.isActiveNeighbour) return this.w + (this.w * this.imageScale * this.value);
         return this.w;
     }
 
     get height() {
         if (this.isActive) return this.h + (this.h * this.imageScale);
-        if (this.isActiveNeighbour) return this.h + (this.h * this.imageScale * (this.value / 10));
+        if (this.isActiveNeighbour) return this.h + (this.h * this.imageScale * this.value);
         return this.h;
     }
 
@@ -74,8 +74,8 @@ class Node {
     }
 
     set value(v) {
-        if (v < 1) this.v = 1;
-        else if (v > 10) this.v = 10;
+        if (v < 0.1) this.v = 0.1;
+        else if (v > 1) this.v = 1;
         else this.v = v;
     }
 
@@ -86,7 +86,7 @@ class Node {
     set isActive(v) {
         this.active = v;
 
-        /*if(this.timerId) clearInterval(this.timerId);
+        /* if(this.timerId) clearInterval(this.timerId);
         this.active = v;
         if (v === true) {
             this.active = v;
@@ -112,7 +112,7 @@ class Node {
                 }
                 this.triggerDraw();
             }, 100);
-        }*/
+        } */
     }
 
 
@@ -158,7 +158,6 @@ class Node {
 
         // return contains;
     }
-
 }
 
 
@@ -209,7 +208,7 @@ class CanvasState {
     }
 
     triggerDraw() {
-        console.log("triggerDraw")
+        console.log('triggerDraw');
         this.valid = false;
     }
 
@@ -268,10 +267,10 @@ class CanvasState {
     }
 
     zoom = (wheelEvent) => {
-        console.log("zoom event")
+        console.log('zoom event');
         wheelEvent.preventDefault();
         wheelEvent.stopPropagation();
-        console.log(wheelEvent)
+        // console.log(wheelEvent)
 
         if (!this.selection) {
             // Zoom in = increase = wheel up = negativ delta Y
@@ -296,13 +295,13 @@ class CanvasState {
 
                 if (wheelEvent.deltaY < 0) {
                     console.log('zoom in - image smaller');
-                    nodeUnderMouse.value -= 1;
+                    nodeUnderMouse.value -= 0.1;
                 }
 
                 // Zoom out = decrease = wheel down = positiv delta Y
                 if (wheelEvent.deltaY > 0) {
                     console.log('zoom out - image bigger');
-                    nodeUnderMouse.value += 1;
+                    nodeUnderMouse.value += 0.1;
                 }
 
                 this.valid = false;
@@ -417,7 +416,7 @@ class CanvasState {
                 else if (this.selection !== nodeUnderMouse) {
                     nodeUnderMouse.isActiveNeighbour = true;
                     // nodeUnderMouse.v = 5
-                    this.selection.neighbours.push({ target: nodeUnderMouse.index, value: 5 });
+                    this.selection.neighbours.push({ target: nodeUnderMouse.index, value: 0.5 });
                     this.valid = false;
                 }
             }
@@ -457,7 +456,7 @@ class CanvasState {
                 // scale the X/Y
                 const nodeX = moveX / this.scale;
                 const nodeY = moveY / this.scale;
-                // console.log({ nodeX, nodeY });
+                console.log({ nodeX, nodeY });
 
                 // change the Node position
                 this.dragging.x += nodeX;
@@ -465,17 +464,22 @@ class CanvasState {
 
                 // change position of neighbours
                 this.dragging.neighbours.forEach((n) => {
+                    const neighbour = this.nodes[n.target];
                     // todo their should not be a case where n.target is outside the array
-                    if (this.nodes[n.target]) {
-                        this.nodes[n.target].x += nodeX * this.nodes[n.target].value / 10;
-                        this.nodes[n.target].y += nodeY * this.nodes[n.target].value / 10;
+                    if (neighbour) {
+                        console.log(neighbour)
+                        console.log(neighbour.value)
+                        console.log(nodeX * neighbour.value)
+                        console.log(nodeY * neighbour.value)
+                        neighbour.x += nodeX * neighbour.value;
+                        neighbour.y += nodeY * neighbour.value;
                     }
                 });
                 this.valid = false;
             }
         } else {
             // no freeze mode
-            if (this.dragging) {
+            if (this.draggin === true) {
                 const moveX = e.offsetX - this.startX; // +80 means move 80px to right
                 const moveY = e.offsetY - this.startY; // -50 means move 50 to top
                 // console.log({ moveX, moveY });
