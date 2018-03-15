@@ -260,7 +260,7 @@ class CanvasState {
     }
 
     getNodes() {
-        return this.nodes;
+        return Object.values(this.nodes)
     }
 
     // used by nodes who are active/activeNeighbours to get actuall scale
@@ -648,7 +648,7 @@ export default {
                 console.log('conected'); // das wirft immer unde
                 console.log(soc);
             }
-            socket.emit('updateNodes');
+            socket.emit('updateNodes', []);
         });
 
         socket.on('node', (data) => {
