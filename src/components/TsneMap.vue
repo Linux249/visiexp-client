@@ -22,7 +22,7 @@ import io from 'socket.io-client';
 class Node {
     constructor(data, triggerDraw) {
         this.name = data.name;
-        this.neighbours = data.neighbours;
+        this.links = data.links;
         this.index = data.index;
         this.x = data.x;
         this.y = data.y;
@@ -214,12 +214,14 @@ class CanvasState {
 
         this.valid = false; // when set to false, the canvas will redraw everything
         this.nodes = {}; // hash for all nodes
-        this.dragging = false; // Keep track of when we are dragging + save the node for dragging
+        this.dragging = false; // Keep track of when we are dragging
+        this.draggNode = false; // save the node for dragging
 
         // the current selected object. TODO  In the future we could turn this into an array for multiple selection
         this.selection = null;
 
-        this.freeze = false; // freeze for handling selection
+        this.activeModus = false; // freeze for handling selection
+        this.activeNode = false; // node while freeze
 
         this.scale = 30;
         this.interval = 100;
@@ -260,7 +262,7 @@ class CanvasState {
     }
 
     getNodes() {
-        return Object.values(this.nodes)
+        return this.nodes;
     }
 
     // used by nodes who are active/activeNeighbours to get actuall scale
@@ -296,9 +298,9 @@ class CanvasState {
             if (this.selection) ctx.globalAlpha = 0.3;
             else ctx.globalAlpha = 1;
 
-            Object.values(this.nodes).map(node => node.draw(ctx, this.scale, this.freeze));
+            Object.values(this.nodes).map(node => node.draw(ctx, this.scale, this.activeModus));
             /*
-            if (this.freeze) {
+            if (this.activeModus) {
                 ctx.globalAlpha = 0.1;
                 Object.values(this.nodes).map((node) => {
                     // TODO skip the drawing of elements that have moved off the screen:
@@ -339,14 +341,14 @@ class CanvasState {
             // Zoom in = increase = wheel up = negativ delta Y
             if (wheelEvent.deltaY < 0) {
                 console.log('zoom in');
-                this.ctx.scale(2, 2);
+                // this.ctx.scale(2, 2); // TODO is this needed??
                 this.scale += 1;
             }
 
             // Zoom out = decrease = wheel down = positiv delta Y
             if (wheelEvent.deltaY > 0) {
                 console.log('zoom out');
-                this.ctx.scale(0.5, 0.5);
+                // this.ctx.scale(0.5, 0.5);
                 this.scale = this.scale - 1;
             }
             this.valid = false;
@@ -400,7 +402,7 @@ class CanvasState {
 
         // const activeNode = this.selection;
         // mark node as active
-        node.isActive = true;
+        this.selection.isActive = true;
 
         // load detail image
         /* if (!node.hasImage) {
@@ -409,19 +411,23 @@ class CanvasState {
         } */
 
         // mark neighbours
-        node.neighbours.forEach((n) => {
+        Object.entries(node.links).forEach(([index, strength]) => {
             // console.log(n.target);
-            if (this.nodes[n.target]) {
+            const neighbour = this.nodes[index];
+
+            if (neighbour) {
                 // mark as neighbour of a active note
-                this.nodes[n.target].isActiveNeighbour = true;
+                neighbour.isActiveNeighbour = true;
                 // set value from links to nodes
-                this.nodes[n.target].value = n.value;
+                neighbour.value = strength;
                 // load neighbours detailed image
                 // if (!this.nodes[n.target].hasImage) socket.emit('requestImage', { name: this.nodes[n.target].name, index: this.nodes[n.target].index });
 
                 // console.error(`FOUND Neighbours ID: ${n.target} Name: ${this.nodes[n.target].name} Value: ${n.value} isActive ${this.nodes[n.target].isActiveNeighbour}`);
             } else {
-                // console.error(`Neighbours ID: ${n.target} is not a not found in nodes`);
+                // TODO proper error handling - inform Katja that there is a link to a node that is not existing
+                // console.error(`Neighbours ID: ${index} is not a not found in nodes`);
+                // console.log(node)
             }
         });
 
@@ -429,17 +435,28 @@ class CanvasState {
     }
 
     removeSelection() {
-        this.selection.isActive = false;
+        const selectedNode = this.selection;
+
         // mark the neighbours as not active
-        if (this.selection) {
+        if (selectedNode) {
             // console.log("remove selection")
             // console.log(this.selection)
-            this.selection.neighbours.forEach((n) => {
-            // todo their should not be a case where n.target is outside the array
-                if (this.nodes[n.target]) {
-                    this.nodes[n.target].isActiveNeighbour = false;
+
+            // deactivated selected node
+            selectedNode.isActive = false;
+
+            // deactivated all neighbours
+            Object.keys(selectedNode.links).forEach((index) => {
+                const neighbour = this.nodes[index];
+
+                if (neighbour) {
+                    neighbour.isActiveNeighbour = false;
                     // update (new) values in links
-                    n.value = this.nodes[n.target].value;
+                    selectedNode.links[index] = neighbour.value;
+                    // n.value = neighbour.value;
+                } else {
+                    // TODO proper error handling - inform Katja that there is a link to a node that is not existing
+                    // console.error(`Neighbours ID: ${index} is not a not found in nodes`);
                 }
             });
         }
@@ -470,26 +487,27 @@ class CanvasState {
 
         // if there is no mouse under mouse then move everything
         if (nodeUnderMouse) {
-            if (this.freeze && shiftKeyPressed) {
-                // remove neighbour
-                if (nodeUnderMouse.isActiveNeighbour) {
-                    nodeUnderMouse.isActiveNeighbour = false;
-                    this.selection.neighbours = this.selection.neighbours.filter(item => item.target !== nodeUnderMouse.index);
-                    this.valid = false;
+            this.draggNode = nodeUnderMouse;
+            // freeze = activation Mode
+            if (this.activeModus) {
+                if (shiftKeyPressed) {
+                    // remove neighbour
+                    if (nodeUnderMouse.isActiveNeighbour) {
+                        nodeUnderMouse.isActiveNeighbour = false;
+                        // this.selection.neighbours = this.selection.neighbours.filter(item => item.target !== nodeUnderMouse.index);
+                        delete this.selection.links[nodeUnderMouse.index]; // remove link
+                        this.valid = false;
+                    }
+                    // add neighbour if node is is not active node
+                    else if (this.selection !== nodeUnderMouse) {
+                        // nodeUnderMouse.v = 5
+                        // this.selection.neighbours.push({ target: nodeUnderMouse.index, value: 0.5 });
+                        this.selection.links[nodeUnderMouse.index] = 0.5;
+                        nodeUnderMouse.isActiveNeighbour = true;
+                        nodeUnderMouse.value = 0.5;
+                        this.valid = false;
+                    }
                 }
-                // if node is is not active neighbour and not the active node itself : add as neigfbour
-                else if (this.selection !== nodeUnderMouse) {
-                    nodeUnderMouse.isActiveNeighbour = true;
-                    // nodeUnderMouse.v = 5
-                    this.selection.neighbours.push({ target: nodeUnderMouse.index, value: 0.5 });
-                    nodeUnderMouse.value = 0.5;
-                    this.valid = false;
-                }
-            }
-
-            if (this.freeze) {
-                // save the node for dragging
-                this.dragging = nodeUnderMouse;
             }
         } else {
             // if nothing is clicked
@@ -503,57 +521,38 @@ class CanvasState {
 
         if (nodeUnderMouse && !nodeUnderMouse.hasImage) this.socket.emit('requestImage', { name: nodeUnderMouse.name, index: nodeUnderMouse.index });
 
-        // freeze mode is toggled with dbclick
-        if (this.freeze) {
-            // mouse is over a neighbour
-            if (this.dragging.isActive || this.dragging.isActiveNeighbour) {
-                // drag the node and al of his neighbour
-                // TODO later the 'moving weighted with values# should be toggled with a button
 
-                // get mouse movement based on the last triggered event
-                const moveX = e.offsetX - this.startX; // +80 means move 80px to right
-                const moveY = e.offsetY - this.startY; // -50 means move 50 to top
-                // console.log({ moveX, moveY });
-
-                // save new mouse position for next event
-                this.startX = e.offsetX;
-                this.startY = e.offsetY;
-
-                // scale the X/Y
-                const nodeX = moveX / this.scale;
-                const nodeY = moveY / this.scale;
-                // console.log({ nodeX, nodeY });
-
-                // change the Node position
-                this.dragging.move(nodeX, nodeY);
-                // console.log(this.dragging)
-                if(this.dragging.isActive) {
-                    // change position of neighbours
-                    this.dragging.neighbours.forEach((n) => {
-                        const neighbour = this.nodes[n.target];
-                        // todo their should not be a case where n.target is outside the array
-                        if (neighbour) {
-                            neighbour.move(nodeX * neighbour.value, nodeY * neighbour.value);
-                        }
-                    });
-                }
-
-                this.valid = false;
-            }
-        } else if (this.dragging === true) {
-            console.log('dragging');
+        if (this.draggNode || this.dragging) {
+            // get mouse movement based on the last triggered event
             const moveX = e.offsetX - this.startX; // +80 means move 80px to right
             const moveY = e.offsetY - this.startY; // -50 means move 50 to top
             // console.log({ moveX, moveY });
+
+            // save new mouse position for next event
             this.startX = e.offsetX;
             this.startY = e.offsetY;
 
-            this.translateX += moveX;
-            this.translateY += moveY;
+            if (this.dragging) {
+                this.translateX += moveX;
+                this.translateY += moveY;
+            } else if (this.draggNode) {
+                // scale the X/Y
+                const nodeX = moveX / this.scale;
+                const nodeY = moveY / this.scale;
 
-            // start drawing
-            this.valid = false;
-        } else {
+                this.draggNode.move(nodeX, nodeY);
+
+                // drag neighbours in freeze mode
+                if (this.activeModus && this.draggNode.isActive) {
+                    Object.keys(this.draggNode.links).forEach((i) => {
+                        const neighbour = this.nodes[i];
+                        // todo error handling if the neighbour is not existing for katja
+                        if (neighbour) neighbour.move(nodeX * neighbour.value, nodeY * neighbour.value);
+                    });
+                }
+            }
+            this.triggerDraw();
+        } else if(!this.activeModus) {
             // mouse moves over empty area after being over a node
             if (!nodeUnderMouse && this.selection) this.removeSelection();
             // mouse over picture and no picture before
@@ -564,24 +563,68 @@ class CanvasState {
                 this.selectNode(nodeUnderMouse);
             }
         }
+        /*
+        // move neighbours of active Node in freeze mode
+        if (this.activeModus && this.draggNode.isActive) {
+
+            // mouse is over a neighbour
+            if (this.dragging.isActive || this.dragging.isActiveNeighbour) {
+                // drag the node and al of his neighbour
+                // TODO later the 'moving weighted with values# should be toggled with a button
 
 
-        // mouse over empty area
+                // console.log({ nodeX, nodeY });
+
+                // change the Node position
+                this.dragging.move(nodeX, nodeY);
+                // console.log(this.dragging)
+                if (this.dragging.isActive) {
+                    // change position of neighbours
+                    /!*this.dragging.neighbours.forEach((n) => {
+                        const neighbour = this.nodes[n.target];
+                        // todo their should not be a case where n.target is outside the array
+                        if (neighbour) {
+                            neighbour.move(nodeX * neighbour.value, nodeY * neighbour.value);
+                        }
+                    });*!/
+
+                }
+
+                this.valid = false;
+            }
+        } else if (this.dragging === true) {
+           /!* console.log('dragging');
+            const moveX = e.offsetX - this.startX; // +80 means move 80px to right
+            const moveY = e.offsetY - this.startY; // -50 means move 50 to top
+            // console.log({ moveX, moveY });
+            this.startX = e.offsetX;
+            this.startY = e.offsetY;
+
+
+            // start drawing
+            this.valid = false;*!/
+        } else
+
+        // mouse over empty area */
     }
 
-    handleMouseUp = (event) => {
+    handleMouseUp = () => {
         console.log('mouseup');
         this.dragging = false;
+        this.draggNode = false;
     }
 
 
-    handleDoubleClick = (e) => {
+    handleDoubleClick = () => {
         console.log('Double click');
 
-        // the selction handle the mousemove
-        if (this.freeze) this.freeze = !this.freeze;
-        else if (this.selection) this.freeze = true;
-        this.valid = false;
+        if (this.selection && !this.activeModus) {
+            this.activeModus = true;
+            this.activeNode = this.selection;
+        } else if (this.activeModus) {
+            this.activeModus = false;
+            this.activeNode = false;
+        }
     }
 }
 
@@ -629,7 +672,7 @@ export default {
             return this.store && this.store.selection && this.store.selection.y;
         },
         selectedNodeNeighboursCount() {
-            return this.store && this.store.selection && this.store.selection.neighbours && this.store.selection.neighbours.length;
+            return this.store && this.store.selection && this.store.selection.links && Object.keys(this.store.selection.links).length;
         },
     },
     mounted() {
@@ -648,7 +691,7 @@ export default {
                 console.log('conected'); // das wirft immer unde
                 console.log(soc);
             }
-            socket.emit('updateNodes', []);
+            socket.emit('updateNodes', {});
         });
 
         socket.on('node', (data) => {
