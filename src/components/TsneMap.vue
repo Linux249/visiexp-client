@@ -1,12 +1,17 @@
 <template>
     <div>
         <div class="sub-header">
-            <div class="info-box">
-                <div>Scale: {{scale}}</div>
-                <div>Selection: {{selectedNode}}</div>
-                <div>Neighbours #: {{selectedNodeNeighboursCount}}</div>
-                <div>x: {{selectedNodeX}}</div>
-                <div>y: {{selectedNodeY}}</div>
+            <div>
+                <div class="info-box">
+                    <div>S: {{scale}}</div>
+                </div>
+                <div class="info-box">
+                    <div>N: {{selectedNode}}</div>
+                    <div>Neighbs #: {{selectedNodeNeighboursCount}}</div>
+                    <div>x: {{selectedNodeX}}</div>
+                    <div>y: {{selectedNodeY}}</div>
+                    <div>ImgScale: {{imageScale}}</div>
+                </div>
             </div>
             <div v-on:click="sendData" class="btn">Update Data</div>
         </div>
@@ -431,7 +436,7 @@ class CanvasState {
             }
         });
 
-        this.valid = false;
+        this.triggerDraw();
     }
 
     removeSelection() {
@@ -552,7 +557,7 @@ class CanvasState {
                 }
             }
             this.triggerDraw();
-        } else if(!this.activeModus) {
+        } else if (!this.activeModus) {
             // mouse moves over empty area after being over a node
             if (!nodeUnderMouse && this.selection) this.removeSelection();
             // mouse over picture and no picture before
@@ -674,6 +679,9 @@ export default {
         selectedNodeNeighboursCount() {
             return this.store && this.store.selection && this.store.selection.links && Object.keys(this.store.selection.links).length;
         },
+        imageScale() {
+            return this.store && this.store.selection && this.store.selection.imageScale;
+        },
     },
     mounted() {
         const socket = io('http://localhost:3000');
@@ -724,7 +732,7 @@ export default {
     }
 
     .info-box > div{
-        padding: 0.5rem;
+        padding: 0 0.5rem;
     }
 
     #canvas {
