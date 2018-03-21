@@ -402,8 +402,25 @@ class CanvasState {
         wheelEvent.preventDefault();
         wheelEvent.stopPropagation();
         // console.log(wheelEvent)
+        const nodeUnderMouse = this.findNodeByMousePosition(wheelEvent.offsetX, wheelEvent.offsetY);
 
-        if (!this.selection) {
+        if (this.selection && nodeUnderMouse && nodeUnderMouse.isActiveNeighbour) {
+            console.log('nodeUnderMouse');
+            console.log(nodeUnderMouse.name);
+
+            if (wheelEvent.deltaY < 0) {
+                console.log('zoom in - image smaller');
+                nodeUnderMouse.value -= 0.1;
+            }
+
+            // Zoom out = decrease = wheel down = positiv delta Y
+            if (wheelEvent.deltaY > 0) {
+                console.log('zoom out - image bigger');
+                nodeUnderMouse.value += 0.1;
+            }
+
+            this.valid = false;
+        } else {
             // Zoom in = increase = wheel up = negativ delta Y
             if (wheelEvent.deltaY < 0) {
                 console.log('zoom in');
@@ -418,29 +435,6 @@ class CanvasState {
                 this.scale = this.scale - 1;
             }
             this.valid = false;
-        } else {
-            const nodeUnderMouse = this.findNodeByMousePosition(wheelEvent.offsetX, wheelEvent.offsetY);
-            if (nodeUnderMouse && nodeUnderMouse.isActiveNeighbour) {
-                console.log('nodeUnderMouse');
-                console.log(nodeUnderMouse.name);
-
-                if (wheelEvent.deltaY < 0) {
-                    console.log('zoom in - image smaller');
-                    nodeUnderMouse.value -= 0.1;
-                }
-
-                // Zoom out = decrease = wheel down = positiv delta Y
-                if (wheelEvent.deltaY > 0) {
-                    console.log('zoom out - image bigger');
-                    nodeUnderMouse.value += 0.1;
-                }
-
-                this.valid = false;
-            } else {
-                // no node under mouse oder the node is not a active neighbour
-                // Todo add different handling of this
-                console.log('no node under mouse oder the node is not a active neighbour');
-            }
         }
 
         // console.log(this.scale);
@@ -714,6 +708,7 @@ class CanvasState {
             this.activeModus = false;
             this.activeNode = false;
         }
+        this.triggerDraw();
     }
 }
 
