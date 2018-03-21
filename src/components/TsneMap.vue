@@ -8,9 +8,15 @@
                     <div v-on:click="scaleDown" class="btn">-</div>
                 </div>
             </div>
-            <div >test</div>
-            <div v-for="(value, key) in labels" :key="key" v-bind:style="{'color': value}">
-                {{ key }}: {{ value }}
+            <div class="row">
+                <div
+                    class="btn"
+                    v-for="(value, key) in labels"
+                    :key="key"
+                    v-bind:style="{'color': value}"
+                >
+                    {{ key }}
+                </div>
             </div>
             <div v-on:click="sendData" class="btn">Update Data</div>
         </div>
@@ -46,7 +52,7 @@ class Node {
         this.colorKey = data.colorKey;
         this.color = data.color;
 
-        this.label = data.label
+        this.label = data.label;
         // x,y for reseting
         this.initX = data.x;
         this.initY = data.y;
@@ -217,14 +223,14 @@ class Node {
         const w = this.width / scale;
         const h = this.height / scale;
 
-        ctx.strokeStyle= this.color
-        ctx.lineWidth = 0.1
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = 2 / scale;
         ctx.strokeRect(x, y, w, h);
     }
 
 
     // unused cause of non-math method for findNodeUnderMouse
-    /*contains(x, y, scale) {
+    /* contains(x, y, scale) {
         // All we have to do is make sure the Mouse X,Y fall in the area between
         // the Node X and (X + Width) and its Y and (Y + Height)
         const w = this.width / scale;
@@ -238,7 +244,7 @@ class Node {
 
 
         // return contains;
-    }*/
+    } */
 }
 
 
@@ -267,7 +273,7 @@ class CanvasState {
         this.activeModus = false; // freeze for handling selection
         this.activeNode = false; // node while freeze
 
-        this.scale = 30;
+        this._scale = 30;
         this.interval = 100;
 
         this.offsetLeft = canvas.getBoundingClientRect().left;
@@ -293,9 +299,17 @@ class CanvasState {
         setInterval(() => this.draw(), this.interval);
     }
 
-    getScale = () => {
-        return this.scale
+    set scale(value) {
+        if (value < 1) this._scale = 1;
+        else this._scale = value;
     }
+
+    get scale() {
+        return this._scale;
+    }
+
+
+    getScale = () => this.scale
 
     triggerDraw() {
         console.log('triggerDraw');
@@ -304,19 +318,15 @@ class CanvasState {
 
 
     addNode = (node) => {
-        console.log('Node addded');
+        // console.log('Node addded');
         this.nodes[node.index] = node;
         this.colorHash[node.colorKey] = node.index;
         this.valid = false; // for redrawing
     }
 
     getNodes() {
+        this.removeSelection();
         return this.nodes;
-    }
-
-    // used by nodes who are active/activeNeighbours to get actuall scale
-    getScale = () => {
-        return this.scale;
     }
 
     resetStore() {
@@ -457,7 +467,7 @@ class CanvasState {
     }
 
     selectNode(node) {
-        this.updateUI(this.scale)
+        this.updateUI(this.scale);
         // delete old node
         if (this.selection && this.selection !== node) this.removeSelection();
         this.selection = node;
@@ -714,13 +724,13 @@ export default {
     data: () => ({
         exampleContent: 'This is TEXT',
         items: [],
-        //store: null,
+        // store: null,
         socket: null,
         scale1: 0,
         labels: {},
         width: 0,
-        height: 0
-        //scale2: 0,
+        height: 0,
+        // scale2: 0,
     }),
     methods: {
         updateCanvas: () => {
@@ -739,17 +749,17 @@ export default {
         },
         scaleDown() {
             console.log('scaleDown clicked');
-            console.log(this.store)
+            console.log(this.store);
         },
         scaleUp() {
             console.log('scaleUp clicked');
         },
 
         updateScale(scale) {
-            console.log("UpdateScale triggerd")
-            console.log(scale)
-            this.scale1 = scale
-        }
+            console.log('UpdateScale triggerd');
+            console.log(scale);
+            this.scale1 = scale;
+        },
 
     },
     watch: {
@@ -759,7 +769,7 @@ export default {
     },
     computed: {
         scale2() {
-            return () => this.scale()
+            return () => this.scale();
         },
         selectedNode() {
             return this.store && this.store.selection && this.store.selection.name;
@@ -783,8 +793,8 @@ export default {
         const parantWidth = canvas.parentNode.clientWidth * 0.8;
         const parantHeight = 700; // canvas.parentNode.clientHeight //* 0.8
 
-        this.width = parantWidth
-        this.height = parantHeight
+        this.width = parantWidth;
+        this.height = parantHeight;
 
         const hitCanvas = document.createElement('canvas');
 
@@ -799,12 +809,12 @@ export default {
 
         this.store = s;
 
-        s.updateUI = this.updateScale
+        s.updateUI = this.updateScale;
 
-        this.scale = s.getScale
+        this.scale = s.getScale;
 
-        console.log("Save store")
-        console.log(this.store)
+        console.log('Save store');
+        console.log(this.store);
         this.socket = socket;
 
         socket.on('connect', (soc) => {
@@ -835,11 +845,11 @@ export default {
             s.valid = false;
         });
 
-        socket.on('updateLabels', data => {
-            console.log("updateLabels")
-            console.log(data)
-            this.labels = data
-        })
+        socket.on('updateLabels', (data) => {
+            console.log('updateLabels');
+            console.log(data);
+            this.labels = data;
+        });
         // this.updateCanvas();
     },
     beforeDestroy() {
@@ -859,8 +869,9 @@ export default {
     }
 
     .btn {
+        align-self: center;
         text-decoration: none;
-        margin: 10px;
+        margin: 0.5rem;
         height: 20px;
         line-height: 20px;
         padding: 0 14px;
@@ -885,6 +896,9 @@ export default {
         display: flex;
         justify-content: space-between;
         align-items: center;
+
+        height: 2.5rem;
+
     }
 
     .body {
