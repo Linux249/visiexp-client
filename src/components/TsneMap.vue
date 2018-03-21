@@ -1,10 +1,22 @@
 <template>
-    <div>
+    <div class="body">
         <div class="sub-header">
             <div>
-                <div class="info-box">
-                    <div>S: {{scale}}</div>
+                <div class="row">
+                    <div>S: {{scale1}}</div>
+                    <div v-on:click="updateScale(1)" class="btn">+</div>
+                    <div v-on:click="scaleDown" class="btn">-</div>
                 </div>
+            </div>
+            <div >test</div>
+            <div v-for="(value, key) in labels" :key="key" v-bind:style="{'color': value}">
+                {{ key }}: {{ value }}
+            </div>
+            <div v-on:click="sendData" class="btn">Update Data</div>
+        </div>
+        <div class="row">
+            <canvas  ref="canvas" id="canvas" ></canvas>
+            <div class="details">
                 <div class="info-box">
                     <div>N: {{selectedNode}}</div>
                     <div>Neighbs #: {{selectedNodeNeighboursCount}}</div>
@@ -13,9 +25,7 @@
                     <div>ImgScale: {{imageScale}}</div>
                 </div>
             </div>
-            <div v-on:click="sendData" class="btn">Update Data</div>
         </div>
-        <canvas  ref="canvas" id="canvas" width="1600" height="800"></canvas>
     </div>
 </template>
 
@@ -33,7 +43,10 @@ class Node {
         this.y = data.y;
         this.width = 40;
         this.height = 40;
+        this.colorKey = data.colorKey;
+        this.color = data.color;
 
+        this.label = data.label
         // x,y for reseting
         this.initX = data.x;
         this.initY = data.y;
@@ -160,18 +173,24 @@ class Node {
 
     // ctx is the canvas context
     // scale change through zooming and is used for positioning the images
-    draw(ctx, scale) {
+    draw(ctx, hitCtx, scale) {
         // console.log('start draw Image');
         // check which picture to use
         this.scale = scale;
         // eif(thi) socket.emit('requestImage', node.name);
         const imgData = (this.isActive || this.isActiveNeighbour) && this.hasImage ? this.image : this.icon;
 
+        const x = this.x;
+        const y = this.y;
+        const w = this.width / scale;
+        const h = this.height / scale;
+
+
         if (this.isActive) {
             // console.log(`Active node while draw: ${this.name}}`);
             // console.log(this);
             ctx.globalAlpha = 1;
-            ctx.drawImage(imgData, this.x, this.y, this.width / scale, this.height / scale);
+            ctx.drawImage(imgData, x, y, w, h);
             ctx.globalAlpha = 0.3;
             // ctx.rect(this.x,this.y, this.width/scale,this.height/scale);
             // ctx.stroke();
@@ -179,16 +198,33 @@ class Node {
             // console.log(`Neighbour node while draw: ${this.name}}`);
             // console.log(this);
             ctx.globalAlpha = 1;
-            ctx.drawImage(imgData, this.x, this.y, this.width / scale, this.height / scale);
+            ctx.drawImage(imgData, x, y, w, h);
             ctx.globalAlpha = 0.3;
         } else {
             // console.log('draw image');
             // console.log(this);
-            ctx.drawImage(imgData, this.x, this.y, this.width / scale, this.height / scale);
+            ctx.drawImage(imgData, x, y, w, h);
         }
+
+        // draw HitCanvas rect
+        hitCtx.fillStyle = this.colorKey;
+        hitCtx.fillRect(x, y, w, h);
     }
 
-    contains(x, y, scale) {
+    drawBorder(ctx, hitCtx, scale) {
+        const x = this.x;
+        const y = this.y;
+        const w = this.width / scale;
+        const h = this.height / scale;
+
+        ctx.strokeStyle= this.color
+        ctx.lineWidth = 0.1
+        ctx.strokeRect(x, y, w, h);
+    }
+
+
+    // unused cause of non-math method for findNodeUnderMouse
+    /*contains(x, y, scale) {
         // All we have to do is make sure the Mouse X,Y fall in the area between
         // the Node X and (X + Width) and its Y and (Y + Height)
         const w = this.width / scale;
@@ -202,23 +238,26 @@ class Node {
 
 
         // return contains;
-    }
+    }*/
 }
 
 
 class CanvasState {
-    constructor(canvas, socket) {
+    constructor(canvas, hitCanvas, socket) {
         this.socket = socket;
 
         this.canvas = canvas;
+        this.hitCanvas = hitCanvas;
         this.width = canvas.width;
         this.height = canvas.height;
         this.ctx = canvas.getContext('2d');
+        this.hitCtx = hitCanvas.getContext('2d');
 
         // **** Keep track of state! ****
 
         this.valid = false; // when set to false, the canvas will redraw everything
         this.nodes = {}; // hash for all nodes
+        this.colorHash = {}; // find nodes by color
         this.dragging = false; // Keep track of when we are dragging
         this.draggNode = false; // save the node for dragging
 
@@ -254,6 +293,10 @@ class CanvasState {
         setInterval(() => this.draw(), this.interval);
     }
 
+    getScale = () => {
+        return this.scale
+    }
+
     triggerDraw() {
         console.log('triggerDraw');
         this.valid = false;
@@ -263,6 +306,7 @@ class CanvasState {
     addNode = (node) => {
         console.log('Node addded');
         this.nodes[node.index] = node;
+        this.colorHash[node.colorKey] = node.index;
         this.valid = false; // for redrawing
     }
 
@@ -271,22 +315,28 @@ class CanvasState {
     }
 
     // used by nodes who are active/activeNeighbours to get actuall scale
-    getScale() {
+    getScale = () => {
         return this.scale;
     }
 
     resetStore() {
         this.nodes = {};
+        this.colorHash = {};
         this.valid = false;
     }
 
     clear() {
         // move point 0,0 to middle of canvas
         this.ctx.resetTransform();
+        this.hitCtx.resetTransform();
+
         // this.ctx.clearRect(-this.width / 2, -this.height / 2, this.width, this.height);
         this.ctx.clearRect(0, 0, this.width, this.height);
+        this.hitCtx.clearRect(0, 0, this.width, this.height);
         this.ctx.translate(this.translateX, this.translateY);
+        this.hitCtx.translate(this.translateX, this.translateY);
         this.ctx.scale(this.scale, this.scale);
+        this.hitCtx.scale(this.scale, this.scale);
     }
 
     draw = () => {
@@ -303,7 +353,8 @@ class CanvasState {
             if (this.selection) ctx.globalAlpha = 0.3;
             else ctx.globalAlpha = 1;
 
-            Object.values(this.nodes).map(node => node.draw(ctx, this.scale, this.activeModus));
+            Object.values(this.nodes).map(node => node.draw(ctx, this.hitCtx, this.scale));
+            Object.values(this.nodes).map(node => node.drawBorder(ctx, this.hitCtx, this.scale));
             /*
             if (this.activeModus) {
                 ctx.globalAlpha = 0.1;
@@ -388,17 +439,25 @@ class CanvasState {
     }
 
     findNodeByMousePosition(x, y) {
-        // find 'first' node under click
+        // old math way
+        /* // find 'first' node under click
         // slice makes copy of array
         // translate X/Y to node x/y
         const nodeX = (x - this.translateX) / this.scale;
         const nodeY = (y - this.translateY) / this.scale;
         return Object.values(this.nodes).slice(0).reverse().find(
             node => node.contains(nodeX, nodeY, this.scale),
-        );
+        ); */
+        const pixel = this.hitCtx.getImageData(x, y, 1, 1).data;
+        const color = `rgb(${pixel[0]},${pixel[1]},${pixel[2]})`;
+        const nodeId = this.colorHash[color];
+        if (nodeId) {
+            return this.nodes[nodeId];
+        } return null;
     }
 
     selectNode(node) {
+        this.updateUI(this.scale)
         // delete old node
         if (this.selection && this.selection !== node) this.removeSelection();
         this.selection = node;
@@ -475,6 +534,11 @@ class CanvasState {
         e.preventDefault();
         e.stopPropagation();
         // console.log(e)
+
+        console.log(this.hitCanvas.width);
+        console.log(this.hitCtx.width);
+        console.log(this.canvas.width);
+        console.log(this.ctx.width);
         const shiftKeyPressed = e.shiftKey;
 
         const nodeUnderMouse = this.findNodeByMousePosition(e.offsetX, e.offsetY);
@@ -521,21 +585,31 @@ class CanvasState {
     }
 
     handleMouseMove = (e) => {
+        // other way for getting x/y
+        /* const mousePos = {
+            x: e.clientX - canvas.offsetLeft,
+            y: e.clientY - canvas.offsetTop
+        }; */
+
+        const mouseX = e.offsetX;
+        const mouseY = e.offsetY;
+
+
         // there is a freeze and not freeze mode - different interaction based ob if a node is active or node
-        const nodeUnderMouse = this.findNodeByMousePosition(e.offsetX, e.offsetY);
+        const nodeUnderMouse = this.findNodeByMousePosition(mouseX, mouseY);
 
         if (nodeUnderMouse && !nodeUnderMouse.hasImage) this.socket.emit('requestImage', { name: nodeUnderMouse.name, index: nodeUnderMouse.index });
 
 
         if (this.draggNode || this.dragging) {
             // get mouse movement based on the last triggered event
-            const moveX = e.offsetX - this.startX; // +80 means move 80px to right
-            const moveY = e.offsetY - this.startY; // -50 means move 50 to top
+            const moveX = mouseX - this.startX; // +80 means move 80px to right
+            const moveY = mouseY - this.startY; // -50 means move 50 to top
             // console.log({ moveX, moveY });
 
             // save new mouse position for next event
-            this.startX = e.offsetX;
-            this.startY = e.offsetY;
+            this.startX = mouseX;
+            this.startY = mouseY;
 
             if (this.dragging) {
                 this.translateX += moveX;
@@ -635,12 +709,18 @@ class CanvasState {
 
 
 export default {
+    store: null,
     name: 'TsneMap',
     data: () => ({
         exampleContent: 'This is TEXT',
         items: [],
-        store: null,
+        //store: null,
         socket: null,
+        scale1: 0,
+        labels: {},
+        width: 0,
+        height: 0
+        //scale2: 0,
     }),
     methods: {
         updateCanvas: () => {
@@ -657,6 +737,20 @@ export default {
             this.store.resetStore();
             this.socket.emit('updateNodes', JSON.stringify(nodes));
         },
+        scaleDown() {
+            console.log('scaleDown clicked');
+            console.log(this.store)
+        },
+        scaleUp() {
+            console.log('scaleUp clicked');
+        },
+
+        updateScale(scale) {
+            console.log("UpdateScale triggerd")
+            console.log(scale)
+            this.scale1 = scale
+        }
+
     },
     watch: {
         exampleContent(val, oldVal) {
@@ -664,8 +758,8 @@ export default {
         },
     },
     computed: {
-        scale() {
-            return this.store && this.store.scale;
+        scale2() {
+            return () => this.scale()
         },
         selectedNode() {
             return this.store && this.store.selection && this.store.selection.name;
@@ -686,9 +780,31 @@ export default {
     mounted() {
         const socket = io('http://localhost:3000');
         const canvas = document.getElementById('canvas');
+        const parantWidth = canvas.parentNode.clientWidth * 0.8;
+        const parantHeight = 700; // canvas.parentNode.clientHeight //* 0.8
+
+        this.width = parantWidth
+        this.height = parantHeight
+
+        const hitCanvas = document.createElement('canvas');
+
+        canvas.width = parantWidth;
+        canvas.height = parantHeight;
+
+        hitCanvas.width = parantWidth;
+        hitCanvas.height = parantHeight;
+
         // const ctx = canvas.getContext('2d');
-        const s = new CanvasState(canvas, socket);
+        const s = new CanvasState(canvas, hitCanvas, socket);
+
         this.store = s;
+
+        s.updateUI = this.updateScale
+
+        this.scale = s.getScale
+
+        console.log("Save store")
+        console.log(this.store)
         this.socket = socket;
 
         socket.on('connect', (soc) => {
@@ -718,6 +834,12 @@ export default {
             node.hasImage = true;
             s.valid = false;
         });
+
+        socket.on('updateLabels', data => {
+            console.log("updateLabels")
+            console.log(data)
+            this.labels = data
+        })
         // this.updateCanvas();
     },
     beforeDestroy() {
@@ -727,16 +849,13 @@ export default {
 </script>
 
 <style scoped>
-    .info-box {
-        display: flex;
-    }
 
-    .info-box > div{
-        padding: 0 0.5rem;
-    }
 
     #canvas {
         margin: 5px;
+        background-color: white;
+
+
     }
 
     .btn {
@@ -765,6 +884,30 @@ export default {
     .sub-header {
         display: flex;
         justify-content: space-between;
+        align-items: center;
+    }
+
+    .body {
+        width: 100%;
+        height: 100%;
+        background-color: rgba(44, 62, 80, 0.5);
+        //color: black;
+    }
+
+    .details {
+        width: 18%;
+        height: 100%;
+        margin: 5px;
+        background-color: white;
+    }
+
+    .row {
+        display: flex;
+
+    }
+
+    .info {
+        padding: 0 0.5rem;
     }
 
 </style>
