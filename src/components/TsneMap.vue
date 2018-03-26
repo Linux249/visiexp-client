@@ -3,9 +3,9 @@
         <div class="sub-header">
             <div>
                 <div class="row">
-                    <div>S: {{scale1}}</div>
-                    <div v-on:click="updateScale(1)" class="btn">+</div>
-                    <div v-on:click="scaleDown" class="btn">-</div>
+                    <!--<div>S: {{scale}}</div>
+                    <div @click="scaleUp" class="btn">+</div>
+                    <div @click="scaleDown" class="btn">-</div>-->
                 </div>
             </div>
             <div class="row">
@@ -24,8 +24,19 @@
             <canvas  ref="canvas" id="canvas" ></canvas>
             <div class="details">
                 <div class="info-box">
-                    <div>N: {{selectedNode}}</div>
-                    <div>Neighbs #: {{selectedNodeNeighboursCount}}</div>
+                    <div class="row-btn">
+                        <div>Cluster: {{cluster}}</div>
+                        <div class="row">
+                            <div @click="clusterMore" class="btn">+</div>
+                            <div @click="clusterLess" class="btn">-</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-box">
+                    <img class="img" v-if="activeNode.hasImage" :src="activeNode.image.src" />
+                    <div>Name: {{activeNode.name}}</div>
+                    <div>Label: {{activeNode.label}}</div>
+                    <div>Links #: {{selectedNodeNeighboursCount}}</div>
                     <div>x: {{selectedNodeX}}</div>
                     <div>y: {{selectedNodeY}}</div>
                     <div>ImgScale: {{imageScale}}</div>
@@ -45,12 +56,14 @@ class Node {
         this.name = data.name;
         this.links = data.links;
         this.index = data.index;
-        this.x = data.x;
-        this.y = data.y;
-        this.width = 40;
-        this.height = 40;
+        this._x = data.x;
+        this._y = data.y;
+        this._width = 1 //40;
+        this._height = 1 //40;
         this.colorKey = data.colorKey;
         this.color = data.color;
+
+        this.cluster = data.cluster
 
         this.label = data.label;
         // x,y for reseting
@@ -60,7 +73,7 @@ class Node {
         // callback for drawing everything
         this.triggerDraw = triggerDraw;
 
-        this.imageScale = 5; // showing images bigger
+        this.activeScale = 3; // showing images bigger
         // this.scale = 1;
         this.icon = new Image();
         this.icon.src = `data:image/jpeg;base64,${data.buffer}`;
@@ -72,7 +85,8 @@ class Node {
         this.image = new Image();
         // this.image.src = `data:image/jpeg;base64,${data.buffer}`;
 
-        this.scale = null; // will be updated through this.draw()
+        this.scale = null; // used for scaling the x/y position
+        this.imgScale = null; // used for scaling img width
         //
         this.timerId = 0;
 
@@ -80,9 +94,10 @@ class Node {
     }
 
     get width() {
-        if (this.isActive) return this._width + (this._width * this.imageScale);
-        if (this.isActiveNeighbour) return this._width + (this._width * this.imageScale * this.value);
-        return this._width;
+        const w = this._width
+        if (this.isActive) return w + (w * this.activeScale);
+        if (this.isActiveNeighbour) return w + (w * this.activeScale * this.value);
+        return w;
     }
 
     set width(value) {
@@ -90,9 +105,10 @@ class Node {
     }
 
     get height() {
-        if (this.isActive) return this._height + (this._height * this.imageScale);
-        if (this.isActiveNeighbour) return this._height + (this._height * this.imageScale * this.value);
-        return this._height;
+        const h = this._height
+        if (this.isActive) return h + (h * this.activeScale);
+        if (this.isActiveNeighbour) return h + (h * this.activeScale * this.value);
+        return h;
     }
 
     set height(value) {
@@ -121,24 +137,24 @@ class Node {
         if (v === true) {
             this._isActive = v;
             this.timerId = setInterval(() => {
-                console.log(this.imageScale)
-                this.imageScale += 0.1;
+                console.log(this.activeScale)
+                this.activeScale += 0.1;
                 ;
-                if (this.imageScale >= 5) {
+                if (this.activeScale >= 5) {
                     clearInterval(this.timerId);
-                    this.imageScale = 5
+                    this.activeScale = 5
                 }
                 this.triggerDraw()
             }, 100);
         } else if(v === false) {
             this.timerId = setInterval(() => {
-                this.imageScale -= 0.1;
+                this.activeScale -= 0.1;
                 this.triggerDraw();
 
-                if (this.imageScale <= 1) {
+                if (this.activeScale <= 1) {
                     this._isActive = v;
                     clearInterval(this.timerId);
-                    this.imageScale = 1
+                    this.activeScale = 1
                 }
                 this.triggerDraw();
             }, 100);
@@ -179,17 +195,17 @@ class Node {
 
     // ctx is the canvas context
     // scale change through zooming and is used for positioning the images
-    draw(ctx, hitCtx, scale) {
+    draw(ctx, hitCtx, scale, imgScale, cluster) {
         // console.log('start draw Image');
         // check which picture to use
-        this.scale = scale;
-        // eif(thi) socket.emit('requestImage', node.name);
+        this.scale = 1 //scale;
+
         const imgData = (this.isActive || this.isActiveNeighbour) && this.hasImage ? this.image : this.icon;
 
         const x = this.x;
         const y = this.y;
-        const w = this.width / scale;
-        const h = this.height / scale;
+        const w = this.width  //scale / 2;
+        const h = this.height // scale / 2 ;
 
 
         if (this.isActive) {
@@ -206,7 +222,7 @@ class Node {
             ctx.globalAlpha = 1;
             ctx.drawImage(imgData, x, y, w, h);
             ctx.globalAlpha = 0.3;
-        } else {
+        } else if(this.cluster < cluster) {
             // console.log('draw image');
             // console.log(this);
             ctx.drawImage(imgData, x, y, w, h);
@@ -217,15 +233,18 @@ class Node {
         hitCtx.fillRect(x, y, w, h);
     }
 
-    drawBorder(ctx, hitCtx, scale) {
+    drawBorder(ctx, hitCtx, scale, imgScale, cluster) {
         const x = this.x;
         const y = this.y;
-        const w = this.width / scale;
-        const h = this.height / scale;
+        const w = this.width // scale;
+        const h = this.height // scale;
 
         ctx.strokeStyle = this.color;
         ctx.lineWidth = 2 / scale;
-        ctx.strokeRect(x, y, w, h);
+
+        if(this.cluster < cluster) {
+            ctx.strokeRect(x, y, w, h);
+        } else ctx.strokeRect(x, y, w/scale, h/scale);
     }
 
 
@@ -261,6 +280,8 @@ class CanvasState {
 
         // **** Keep track of state! ****
 
+        this._cluster = 4
+
         this.valid = false; // when set to false, the canvas will redraw everything
         this.nodes = {}; // hash for all nodes
         this.colorHash = {}; // find nodes by color
@@ -274,6 +295,7 @@ class CanvasState {
         this.activeNode = false; // node while freeze
 
         this._scale = 30;
+        this._imgScale = 100
         this.interval = 100;
 
         this.offsetLeft = canvas.getBoundingClientRect().left;
@@ -302,10 +324,32 @@ class CanvasState {
     set scale(value) {
         if (value < 1) this._scale = 1;
         else this._scale = value;
+        this.valid = false;
     }
 
     get scale() {
         return this._scale;
+    }
+
+    set imgScale(value) {
+        if (value < 1) this._imgScale = 1;
+        else this._imgScale = value;
+        this.valid = false;
+    }
+
+    get imgScale() {
+        return this._imgScale;
+    }
+
+    set cluster(value) {
+        console.log(this._cluster)
+        if (value < 1) this._cluster = 1;
+        else this._cluster = value;
+        this.valid = false;
+    }
+
+    get cluster() {
+        return this._cluster;
     }
 
 
@@ -325,7 +369,7 @@ class CanvasState {
     }
 
     getNodes() {
-        this.removeSelection();
+        this.removeSelection();     // for updating values in links before sending
         return this.nodes;
     }
 
@@ -338,14 +382,15 @@ class CanvasState {
     clear() {
         // move point 0,0 to middle of canvas
         this.ctx.resetTransform();
-        this.hitCtx.resetTransform();
 
         // this.ctx.clearRect(-this.width / 2, -this.height / 2, this.width, this.height);
         this.ctx.clearRect(0, 0, this.width, this.height);
-        this.hitCtx.clearRect(0, 0, this.width, this.height);
         this.ctx.translate(this.translateX, this.translateY);
-        this.hitCtx.translate(this.translateX, this.translateY);
         this.ctx.scale(this.scale, this.scale);
+
+        this.hitCtx.resetTransform();
+        this.hitCtx.clearRect(0, 0, this.width, this.height);
+        this.hitCtx.translate(this.translateX, this.translateY);
         this.hitCtx.scale(this.scale, this.scale);
     }
 
@@ -363,8 +408,11 @@ class CanvasState {
             if (this.selection) ctx.globalAlpha = 0.3;
             else ctx.globalAlpha = 1;
 
-            Object.values(this.nodes).map(node => node.draw(ctx, this.hitCtx, this.scale));
-            Object.values(this.nodes).map(node => node.drawBorder(ctx, this.hitCtx, this.scale));
+            // draw images
+            Object.values(this.nodes).map(node => node.draw(ctx, this.hitCtx, this.scale, this.imgScale, this.cluster));
+
+            // draw borders
+            Object.values(this.nodes).map(node => node.drawBorder(ctx, this.hitCtx, this.scale, this.imgScale, this.cluster));
             /*
             if (this.activeModus) {
                 ctx.globalAlpha = 0.1;
@@ -432,7 +480,7 @@ class CanvasState {
             if (wheelEvent.deltaY > 0) {
                 console.log('zoom out');
                 // this.ctx.scale(0.5, 0.5);
-                this.scale = this.scale - 1;
+                this.scale -= 1// this.scale - 1;
             }
             this.valid = false;
         }
@@ -461,13 +509,12 @@ class CanvasState {
     }
 
     selectNode(node) {
-        this.updateUI(this.scale);
+
         // delete old node
         if (this.selection && this.selection !== node) this.removeSelection();
         this.selection = node;
         console.log('selected Node');
-        console.log(this.selection);
-
+        console.log(node);
         // const activeNode = this.selection;
         // mark node as active
         this.selection.isActive = true;
@@ -504,6 +551,8 @@ class CanvasState {
 
     removeSelection() {
         const selectedNode = this.selection;
+
+        //this.updateSelectionUI(false);
 
         // mark the neighbours as not active
         if (selectedNode) {
@@ -704,7 +753,10 @@ class CanvasState {
         if (this.selection && !this.activeModus) {
             this.activeModus = true;
             this.activeNode = this.selection;
+            // update ui
+            this.updateSelectionUI(this.activeNode);
         } else if (this.activeModus) {
+            this.updateSelectionUI(false)
             this.activeModus = false;
             this.activeNode = false;
         }
@@ -721,39 +773,42 @@ export default {
         items: [],
         // store: null,
         socket: null,
-        scale1: 0,
+        scale: 0,
         labels: {},
         width: 0,
         height: 0,
-        // scale2: 0,
+        activeNode: {},
+        cluster: 5,
     }),
     methods: {
-        updateCanvas: () => {
-            // const canvas = document.getElementById('canvas');
-            // const ctx = canvas.getContext('2d');
-            // ctx.clearRect(0, 0, canvas.width, canvas.height);
-            // ctx.translate(canvas.width / 2, canvas.height / 2);
-            // ctx.scale(scale, scale);
-        },
         sendData() {
             console.log('send data clicked');
             const nodes = this.store.getNodes();
             // this.store.clear()
             this.store.resetStore();
-            this.socket.emit('updateNodes', JSON.stringify(nodes));
-        },
-        scaleDown() {
-            console.log('scaleDown clicked');
-            console.log(this.store);
-        },
-        scaleUp() {
-            console.log('scaleUp clicked');
+            this.socket.emit('updateNodes', nodes);
         },
 
-        updateScale(scale) {
-            console.log('UpdateScale triggerd');
-            console.log(scale);
-            this.scale1 = scale;
+        //
+        clusterMore() {
+            console.log("cluster more clicked")
+            this.store.cluster -= 1;    // update canvasState
+            this.cluster = this.store.cluster; // update ui
+        },
+        clusterLess() {
+            console.log("cluster less clicked")
+            this.store.cluster += 1;    // update canvasState
+            this.cluster = this.store.cluster;   // update ui
+        },
+
+
+        updateSelection(node) {
+            if (!node) {
+                // deactivation
+                this.activeNode = {};
+            } else {
+                this.activeNode = node;
+            }
         },
 
     },
@@ -763,9 +818,6 @@ export default {
         },
     },
     computed: {
-        scale2() {
-            return () => this.scale();
-        },
         selectedNode() {
             return this.store && this.store.selection && this.store.selection.name;
         },
@@ -776,7 +828,7 @@ export default {
             return this.store && this.store.selection && this.store.selection.y;
         },
         selectedNodeNeighboursCount() {
-            return this.store && this.store.selection && this.store.selection.links && Object.keys(this.store.selection.links).length;
+            return this.activeNode.links && Object.keys(this.activeNode.links).length;
         },
         imageScale() {
             return this.store && this.store.selection && this.store.selection.imageScale;
@@ -804,9 +856,10 @@ export default {
 
         this.store = s;
 
-        s.updateUI = this.updateScale;
+        s.updateSelectionUI = this.updateSelection;
 
-        this.scale = s.getScale;
+        // set init value in UI
+        this.cluster = s.cluster;
 
         console.log('Save store');
         console.log(this.store);
@@ -821,6 +874,7 @@ export default {
                 console.log(soc);
             }
             socket.emit('updateNodes', {});
+            //s.clear() // maybe there is something inside?
         });
 
         socket.on('node', (data) => {
@@ -915,8 +969,18 @@ export default {
 
     }
 
-    .info {
-        padding: 0 0.5rem;
+    .row-btn {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .info-box {
+        padding: 0.5rem;
+    }
+
+    .img {
+        width: 100%;
     }
 
 </style>
