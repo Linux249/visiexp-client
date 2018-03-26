@@ -27,8 +27,29 @@
                     <div class="row-btn">
                         <div>Cluster: {{cluster}}</div>
                         <div class="row">
-                            <div @click="clusterMore" class="btn">+</div>
-                            <div @click="clusterLess" class="btn">-</div>
+                            <div @click="clusterMore" class="btn">+10</div>
+                            <div @click="clusterLess" class="btn">-10</div>
+                        </div>
+                    </div>
+                    <div class="row-btn">
+                        <div>ImageWidth: {{imgWidth}}</div>
+                        <div class="row">
+                            <div @click="imgWidthMore" class="btn">+1</div>
+                            <div @click="imgWidthLess" class="btn">-1</div>
+                        </div>
+                    </div>
+                    <div class="row-btn">
+                        <div>ImageWidth(active): {{activeImgWidth}}</div>
+                        <div class="row">
+                            <div @click="activeImgWidthMore" class="btn">+1</div>
+                            <div @click="activeImgWidthLess" class="btn">-1</div>
+                        </div>
+                    </div>
+                    <div class="row-btn">
+                        <div>BorderWidth: {{borderWidth}}</div>
+                        <div class="row">
+                            <div @click="borderWidthMore" class="btn">+1</div>
+                            <div @click="borderWidthLess" class="btn">-1</div>
                         </div>
                     </div>
                 </div>
@@ -50,20 +71,28 @@
 import io from 'socket.io-client';
 // import logo from '../assets/logo.png';
 
+/*
+    TODO:
+    - rename imageWidth to imageSize
+    - rename scale to zoom
+*/
+
 /* eslint no-underscore-dangle: ["error", { "allowAfterThis": true }] */
 class Node {
-    constructor(data, triggerDraw) {
+    constructor(data, ctx, hitCtx, triggerDraw) {
         this.name = data.name;
         this.links = data.links;
         this.index = data.index;
         this._x = data.x;
         this._y = data.y;
-        this._width = 1 //40;
-        this._height = 1 //40;
+        this._width = 1; // 40;
+        this._height = 1; // 40;
         this.colorKey = data.colorKey;
         this.color = data.color;
+        this.ctx = ctx;
+        this.hitCtx = hitCtx;
 
-        this.cluster = data.cluster
+        this.cluster = data.cluster;
 
         this.label = data.label;
         // x,y for reseting
@@ -94,7 +123,7 @@ class Node {
     }
 
     get width() {
-        const w = this._width
+        const w = this._width;
         if (this.isActive) return w + (w * this.activeScale);
         if (this.isActiveNeighbour) return w + (w * this.activeScale * this.value);
         return w;
@@ -105,7 +134,7 @@ class Node {
     }
 
     get height() {
-        const h = this._height
+        const h = this._height;
         if (this.isActive) return h + (h * this.activeScale);
         if (this.isActiveNeighbour) return h + (h * this.activeScale * this.value);
         return h;
@@ -195,56 +224,115 @@ class Node {
 
     // ctx is the canvas context
     // scale change through zooming and is used for positioning the images
-    draw(ctx, hitCtx, scale, imgScale, cluster) {
+    draw(scale, imgWidth, cluster) {
         // console.log('start draw Image');
         // check which picture to use
-        this.scale = 1 //scale;
+        this.scale = 1; // scale;
 
-        const imgData = (this.isActive || this.isActiveNeighbour) && this.hasImage ? this.image : this.icon;
+        const imgData = this.icon;
 
-        const x = this.x;
+        /* const x = this.x;
         const y = this.y;
-        const w = this.width  //scale / 2;
-        const h = this.height // scale / 2 ;
+        const w = this.width; // scale / 2;
+        const h = this.height; // scale / 2 ;
+        */
+        const w = imgWidth / 10;
+        const h = imgWidth / 10;
+        const x = this._x - (w / 2);
+        const y = this._y - (h / 2);
+
+        if (this.cluster < cluster) {
+            // console.log('draw image');
+            // console.log(this);
+            this.ctx.drawImage(imgData, x, y, w, h);
+        }
+
+        // draw HitCanvas rect
+        this.hitCtx.fillStyle = this.colorKey;
+        this.hitCtx.fillRect(x, y, w, h);
+    }
+
+    drawAsActive(scale, activeImgWidth) {
+        this.scale = 1; // scale;
+
+        const imgData = this.hasImage ? this.image : this.icon;
+
+        /* const x = this.x;
+        const y = this.y;
+        const w = this.width; // scale / 2;
+        const h = this.height; // scale / 2 ; */
+
+        const w = activeImgWidth / 10;
+        const h = activeImgWidth / 10;
+        const x = this._x - (w / 2);
+        const y = this._y - (h / 2);
 
 
         if (this.isActive) {
             // console.log(`Active node while draw: ${this.name}}`);
             // console.log(this);
-            ctx.globalAlpha = 1;
-            ctx.drawImage(imgData, x, y, w, h);
-            ctx.globalAlpha = 0.3;
+            this.ctx.globalAlpha = 1;
+            this.ctx.drawImage(imgData, x, y, w, h);
+            this.ctx.globalAlpha = 0.3;
             // ctx.rect(this.x,this.y, this.width/scale,this.height/scale);
             // ctx.stroke();
         } else if (this.isActiveNeighbour) {
             // console.log(`Neighbour node while draw: ${this.name}}`);
             // console.log(this);
-            ctx.globalAlpha = 1;
-            ctx.drawImage(imgData, x, y, w, h);
-            ctx.globalAlpha = 0.3;
-        } else if(this.cluster < cluster) {
-            // console.log('draw image');
-            // console.log(this);
-            ctx.drawImage(imgData, x, y, w, h);
+            this.ctx.globalAlpha = 1;
+            this.ctx.drawImage(imgData, x, y, w, h);
+            this.ctx.globalAlpha = 0.3;
         }
-
         // draw HitCanvas rect
-        hitCtx.fillStyle = this.colorKey;
-        hitCtx.fillRect(x, y, w, h);
+        this.hitCtx.fillStyle = this.colorKey;
+        this.hitCtx.fillRect(x, y, w, h);
     }
 
-    drawBorder(ctx, hitCtx, scale, imgScale, cluster) {
-        const x = this.x;
+    drawAsNeighbour(scale, activeImgWidth, value) {
+        this.scale = 1; // scale;
+
+        const imgData = this.hasImage ? this.image : this.icon;
+
+        /* const x = this.x;
         const y = this.y;
-        const w = this.width // scale;
-        const h = this.height // scale;
+        const w = this.width; // scale / 2;
+        const h = this.height; // scale / 2 ; */
 
-        ctx.strokeStyle = this.color;
-        ctx.lineWidth = 2 / scale;
+        const w = (activeImgWidth / 10) * this.value;
+        const h = (activeImgWidth / 10) * this.value;
+        const x = this._x - (w / 2);
+        const y = this._y - (h / 2);
 
-        if(this.cluster < cluster) {
-            ctx.strokeRect(x, y, w, h);
-        } else ctx.strokeRect(x, y, w/scale, h/scale);
+
+        this.ctx.globalAlpha = 1;
+        this.ctx.drawImage(imgData, x, y, w, h);
+        this.ctx.globalAlpha = 0.3;
+
+        // draw HitCanvas rect
+        this.hitCtx.fillStyle = this.colorKey;
+        this.hitCtx.fillRect(x, y, w, h);
+    }
+
+
+    drawBorder(scale, imgWidth, activeImgWidth, cluster, borderWidth) {
+        /* const x = this.x;
+        const y = this.y;
+        const w = this.width; // scale;
+        const h = this.height; // scale;
+        */
+
+        const w = (this.isActive ? activeImgWidth : this.isActiveNeighbour ? activeImgWidth * this.value : imgWidth) / 10;
+        const h = (this.isActive ? activeImgWidth : this.isActiveNeighbour ? activeImgWidth * this.value : imgWidth) / 10;
+        const x = this._x - (w / 2);
+        const y = this._y - (h / 2);
+
+        this.ctx.strokeStyle = this.color;
+        this.ctx.lineWidth = borderWidth / 10 / scale;
+
+        if ((this.cluster < cluster) || this.isActive || this.isActiveNeighbour) {
+            // cluster represent
+            this.ctx.strokeRect(x, y, w, h);
+        } else this.ctx.strokeRect(x, y, w / scale, h / scale);
     }
 
 
@@ -280,7 +368,7 @@ class CanvasState {
 
         // **** Keep track of state! ****
 
-        this._cluster = 4
+        this._cluster = 4;
 
         this.valid = false; // when set to false, the canvas will redraw everything
         this.nodes = {}; // hash for all nodes
@@ -295,7 +383,11 @@ class CanvasState {
         this.activeNode = false; // node while freeze
 
         this._scale = 30;
-        this._imgScale = 100
+        this._imgScale = 10;
+        this._activeImgScale = 50;
+        this._borderWidth = 20;
+
+
         this.interval = 100;
 
         this.offsetLeft = canvas.getBoundingClientRect().left;
@@ -318,7 +410,7 @@ class CanvasState {
         this.canvas.ondblclick = this.handleDoubleClick;
         this.canvas.onwheel = this.zoom;
 
-        setInterval(() => this.draw(), this.interval);
+        this.timerId = setInterval(() => this.draw(), this.interval);
     }
 
     set scale(value) {
@@ -341,8 +433,28 @@ class CanvasState {
         return this._imgScale;
     }
 
+    set activeImgScale(value) {
+        if (value < 1) this._activeImgScale = 1;
+        else this._activeImgScale = value;
+        this.valid = false;
+    }
+
+    get activeImgScale() {
+        return this._activeImgScale;
+    }
+
+    set borderWidth(value) {
+        if (value < 1) this._borderWidth = 1;
+        else this._borderWidth = value;
+        this.valid = false;
+    }
+
+    get borderWidth() {
+        return this._borderWidth;
+    }
+
     set cluster(value) {
-        console.log(this._cluster)
+        // console.log(this._cluster);
         if (value < 1) this._cluster = 1;
         else this._cluster = value;
         this.valid = false;
@@ -369,7 +481,7 @@ class CanvasState {
     }
 
     getNodes() {
-        this.removeSelection();     // for updating values in links before sending
+        this.removeSelection(); // for updating values in links before sending
         return this.nodes;
     }
 
@@ -398,21 +510,27 @@ class CanvasState {
         // if our state is invalid, redraw and validate!
         if (!this.valid) {
             console.log('reDraw started');
-            const ctx = this.ctx;
             // const nodes = this.nodes;
             this.clear();
 
             // ** Add stuff you want drawn in the background all the time here **
 
 
-            if (this.selection) ctx.globalAlpha = 0.3;
-            else ctx.globalAlpha = 1;
+            // if some nodes are active set other transparent
+            if (this.selection) this.ctx.globalAlpha = 0.3;
+            else this.ctx.globalAlpha = 1;
 
             // draw images
-            Object.values(this.nodes).map(node => node.draw(ctx, this.hitCtx, this.scale, this.imgScale, this.cluster));
+            Object.values(this.nodes).forEach((node) => {
+                if (node.isActive) node.drawAsActive(this.scale, this.activeImgScale, this.cluster);
+                else if (node.isActiveNeighbour) node.drawAsNeighbour(this.scale, this.activeImgScale, this.cluster);
+                else node.draw(this.scale, this.imgScale, this.cluster);
+            });
 
             // draw borders
-            Object.values(this.nodes).map(node => node.drawBorder(ctx, this.hitCtx, this.scale, this.imgScale, this.cluster));
+            Object.values(this.nodes).forEach((node) => {
+                node.drawBorder(this.scale, this.imgScale, this.activeImgScale, this.cluster, this.borderWidth);
+            });
             /*
             if (this.activeModus) {
                 ctx.globalAlpha = 0.1;
@@ -480,7 +598,7 @@ class CanvasState {
             if (wheelEvent.deltaY > 0) {
                 console.log('zoom out');
                 // this.ctx.scale(0.5, 0.5);
-                this.scale -= 1// this.scale - 1;
+                this.scale -= 1;// this.scale - 1;
             }
             this.valid = false;
         }
@@ -509,7 +627,6 @@ class CanvasState {
     }
 
     selectNode(node) {
-
         // delete old node
         if (this.selection && this.selection !== node) this.removeSelection();
         this.selection = node;
@@ -552,7 +669,7 @@ class CanvasState {
     removeSelection() {
         const selectedNode = this.selection;
 
-        //this.updateSelectionUI(false);
+        // this.updateSelectionUI(false);
 
         // mark the neighbours as not active
         if (selectedNode) {
@@ -756,7 +873,7 @@ class CanvasState {
             // update ui
             this.updateSelectionUI(this.activeNode);
         } else if (this.activeModus) {
-            this.updateSelectionUI(false)
+            this.updateSelectionUI(false);
             this.activeModus = false;
             this.activeNode = false;
         }
@@ -778,7 +895,10 @@ export default {
         width: 0,
         height: 0,
         activeNode: {},
-        cluster: 5,
+        cluster: 5, // default - set on mount from CanvasStore class
+        imgWidth: 0, // default - set on mount from CanvasStore class
+        activeImgWidth: 0, // default - set on mount from CanvasStore class
+        borderWidth: 0, // default - set on mount from CanvasStore class
     }),
     methods: {
         sendData() {
@@ -791,14 +911,14 @@ export default {
 
         //
         clusterMore() {
-            console.log("cluster more clicked")
-            this.store.cluster -= 1;    // update canvasState
+            // console.log("cluster more clicked")
+            this.store.cluster -= 10; // update canvasState
             this.cluster = this.store.cluster; // update ui
         },
         clusterLess() {
-            console.log("cluster less clicked")
-            this.store.cluster += 1;    // update canvasState
-            this.cluster = this.store.cluster;   // update ui
+            // console.log("cluster less clicked")
+            this.store.cluster += 10; // update canvasState
+            this.cluster = this.store.cluster; // update ui
         },
 
 
@@ -809,6 +929,32 @@ export default {
             } else {
                 this.activeNode = node;
             }
+        },
+        imgWidthMore() {
+            this.store.imgScale += 1; // update canvasState
+            this.imgWidth = this.store.imgScale; // update ui
+        },
+        imgWidthLess() {
+            this.store.imgScale -= 1; // update canvasState
+            this.imgWidth = this.store.imgScale; // update ui
+        },
+
+        activeImgWidthMore() {
+            this.store.activeImgScale += 1; // update canvasState
+            this.activeImgWidth = this.store.activeImgScale; // update ui
+        },
+        activeImgWidthLess() {
+            this.store.activeImgScale -= 1; // update canvasState
+            this.activeImgWidth = this.store.activeImgScale; // update ui
+        },
+
+        borderWidthMore() {
+            this.store.borderWidth += 1; // update canvasState
+            this.borderWidth = this.store.borderWidth; // update ui
+        },
+        borderWidthLess() {
+            this.store.borderWidth -= 1; // update canvasState
+            this.borderWidth = this.store.borderWidth; // update ui
         },
 
     },
@@ -860,6 +1006,9 @@ export default {
 
         // set init value in UI
         this.cluster = s.cluster;
+        this.imgWidth = s.imgScale;
+        this.activeImgWidth = s.activeImgScale;
+        this.borderWidth = s.borderWidth;
 
         console.log('Save store');
         console.log(this.store);
@@ -874,14 +1023,14 @@ export default {
                 console.log(soc);
             }
             socket.emit('updateNodes', {});
-            //s.clear() // maybe there is something inside?
+            // s.clear() // maybe there is something inside?
         });
 
         socket.on('node', (data) => {
             console.log('receive node');
             console.log(data);
             if (data) {
-                s.addNode(new Node(data, s.triggerDraw));
+                s.addNode(new Node(data, s.ctx, s.hitCtx, s.triggerDraw));
             }
         });
         socket.on('receiveImage', (data) => {
@@ -903,6 +1052,7 @@ export default {
     },
     beforeDestroy() {
         if (this.socket) this.socket.disconnect();
+        clearInterval(this.store.timerId);
     },
 };
 </script>
