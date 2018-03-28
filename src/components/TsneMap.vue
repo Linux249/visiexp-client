@@ -1103,7 +1103,7 @@ export default {
     .body {
         width: 100%;
         height: 100%;
-        background-color: rgba(44, 62, 80, 0.5);
+        background-color: rgb(0, 0, 0);
         //color: black;
     }
 
