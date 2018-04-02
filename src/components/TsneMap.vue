@@ -3,8 +3,8 @@
         <div class="sub-header">
             <div>
                 <div class="row">
-                    <!--<div>S: {{scale}}</div>
-                    <div @click="scaleUp" class="btn">+</div>
+                    <div>S: {{scale}}</div>
+                    <!--<div @click="scaleUp" class="btn">+</div>
                     <div @click="scaleDown" class="btn">-</div>-->
                 </div>
             </div>
@@ -252,11 +252,11 @@ class Node {
             // console.log('draw image');
             // console.log(this);
             this.ctx.drawImage(imgData, x, y, w, h);
+            this.hitCtx.fillStyle = this.colorKey;
+            this.hitCtx.fillRect(x, y, w, h);
         }
 
         // draw HitCanvas rect
-        this.hitCtx.fillStyle = this.colorKey;
-        this.hitCtx.fillRect(x, y, w, h);
     }
 
     drawAsActive(scale, activeImgWidth) {
@@ -339,7 +339,11 @@ class Node {
         if ((this.cluster < cluster) || this.isActive || this.isActiveNeighbour) {
             // cluster represent
             this.ctx.strokeRect(x, y, w, h);
-        } else this.ctx.strokeRect(x, y, w / scale, h / scale);
+        } else {
+            this.ctx.strokeRect(x, y, w / scale, h / scale);
+            this.hitCtx.fillStyle = this.colorKey;
+            this.hitCtx.fillRect(x, y, w / scale, h / scale);
+        }
     }
 
 
@@ -367,15 +371,16 @@ class CanvasState {
         this.socket = socket;
 
         this.canvas = canvas;
-        this.hitCanvas = hitCanvas;
+        this.ctx = canvas.getContext('2d');
         this.width = canvas.width;
         this.height = canvas.height;
-        this.ctx = canvas.getContext('2d');
+
+        this.hitCanvas = hitCanvas;
         this.hitCtx = hitCanvas.getContext('2d');
 
         // **** Keep track of state! ****
 
-        this._cluster = 4;
+        this._cluster = 90;
 
         this.valid = false; // when set to false, the canvas will redraw everything
         this.nodes = {}; // hash for all nodes
@@ -386,13 +391,13 @@ class CanvasState {
         // the current selected object. TODO  In the future we could turn this into an array for multiple selection
         this.selection = null;
 
-        this.activeModus = false; // freeze for handling selection
+        this.activeMode = false; // freeze for handling selection
         this.activeNode = false; // node while freeze
 
-        this._scale = 30;
-        this._imgScale = 10;
-        this._activeImgScale = 50;
-        this._borderWidth = 20;
+        this._scale = 20;
+        this._imgScale = 5;
+        this._activeImgScale = 30;
+        this._borderWidth = 5;
 
 
         this.interval = 100;
@@ -424,6 +429,7 @@ class CanvasState {
         if (value < 1) this._scale = 1;
         else this._scale = value;
         this.valid = false;
+        this.updateScaleUI(this.scale)
     }
 
     get scale() {
@@ -538,8 +544,14 @@ class CanvasState {
             Object.values(this.nodes).forEach((node) => {
                 node.drawBorder(this.scale, this.imgScale, this.activeImgScale, this.cluster, this.borderWidth);
             });
+
+            // draw Tribles
+
+
+
+
             /*
-            if (this.activeModus) {
+            if (this.activeMode) {
                 ctx.globalAlpha = 0.1;
                 Object.values(this.nodes).map((node) => {
                     // TODO skip the drawing of elements that have moved off the screen:
@@ -599,6 +611,7 @@ class CanvasState {
                 console.log('zoom in');
                 // this.ctx.scale(2, 2); // TODO is this needed??
                 this.scale += 1;
+                this.cluster += 10
             }
 
             // Zoom out = decrease = wheel down = positiv delta Y
@@ -606,6 +619,7 @@ class CanvasState {
                 console.log('zoom out');
                 // this.ctx.scale(0.5, 0.5);
                 this.scale -= 1;// this.scale - 1;
+                this.cluster -= 10
             }
             this.valid = false;
         }
@@ -738,7 +752,7 @@ class CanvasState {
         if (nodeUnderMouse) {
             this.draggNode = nodeUnderMouse;
             // freeze = activation Mode
-            if (this.activeModus) {
+            if (this.activeMode) {
                 if (shiftKeyPressed) {
                     // remove neighbour
                     if (nodeUnderMouse.isActiveNeighbour) {
@@ -809,7 +823,7 @@ class CanvasState {
                 this.draggNode.move(nodeX, nodeY);
 
                 // drag neighbours in freeze mode
-                if (this.activeModus && this.draggNode.isActive) {
+                if (this.activeMode && this.draggNode.isActive) {
                     Object.keys(this.draggNode.links).forEach((i) => {
                         const neighbour = this.nodes[i];
                         // todo error handling if the neighbour is not existing for katja
@@ -818,7 +832,7 @@ class CanvasState {
                 }
             }
             this.triggerDraw();
-        } else if (!this.activeModus) {
+        } else if (!this.activeMode) {
             // mouse moves over empty area after being over a node
             if (!nodeUnderMouse && this.selection) this.removeSelection();
             // mouse over picture and no picture before
@@ -831,7 +845,7 @@ class CanvasState {
         }
         /*
         // move neighbours of active Node in freeze mode
-        if (this.activeModus && this.draggNode.isActive) {
+        if (this.activeMode && this.draggNode.isActive) {
 
             // mouse is over a neighbour
             if (this.dragging.isActive || this.dragging.isActiveNeighbour) {
@@ -884,14 +898,14 @@ class CanvasState {
     handleDoubleClick = () => {
         console.log('Double click');
 
-        if (this.selection && !this.activeModus) {
-            this.activeModus = true;
+        if (this.selection && !this.activeMode) {
+            this.activeMode = true;
             this.activeNode = this.selection;
             // update ui
             this.updateSelectionUI(this.activeNode);
-        } else if (this.activeModus) {
+        } else if (this.activeMode) {
             this.updateSelectionUI(false);
-            this.activeModus = false;
+            this.activeMode = false;
             this.activeNode = false;
         }
         this.triggerDraw();
@@ -956,6 +970,11 @@ export default {
                 this.activeNode = node;
             }
         },
+
+        updateScale(scale) {
+            this.scale = scale
+        },
+
         imgWidthMore() {
             this.store.imgScale += 1; // update canvasState
             this.imgWidth = this.store.imgScale; // update ui
@@ -1033,6 +1052,7 @@ export default {
         this.store = s;
 
         s.updateSelectionUI = this.updateSelection;
+        s.updateScaleUI = this.updateScale;
 
         // set init value in UI
         this.cluster = s.cluster;
