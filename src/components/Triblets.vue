@@ -1,9 +1,16 @@
 <template>
     <div class="triblet-area">
 
-        <div class="negatives-area" :class="{redActive}" @click="toogleRed">
+        <div class="negatives area" :class="{redActive}" @click="toogleRed">
             <template v-if="node.negatives">
-                <img v-for="(n, i) in node.negatives" :key="i" :src="n.icon.src" alt="">
+                <div class="image" v-for="(n, i) in node.negatives">
+                    <img
+                        :key="i"
+                        :src="n.icon.src"
+                        alt=""
+                        @click="removeNegativ(i)"
+                    >
+                </div>
             </template>
         </div>
         <div class="node">
@@ -12,9 +19,16 @@
             </template>
         </div>
 
-        <div v-if="node.positives" class="positives-area" :class="{greenActive}" @click="toogleBlue">
+        <div v-if="node.positives" class="positives area" :class="{greenActive}" @click="toogleBlue">
             <template v-if="node.positives">
-                <img v-for="(n, i) in node.positives" :key="i" :src="n.icon.src" alt="">
+                <div class="image" v-for="(n, i) in node.positives">
+                    <img
+                        :key="i"
+                        :src="n.icon.src"
+                        alt=""
+                        @click="removePositiv(i)"
+                    >
+                </div>
             </template>
         </div>
     </div>
@@ -22,58 +36,81 @@
 
 <script>
 
-    /*
-            user clicks on area and can then add items
-            TODO: if the user click somewhere else toogle all to false
+/*
+    user clicks on area and can then add items
+    TODO: if the user click somewhere else toogle all to false
+    TODO: delete selection in trible
+    TODO: sizing images in triple
 
-     */
 
-    export default {
-        name: "triblets",
-        props: ['node', 'positives', 'negatives'],
-        data: () => ({
-            redActive: false,
-            greenActive: false
-        }),
-        methods: {
-            toogleRed() {
-                if (!this.redActive && this.greenActive) this.greenActive = false
-                this.redActive = !this.redActive
-            },
-            toogleBlue() {
-                if (!this.greenActive && this.redActive) this.redActive  = false
-                this.greenActive = !this.greenActive
-            }
+ */
+
+export default {
+    name: 'triblets',
+    props: ['node', 'positives', 'negatives'],
+    data: () => ({
+        redActive: false,
+        greenActive: false,
+    }),
+    methods: {
+        toogleRed() {
+            if (!this.redActive && this.greenActive) this.greenActive = false;
+            this.redActive = !this.redActive;
+        },
+        toogleBlue() {
+            if (!this.greenActive && this.redActive) this.redActive = false;
+            this.greenActive = !this.greenActive;
+        },
+        removePositiv(i) {
+            this.node.positives.splice(i, 1);
+        },
+        removeNegativ(i) {
+            this.node.negatives.splice(i, 1);
         }
-    }
+    },
+};
 </script>
 
 <style scoped>
 
     .triblet-area{
         width: 100%;
-        height: auto;
+        height: 10rem;
+
         display: flex;
         background-color: black;
     }
 
     .node {
         border: 1px solid white;
+        width: 5rem;
+        margin: 2px;
     }
 
+    img {
+        width: 100%;
+    }
 
     .redActive, .greenActive {
-        border-width: 3px !important;
+        //border-width: 3px !important;
+        //margin: 0 !important;
+    }
+    .area {
+        display: flex;
+        flex: 1;
+        margin: 2px;
     }
 
-    .positives-area {
+    .positives {
         border: 1px solid green;
-        flex: 1;
     }
 
-    .negatives-area {
+    .negatives {
         border: 1px solid red;
-        flex: 1;
+    }
+
+    .image {
+        max-width: 5rem;
     }
 
 

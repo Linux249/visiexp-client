@@ -429,7 +429,7 @@ class CanvasState {
         if (value < 1) this._scale = 1;
         else this._scale = value;
         this.valid = false;
-        this.updateScaleUI(this.scale)
+        this.updateScaleUI(this.scale);
     }
 
     get scale() {
@@ -548,8 +548,6 @@ class CanvasState {
             // draw Tribles
 
 
-
-
             /*
             if (this.activeMode) {
                 ctx.globalAlpha = 0.1;
@@ -611,7 +609,7 @@ class CanvasState {
                 console.log('zoom in');
                 // this.ctx.scale(2, 2); // TODO is this needed??
                 this.scale += 1;
-                this.cluster += 10
+                this.cluster += 10;
             }
 
             // Zoom out = decrease = wheel down = positiv delta Y
@@ -619,7 +617,7 @@ class CanvasState {
                 console.log('zoom out');
                 // this.ctx.scale(0.5, 0.5);
                 this.scale -= 1;// this.scale - 1;
-                this.cluster -= 10
+                this.cluster -= 10;
             }
             this.valid = false;
         }
@@ -732,8 +730,8 @@ class CanvasState {
         console.log(this.ctx.width);
         const shiftKeyPressed = e.shiftKey;
 
-        const ctrlKeyPressed = e.ctrlKey
-        const altKeyPressed = e.altKey
+        const ctrlKeyPressed = e.ctrlKey;
+        const altKeyPressed = e.altKey;
 
         const nodeUnderMouse = this.findNodeByMousePosition(e.offsetX, e.offsetY);
 
@@ -770,13 +768,12 @@ class CanvasState {
                         nodeUnderMouse.value = 0.5;
                         this.valid = false;
                     }
-                } else if(ctrlKeyPressed){
+                } else if (ctrlKeyPressed) {
                     // add to left /negatives
-                    this.activeNode.negatives.push(nodeUnderMouse)
-
+                    this.activeNode.negatives.push(nodeUnderMouse);
                 } else if (altKeyPressed) {
                     // add to right // positives
-                    this.activeNode.positives.push(nodeUnderMouse)
+                    this.activeNode.positives.push(nodeUnderMouse);
                 }
             }
         } else {
@@ -972,7 +969,7 @@ export default {
         },
 
         updateScale(scale) {
-            this.scale = scale
+            this.scale = scale;
         },
 
         imgWidthMore() {
