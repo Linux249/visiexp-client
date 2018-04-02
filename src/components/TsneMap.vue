@@ -52,6 +52,10 @@
                             <div @click="borderWidthLess" class="btn">-1</div>
                         </div>
                     </div>
+                    <div class="row-btn">
+                        <div>{{range}}}</div>
+                        <range-slider v-model="cluster" type="range" min="0" max="800" step="10" />
+                    </div>
                 </div>
                 <div class="info-box">
                     <img class="img" v-if="activeNode.hasImage" :src="activeNode.image.src" />
@@ -64,6 +68,7 @@
                 </div>
             </div>
         </div>
+        <triblets :node="activeNode"/>
     </div>
 </template>
 
@@ -93,6 +98,8 @@ class Node {
         this.hitCtx = hitCtx;
 
         this.cluster = data.cluster;
+        this.positives = data.positives;
+        this.negatives = data.negatives;
 
         this.label = data.label;
         // x,y for reseting
@@ -711,6 +718,9 @@ class CanvasState {
         console.log(this.ctx.width);
         const shiftKeyPressed = e.shiftKey;
 
+        const ctrlKeyPressed = e.ctrlKey
+        const altKeyPressed = e.altKey
+
         const nodeUnderMouse = this.findNodeByMousePosition(e.offsetX, e.offsetY);
 
         // TODO test if mouse hits Image and set their drag flag
@@ -746,6 +756,13 @@ class CanvasState {
                         nodeUnderMouse.value = 0.5;
                         this.valid = false;
                     }
+                } else if(ctrlKeyPressed){
+                    // add to left /negatives
+                    this.activeNode.negatives.push(nodeUnderMouse)
+
+                } else if (altKeyPressed) {
+                    // add to right // positives
+                    this.activeNode.positives.push(nodeUnderMouse)
                 }
             }
         } else {
@@ -881,13 +898,21 @@ class CanvasState {
     }
 }
 
+import RangeSlider from './RangeSlider';
+import Triblets from './Triblets';
 
 export default {
     store: null,
     name: 'TsneMap',
+    components: {
+        RangeSlider,
+        Triblets,
+    },
     data: () => ({
         exampleContent: 'This is TEXT',
         items: [],
+        positives: [],
+        negatives: [],
         // store: null,
         socket: null,
         scale: 0,
@@ -899,6 +924,7 @@ export default {
         imgWidth: 0, // default - set on mount from CanvasStore class
         activeImgWidth: 0, // default - set on mount from CanvasStore class
         borderWidth: 0, // default - set on mount from CanvasStore class
+        range: 0,
     }),
     methods: {
         sendData() {
@@ -961,6 +987,10 @@ export default {
     watch: {
         exampleContent(val, oldVal) {
             this.updateCanvas();
+        },
+        cluster(value) {
+            console.log('change cluster');
+            this.store.cluster = value;
         },
     },
     computed: {
@@ -1131,6 +1161,10 @@ export default {
 
     .img {
         width: 100%;
+    }
+
+    input {
+
     }
 
 </style>
