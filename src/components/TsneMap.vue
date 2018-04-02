@@ -52,10 +52,10 @@
                             <div @click="borderWidthLess" class="btn">-1</div>
                         </div>
                     </div>
-                    <div class="row-btn">
+                    <!--<div class="row-btn">
                         <div>{{range}}}</div>
                         <range-slider v-model="cluster" type="range" min="0" max="800" step="10" />
-                    </div>
+                    </div>-->
                 </div>
                 <div class="info-box">
                     <img class="img" v-if="activeNode.hasImage" :src="activeNode.image.src" />
@@ -1150,7 +1150,7 @@ export default {
     .body {
         width: 100%;
         height: 100%;
-        background-color: rgb(0, 0, 0);
+        background-color: rgb(255, 255, 255);
         //color: black;
     }
 

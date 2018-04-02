@@ -1,7 +1,7 @@
 <template>
     <div class="triblet-area">
 
-        <div class="negatives area" :class="{redActive}" @click="toogleRed">
+        <div v-if="node.negatives" class="negatives area" :class="{redActive}" @click="toogleRed">
             <template v-if="node.negatives">
                 <div class="image" v-for="(n, i) in node.negatives">
                     <img
@@ -78,7 +78,7 @@ export default {
         height: 10rem;
 
         display: flex;
-        background-color: black;
+        background-color: white;
     }
 
     .node {
@@ -111,6 +111,10 @@ export default {
 
     .image {
         max-width: 5rem;
+    }
+
+    .image :hover {
+        width: 7rem;
     }
 
 
