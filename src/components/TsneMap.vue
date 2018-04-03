@@ -751,7 +751,7 @@ class CanvasState {
             this.draggNode = nodeUnderMouse;
             // freeze = activation Mode
             if (this.activeMode) {
-                if (shiftKeyPressed) {
+                if (false) {
                     // remove neighbour
                     if (nodeUnderMouse.isActiveNeighbour) {
                         nodeUnderMouse.isActiveNeighbour = false;
@@ -771,7 +771,7 @@ class CanvasState {
                 } else if (ctrlKeyPressed) {
                     // add to left /negatives
                     this.activeNode.negatives.push(nodeUnderMouse);
-                } else if (altKeyPressed) {
+                } else if (altKeyPressed || shiftKeyPressed) {
                     // add to right // positives
                     this.activeNode.positives.push(nodeUnderMouse);
                 }
