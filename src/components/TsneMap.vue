@@ -74,6 +74,7 @@
 
 <script>
 import io from 'socket.io-client';
+import range from '../util/range'
 // import logo from '../assets/logo.png';
 
 /*
@@ -379,6 +380,7 @@ class CanvasState {
         this.hitCtx = hitCanvas.getContext('2d');
 
         // **** Keep track of state! ****
+        this.kdtree = {}
 
         this._cluster = 90;
 
@@ -496,6 +498,16 @@ class CanvasState {
     getNodes() {
         this.removeSelection(); // for updating values in links before sending
         return this.nodes;
+    }
+
+
+
+    range(minX, minY, maxX, maxY) {
+        // TODO min x, max should be automatic
+        const result = range(this.kdtree.ids, this.kdtree.coords, minX, minY, maxX, maxY, this.kdtree.nodeSize) // TODO is this fast?
+        console.log("range")
+        console.log(result)
+
     }
 
     resetStore() {
@@ -1095,6 +1107,13 @@ export default {
             console.log(data);
             this.labels = data;
         });
+
+        socket.on('updateKdtree', (kdtree) => {
+            console.log('updateKdtree')
+            console.log(kdtree)
+            s.kdtree = kdtree
+            console.log(s.range(-5,-5,5,5))
+        })
         // this.updateCanvas();
     },
     beforeDestroy() {
