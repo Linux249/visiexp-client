@@ -18,10 +18,13 @@
                     {{ key }}
                 </div>
             </div>
-            <div v-on:click="sendData" class="btn">Update Data</div>
+            <div class="row">
+                <div @click="toggleClassify" class="btn" :class="{ active: classify }">Classification</div>
+                <div @click="sendData" class="btn" >Update Data</div>
+            </div>
         </div>
         <div class="row">
-            <canvas  ref="canvas" id="canvas" ></canvas>
+            <canvas  ref="canvas" id="canvas" tabindex="0" :class="{classify}"></canvas>
             <div class="details">
                 <div class="info-box">
                     <div class="row-btn">
@@ -57,6 +60,7 @@
                         <range-slider v-model="cluster" type="range" min="0" max="800" step="10" />
                     </div>-->
                 </div>
+                <classifier v-if="classify" :nodes="classifyNodes"/>
                 <div class="info-box">
                     <img class="img" v-if="activeNode.hasImage" :src="activeNode.image.src" />
                     <div>Name: {{activeNode.name}}</div>
@@ -65,6 +69,7 @@
                     <div>x: {{selectedNodeX}}</div>
                     <div>y: {{selectedNodeY}}</div>
                     <div>ImgScale: {{imageScale}}</div>
+                    <div>classifyNodes: {{classifyNodes.length}}</div>
                 </div>
             </div>
         </div>
@@ -420,6 +425,8 @@ class CanvasState {
         this._activeImgScale = 30;
         this._borderWidth = 5;
 
+        this.classify = false  // set via UI
+        this.addNodeToClassify = null // UI set function here
 
         this.interval = 100;
 
@@ -442,6 +449,7 @@ class CanvasState {
         // this.canvas.onlclick = this.handleClick;
         this.canvas.ondblclick = this.handleDoubleClick;
         this.canvas.onwheel = this.zoom;
+        //this.canvas.onblur = this.blur;
 
         this.timerId = setInterval(() => this.draw(), this.interval);
     }
@@ -753,10 +761,10 @@ class CanvasState {
         e.stopPropagation();
         // console.log(e)
 
-        console.log(this.hitCanvas.width);
-        console.log(this.hitCtx.width);
-        console.log(this.canvas.width);
-        console.log(this.ctx.width);
+        // console.log(this.hitCanvas.width);
+        // console.log(this.hitCtx.width);
+        // console.log(this.canvas.width);
+        // console.log(this.ctx.width);
         const shiftKeyPressed = e.shiftKey;
 
         const ctrlKeyPressed = e.ctrlKey;
@@ -769,6 +777,7 @@ class CanvasState {
         console.log('mousedown');
         // console.log(e.offsetX);
         // console.log(e.offsetY);
+        console.log(this.classify)
 
         // save start position
         this.startX = e.offsetX;
@@ -804,6 +813,10 @@ class CanvasState {
                     // add to right // positives
                     this.activeNode.positives.push(nodeUnderMouse);
                 }
+            } else if(this.classify) {
+                // add node to
+                console.log("click while classify mode")
+                this.addNodeToClassify(nodeUnderMouse)
             }
         } else {
             // if nothing is clicked
@@ -940,6 +953,7 @@ class CanvasState {
 
 import RangeSlider from './RangeSlider';
 import Triblets from './Triblets';
+import Classifier from './Classifier';
 
 export default {
     store: null,
@@ -947,6 +961,7 @@ export default {
     components: {
         RangeSlider,
         Triblets,
+        Classifier,
     },
     data: () => ({
         exampleContent: 'This is TEXT',
@@ -965,6 +980,8 @@ export default {
         activeImgWidth: 0, // default - set on mount from CanvasStore class
         borderWidth: 0, // default - set on mount from CanvasStore class
         range: 0,
+        classify: false, // toggle classify mode on/off
+        classifyNodes: [], // selected nodes for classification
     }),
     methods: {
         sendData() {
@@ -1027,7 +1044,17 @@ export default {
             this.store.borderWidth -= 1; // update canvasState
             this.borderWidth = this.store.borderWidth; // update ui
         },
-
+        toggleClassify() {
+            console.log("classify clicked")
+            this.classify = !this.classify
+            this.store.classify = this.classify
+            console.log(this.store.classify)
+        },
+        addNodeToClassify(node) {
+            console.log("addNodeToClassify")
+            console.log(node)
+            if (this.classifyNodes.indexOf(node) === -1) this.classifyNodes.push(node)
+        }
     },
     watch: {
         exampleContent(val, oldVal) {
@@ -1079,6 +1106,7 @@ export default {
 
         s.updateSelectionUI = this.updateSelection;
         s.updateScaleUI = this.updateScale;
+        s.addNodeToClassify = this.addNodeToClassify;
 
         // set init value in UI
         this.cluster = s.cluster;
@@ -1146,8 +1174,9 @@ export default {
     #canvas {
         margin: 5px;
         background-color: black;
-
-
+    }
+    #canvas.classify {
+        cursor: cell;
     }
 
     .btn {
@@ -1167,6 +1196,11 @@ export default {
         letter-spacing: .025em;
         transition: all .15s ease;
         cursor: pointer;
+    }
+
+    .btn.active {
+        color: #fff;
+        background: #6772e5;
     }
 
     .btn:hover {
