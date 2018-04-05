@@ -27,29 +27,29 @@
                     <div class="row-btn">
                         <div>Cluster: {{cluster}}</div>
                         <div class="row">
-                            <div @click="clusterMore" class="btn">+10</div>
                             <div @click="clusterLess" class="btn">-10</div>
+                            <div @click="clusterMore" class="btn">+10</div>
                         </div>
                     </div>
                     <div class="row-btn">
                         <div>ImageWidth: {{imgWidth}}</div>
                         <div class="row">
-                            <div @click="imgWidthMore" class="btn">+1</div>
                             <div @click="imgWidthLess" class="btn">-1</div>
+                            <div @click="imgWidthMore" class="btn">+1</div>
                         </div>
                     </div>
                     <div class="row-btn">
                         <div>ImageWidth(active): {{activeImgWidth}}</div>
                         <div class="row">
-                            <div @click="activeImgWidthMore" class="btn">+1</div>
                             <div @click="activeImgWidthLess" class="btn">-1</div>
+                            <div @click="activeImgWidthMore" class="btn">+1</div>
                         </div>
                     </div>
                     <div class="row-btn">
                         <div>BorderWidth: {{borderWidth}}</div>
                         <div class="row">
-                            <div @click="borderWidthMore" class="btn">+1</div>
                             <div @click="borderWidthLess" class="btn">-1</div>
+                            <div @click="borderWidthMore" class="btn">+1</div>
                         </div>
                     </div>
                     <!--<div class="row-btn">
@@ -74,7 +74,7 @@
 
 <script>
 import io from 'socket.io-client';
-import range from '../util/range'
+import range from '../util/range';
 // import logo from '../assets/logo.png';
 
 /*
@@ -244,8 +244,8 @@ class Node {
         const w = this.width; // scale / 2;
         const h = this.height; // scale / 2 ;
         */
-        const w = imgWidth / 10;
-        const h = imgWidth / 10;
+        const w = imgData.width * imgWidth / 1000;
+        const h = imgData.height * imgWidth / 1000;
         const x = this._x - (w / 2);
         const y = this._y - (h / 2);
 
@@ -263,15 +263,17 @@ class Node {
     drawAsActive(scale, activeImgWidth) {
         this.scale = 1; // scale;
 
-        const imgData = this.hasImage ? this.image : this.icon;
+        const imgData = this.icon; // this.hasImage ? this.image : this.icon;
 
         /* const x = this.x;
         const y = this.y;
         const w = this.width; // scale / 2;
         const h = this.height; // scale / 2 ; */
 
-        const w = activeImgWidth / 10;
-        const h = activeImgWidth / 10;
+        /* const w = activeImgWidth / 10;
+        const h = activeImgWidth / 10; */
+        const w = imgData.width * activeImgWidth / 1000; // TODO if image returns check if this width should be still used
+        const h = imgData.height * activeImgWidth / 1000;
         const x = this._x - (w / 2);
         const y = this._y - (h / 2);
 
@@ -280,6 +282,7 @@ class Node {
             // console.log(`Active node while draw: ${this.name}}`);
             // console.log(this);
             this.ctx.globalAlpha = 1;
+
             this.ctx.drawImage(imgData, x, y, w, h);
             this.ctx.globalAlpha = 0.3;
             // ctx.rect(this.x,this.y, this.width/scale,this.height/scale);
@@ -299,15 +302,17 @@ class Node {
     drawAsNeighbour(scale, activeImgWidth, value) {
         this.scale = 1; // scale;
 
-        const imgData = this.hasImage ? this.image : this.icon;
+        const imgData = this.icon; // this.hasImage ? this.image : this.icon;
 
         /* const x = this.x;
         const y = this.y;
         const w = this.width; // scale / 2;
         const h = this.height; // scale / 2 ; */
 
-        const w = (activeImgWidth / 10) * this.value;
-        const h = (activeImgWidth / 10) * this.value;
+        /* const w = (activeImgWidth / 10) * this.value;
+        const h = (activeImgWidth / 10) * this.value; */
+        const w = imgData.width * activeImgWidth / 1000 * this.value; // TODO if image returns check if this width should be still used
+        const h = imgData.height * activeImgWidth / 1000 * this.value;
         const x = this._x - (w / 2);
         const y = this._y - (h / 2);
 
@@ -329,8 +334,22 @@ class Node {
         const h = this.height; // scale;
         */
 
-        const w = (this.isActive ? activeImgWidth : this.isActiveNeighbour ? activeImgWidth * this.value : imgWidth) / 10;
-        const h = (this.isActive ? activeImgWidth : this.isActiveNeighbour ? activeImgWidth * this.value : imgWidth) / 10;
+        const w = this.icon.width * (
+            this.isActive
+                ? activeImgWidth
+                : this.isActiveNeighbour
+                    ? activeImgWidth * this.value
+                    : imgWidth
+        ) / 1000;
+        const h = this.icon.height * (
+            this.isActive
+                ? activeImgWidth
+                : this.isActiveNeighbour
+                    ? activeImgWidth * this.value
+                    : imgWidth
+        ) / 1000;
+        /* const w = (this.isActive ? activeImgWidth : this.isActiveNeighbour ? activeImgWidth * this.value : imgWidth) / 10;
+        const h = (this.isActive ? activeImgWidth : this.isActiveNeighbour ? activeImgWidth * this.value : imgWidth) / 10; */
         const x = this._x - (w / 2);
         const y = this._y - (h / 2);
 
@@ -380,7 +399,7 @@ class CanvasState {
         this.hitCtx = hitCanvas.getContext('2d');
 
         // **** Keep track of state! ****
-        this.kdtree = {}
+        this.kdtree = {};
 
         this._cluster = 90;
 
@@ -501,13 +520,11 @@ class CanvasState {
     }
 
 
-
     range(minX, minY, maxX, maxY) {
         // TODO min x, max should be automatic
-        const result = range(this.kdtree.ids, this.kdtree.coords, minX, minY, maxX, maxY, this.kdtree.nodeSize) // TODO is this fast?
-        console.log("range")
-        console.log(result)
-
+        const result = range(this.kdtree.ids, this.kdtree.coords, minX, minY, maxX, maxY, this.kdtree.nodeSize); // TODO is this fast?
+        console.log('range');
+        console.log(result);
     }
 
     resetStore() {
@@ -1109,11 +1126,11 @@ export default {
         });
 
         socket.on('updateKdtree', (kdtree) => {
-            console.log('updateKdtree')
-            console.log(kdtree)
-            s.kdtree = kdtree
-            console.log(s.range(-5,-5,5,5))
-        })
+            console.log('updateKdtree');
+            console.log(kdtree);
+            s.kdtree = kdtree;
+            // console.log(s.range(-5 ,-5 ,5 ,5))
+        });
         // this.updateCanvas();
     },
     beforeDestroy() {
@@ -1128,7 +1145,7 @@ export default {
 
     #canvas {
         margin: 5px;
-        background-color: white;
+        background-color: black;
 
 
     }
@@ -1169,8 +1186,8 @@ export default {
     .body {
         width: 100%;
         height: 100%;
-        background-color: rgb(255, 255, 255);
-        //color: black;
+        /*background-color: rgb(255, 255, 255);*/
+        /*//color: black;*/
     }
 
     .details {
