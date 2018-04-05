@@ -20,13 +20,14 @@
             </div>
             <div class="row">
                 <div @click="toggleClassify" class="btn" :class="{ active: classify }">Classification</div>
+                <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">Options</div>
                 <div @click="sendData" class="btn" >Update Data</div>
             </div>
         </div>
         <div class="row">
             <canvas  ref="canvas" id="canvas" tabindex="0" :class="{classify}"></canvas>
             <div class="details">
-                <div class="info-box">
+                <div v-if="showOptions" class="options info-box">
                     <div class="row-btn">
                         <div>Cluster: {{cluster}}</div>
                         <div class="row">
@@ -982,6 +983,7 @@ export default {
         range: 0,
         classify: false, // toggle classify mode on/off
         classifyNodes: [], // selected nodes for classification
+        showOptions: false // show options menu
     }),
     methods: {
         sendData() {
@@ -1054,7 +1056,11 @@ export default {
             console.log("addNodeToClassify")
             console.log(node)
             if (this.classifyNodes.indexOf(node) === -1) this.classifyNodes.push(node)
-        }
+        },
+        toggleShowOptions() {
+            this.showOptions = !this.showOptions
+        },
+
     },
     watch: {
         exampleContent(val, oldVal) {

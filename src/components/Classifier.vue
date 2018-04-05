@@ -43,7 +43,7 @@
         /*background-color: rgba(0, 255, 10, 0.1);*/
         box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08);
         display: flex;
-        justify-content: center;
+        /*justify-content: center;*/
         align-items: center;
         flex-flow: wrap;
         flex-direction: row;
