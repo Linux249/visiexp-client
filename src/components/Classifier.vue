@@ -10,21 +10,30 @@
                 >
             </div>
         </div>
+        <div class="row">
+            <input type="text" value="" onchange="" />
+            <div @click="addLabel" class="btn">add label</div>
+
+        </div>
     </div>
 </template>
 
 <script>
-    export default {
-        name: "classifier",
-        props: ['nodes'],
-        methods: {
-            removeNode(i){
-                console.log(`remove node ${i} clicked`)
-                console.log(this.nodes)
-                this.nodes.splice(i, 1)
-            }
-        }
-    }
+export default {
+    name: 'classifier',
+    props: ['nodes'],
+    methods: {
+        removeNode(i) {
+            console.log(`remove node ${i} clicked`);
+            console.log(this.nodes);
+            this.nodes.splice(i, 1);
+        },
+        addLabel(e) {
+            console.log('addLabel clicked');
+            console.log(e);
+        },
+    },
+};
 </script>
 
 <style scoped>
@@ -34,6 +43,10 @@
 
         /*border: 1px solid red;*/
 
+    }
+
+    .row {
+        display: flex;
     }
 
     .imgArea {

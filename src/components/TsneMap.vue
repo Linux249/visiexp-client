@@ -3,7 +3,7 @@
         <div class="sub-header">
             <div>
                 <div class="row">
-                    <div>S: {{scale}}</div>
+
                     <!--<div @click="scaleUp" class="btn">+</div>
                     <div @click="scaleDown" class="btn">-</div>-->
                 </div>
@@ -67,10 +67,7 @@
                     <div>Name: {{activeNode.name}}</div>
                     <div>Label: {{activeNode.label}}</div>
                     <div>Links #: {{selectedNodeNeighboursCount}}</div>
-                    <div>x: {{selectedNodeX}}</div>
-                    <div>y: {{selectedNodeY}}</div>
-                    <div>ImgScale: {{imageScale}}</div>
-                    <div>classifyNodes: {{classifyNodes.length}}</div>
+                    <div>S: {{scale}}</div>
                 </div>
             </div>
         </div>
@@ -359,14 +356,16 @@ class Node {
         const x = this._x - (w / 2);
         const y = this._y - (h / 2);
 
+        const lineWidth = borderWidth / 10 / scale;
         this.ctx.strokeStyle = this.color;
-        this.ctx.lineWidth = borderWidth / 10 / scale;
+        this.ctx.lineWidth = lineWidth
+
 
         if ((this.cluster < cluster) || this.isActive || this.isActiveNeighbour) {
             // cluster represent
-            this.ctx.strokeRect(x, y, w, h);
+            if(lineWidth) this.ctx.strokeRect(x, y, w, h);
         } else {
-            this.ctx.strokeRect(x, y, w / scale, h / scale);
+            if(lineWidth) this.ctx.strokeRect(x, y, w / scale, h / scale);
             this.hitCtx.fillStyle = this.colorKey;
             this.hitCtx.fillRect(x, y, w / scale, h / scale);
         }
@@ -426,8 +425,8 @@ class CanvasState {
         this._activeImgScale = 30;
         this._borderWidth = 5;
 
-        this.classify = false  // set via UI
-        this.addNodeToClassify = null // UI set function here
+        this.classify = false; // set via UI
+        this.addNodeToClassify = null; // UI set function here
 
         this.interval = 100;
 
@@ -450,7 +449,7 @@ class CanvasState {
         // this.canvas.onlclick = this.handleClick;
         this.canvas.ondblclick = this.handleDoubleClick;
         this.canvas.onwheel = this.zoom;
-        //this.canvas.onblur = this.blur;
+        // this.canvas.onblur = this.blur;
 
         this.timerId = setInterval(() => this.draw(), this.interval);
     }
@@ -487,7 +486,7 @@ class CanvasState {
     }
 
     set borderWidth(value) {
-        if (value < 1) this._borderWidth = 1;
+        if (value < 0) this._borderWidth = 0;
         else this._borderWidth = value;
         this.valid = false;
     }
@@ -678,7 +677,7 @@ class CanvasState {
         const pixel = this.hitCtx.getImageData(x, y, 1, 1).data;
         const color = `rgb(${pixel[0]},${pixel[1]},${pixel[2]})`;
         const nodeId = this.colorHash[color];
-        if (nodeId) {
+        if (nodeId >= 0) {
             return this.nodes[nodeId];
         } return null;
     }
@@ -778,7 +777,7 @@ class CanvasState {
         console.log('mousedown');
         // console.log(e.offsetX);
         // console.log(e.offsetY);
-        console.log(this.classify)
+        console.log(this.classify);
 
         // save start position
         this.startX = e.offsetX;
@@ -814,10 +813,10 @@ class CanvasState {
                     // add to right // positives
                     this.activeNode.positives.push(nodeUnderMouse);
                 }
-            } else if(this.classify) {
+            } else if (this.classify) {
                 // add node to
-                console.log("click while classify mode")
-                this.addNodeToClassify(nodeUnderMouse)
+                console.log('click while classify mode');
+                this.addNodeToClassify(nodeUnderMouse);
             }
         } else {
             // if nothing is clicked
@@ -983,7 +982,7 @@ export default {
         range: 0,
         classify: false, // toggle classify mode on/off
         classifyNodes: [], // selected nodes for classification
-        showOptions: false // show options menu
+        showOptions: false, // show options menu
     }),
     methods: {
         sendData() {
@@ -1047,18 +1046,18 @@ export default {
             this.borderWidth = this.store.borderWidth; // update ui
         },
         toggleClassify() {
-            console.log("classify clicked")
-            this.classify = !this.classify
-            this.store.classify = this.classify
-            console.log(this.store.classify)
+            console.log('classify clicked');
+            this.classify = !this.classify;
+            this.store.classify = this.classify;
+            console.log(this.store.classify);
         },
         addNodeToClassify(node) {
-            console.log("addNodeToClassify")
-            console.log(node)
-            if (this.classifyNodes.indexOf(node) === -1) this.classifyNodes.push(node)
+            console.log('addNodeToClassify');
+            console.log(node);
+            if (this.classifyNodes.indexOf(node) === -1) this.classifyNodes.push(node);
         },
         toggleShowOptions() {
-            this.showOptions = !this.showOptions
+            this.showOptions = !this.showOptions;
         },
 
     },
@@ -1074,12 +1073,6 @@ export default {
     computed: {
         selectedNode() {
             return this.store && this.store.selection && this.store.selection.name;
-        },
-        selectedNodeX() {
-            return this.store && this.store.selection && this.store.selection.x;
-        },
-        selectedNodeY() {
-            return this.store && this.store.selection && this.store.selection.y;
         },
         selectedNodeNeighboursCount() {
             return this.activeNode.links && Object.keys(this.activeNode.links).length;
@@ -1179,40 +1172,13 @@ export default {
 
     #canvas {
         margin: 5px;
-        background-color: black;
+        background-color: white;
+        box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08);
     }
     #canvas.classify {
         cursor: cell;
     }
 
-    .btn {
-        align-self: center;
-        text-decoration: none;
-        margin: 0.5rem;
-        height: 20px;
-        line-height: 20px;
-        padding: 0 14px;
-        box-shadow: 0 4px 6px rgba(50, 50, 93, .11), 0 1px 3px rgba(0, 0, 0, .08);
-        background: #fff;
-        color: #6772e5;
-        border-radius: 4px;
-        font-size: 15px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: .025em;
-        transition: all .15s ease;
-        cursor: pointer;
-    }
-
-    .btn.active {
-        color: #fff;
-        background: #6772e5;
-    }
-
-    .btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08);
-    }
 
     .sub-header {
         display: flex;
