@@ -13,7 +13,7 @@
                 </div>
             </template>
         </div>
-        <div class="node">
+        <div v-if="node.icon" class="node">
             <template v-if="node.icon">
                 <img :src="node.icon.src" alt="">
             </template>
@@ -66,7 +66,7 @@ export default {
         },
         removeNegativ(i) {
             this.node.negatives.splice(i, 1);
-        }
+        },
     },
 };
 </script>
@@ -74,21 +74,30 @@ export default {
 <style scoped>
 
     .triblet-area{
-        width: 100%;
+        /*width: 100%;*/
         height: 10rem;
 
         display: flex;
         background-color: white;
+
+        padding: 5px;
     }
 
     .node {
-        border: 1px solid white;
-        width: 5rem;
-        margin: 2px;
+        /*width: 5rem;*/
+        margin: 0 5px;
+        flex: 1;
+
+        border: 1px solid rgba(146, 144, 142, 0.5);
+        border-radius: 15px;
+        background-color: rgba(91, 88, 82, 0.1);
     }
 
     img {
+        height: 100%;
         width: 100%;
+
+        object-fit: scale-down;
     }
 
     .redActive, .greenActive {
@@ -97,24 +106,39 @@ export default {
     }
     .area {
         display: flex;
-        flex: 1;
-        margin: 2px;
+        justify-content: center;
+        align-items: center;
+        flex-flow: wrap;
+        flex-direction: row;
+        flex: 5;
+        /*margin: 2px;*/
     }
 
     .positives {
-        border: 1px solid green;
+        border: 1px solid rgba(0, 255, 10, 0.5);
+        border-radius: 15px;
+        background-color: rgba(0, 255, 10, 0.1);
     }
 
     .negatives {
-        border: 1px solid red;
+        border: 1px solid rgba(255, 59, 20, 0.5);
+        border-radius: 15px;
+        background-color: rgba(255, 59, 20, 0.1);
     }
 
     .image {
-        max-width: 5rem;
+        width: 4rem;
+        height: 4rem;
+        display: flex;
+        justify-content: center;
+        align-content: center;
+        /*border: 1px solid red;*/
+
+        padding: 0.1rem;
     }
 
     .image :hover {
-        width: 7rem;
+        /*//width: 7rem;*/
     }
 
 

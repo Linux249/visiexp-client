@@ -1181,13 +1181,16 @@ export default {
 
         height: 2.5rem;
 
+        padding: 5px;
+
     }
 
     .body {
         width: 100%;
         height: 100%;
-        /*background-color: rgb(255, 255, 255);*/
+        /*background-color: rgb(255, 90, 75);*/
         /*//color: black;*/
+        /*padding: 5px;*/
     }
 
     .details {
