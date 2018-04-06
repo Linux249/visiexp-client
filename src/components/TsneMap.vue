@@ -56,6 +56,21 @@
                             <div @click="borderWidthMore" class="btn">+1</div>
                         </div>
                     </div>
+                    <div class="row-btn">
+                        <div>ScrollRatio: {{scrollRatio}}</div>
+                        <div class="row">
+                            <div @click="changeScrollRatio(-0.01)" class="btn">-0.1</div>
+                            <div @click="changeScrollRatio(0.01)" class="btn">+0.1</div>
+                        </div>
+                    </div>
+                    <div class="row-btn">
+                        <div>ScrollImgRatio: {{scrollImgRatio}}</div>
+                        <div class="row">
+                            <div @click="changeScrollImgRatio(-0.01)" class="btn">-0.1</div>
+                            <div @click="changeScrollImgRatio(0.01)" class="btn">+0.1</div>
+                        </div>
+                    </div>
+
                     <!--<div class="row-btn">
                         <div>{{range}}}</div>
                         <range-slider v-model="cluster" type="range" min="0" max="800" step="10" />
@@ -235,7 +250,7 @@ class Node {
 
     // ctx is the canvas context
     // scale change through zooming and is used for positioning the images
-    draw(scale, imgWidth, cluster) {
+    draw(scale, scale2, imgWidth, cluster) {
         // console.log('start draw Image');
         // check which picture to use
         this.scale = 1; // scale;
@@ -247,8 +262,8 @@ class Node {
         const w = this.width; // scale / 2;
         const h = this.height; // scale / 2 ;
         */
-        const w = imgData.width * imgWidth / 1000;
-        const h = imgData.height * imgWidth / 1000;
+        const w = imgData.width * imgWidth / 100 / scale2;
+        const h = imgData.height * imgWidth / 100 / scale2;
         const x = this._x - (w / 2);
         const y = this._y - (h / 2);
 
@@ -275,8 +290,8 @@ class Node {
 
         /* const w = activeImgWidth / 10;
         const h = activeImgWidth / 10; */
-        const w = imgData.width * activeImgWidth / 100 / scale; // TODO if image returns check if this width should be still used
-        const h = imgData.height * activeImgWidth / 100 / scale;
+        const w = imgData.width * activeImgWidth / 1000; // TODO if image returns check if this width should be still used
+        const h = imgData.height * activeImgWidth / 1000;
         const x = this._x - (w / 2);
         const y = this._y - (h / 2);
 
@@ -407,7 +422,6 @@ class CanvasState {
         this.kdtree = {};
 
 
-
         this.valid = false; // when set to false, the canvas will redraw everything
         this.nodes = {}; // hash for all nodes
         this.colorHash = {}; // find nodes by color
@@ -420,13 +434,17 @@ class CanvasState {
         this.activeMode = false; // freeze for handling selection
         this.activeNode = false; // node while freeze
 
-        this._cluster = 90;
-        this.updateClusterUI = null
+        this._cluster = 900;
+        this.updateClusterUI = null;
         this._scale = 20;
-        this.updateScaleUI = null
+        this.scale2 = 20;
+        this.updateScaleUI = null;
         this._imgScale = 5;
-        this._activeImgScale = 30;
+        this._activeImgScale = 5;
         this._borderWidth = 5;
+
+        this._scrollRatio = 1.1;
+        this._scrollImgRatio = 1.03;
 
         this.classify = false; // set via UI
         this.addNodeToClassify = null; // UI set function here
@@ -510,8 +528,24 @@ class CanvasState {
         return this._cluster;
     }
 
+    set scrollRatio(v) {
+        if (v <= 1) this._scrollRatio = 1.01;
+        else this._scrollRatio = v;
+    }
 
-    getScale = () => this.scale
+    get scrollRatio() {
+        return this._scrollRatio;
+    }
+
+    set scrollImgRatio(v) {
+        if (v <= 1) this._scrollImgRatio = 1.01;
+        else this._scrollImgRatio = v;
+    }
+
+    get scrollImgRatio() {
+        return this._scrollImgRatio;
+    }
+
 
     triggerDraw() {
         console.log('triggerDraw');
@@ -577,13 +611,13 @@ class CanvasState {
             Object.values(this.nodes).forEach((node) => {
                 if (node.isActive) node.drawAsActive(this.scale, this.activeImgScale, this.cluster);
                 else if (node.isActiveNeighbour) node.drawAsNeighbour(this.scale, this.activeImgScale, this.cluster);
-                else node.draw(this.scale, this.imgScale, this.cluster);
+                else node.draw(this.scale, this.scale2, this.imgScale, this.cluster);
             });
 
             // draw borders
-            Object.values(this.nodes).forEach((node) => {
+            /* Object.values(this.nodes).forEach((node) => {
                 node.drawBorder(this.scale, this.imgScale, this.activeImgScale, this.cluster, this.borderWidth);
-            });
+            }); */
 
             // draw Tribles
 
@@ -665,7 +699,8 @@ class CanvasState {
             if (wheelEvent.deltaY < 0) {
                 console.log('zoom in');
 
-                this.scale = oldScale * 1.1;
+                this.scale *= this.scrollRatio;
+                this.scale2 *= this.scrollImgRatio;
                 this.cluster += 10;
             }
 
@@ -673,7 +708,8 @@ class CanvasState {
             if (wheelEvent.deltaY > 0) {
                 console.log('zoom out');
 
-                this.scale = oldScale / 1.1;
+                this.scale  /= this.scrollRatio;
+                this.scale2 /= this.scrollImgRatio;
                 this.cluster -= 10;
             }
             const scaleChange = this.scale - oldScale;
@@ -1008,6 +1044,9 @@ export default {
         classify: false, // toggle classify mode on/off
         classifyNodes: [], // selected nodes for classification
         showOptions: false, // show options menu
+        scrollRatio: 0,
+        scrollImgRatio: 0,
+
     }),
     methods: {
         sendData() {
@@ -1045,7 +1084,7 @@ export default {
         },
 
         updateCluster(cluster) {
-            this.cluster = cluster
+            this.cluster = cluster;
         },
 
         imgWidthMore() {
@@ -1088,6 +1127,14 @@ export default {
         toggleShowOptions() {
             this.showOptions = !this.showOptions;
         },
+        changeScrollRatio(v) {
+            this.store.scrollRatio += v
+            this.scrollRatio = this.store.scrollRatio
+        },
+        changeScrollImgRatio(v) {
+            this.store.scrollImgRatio += v
+            this.scrollImgRatio = this.store.scrollImgRatio
+        }
 
     },
     watch: {
@@ -1142,6 +1189,8 @@ export default {
         this.imgWidth = s.imgScale;
         this.activeImgWidth = s.activeImgScale;
         this.borderWidth = s.borderWidth;
+        this.scrollRatio = s.scrollRatio;
+        this.scrollImgRatio = s.scrollImgRatio;
 
         console.log('Save store');
         console.log(this.store);
