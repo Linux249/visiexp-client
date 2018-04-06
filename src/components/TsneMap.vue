@@ -275,8 +275,8 @@ class Node {
 
         /* const w = activeImgWidth / 10;
         const h = activeImgWidth / 10; */
-        const w = imgData.width * activeImgWidth / 1000; // TODO if image returns check if this width should be still used
-        const h = imgData.height * activeImgWidth / 1000;
+        const w = imgData.width * activeImgWidth / 100 / scale; // TODO if image returns check if this width should be still used
+        const h = imgData.height * activeImgWidth / 100 / scale;
         const x = this._x - (w / 2);
         const y = this._y - (h / 2);
 
@@ -358,14 +358,14 @@ class Node {
 
         const lineWidth = borderWidth / 10 / scale;
         this.ctx.strokeStyle = this.color;
-        this.ctx.lineWidth = lineWidth
+        this.ctx.lineWidth = lineWidth;
 
 
         if ((this.cluster < cluster) || this.isActive || this.isActiveNeighbour) {
             // cluster represent
-            if(lineWidth) this.ctx.strokeRect(x, y, w, h);
+            if (lineWidth) this.ctx.strokeRect(x, y, w, h);
         } else {
-            if(lineWidth) this.ctx.strokeRect(x, y, w / scale, h / scale);
+            if (lineWidth) this.ctx.strokeRect(x, y, w / scale, h / scale);
             this.hitCtx.fillStyle = this.colorKey;
             this.hitCtx.fillRect(x, y, w / scale, h / scale);
         }
@@ -544,12 +544,11 @@ class CanvasState {
     clear() {
         // move point 0,0 to middle of canvas
         this.ctx.resetTransform();
-
-        // this.ctx.clearRect(-this.width / 2, -this.height / 2, this.width, this.height);
         this.ctx.clearRect(0, 0, this.width, this.height);
         this.ctx.translate(this.translateX, this.translateY);
         this.ctx.scale(this.scale, this.scale);
 
+        // same on hit ctx
         this.hitCtx.resetTransform();
         this.hitCtx.clearRect(0, 0, this.width, this.height);
         this.hitCtx.translate(this.translateX, this.translateY);
@@ -641,21 +640,42 @@ class CanvasState {
 
             this.valid = false;
         } else {
+            const mouseX = wheelEvent.offsetX;
+            const mouseY = wheelEvent.offsetY;
+            // get mouse movement based on the last triggered event
+            const offsetX = (mouseX - this.translateX) / this.scale; // +80 means move 80px to right
+            const offsetY = (mouseY - this.translateY) / this.scale; // -50 means move 50 to top
+            // console.log({ moveX, moveY });
+
+            // console.log("mouse position")
+            // console.log({mouseX, mouseY})
+            // console.log("Offset - distanz to null point ")
+            // console.log({offsetX, offsetY})
+            // console.log("nullpoint position")
+            // console.log(this.translateX, this.translateY)
+
+
+            const oldScale = this.scale;
+
             // Zoom in = increase = wheel up = negativ delta Y
             if (wheelEvent.deltaY < 0) {
                 console.log('zoom in');
-                // this.ctx.scale(2, 2); // TODO is this needed??
-                this.scale += 1;
+
+                this.scale = oldScale * 1.1;
                 this.cluster += 10;
             }
 
             // Zoom out = decrease = wheel down = positiv delta Y
             if (wheelEvent.deltaY > 0) {
                 console.log('zoom out');
-                // this.ctx.scale(0.5, 0.5);
-                this.scale -= 1;// this.scale - 1;
+
+                this.scale = oldScale / 1.1;
                 this.cluster -= 10;
             }
+            const scaleChange = this.scale - oldScale;
+            this.translateX -= offsetX * scaleChange;
+            this.translateY -= offsetY * scaleChange;
+
             this.valid = false;
         }
 
@@ -852,6 +872,7 @@ class CanvasState {
             this.startY = mouseY;
 
             if (this.dragging) {
+                // move the x/y
                 this.translateX += moveX;
                 this.translateY += moveY;
             } else if (this.draggNode) {
@@ -996,12 +1017,12 @@ export default {
         //
         clusterMore() {
             // console.log("cluster more clicked")
-            this.store.cluster -= 10; // update canvasState
+            this.store.cluster += 10; // update canvasState
             this.cluster = this.store.cluster; // update ui
         },
         clusterLess() {
             // console.log("cluster less clicked")
-            this.store.cluster += 10; // update canvasState
+            this.store.cluster -= 10; // update canvasState
             this.cluster = this.store.cluster; // update ui
         },
 
@@ -1161,7 +1182,9 @@ export default {
         // this.updateCanvas();
     },
     beforeDestroy() {
+        // end connection with server socket
         if (this.socket) this.socket.disconnect();
+        // clear check-for-drawing interval
         clearInterval(this.store.timerId);
     },
 };
