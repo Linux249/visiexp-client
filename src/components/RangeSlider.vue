@@ -3,11 +3,11 @@
 </template>
 
 <script>
-    export default {
-        name: "range-slider",
+export default {
+    name: 'range-slider',
 
-        props: ['value', 'change', 'input', 'slide']
-    }
+    props: ['value', 'change', 'input', 'slide'],
+};
 </script>
 
 <style scoped>

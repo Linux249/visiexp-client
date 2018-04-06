@@ -11,9 +11,11 @@
             </div>
         </div>
         <div class="row">
-            <input type="text" value="" onchange="" />
+            <input type="text" v-model="label" @focus="handleFocus" @blur="handleBlur"/>
+            <div v-if="showLabels" class="dropdown" >
+                <div class="item" v-for="label in labelsFiltered" :key="label" @click="chooseLabel(label)">{{label}}}</div>
+            </div>
             <div @click="addLabel" class="btn">add label</div>
-
         </div>
     </div>
 </template>
@@ -22,6 +24,11 @@
 export default {
     name: 'classifier',
     props: ['nodes'],
+    data: () => ({
+        label: '',
+        showLabels: false,
+        labels: ['test1', 'test2']
+    }),
     methods: {
         removeNode(i) {
             console.log(`remove node ${i} clicked`);
@@ -31,8 +38,30 @@ export default {
         addLabel(e) {
             console.log('addLabel clicked');
             console.log(e);
+            console.log(this.label)
+
+            // TODO add label to choosen pictures if they not have this label allready
+            // TODO add label to a global list of labels witch will be generated while reciving nodes from backend
+            this.showLabels = false
+        },
+        handleFocus(e) {
+            console.log("input focus")
+            this.showLabels = true
+        },
+        handleBlur(e) {
+            console.log("input blur")
+            //this.focus = false
+        },
+        chooseLabel(label) {
+            this.label = label
+            this.showLabels = false
         },
     },
+    computed: {
+        labelsFiltered: function() {
+            return this.labels.filter(label => label.includes(this.label))
+        }
+    }
 };
 </script>
 
@@ -47,6 +76,7 @@ export default {
 
     .row {
         display: flex;
+        position: relative;
     }
 
     .imgArea {
@@ -79,4 +109,28 @@ export default {
 
         padding: 0.1rem;
     }
+
+    .dropdown {
+        display: block;
+        position: absolute;
+        left: 0;
+        width: auto;
+
+        background-color: #fff;
+        border: 1px solid #c6c6c6;
+        border-radius: 3px;
+
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        top: 100%;
+        z-index: 1;
+    }
+
+    .item {
+        padding: 3px;
+    }
+
+    .item:hover {
+        background-color: #5cb9ff;
+    }
+
 </style>

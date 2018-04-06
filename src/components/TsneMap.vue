@@ -708,7 +708,7 @@ class CanvasState {
             if (wheelEvent.deltaY > 0) {
                 console.log('zoom out');
 
-                this.scale  /= this.scrollRatio;
+                this.scale /= this.scrollRatio;
                 this.scale2 /= this.scrollImgRatio;
                 this.cluster -= 10;
             }
@@ -1128,13 +1128,13 @@ export default {
             this.showOptions = !this.showOptions;
         },
         changeScrollRatio(v) {
-            this.store.scrollRatio += v
-            this.scrollRatio = this.store.scrollRatio
+            this.store.scrollRatio += v;
+            this.scrollRatio = this.store.scrollRatio;
         },
         changeScrollImgRatio(v) {
-            this.store.scrollImgRatio += v
-            this.scrollImgRatio = this.store.scrollImgRatio
-        }
+            this.store.scrollImgRatio += v;
+            this.scrollImgRatio = this.store.scrollImgRatio;
+        },
 
     },
     watch: {
