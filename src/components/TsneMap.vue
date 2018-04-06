@@ -406,7 +406,7 @@ class CanvasState {
         // **** Keep track of state! ****
         this.kdtree = {};
 
-        this._cluster = 90;
+
 
         this.valid = false; // when set to false, the canvas will redraw everything
         this.nodes = {}; // hash for all nodes
@@ -420,7 +420,10 @@ class CanvasState {
         this.activeMode = false; // freeze for handling selection
         this.activeNode = false; // node while freeze
 
+        this._cluster = 90;
+        this.updateClusterUI = null
         this._scale = 20;
+        this.updateScaleUI = null
         this._imgScale = 5;
         this._activeImgScale = 30;
         this._borderWidth = 5;
@@ -500,6 +503,7 @@ class CanvasState {
         if (value < 1) this._cluster = 1;
         else this._cluster = value;
         this.valid = false;
+        this.updateClusterUI(this.cluster);
     }
 
     get cluster() {
@@ -1040,6 +1044,10 @@ export default {
             this.scale = scale;
         },
 
+        updateCluster(cluster) {
+            this.cluster = cluster
+        },
+
         imgWidthMore() {
             this.store.imgScale += 1; // update canvasState
             this.imgWidth = this.store.imgScale; // update ui
@@ -1126,6 +1134,7 @@ export default {
 
         s.updateSelectionUI = this.updateSelection;
         s.updateScaleUI = this.updateScale;
+        s.updateClusterUI = this.updateCluster;
         s.addNodeToClassify = this.addNodeToClassify;
 
         // set init value in UI
