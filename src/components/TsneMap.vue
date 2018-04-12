@@ -1158,7 +1158,7 @@ export default {
         },
     },
     mounted() {
-        const socket = io('http://localhost:3000');
+        const socket = io.connect('http://localhost:3000');
         const canvas = document.getElementById('canvas');
         const parantWidth = canvas.parentNode.clientWidth * 0.8;
         const parantHeight = 700; // canvas.parentNode.clientHeight //* 0.8
@@ -1196,30 +1196,31 @@ export default {
         console.log(this.store);
         this.socket = socket;
 
-        socket.on('connect', (soc) => {
-            if (!soc) {
-                console.log('no conection');
-                console.log(soc);
-            } else {
-                console.log('conected'); // das wirft immer unde
-                console.log(soc);
-            }
-            socket.emit('updateNodes', {});
+        socket.on('connect', () => {
+            console.log('conected'); // das wirft immer unde
+            console.log(socket)
+            // if there is allready data then this is just a reconnect
+            if(!this.store.getNodes().length) socket.emit('updateNodes', {});
+            // s.clear() // maybe there is something inside?
+        });
+        socket.on('disconnect', () => {
+            console.log('disconnect'); // das wirft immer unde
+            console.log(socket)
             // s.clear() // maybe there is something inside?
         });
 
         socket.on('node', (data) => {
-            console.log('receive node');
-            console.log(data);
+            // console.log('receive node');
+            // console.log(data);
             if (data) {
                 s.addNode(new Node(data, s.ctx, s.hitCtx, s.triggerDraw));
             }
         });
         socket.on('receiveImage', (data) => {
-            console.log('receive image data');
-            console.log(data);
+            //console.log('receive image data');
+            //console.log(data);
             const node = s.nodes[data.index];
-            console.log(node);
+            //console.log(node);
             node.image.src = `data:image/jpeg;base64,${data.buffer}`;
             node.hasImage = true;
             s.valid = false;
