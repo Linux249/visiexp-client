@@ -1131,11 +1131,11 @@ export default {
             this.showOptions = !this.showOptions;
         },
         changeScrollRatio(v) {
-            this.store.scrollRatio += v;
+            this.store.scrollRatio = Math.round((this.store.scrollRatio + v)*100)/100;
             this.scrollRatio = this.store.scrollRatio;
         },
         changeScrollImgRatio(v) {
-            this.store.scrollImgRatio += v;
+            this.store.scrollImgRatio = Math.round((this.store.scrollImgRatio + v)*100)/100;
             this.scrollImgRatio = this.store.scrollImgRatio;
         },
 
