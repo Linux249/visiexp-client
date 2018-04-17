@@ -85,6 +85,7 @@
                     <div>Label: {{activeNode.label}}</div>
                     <div>Links #: {{selectedNodeNeighboursCount}}</div>
                     <div>S: {{scale}}</div>
+                    <div>IS: {{scale2}}</div>
                 </div>
             </div>
         </div>
@@ -436,8 +437,9 @@ class CanvasState {
         this._cluster = 9000;
         this.updateClusterUI = null;
         this._scale = 20;
-        this.scale2 = 20;
+        this._scale2 = 20;
         this.updateScaleUI = null;
+        this.updateScale2UI = null;
         this._imgScale = 12;
         this._activeImgScale = 5;
         this._borderWidth = 5;
@@ -483,6 +485,17 @@ class CanvasState {
 
     get scale() {
         return this._scale;
+    }
+
+    set scale2(value) {
+        if (value < 1) this._scale = 1;
+        else this._scale2 = value;
+        this.valid = false;
+        this.updateScale2UI(this.scale2);
+    }
+
+    get scale2() {
+        return this._scale2;
     }
 
     set imgScale(value) {
@@ -1033,6 +1046,7 @@ export default {
         loadingNodes: false,
         nodesCount: 0,
         scale: 0,
+        scale2: 0,
         labels: {},
         width: 0,
         height: 0,
@@ -1084,6 +1098,10 @@ export default {
 
         updateScale(scale) {
             this.scale = scale;
+        },
+
+        updateScale2(scale2) {
+            this.scale2 = scale2;
         },
 
         updateCluster(cluster) {
@@ -1185,6 +1203,7 @@ export default {
 
         s.updateSelectionUI = this.updateSelection;
         s.updateScaleUI = this.updateScale;
+        s.updateScale2UI = this.updateScale2;
         s.updateClusterUI = this.updateCluster;
         s.addNodeToClassify = this.addNodeToClassify;
 
