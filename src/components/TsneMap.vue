@@ -3,7 +3,8 @@
         <div class="sub-header">
             <div>
                 <div class="row">
-
+                    <div>nodesCount: {{nodesCount}}</div>
+                    <div>connected: {{connectedToSocket}}</div>
                     <!--<div @click="scaleUp" class="btn">+</div>
                     <div @click="scaleDown" class="btn">-</div>-->
                 </div>
@@ -22,6 +23,7 @@
                 <div @click="toggleClassify" class="btn" :class="{ active: classify }">Classification</div>
                 <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">Options</div>
                 <div @click="sendData" class="btn" >Update Data</div>
+                <div v-if="loadingNodes" class="loader" ></div>
             </div>
         </div>
         <div class="row">
@@ -103,7 +105,7 @@ import range from '../util/range';
 
 /* eslint no-underscore-dangle: ["error", { "allowAfterThis": true }] */
 class Node {
-    constructor(data, ctx, hitCtx, triggerDraw) {
+    constructor(data, ctx, hitCtx) {
         this.name = data.name;
         this.links = data.links;
         this.index = data.index;
@@ -125,13 +127,10 @@ class Node {
         this.initX = data.x;
         this.initY = data.y;
 
-        // callback for drawing everything
-        this.triggerDraw = triggerDraw;
-
         this.activeScale = 3; // showing images bigger
         // this.scale = 1;
         this.icon = new Image();
-        this.icon.src = `data:image/jpeg;base64,${data.buffer}`;
+        this.icon.src = data.buffer;
 
         this._isActive = false; // handle clicked node
         this.isActiveNeighbour = false; // is this a neighbour of a active node?
@@ -434,7 +433,7 @@ class CanvasState {
         this.activeMode = false; // freeze for handling selection
         this.activeNode = false; // node while freeze
 
-        this._cluster = 900;
+        this._cluster = 9000;
         this.updateClusterUI = null;
         this._scale = 20;
         this.scale2 = 20;
@@ -548,7 +547,6 @@ class CanvasState {
 
 
     triggerDraw() {
-        console.log('triggerDraw');
         this.valid = false;
     }
 
@@ -609,9 +607,10 @@ class CanvasState {
 
             // draw images
             Object.values(this.nodes).forEach((node) => {
-                if (node.isActive) node.drawAsActive(this.scale, this.activeImgScale, this.cluster);
-                else if (node.isActiveNeighbour) node.drawAsNeighbour(this.scale, this.activeImgScale, this.cluster);
-                else node.draw(this.scale, this.scale2, this.imgScale, this.cluster);
+                // if (node.isActive) node.drawAsActive(this.scale, this.activeImgScale, this.cluster);
+                // else if (node.isActiveNeighbour) node.drawAsNeighbour(this.scale, this.activeImgScale, this.cluster);
+                // else
+                node.draw(this.scale, this.scale2, this.imgScale, this.cluster);
             });
 
             // draw borders
@@ -1025,12 +1024,14 @@ export default {
         Classifier,
     },
     data: () => ({
-        exampleContent: 'This is TEXT',
         items: [],
         positives: [],
         negatives: [],
         // store: null,
         socket: null,
+        connectedToSocket: false,
+        loadingNodes: false,
+        nodesCount: 0,
         scale: 0,
         labels: {},
         width: 0,
@@ -1055,6 +1056,8 @@ export default {
             // this.store.clear()
             this.store.resetStore();
             this.socket.emit('updateNodes', nodes);
+            this.loadingNodes = true;
+            this.nodesCount = 0;
         },
 
         //
@@ -1138,9 +1141,6 @@ export default {
 
     },
     watch: {
-        exampleContent(val, oldVal) {
-            this.updateCanvas();
-        },
         cluster(value) {
             console.log('change cluster');
             this.store.cluster = value;
@@ -1158,7 +1158,11 @@ export default {
         },
     },
     mounted() {
-        const socket = io.connect('http://localhost:3000');
+        const socket = io.connect('http://localhost:3000', {
+            transports: ['websocket'],
+            reconnectionDelay: 100,
+            reconnectionDelayMax: 1000,
+        });
         const canvas = document.getElementById('canvas');
         const parantWidth = canvas.parentNode.clientWidth * 0.8;
         const parantHeight = 700; // canvas.parentNode.clientHeight //* 0.8
@@ -1197,33 +1201,54 @@ export default {
         this.socket = socket;
 
         socket.on('connect', () => {
+            this.connectedToSocket = true;
             console.log('conected'); // das wirft immer unde
-            console.log(socket)
+            console.log(`Socket id: ${socket.id}`); // das wirft immer unde
+            console.log(socket);
             // if there is allready data then this is just a reconnect
-            if(!this.store.getNodes().length) socket.emit('updateNodes', {});
+            const nodes = this.store.getNodes();
+            console.log('nodes in store while connect (its maybe just a reconnect)');
+            console.log(nodes);
+            if (!Object.keys(nodes).length && !this.loadingNodes) {
+                socket.emit('updateNodes', {});
+                this.loadingNodes = true;
+            }
             // s.clear() // maybe there is something inside?
         });
-        socket.on('disconnect', () => {
-            console.log('disconnect'); // das wirft immer unde
-            console.log(socket)
+        socket.on('disconnect', (reason) => {
+            this.connectedToSocket = false;
+            console.log(`disconnect: ${reason}`); // das wirft immer unde
+            console.log(socket);
             // s.clear() // maybe there is something inside?
         });
 
-        socket.on('node', (data) => {
-            // console.log('receive node');
-            // console.log(data);
-            if (data) {
-                s.addNode(new Node(data, s.ctx, s.hitCtx, s.triggerDraw));
+        socket.on('node', (data, cb) => {
+            if (data.index % 100 === 0) {
+                console.log(`receive node ${data.index}`);
+                console.log(data);
             }
+
+            s.addNode(new Node(data, s.ctx, s.hitCtx));
+            s.triggerDraw();
+            cb(data.index);
         });
+
         socket.on('receiveImage', (data) => {
-            //console.log('receive image data');
-            //console.log(data);
+            // console.log('receive image data');
+            // console.log(data);
             const node = s.nodes[data.index];
-            //console.log(node);
+            // console.log(node);
             node.image.src = `data:image/jpeg;base64,${data.buffer}`;
             node.hasImage = true;
             s.valid = false;
+        });
+
+        socket.on('allNodesUpdated', () => {
+            this.loadingNodes = false;
+        });
+        socket.on('nodesCount', (nodesCount) => {
+            console.log(`nodesCount: ${nodesCount}`);
+            this.nodesCount = nodesCount;
         });
 
         socket.on('updateLabels', (data) => {
@@ -1239,6 +1264,38 @@ export default {
             // console.log(s.range(-5 ,-5 ,5 ,5))
         });
         // this.updateCanvas();
+
+        socket.on('connect_error', () => {
+            console.log('connect_error');
+        });
+
+        socket.on('connect_timeout', () => {
+            console.log('connect_timeout');
+        });
+
+        socket.on('reconnect', () => {
+            console.log('reconnect');
+        });
+
+        socket.on('connecting', () => {
+            console.log('connecting');
+        });
+
+        socket.on('reconnecting', () => {
+            console.log('reconnecting');
+        });
+
+        socket.on('connect_failed', () => {
+            console.log('connect_failed');
+        });
+
+        socket.on('reconnect_failed', () => {
+            console.log('reconnect_failed');
+        });
+
+        socket.on('close', () => {
+            console.log('close');
+        });
     },
     beforeDestroy() {
         // end connection with server socket
@@ -1310,6 +1367,20 @@ export default {
 
     input {
 
+    }
+
+    .loader {
+        border: 3px solid #f3f3f3; /* Light grey */
+        border-top: 3px solid #6772e5; /* Blue */
+        border-radius: 50%;
+        width: 15px;
+        height: 15px;
+        animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 
 </style>
