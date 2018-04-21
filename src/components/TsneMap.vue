@@ -11,12 +11,21 @@
             </div>
             <div class="row">
                 <div
+                    v-for="(value, i) in labels"
                     class="btn"
-                    v-for="(value, key) in labels"
-                    :key="key"
+                    :class="{ active: selectedLabel === value }"
+                    :key="i"
+                    @click="toogleLabel(value)"
                     v-bind:style="{'color': value}"
                 >
-                    {{ key }}
+                    {{ value }}
+                </div>
+                <div
+                    class="btn"
+                    :class="{ active: showKLabels }"
+                    @click="toggleShowKLabels"
+                >
+                    K-Label
                 </div>
             </div>
             <div class="row">
@@ -124,6 +133,7 @@ class Node {
         this.negatives = data.negatives;
 
         this.label = data.label;
+        this.labels = data.labels;
         // x,y for reseting
         this.initX = data.x;
         this.initY = data.y;
@@ -345,7 +355,7 @@ class Node {
     }
 
 
-    drawBorder(scale, imgWidth, activeImgWidth, cluster, borderWidth) {
+    drawBorder(scale, imgWidth, activeImgWidth, cluster, borderWidth, labelColor) {
         /* const x = this.x;
         const y = this.y;
         const w = this.width; // scale;
@@ -372,7 +382,7 @@ class Node {
         const y = this._y - (h / 2);
 
         const lineWidth = borderWidth / 10 / scale;
-        this.ctx.strokeStyle = this.color;
+        this.ctx.strokeStyle = labelColor || this.color;
         this.ctx.lineWidth = lineWidth;
 
 
@@ -430,6 +440,11 @@ class CanvasState {
 
         // the current selected object. TODO  In the future we could turn this into an array for multiple selection
         this.selection = null;
+
+        // K labels for development
+        this.showKLabels = false;
+        this.selectedLabel = null; // the choosen label for highlighten images
+        this.labelColor = null; // updatet throud ui
 
         this.activeMode = false; // freeze for handling selection
         this.activeNode = false; // node while freeze
@@ -626,10 +641,18 @@ class CanvasState {
                 node.draw(this.scale, this.scale2, this.imgScale, this.cluster);
             });
 
-            // draw borders
-            /* Object.values(this.nodes).forEach((node) => {
-                node.drawBorder(this.scale, this.imgScale, this.activeImgScale, this.cluster, this.borderWidth);
-            }); */
+            if (this.showKLabels) {
+                // draw borders
+                Object.values(this.nodes).forEach((node) => {
+                    node.drawBorder(this.scale, this.imgScale, this.activeImgScale, this.cluster, this.borderWidth);
+                });
+            } else if (this.selectedLabel) {
+                Object.values(this.nodes).forEach((node) => {
+                    if (node.labels.indexOf(this.selectedLabel) !== -1) {
+                        node.drawBorder(this.scale, this.imgScale, this.activeImgScale, this.cluster, this.borderWidth, this.labelColor);
+                    }
+                });
+            }
 
             // draw Tribles
 
@@ -1047,7 +1070,10 @@ export default {
         nodesCount: 0,
         scale: 0,
         scale2: 0,
-        labels: {},
+        labels: [],
+        selectedLabel: null,
+        labelColor: '#6057ff',
+        showKLabels: false,
         width: 0,
         height: 0,
         activeNode: {},
@@ -1149,12 +1175,24 @@ export default {
             this.showOptions = !this.showOptions;
         },
         changeScrollRatio(v) {
-            this.store.scrollRatio = Math.round((this.store.scrollRatio + v)*100)/100;
+            this.store.scrollRatio = Math.round((this.store.scrollRatio + v) * 100) / 100;
             this.scrollRatio = this.store.scrollRatio;
         },
         changeScrollImgRatio(v) {
-            this.store.scrollImgRatio = Math.round((this.store.scrollImgRatio + v)*100)/100;
+            this.store.scrollImgRatio = Math.round((this.store.scrollImgRatio + v) * 100) / 100;
             this.scrollImgRatio = this.store.scrollImgRatio;
+        },
+        toggleShowKLabels() {
+            this.showKLabels = !this.showKLabels;
+            this.store.showKLabels = this.showKLabels;
+            this.store.valid = false;
+            console.log(this.showKLabels);
+        },
+        toogleLabel(label) {
+            if (this.selectedLabel === label) this.selectedLabel = null;
+            else this.selectedLabel = label;
+            this.store.selectedLabel = this.selectedLabel;
+            this.store.triggerDraw()
         },
 
     },
@@ -1206,6 +1244,9 @@ export default {
         s.updateScale2UI = this.updateScale2;
         s.updateClusterUI = this.updateCluster;
         s.addNodeToClassify = this.addNodeToClassify;
+
+        // sync values from UI to store
+        s.labelColor = this.labelColor;
 
         // set init value in UI
         this.cluster = s.cluster;
