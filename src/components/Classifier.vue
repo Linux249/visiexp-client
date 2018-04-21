@@ -13,7 +13,7 @@
         <div class="row">
             <input type="text" v-model="label" @focus="handleFocus" @blur="handleBlur"/>
             <div v-if="showLabels" class="dropdown" >
-                <div class="item" v-for="label in labelsFiltered" :key="label" @click="chooseLabel(label)">{{label}}}</div>
+                <div class="item" v-for="label in labelsFiltered" :key="label" @click="chooseLabel(label)">{{label}}</div>
             </div>
             <div @click="addLabel" class="btn">add label</div>
         </div>
@@ -23,11 +23,10 @@
 <script>
 export default {
     name: 'classifier',
-    props: ['nodes'],
+    props: ['nodes', 'labels'],
     data: () => ({
         label: '',
-        showLabels: false,
-        labels: ['test1', 'test2']
+        showLabels: false
     }),
     methods: {
         removeNode(i) {
@@ -35,10 +34,21 @@ export default {
             console.log(this.nodes);
             this.nodes.splice(i, 1);
         },
-        addLabel(e) {
+        addLabel({target}) {
             console.log('addLabel clicked');
-            console.log(e);
             console.log(this.label)
+
+            // check if label is in list of labels allready?
+            if(this.labels.indexOf(this.label) === -1) this.labels.push(this.label)
+
+            // ad label to nodes after checking that is npot allready used at node
+            this.nodes.forEach(node => {
+                if(node.labels.indexOf(this.label) === -1 ) node.labels.push(this.label)
+            })
+
+            // reset input/label
+            this.label = '';
+
 
             // TODO add label to choosen pictures if they not have this label allready
             // TODO add label to a global list of labels witch will be generated while reciving nodes from backend

@@ -87,7 +87,7 @@
                         <range-slider v-model="cluster" type="range" min="0" max="800" step="10" />
                     </div>-->
                 </div>
-                <classifier v-if="classify" :nodes="classifyNodes"/>
+                <classifier v-if="classify" :nodes="classifyNodes" :labels="labels"/>
                 <div class="info-box">
                     <img class="img" v-if="activeNode.hasImage" :src="activeNode.image.src" />
                     <div>Name: {{activeNode.name}}</div>
