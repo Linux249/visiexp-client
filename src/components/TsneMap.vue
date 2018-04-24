@@ -1,9 +1,13 @@
 <template>
     <div class="body">
         <div class="sub-header">
+            <div class="tool-box">
+                <scissors :active="scissors" :clickHandler="selectScissors">a</scissors>
+            </div>
+
             <div>
                 <div class="row">
-                    <div>nodesCount: {{nodesCount}}</div>
+                    <div>nodes #: {{nodesCount}}</div>
                     <div>connected: {{connectedToSocket}}</div>
                     <!--<div @click="scaleUp" class="btn">+</div>
                     <div @click="scaleDown" class="btn">-</div>-->
@@ -417,8 +421,10 @@ class Node {
 
 
 class CanvasState {
-    constructor(canvas, hitCanvas, socket) {
+    constructor(canvas, hitCanvas, socket, ui) {
         this.socket = socket;
+
+        this.ui = ui
 
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
@@ -448,6 +454,14 @@ class CanvasState {
 
         this.activeMode = false; // freeze for handling selection
         this.activeNode = false; // node while freeze
+
+        this.scissors = false
+        this.drawScissors = false
+        this.scissorsStartX = 0
+        this.scissorsStartY = 0
+
+        this.scissorsEndX = 0
+        this.scissorsEndY = 0
 
         this._cluster = 9000;
         this.updateClusterUI = null;
@@ -652,6 +666,21 @@ class CanvasState {
                         node.drawBorder(this.scale, this.imgScale, this.activeImgScale, this.cluster, this.borderWidth, this.labelColor);
                     }
                 });
+            }
+
+            if (this.drawScissors) {
+                const x = (this.scissorsStartX -this.translateX)/this.scale
+                const y = (this.scissorsStartY - this.translateY)/this.scale
+                const w = (this.scissorsEndX - this.scissorsStartX)/this.scale
+                const h = (this.scissorsEndY - this.scissorsStartY)/this.scale
+
+                this.ctx.strokeStyle = '#3882ff'
+                this.ctx.lineWidth = 2 / this.scale
+
+                this.ctx.strokeRect(x, y, w, h)
+                this.ctx.globalAlpha = 0.2;
+                this.ctx.fillRect(x, y, w, h)
+                this.ctx.globalAlpha = 1.0;
             }
 
             // draw Tribles
@@ -913,11 +942,20 @@ class CanvasState {
                 console.log('click while classify mode');
                 this.addNodeToClassify(nodeUnderMouse);
             }
+        } else if (this.scissors) {
+            console.log("Scissors")
+            // save start X/Y
+            this.drawScissors = true
+            this.scissorsStartX = this.startX
+            this.scissorsStartY = this.startY
+            this.valid = false
+
         } else {
-            // if nothing is clicked
-            this.dragging = true;
+                // if nothing is clicked
+                this.dragging = true
         }
-    }
+        }
+
 
     handleMouseMove = (e) => {
         // other way for getting x/y
@@ -928,6 +966,12 @@ class CanvasState {
 
         const mouseX = e.offsetX;
         const mouseY = e.offsetY;
+
+        if(this.scissors) {
+            this.scissorsEndX = mouseX
+            this.scissorsEndY = mouseY
+            this.valid = false
+        }
 
 
         // there is a freeze and not freeze mode - different interaction based ob if a node is active or node
@@ -1027,6 +1071,14 @@ class CanvasState {
         console.log('mouseup');
         this.dragging = false;
         this.draggNode = false;
+
+        if(this.scissors) {
+            this.scissors = false
+            this.drawScissors = false
+            this.ui.scissors = false
+            this.valid = false
+            // TODO handle object in scissors rectangle
+        }
     }
 
 
@@ -1050,11 +1102,13 @@ class CanvasState {
 import RangeSlider from './RangeSlider';
 import Triblets from './Triblets';
 import Classifier from './Classifier';
+import Scissors from "../icons/Scissors";
 
 export default {
     store: null,
     name: 'TsneMap',
     components: {
+        Scissors,
         RangeSlider,
         Triblets,
         Classifier,
@@ -1074,6 +1128,7 @@ export default {
         selectedLabel: null,
         labelColor: '#6057ff',
         showKLabels: false,
+        scissors: false,
         width: 0,
         height: 0,
         activeNode: {},
@@ -1194,6 +1249,11 @@ export default {
             this.store.selectedLabel = this.selectedLabel;
             this.store.triggerDraw()
         },
+        selectScissors() {
+            console.log("selectScissors")
+            this.scissors = !this.scissors
+            this.store.scissors = this.scissors
+        }
 
     },
     watch: {
@@ -1235,7 +1295,7 @@ export default {
         hitCanvas.height = parantHeight;
 
         // const ctx = canvas.getContext('2d');
-        const s = new CanvasState(canvas, hitCanvas, socket);
+        const s = new CanvasState(canvas, hitCanvas, socket, this);
 
         this.store = s;
 
