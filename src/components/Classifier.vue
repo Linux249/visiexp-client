@@ -1,9 +1,8 @@
 <template>
     <div class="classifier">
         <div class="imgArea">
-            <div class="image" v-for="(n, i) in nodes">
+            <div class="image" v-for="(n, i) in nodes" :key="i">
                 <img
-                    :key="i"
                     :src="n.icon.src"
                     alt=""
                     @click="removeNode(i)"

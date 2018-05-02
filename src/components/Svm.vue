@@ -3,9 +3,9 @@
 </template>
 
 <script>
-    export default {
-        name: "Svm"
-    }
+export default {
+    name: 'Svm',
+};
 </script>
 
 <style scoped>
