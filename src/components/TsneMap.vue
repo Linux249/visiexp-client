@@ -101,6 +101,7 @@
                     </div>-->
                 </div>
                 <classifier v-if="classify" :nodes="classifyNodes" :labels="labels"/>
+                <router-view :nodes="classifyNodes" :labels="labels"/>
                 <div class="info-box">
                     <img class="img" v-if="activeNode.hasImage" :src="activeNode.image.src" />
                     <div>Name: {{activeNode.name}}</div>
@@ -131,10 +132,10 @@ function makeImgageData(img) {
     const context = canvas.getContext('2d');
     canvas.width = img.width;
     canvas.height = img.height;
-    context.drawImage(img, 0, 0 );
-    const data =  context.getImageData(0, 0, img.width, img.height);
-    console.log(data)
-    return data
+    context.drawImage(img, 0, 0);
+    const data = context.getImageData(0, 0, img.width, img.height);
+    console.log(data);
+    return data;
 }
 
 /* eslint no-underscore-dangle: ["error", { "allowAfterThis": true }] */
@@ -163,7 +164,7 @@ class Node {
         this.initY = data.y;
 
         this.activeScale = 3; // showing images bigger
-        this.scale = 1;     // TODO is not needen anymore
+        this.scale = 1; // TODO is not needen anymore
         this.icon = new Image();
         this.icon.src = data.buffer;
 
@@ -181,9 +182,7 @@ class Node {
 
         this._value = null; // value will be set by the active nodes neighbour-values, default is 5
 
-        //this.imgData = makeImgageData(this.icon)
-
-
+        // this.imgData = makeImgageData(this.icon)
     }
 
     get width() {
@@ -291,7 +290,7 @@ class Node {
     async draw(scale, scale2, imgWidth, cluster) {
         // console.log('start draw Image');
         // check which picture to use
-        //this.scale = 1; // scale;
+        // this.scale = 1; // scale;
 
         const imgData = this.icon;
 
@@ -306,12 +305,12 @@ class Node {
         const y = this._y - (h / 2);
 
 
-        //const data = await createImageBitmap(imgData, 0, 0, w, h)
+        // const data = await createImageBitmap(imgData, 0, 0, w, h)
         // createImageBitmap(imgData,0, 0, 2, 2, {resizeHeight: h, resizeWidth: w}).then(data => {
         //     console.log(data)
         //     this.ctx.drawImage(data, x, y)
         // })
-        this.ctx.drawImage(imgData, x, y, w, h)
+        this.ctx.drawImage(imgData, x, y, w, h);
 
 
         this.hitCtx.fillStyle = this.colorKey;
@@ -322,11 +321,11 @@ class Node {
     }
 
     drawClusterd(scale, scale2, imgWidth, cluster) {
-        const s =  1 / scale;
-        const x = this._x
-        const y = this._y
+        const s = 1 / scale;
+        const x = this._x;
+        const y = this._y;
 
-        this.ctx.fillStyle = 'grey'
+        this.ctx.fillStyle = 'grey';
         this.ctx.fillRect(x, y, s, s);
     }
 
@@ -462,7 +461,7 @@ class CanvasState {
     constructor(canvas, hitCanvas, socket, ui) {
         this.socket = socket;
 
-        this.ui = ui
+        this.ui = ui;
 
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
@@ -477,7 +476,7 @@ class CanvasState {
 
 
         this.valid = false; // when set to false, the canvas will redraw everything
-        this._valid = false
+        this._valid = false;
         this.nodes = {}; // hash for all nodes
         this.colorHash = {}; // find nodes by color
         this.dragging = false; // Keep track of when we are dragging
@@ -494,13 +493,13 @@ class CanvasState {
         this.activeMode = false; // freeze for handling selection
         this.activeNode = false; // node while freeze
 
-        this.scissors = false
-        this.drawScissors = false
-        this.scissorsStartX = 0
-        this.scissorsStartY = 0
+        this.scissors = false;
+        this.drawScissors = false;
+        this.scissorsStartX = 0;
+        this.scissorsStartY = 0;
 
-        this.scissorsEndX = 0
-        this.scissorsEndY = 0
+        this.scissorsEndX = 0;
+        this.scissorsEndY = 0;
 
         this._cluster = 500;
         this.updateClusterUI = null;
@@ -537,11 +536,10 @@ class CanvasState {
         this.canvas.onmousedown = this.handleMouseDown;
         this.canvas.onmousemove = this.handleMouseMove;
         this.canvas.onmouseup = this.handleMouseUp;
-        // this.canvas.onlclick = this.handleClick;
         this.canvas.ondblclick = this.handleDoubleClick;
         this.canvas.onwheel = this.zoom;
         // this.canvas.onblur = this.blur;
-        //this.timerId = setInterval(() => this.draw(), this.interval);
+        // this.timerId = setInterval(() => this.draw(), this.interval);
     }
 
     set scale(value) {
@@ -633,11 +631,11 @@ class CanvasState {
     set clusterGrowth(v) {
         if (v <= 1) this._clusterGrowth = 1.01;
         else this._clusterGrowth = v;
-        this.ui.clusterGrowth = this.clusterGrowth
+        this.ui.clusterGrowth = this.clusterGrowth;
     }
 
     set valid(v) {
-        if (!v) window.requestAnimationFrame(this.draw)
+        if (!v) window.requestAnimationFrame(this.draw);
         this._valid = v;
     }
 
@@ -713,8 +711,7 @@ class CanvasState {
                 // if node is clustered dont draw and draw pixel instead
                 if (this.cluster < node.cluster) {
                     node.drawClusterd(this.scale, this.scale2, this.imgScale, this.cluster);
-                }
-                else node.draw(this.scale, this.scale2, this.imgScale, this.cluster);
+                } else node.draw(this.scale, this.scale2, this.imgScale, this.cluster);
             });
 
             if (this.showKLabels) {
@@ -731,17 +728,17 @@ class CanvasState {
             }
 
             if (this.drawScissors) {
-                const x = (this.scissorsStartX -this.translateX)/this.scale
-                const y = (this.scissorsStartY - this.translateY)/this.scale
-                const w = (this.scissorsEndX - this.scissorsStartX)/this.scale
-                const h = (this.scissorsEndY - this.scissorsStartY)/this.scale
+                const x = (this.scissorsStartX - this.translateX) / this.scale;
+                const y = (this.scissorsStartY - this.translateY) / this.scale;
+                const w = (this.scissorsEndX - this.scissorsStartX) / this.scale;
+                const h = (this.scissorsEndY - this.scissorsStartY) / this.scale;
 
-                this.ctx.strokeStyle = '#3882ff'
-                this.ctx.lineWidth = 2 / this.scale
+                this.ctx.strokeStyle = '#3882ff';
+                this.ctx.lineWidth = 2 / this.scale;
 
-                this.ctx.strokeRect(x, y, w, h)
+                this.ctx.strokeRect(x, y, w, h);
                 this.ctx.globalAlpha = 0.2;
-                this.ctx.fillRect(x, y, w, h)
+                this.ctx.fillRect(x, y, w, h);
                 this.ctx.globalAlpha = 1.0;
             }
 
@@ -1005,18 +1002,17 @@ class CanvasState {
                 this.addNodeToClassify(nodeUnderMouse);
             }
         } else if (this.scissors) {
-            console.log("Scissors")
+            console.log('Scissors');
             // save start X/Y
-            this.drawScissors = true
-            this.scissorsStartX = this.startX
-            this.scissorsStartY = this.startY
-            this.valid = false
-
+            this.drawScissors = true;
+            this.scissorsStartX = this.startX;
+            this.scissorsStartY = this.startY;
+            this.valid = false;
         } else {
-                // if nothing is clicked
-                this.dragging = true
+            // if nothing is clicked
+            this.dragging = true;
         }
-        }
+    }
 
 
     handleMouseMove = (e) => {
@@ -1029,10 +1025,10 @@ class CanvasState {
         const mouseX = e.offsetX;
         const mouseY = e.offsetY;
 
-        if(this.scissors) {
-            this.scissorsEndX = mouseX
-            this.scissorsEndY = mouseY
-            this.valid = false
+        if (this.scissors) {
+            this.scissorsEndX = mouseX;
+            this.scissorsEndY = mouseY;
+            this.valid = false;
         }
 
 
@@ -1042,9 +1038,9 @@ class CanvasState {
         // load high resoultion image
         if (nodeUnderMouse && !nodeUnderMouse.hasImage) this.socket.emit('requestImage', { name: nodeUnderMouse.name, index: nodeUnderMouse.index });
 
-        if(!this.activeMode) {
-            if(nodeUnderMouse) this.ui.activeNode = nodeUnderMouse
-            else this.ui.activeNode = false
+        if (!this.activeMode) {
+            if (nodeUnderMouse) this.ui.activeNode = nodeUnderMouse;
+            else this.ui.activeNode = false;
         }
 
 
@@ -1135,16 +1131,23 @@ class CanvasState {
         // mouse over empty area */
     }
 
-    handleMouseUp = () => {
+    handleMouseUp = (e) => {
         console.log('mouseup');
+        const nodeUnderMouse = this.findNodeByMousePosition(e.offsetX, e.offsetY);
+        if (nodeUnderMouse === this.draggNode) {
+            //click event on a special node - do something
+
+        }
+
+
         this.dragging = false;
         this.draggNode = false;
 
-        if(this.scissors) {
-            this.scissors = false
-            this.drawScissors = false
-            this.ui.scissors = false
-            this.valid = false
+        if (this.scissors) {
+            this.scissors = false;
+            this.drawScissors = false;
+            this.ui.scissors = false;
+            this.valid = false;
             // TODO handle object in scissors rectangle
         }
     }
@@ -1156,12 +1159,12 @@ class CanvasState {
         if (this.selection && !this.activeMode) {
             this.activeMode = true;
             this.ui.activeNode = this.activeNode;
-            //this.activeNode = this.selection;
+            // this.activeNode = this.selection;
             // update ui
         } else if (this.activeMode) {
             this.ui.activeNode = false;
             this.activeNode = false;
-            //this.activeMode = false;
+            // this.activeMode = false;
         }
         this.triggerDraw();
     }
@@ -1170,7 +1173,7 @@ class CanvasState {
 import RangeSlider from './RangeSlider';
 import Triblets from './Triblets';
 import Classifier from './Classifier';
-import Scissors from "../icons/Scissors";
+import Scissors from '../icons/Scissors';
 
 export default {
     store: null,
@@ -1294,7 +1297,7 @@ export default {
         },
         changeClusterGrowth(v) {
             this.store.clusterGrowth = Math.round((this.store.clusterGrowth + v) * 100) / 100;
-            //this.clusterGrowth = this.store.clusterGrowth;
+            // this.clusterGrowth = this.store.clusterGrowth;
         },
         toggleShowKLabels() {
             this.showKLabels = !this.showKLabels;
@@ -1306,13 +1309,13 @@ export default {
             if (this.selectedLabel === label) this.selectedLabel = null;
             else this.selectedLabel = label;
             this.store.selectedLabel = this.selectedLabel;
-            this.store.triggerDraw()
+            this.store.triggerDraw();
         },
         selectScissors() {
-            console.log("selectScissors")
-            this.scissors = !this.scissors
-            this.store.scissors = this.scissors
-        }
+            console.log('selectScissors');
+            this.scissors = !this.scissors;
+            this.store.scissors = this.scissors;
+        },
 
     },
     watch: {

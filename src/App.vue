@@ -1,18 +1,18 @@
 
 <template>
     <div id="app">
-        <NavHeader > </NavHEader>
-
-        <router-view/>
+        <nav-header />
+        <tsne-map />
     </div>
 </template>
 
 <script>
 import NavHeader from './components/NavHeader';
+import TsneMap from './components/TsneMap';
 
 export default {
     name: 'App',
-    components: { NavHeader },
+    components: { NavHeader, TsneMap },
 };
 </script>
 

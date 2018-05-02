@@ -1,10 +1,12 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Welcome from '@/components/Welcome';
-import TsneMap from '@/components/TsneMap';
-import Coins from '@/components/Coins';
+import Svm from '@/components/Svm';
+import Classifier from '../components/Classifier';
+import {TRIBLETS, TSNE, SVM, CLASSIFIER, NEIGHBOURS} from '../util/modes'
 
 Vue.use(Router);
+
 
 export default new Router({
     routes: [
@@ -13,13 +15,15 @@ export default new Router({
             name: 'Welcome',
             component: Welcome,
         }, {
-            path: '/TsneMap',
-            name: 'TsneMap',
-            component: TsneMap,
+            path: `/${CLASSIFIER}`,
+            name: CLASSIFIER,
+            component: Classifier,
+            props: true,
         }, {
-            path: '/coins/:id',
-            name: 'Coins',
-            component: Coins,
+            path: `/${SVM}`,
+            name: SVM,
+            component: Svm,
+            props: true,
         },
     ],
 });

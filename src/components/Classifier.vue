@@ -26,7 +26,7 @@ export default {
     props: ['nodes', 'labels'],
     data: () => ({
         label: '',
-        showLabels: false
+        showLabels: false,
     }),
     methods: {
         removeNode(i) {
@@ -34,17 +34,17 @@ export default {
             console.log(this.nodes);
             this.nodes.splice(i, 1);
         },
-        addLabel({target}) {
+        addLabel({ target }) {
             console.log('addLabel clicked');
-            console.log(this.label)
+            console.log(this.label);
 
             // check if label is in list of labels allready?
-            if(this.labels.indexOf(this.label) === -1) this.labels.push(this.label)
+            if (this.labels.indexOf(this.label) === -1) this.labels.push(this.label);
 
             // ad label to nodes after checking that is npot allready used at node
-            this.nodes.forEach(node => {
-                if(node.labels.indexOf(this.label) === -1 ) node.labels.push(this.label)
-            })
+            this.nodes.forEach((node) => {
+                if (node.labels.indexOf(this.label) === -1) node.labels.push(this.label);
+            });
 
             // reset input/label
             this.label = '';
@@ -52,26 +52,26 @@ export default {
 
             // TODO add label to choosen pictures if they not have this label allready
             // TODO add label to a global list of labels witch will be generated while reciving nodes from backend
-            this.showLabels = false
+            this.showLabels = false;
         },
         handleFocus(e) {
-            console.log("input focus")
-            this.showLabels = true
+            console.log('input focus');
+            this.showLabels = true;
         },
         handleBlur(e) {
-            console.log("input blur")
-            //this.focus = false
+            console.log('input blur');
+            // this.focus = false
         },
         chooseLabel(label) {
-            this.label = label
-            this.showLabels = false
+            this.label = label;
+            this.showLabels = false;
         },
     },
     computed: {
-        labelsFiltered: function() {
-            return this.labels.filter(label => label.includes(this.label))
-        }
-    }
+        labelsFiltered() {
+            return this.labels.filter(label => label.includes(this.label));
+        },
+    },
 };
 </script>
 
@@ -130,7 +130,7 @@ export default {
         border: 1px solid #c6c6c6;
         border-radius: 3px;
 
-        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
         top: 100%;
         z-index: 1;
     }

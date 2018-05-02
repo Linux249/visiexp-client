@@ -1,7 +1,10 @@
 <template>
     <div id="header">
-        <router-link to="/">Home</router-link>
-        <router-link to="/TsneMap">TsneMap</router-link>
+        <router-link to="/svm">SVM</router-link>
+        <router-link to="/classifier">Classifier</router-link>
+        <router-link to="/triblets">Triblets</router-link>
+        <router-link to="/neighbours">Neighbours</router-link>
+        <router-link to="/tsne">t-SNE</router-link>
         <router-link to="/about">About</router-link>
     </div>
 </template>
@@ -15,6 +18,7 @@ export default {
 <style scoped>
     #header {
         display: flex;
+        justify-content: flex-end;
         align-items: center;
         /*height: 50px;*/
         box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
