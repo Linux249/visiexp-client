@@ -38,6 +38,10 @@ export default {
         margin: 0;
     }
 
+    .row {
+        display: flex;
+    }
+
     .button {
         margin: 10px;
         height: 40px;

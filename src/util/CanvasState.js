@@ -1,4 +1,5 @@
 import range from './range';
+import { SVM } from './modes';
 
 export default class CanvasState {
     constructor(canvas, hitCanvas, socket, ui) {
@@ -27,6 +28,7 @@ export default class CanvasState {
 
         // the current selected object. TODO  In the future we could turn this into an array for multiple selection
         this.selection = null;
+        this.nodeUnderMouse = null;
 
         // K labels for development
         this.showKLabels = false;
@@ -497,6 +499,8 @@ export default class CanvasState {
         const altKeyPressed = e.altKey;
 
         const nodeUnderMouse = this.findNodeByMousePosition(e.offsetX, e.offsetY);
+        // saving node under mouse while mouseDown
+        this.nodeUnderMouse = nodeUnderMouse;
 
         // TODO test if mouse hits Image and set their drag flag
 
@@ -677,9 +681,16 @@ export default class CanvasState {
     handleMouseUp = (e) => {
         console.log('mouseup');
         const nodeUnderMouse = this.findNodeByMousePosition(e.offsetX, e.offsetY);
-        if (nodeUnderMouse === this.draggNode) {
+        if (nodeUnderMouse === this.nodeUnderMouse) {
             // click event on a special node - do something
-
+            this.ui.clickedNode = nodeUnderMouse;
+            console.log('click on node');
+            switch (this.ui.$route.name) {
+            case SVM:
+                break;
+            default:
+                console.log('no mode selected - what to do with a node click now?');
+            }
         }
 
 

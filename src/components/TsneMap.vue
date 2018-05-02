@@ -101,7 +101,11 @@
                     </div>-->
                 </div>
                 <classifier v-if="classify" :nodes="classifyNodes" :labels="labels"/>
-                <router-view :nodes="classifyNodes" :labels="labels"/>
+                <router-view
+                    :nodes="classifyNodes"
+                    :labels="labels"
+                    :node="clickedNode"
+                />
                 <div class="info-box">
                     <img class="img" v-if="activeNode.hasImage" :src="activeNode.image.src" />
                     <div>Name: {{activeNode.name}}</div>
@@ -166,6 +170,7 @@ export default {
         scale2: 0,
         labels: [],
         selectedLabel: null,
+        clickedNode: null,
         labelColor: '#6057ff',
         showKLabels: false,
         scissors: false,
@@ -493,11 +498,6 @@ export default {
         height: 100%;
         margin: 5px;
         background-color: white;
-    }
-
-    .row {
-        display: flex;
-
     }
 
     .row-btn {
