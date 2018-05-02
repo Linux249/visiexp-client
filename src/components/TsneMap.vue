@@ -1,13 +1,14 @@
 <template>
     <div class="body">
         <div class="sub-header">
-            <div class="tool-box">
+            <div class="tool-box row">
+                <div v-if="loadingNodes" class="loader" ></div>
                 <scissors :active="scissors" :clickHandler="selectScissors">a</scissors>
             </div>
 
             <div>
                 <div class="row">
-                    <div>nodes #: {{nodesCount}}</div>
+                    <div># {{nodesCount}}</div>
                     <div>connected: {{connectedToSocket}}</div>
                     <!--<div @click="scaleUp" class="btn">+</div>
                     <div @click="scaleDown" class="btn">-</div>-->
@@ -36,7 +37,6 @@
                 <div @click="toggleClassify" class="btn" :class="{ active: classify }">Classification</div>
                 <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">Options</div>
                 <div @click="sendData" class="btn" >Update Data</div>
-                <div v-if="loadingNodes" class="loader" ></div>
             </div>
         </div>
         <div class="row">
@@ -44,17 +44,19 @@
             <div class="details">
                 <div v-if="showOptions" class="options info-box">
                     <div class="row-btn">
-                        <div>Cluster: {{cluster}}</div>
+                        <div>Cluster: {{Math.round(cluster)}}</div>
                         <div class="row">
-                            <div @click="clusterLess" class="btn">-10</div>
-                            <div @click="clusterMore" class="btn">+10</div>
+                            <div @click="changeCluster(-100)" class="btn">-100</div>
+                            <div @click="changeCluster(-1000)" class="btn">-1000</div>
+                            <div @click="changeCluster(100)" class="btn">+100</div>
+                            <div @click="changeCluster(1000)" class="btn">+1000</div>
                         </div>
                     </div>
                     <div class="row-btn">
                         <div>ImageWidth: {{imgWidth}}</div>
                         <div class="row">
-                            <div @click="imgWidthLess" class="btn">-1</div>
-                            <div @click="imgWidthMore" class="btn">+1</div>
+                            <div @click="changeImgWidth(-2)" class="btn">-2</div>
+                            <div @click="changeImgWidth(2)" class="btn">+2</div>
                         </div>
                     </div>
                     <div class="row-btn">
@@ -72,17 +74,24 @@
                         </div>
                     </div>
                     <div class="row-btn">
-                        <div>ScrollRatio: {{scrollRatio}}</div>
+                        <div>ScrollGrowth: {{scrollGrowth}}</div>
                         <div class="row">
-                            <div @click="changeScrollRatio(-0.01)" class="btn">-0.1</div>
-                            <div @click="changeScrollRatio(0.01)" class="btn">+0.1</div>
+                            <div @click="changeScrollGrowth(-0.01)" class="btn">-0.1</div>
+                            <div @click="changeScrollGrowth(0.01)" class="btn">+0.1</div>
                         </div>
                     </div>
                     <div class="row-btn">
-                        <div>ScrollImgRatio: {{scrollImgRatio}}</div>
+                        <div>ScrollImgGrowth: {{scrollImgGrowth}}</div>
                         <div class="row">
-                            <div @click="changeScrollImgRatio(-0.01)" class="btn">-0.1</div>
-                            <div @click="changeScrollImgRatio(0.01)" class="btn">+0.1</div>
+                            <div @click="changeScrollImgGrowth(-0.01)" class="btn">-0.1</div>
+                            <div @click="changeScrollImgGrowth(0.01)" class="btn">+0.1</div>
+                        </div>
+                    </div>
+                    <div class="row-btn">
+                        <div>ClusterGrowth: {{clusterGrowth}}</div>
+                        <div class="row">
+                            <div @click="changeClusterGrowth(-0.01)" class="btn">-0.1</div>
+                            <div @click="changeClusterGrowth(0.01)" class="btn">+0.1</div>
                         </div>
                     </div>
 
@@ -117,6 +126,17 @@ import range from '../util/range';
     - rename scale to zoom
 */
 
+function makeImgageData(img) {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    context.drawImage(img, 0, 0 );
+    const data =  context.getImageData(0, 0, img.width, img.height);
+    console.log(data)
+    return data
+}
+
 /* eslint no-underscore-dangle: ["error", { "allowAfterThis": true }] */
 class Node {
     constructor(data, ctx, hitCtx) {
@@ -143,7 +163,7 @@ class Node {
         this.initY = data.y;
 
         this.activeScale = 3; // showing images bigger
-        // this.scale = 1;
+        this.scale = 1;     // TODO is not needen anymore
         this.icon = new Image();
         this.icon.src = data.buffer;
 
@@ -160,6 +180,10 @@ class Node {
         this.timerId = 0;
 
         this._value = null; // value will be set by the active nodes neighbour-values, default is 5
+
+        //this.imgData = makeImgageData(this.icon)
+
+
     }
 
     get width() {
@@ -264,10 +288,10 @@ class Node {
 
     // ctx is the canvas context
     // scale change through zooming and is used for positioning the images
-    draw(scale, scale2, imgWidth, cluster) {
+    async draw(scale, scale2, imgWidth, cluster) {
         // console.log('start draw Image');
         // check which picture to use
-        this.scale = 1; // scale;
+        //this.scale = 1; // scale;
 
         const imgData = this.icon;
 
@@ -281,15 +305,29 @@ class Node {
         const x = this._x - (w / 2);
         const y = this._y - (h / 2);
 
-        if (this.cluster < cluster) {
-            // console.log('draw image');
-            // console.log(this);
-            this.ctx.drawImage(imgData, x, y, w, h);
-            this.hitCtx.fillStyle = this.colorKey;
-            this.hitCtx.fillRect(x, y, w, h);
-        }
+
+        //const data = await createImageBitmap(imgData, 0, 0, w, h)
+        // createImageBitmap(imgData,0, 0, 2, 2, {resizeHeight: h, resizeWidth: w}).then(data => {
+        //     console.log(data)
+        //     this.ctx.drawImage(data, x, y)
+        // })
+        this.ctx.drawImage(imgData, x, y, w, h)
+
+
+        this.hitCtx.fillStyle = this.colorKey;
+        this.hitCtx.fillRect(x, y, w, h);
+
 
         // draw HitCanvas rect
+    }
+
+    drawClusterd(scale, scale2, imgWidth, cluster) {
+        const s =  1 / scale;
+        const x = this._x
+        const y = this._y
+
+        this.ctx.fillStyle = 'grey'
+        this.ctx.fillRect(x, y, s, s);
     }
 
     drawAsActive(scale, activeImgWidth) {
@@ -439,6 +477,7 @@ class CanvasState {
 
 
         this.valid = false; // when set to false, the canvas will redraw everything
+        this._valid = false
         this.nodes = {}; // hash for all nodes
         this.colorHash = {}; // find nodes by color
         this.dragging = false; // Keep track of when we are dragging
@@ -463,7 +502,7 @@ class CanvasState {
         this.scissorsEndX = 0
         this.scissorsEndY = 0
 
-        this._cluster = 9000;
+        this._cluster = 500;
         this.updateClusterUI = null;
         this._scale = 20;
         this._scale2 = 20;
@@ -473,8 +512,9 @@ class CanvasState {
         this._activeImgScale = 5;
         this._borderWidth = 5;
 
-        this._scrollRatio = 1.1;
-        this._scrollImgRatio = 1.03;
+        this._scrollGrowth = 1.3;
+        this._scrollImgGrowth = 1.1;
+        this._clusterGrowth = 1.2;
 
         this.classify = false; // set via UI
         this.addNodeToClassify = null; // UI set function here
@@ -501,8 +541,7 @@ class CanvasState {
         this.canvas.ondblclick = this.handleDoubleClick;
         this.canvas.onwheel = this.zoom;
         // this.canvas.onblur = this.blur;
-
-        this.timerId = setInterval(() => this.draw(), this.interval);
+        //this.timerId = setInterval(() => this.draw(), this.interval);
     }
 
     set scale(value) {
@@ -562,31 +601,49 @@ class CanvasState {
         if (value < 1) this._cluster = 1;
         else this._cluster = value;
         this.valid = false;
-        this.updateClusterUI(this.cluster);
+        this.ui.cluster = this.cluster;
     }
 
     get cluster() {
         return this._cluster;
     }
 
-    set scrollRatio(v) {
-        if (v <= 1) this._scrollRatio = 1.01;
-        else this._scrollRatio = v;
+    set scrollGrowth(v) {
+        if (v <= 1) this._scrollGrowth = 1.01;
+        else this._scrollGrowth = v;
     }
 
-    get scrollRatio() {
-        return this._scrollRatio;
+    get scrollGrowth() {
+        return this._scrollGrowth;
     }
 
-    set scrollImgRatio(v) {
-        if (v <= 1) this._scrollImgRatio = 1.01;
-        else this._scrollImgRatio = v;
+    set scrollImgGrowth(v) {
+        if (v <= 1) this._scrollImgGrowth = 1.01;
+        else this._scrollImgGrowth = v;
     }
 
-    get scrollImgRatio() {
-        return this._scrollImgRatio;
+    get scrollImgGrowth() {
+        return this._scrollImgGrowth;
     }
 
+    get clusterGrowth() {
+        return this._clusterGrowth;
+    }
+
+    set clusterGrowth(v) {
+        if (v <= 1) this._clusterGrowth = 1.01;
+        else this._clusterGrowth = v;
+        this.ui.clusterGrowth = this.clusterGrowth
+    }
+
+    set valid(v) {
+        if (!v) window.requestAnimationFrame(this.draw)
+        this._valid = v;
+    }
+
+    get valid() {
+        return this._valid;
+    }
 
     triggerDraw() {
         this.valid = false;
@@ -644,15 +701,20 @@ class CanvasState {
 
 
             // if some nodes are active set other transparent
-            if (this.selection) this.ctx.globalAlpha = 0.3;
-            else this.ctx.globalAlpha = 1;
+            // if (this.selection) this.ctx.globalAlpha = 0.3;
+            // else this.ctx.globalAlpha = 1;
 
             // draw images
             Object.values(this.nodes).forEach((node) => {
                 // if (node.isActive) node.drawAsActive(this.scale, this.activeImgScale, this.cluster);
                 // else if (node.isActiveNeighbour) node.drawAsNeighbour(this.scale, this.activeImgScale, this.cluster);
                 // else
-                node.draw(this.scale, this.scale2, this.imgScale, this.cluster);
+
+                // if node is clustered dont draw and draw pixel instead
+                if (this.cluster < node.cluster) {
+                    node.drawClusterd(this.scale, this.scale2, this.imgScale, this.cluster);
+                }
+                else node.draw(this.scale, this.scale2, this.imgScale, this.cluster);
             });
 
             if (this.showKLabels) {
@@ -763,18 +825,18 @@ class CanvasState {
             if (wheelEvent.deltaY < 0) {
                 console.log('zoom in');
 
-                this.scale *= this.scrollRatio;
-                this.scale2 *= this.scrollImgRatio;
-                this.cluster += 10;
+                this.scale *= this.scrollGrowth;
+                this.scale2 *= this.scrollImgGrowth;
+                this.cluster *= this.clusterGrowth;
             }
 
             // Zoom out = decrease = wheel down = positiv delta Y
             if (wheelEvent.deltaY > 0) {
                 console.log('zoom out');
 
-                this.scale /= this.scrollRatio;
-                this.scale2 /= this.scrollImgRatio;
-                this.cluster -= 10;
+                this.scale /= this.scrollGrowth;
+                this.scale2 /= this.scrollImgGrowth;
+                this.cluster /= this.clusterGrowth;
             }
             const scaleChange = this.scale - oldScale;
             this.translateX -= offsetX * scaleChange;
@@ -977,7 +1039,13 @@ class CanvasState {
         // there is a freeze and not freeze mode - different interaction based ob if a node is active or node
         const nodeUnderMouse = this.findNodeByMousePosition(mouseX, mouseY);
 
+        // load high resoultion image
         if (nodeUnderMouse && !nodeUnderMouse.hasImage) this.socket.emit('requestImage', { name: nodeUnderMouse.name, index: nodeUnderMouse.index });
+
+        if(!this.activeMode) {
+            if(nodeUnderMouse) this.ui.activeNode = nodeUnderMouse
+            else this.ui.activeNode = false
+        }
 
 
         if (this.draggNode || this.dragging) {
@@ -1087,13 +1155,13 @@ class CanvasState {
 
         if (this.selection && !this.activeMode) {
             this.activeMode = true;
-            this.activeNode = this.selection;
+            this.ui.activeNode = this.activeNode;
+            //this.activeNode = this.selection;
             // update ui
-            this.updateSelectionUI(this.activeNode);
         } else if (this.activeMode) {
-            this.updateSelectionUI(false);
-            this.activeMode = false;
+            this.ui.activeNode = false;
             this.activeNode = false;
+            //this.activeMode = false;
         }
         this.triggerDraw();
     }
@@ -1140,8 +1208,9 @@ export default {
         classify: false, // toggle classify mode on/off
         classifyNodes: [], // selected nodes for classification
         showOptions: false, // show options menu
-        scrollRatio: 0,
-        scrollImgRatio: 0,
+        scrollGrowth: 0,
+        scrollImgGrowth: 0,
+        clusterGrowth: 0,
 
     }),
     methods: {
@@ -1156,17 +1225,11 @@ export default {
         },
 
         //
-        clusterMore() {
+        changeCluster(v) {
             // console.log("cluster more clicked")
-            this.store.cluster += 10; // update canvasState
+            this.store.cluster += v; // update canvasState
             this.cluster = this.store.cluster; // update ui
         },
-        clusterLess() {
-            // console.log("cluster less clicked")
-            this.store.cluster -= 10; // update canvasState
-            this.cluster = this.store.cluster; // update ui
-        },
-
 
         updateSelection(node) {
             if (!node) {
@@ -1185,16 +1248,8 @@ export default {
             this.scale2 = scale2;
         },
 
-        updateCluster(cluster) {
-            this.cluster = cluster;
-        },
-
-        imgWidthMore() {
-            this.store.imgScale += 1; // update canvasState
-            this.imgWidth = this.store.imgScale; // update ui
-        },
-        imgWidthLess() {
-            this.store.imgScale -= 1; // update canvasState
+        changeImgWidth(v) {
+            this.store.imgScale += v; // update canvasState
             this.imgWidth = this.store.imgScale; // update ui
         },
 
@@ -1229,13 +1284,17 @@ export default {
         toggleShowOptions() {
             this.showOptions = !this.showOptions;
         },
-        changeScrollRatio(v) {
-            this.store.scrollRatio = Math.round((this.store.scrollRatio + v) * 100) / 100;
-            this.scrollRatio = this.store.scrollRatio;
+        changeScrollGrowth(v) {
+            this.store.scrollGrowth = Math.round((this.store.scrollGrowth + v) * 100) / 100;
+            this.scrollGrowth = this.store.scrollGrowth;
         },
-        changeScrollImgRatio(v) {
-            this.store.scrollImgRatio = Math.round((this.store.scrollImgRatio + v) * 100) / 100;
-            this.scrollImgRatio = this.store.scrollImgRatio;
+        changeScrollImgGrowth(v) {
+            this.store.scrollImgGrowth = Math.round((this.store.scrollImgGrowth + v) * 100) / 100;
+            this.scrollImgGrowth = this.store.scrollImgGrowth;
+        },
+        changeClusterGrowth(v) {
+            this.store.clusterGrowth = Math.round((this.store.clusterGrowth + v) * 100) / 100;
+            //this.clusterGrowth = this.store.clusterGrowth;
         },
         toggleShowKLabels() {
             this.showKLabels = !this.showKLabels;
@@ -1302,7 +1361,6 @@ export default {
         s.updateSelectionUI = this.updateSelection;
         s.updateScaleUI = this.updateScale;
         s.updateScale2UI = this.updateScale2;
-        s.updateClusterUI = this.updateCluster;
         s.addNodeToClassify = this.addNodeToClassify;
 
         // sync values from UI to store
@@ -1313,8 +1371,8 @@ export default {
         this.imgWidth = s.imgScale;
         this.activeImgWidth = s.activeImgScale;
         this.borderWidth = s.borderWidth;
-        this.scrollRatio = s.scrollRatio;
-        this.scrollImgRatio = s.scrollImgRatio;
+        this.scrollGrowth = s.scrollGrowth;
+        this.scrollImgGrowth = s.scrollImgGrowth;
 
         console.log('Save store');
         console.log(this.store);
