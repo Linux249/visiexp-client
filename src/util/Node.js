@@ -121,8 +121,8 @@ export default class Node {
     // TODO the last point is because of the context is scaling it again - maybe we could get rid of this?
 
     get x() {
-        return this._x - (this.width / 2 / this.scale);
-        // return this._x;
+        // return this._x - (this.width / 2 / this.scale);
+        return this._x;
     }
 
     set x(value) {
@@ -130,8 +130,8 @@ export default class Node {
     }
 
     get y() {
-        return this._y - (this.height / 2 / this.scale);
-        // return this._y;
+        // return this._y - (this.height / 2 / this.scale);
+        return this._y;
     }
 
     set y(value) {

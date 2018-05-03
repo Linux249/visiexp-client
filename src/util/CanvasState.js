@@ -188,7 +188,7 @@ export default class CanvasState {
         return this._valid;
     }
 
-    triggerDraw() {
+    triggerDraw = () => {
         this.valid = false;
     }
 
@@ -203,6 +203,10 @@ export default class CanvasState {
     getNodes() {
         this.removeSelection(); // for updating values in links before sending
         return this.nodes;
+    }
+
+    getNode(i) {
+        return this.nodes[i];
     }
 
 
@@ -698,9 +702,27 @@ export default class CanvasState {
         this.draggNode = false;
 
         if (this.scissors) {
+            this.ui.cuttedNodes = [];
+            const startX = (this.scissorsStartX - this.translateX) / this.scale;
+            const startY = (this.scissorsStartY - this.translateY) / this.scale;
+            const endX = (this.scissorsEndX - this.translateX) / this.scale;
+            const endY = (this.scissorsEndY - this.translateY) / this.scale;
+            // console.log({startX, startY})
+            // console.log({endX, endY})
+            Object.values(this.nodes).forEach((node) => {
+                // console.log(node)
+                // check for all nodes if they are inside the rectangle
+                if ((node.x > startX && node.x < endX) || (node.x < startX && node.x > endX)) {
+                    if ((node.y < startY && node.y > endY) || (node.y > startY && node.y < endY)) {
+                        this.ui.cuttedNodes.push(node);
+                    }
+                }
+            });
+
+            // reset
             this.scissors = false;
-            this.drawScissors = false;
             this.ui.scissors = false;
+            this.drawScissors = false;
             this.valid = false;
             // TODO handle object in scissors rectangle
         }

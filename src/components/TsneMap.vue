@@ -100,11 +100,12 @@
                         <range-slider v-model="cluster" type="range" min="0" max="800" step="10" />
                     </div>-->
                 </div>
-                <classifier v-if="classify" :nodes="classifyNodes" :labels="labels"/>
+                <classifier v-if="classify" :nodes="cuttedNodes" :labels="labels"/>
                 <router-view
-                    :nodes="classifyNodes"
+                    :nodes="cuttedNodes"
                     :labels="labels"
                     :node="clickedNode"
+                    :getNode="getNode"
                 />
                 <div class="info-box">
                     <img class="img" v-if="activeNode.hasImage" :src="activeNode.image.src" />
@@ -183,7 +184,7 @@ export default {
         borderWidth: 0, // default - set on mount from CanvasStore class
         range: 0,
         classify: false, // toggle classify mode on/off
-        classifyNodes: [], // selected nodes for classification
+        cuttedNodes: [], // selected nodes for classification
         showOptions: false, // show options menu
         scrollGrowth: 0,
         scrollImgGrowth: 0,
@@ -191,6 +192,9 @@ export default {
 
     }),
     methods: {
+        getNode(i) {
+            return this.store.getNode(i);
+        },
         sendData() {
             console.log('send data clicked');
             const nodes = this.store.getNodes();
@@ -256,7 +260,7 @@ export default {
         addNodeToClassify(node) {
             console.log('addNodeToClassify');
             console.log(node);
-            if (this.classifyNodes.indexOf(node) === -1) this.classifyNodes.push(node);
+            if (this.cuttedNodes.indexOf(node) === -1) this.cuttedNodes.push(node);
         },
         toggleShowOptions() {
             this.showOptions = !this.showOptions;

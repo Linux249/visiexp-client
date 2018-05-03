@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="area">
         <div class="imgArea" :class="{activePositiv: selectPositives}" @click="toggleActive(true)">
             <div class="image" v-for="(n, i) in positives" :key="i">
                 <img
@@ -18,8 +18,9 @@
                 >
             </div>
         </div>
+        <div :class="{loading}"><div :class="{'loading-wheel': loading}"></div></div>
         <div class="row">
-            <div class="btn">train</div>
+            <div class="btn" @click="sendData">train</div>
             <div class="btn">stop</div>
         </div>
     </div>
@@ -29,7 +30,7 @@
 <script>
 export default {
     name: 'Svm',
-    props: ['node'],
+    props: ['node', 'nodes', 'getNode'],
     data: () => ({
         positives: [],
         negatives: [],
@@ -38,24 +39,50 @@ export default {
     }),
     watch: {
         node(n) {
-            console.log('in SVM');
-            console.log(n);
+            this.addNode(n);
+        },
+        nodes(nodes) {
+            if (nodes) nodes.forEach(n => this.addNode(n));
+        },
+    },
+
+    methods: {
+        addNode(n) {
             if (n && this.positives.indexOf(n) === -1 && this.negatives.indexOf(n) === -1) {
                 if (this.selectPositives) this.positives.push(n);
                 else this.negatives.push(n);
             }
         },
-    },
-
-    methods: {
         toggleActive(v) {
             this.selectPositives = v;
         },
         removePositives(i) {
+            this.negatives.push(this.positives[i]);
             this.positives.splice(i, 1);
         },
         removeNegatives(i) {
+            this.positives.push(this.negatives[i]);
             this.negatives.splice(i, 1);
+        },
+        async sendData() {
+            this.loading = true
+            console.log('send data clicked');
+            const body = JSON.stringify({
+                p: this.positives,
+                n: this.negatives,
+            });
+            const data = await fetch('/api/v1/updateSvm', {
+                method: 'POST',
+                headers: { 'Content-type': 'application/json' },
+                body,
+            }).then(res => res.json()).catch(e => console.error(e));
+
+
+            this.positives = [];
+            data.p.forEach(i => this.positives.push(this.getNode(i)));
+            this.negatives = [];
+            data.n.forEach(i => this.negatives.push(this.getNode(i)));
+            this.loading = false
         },
     },
 
@@ -63,6 +90,48 @@ export default {
 </script>
 
 <style scoped>
+    .area {
+        position: relative;
+
+        padding: 0.1rem;
+    }
+
+    .loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .loading-wheel {
+        width: 10px;
+        height: 10px;
+        margin-top: -20px;
+        margin-left: -20px;
+
+        position: absolute;
+        top: 50%;
+        left: 50%;
+
+        border-width: 20px;
+        border-radius: 50%;
+        -webkit-animation: spin 1s linear infinite;
+
+        border-style: double;
+        border-color: #ccc transparent;
+    }
+
+    @-webkit-keyframes spin {
+        0% {
+            -webkit-transform: rotate(0);
+        }
+        100% {
+            -webkit-transform: rotate(-360deg);
+        }
+    }
+
     .imgArea {
         min-height: 4rem;
         box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08);
@@ -84,7 +153,6 @@ export default {
     img {
         height: 100%;
         width: 100%;
-
         object-fit: scale-down;
     }
 
@@ -94,8 +162,6 @@ export default {
         display: flex;
         justify-content: center;
         align-content: center;
-        /*border: 1px solid red;*/
-
         padding: 0.1rem;
     }
 </style>
