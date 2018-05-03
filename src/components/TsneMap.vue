@@ -34,13 +34,12 @@
                 </div>
             </div>
             <div class="row">
-                <div @click="toggleClassify" class="btn" :class="{ active: classify }">Classification</div>
                 <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">Options</div>
                 <div @click="sendData" class="btn" >Update Data</div>
             </div>
         </div>
         <div class="row">
-            <canvas  ref="canvas" id="canvas" tabindex="0" :class="{classify}"></canvas>
+            <canvas  ref="canvas" id="canvas" tabindex="0" ></canvas>
             <div class="details">
                 <div v-if="showOptions" class="options info-box">
                     <div class="row-btn">
@@ -100,17 +99,20 @@
                         <range-slider v-model="cluster" type="range" min="0" max="800" step="10" />
                     </div>-->
                 </div>
-                <classifier v-if="classify" :nodes="cuttedNodes" :labels="labels"/>
+
                 <router-view
                     :nodes="cuttedNodes"
                     :labels="labels"
                     :node="clickedNode"
                     :getNode="getNode"
                 />
+
+
                 <div class="info-box">
                     <img class="img" v-if="activeNode.hasImage" :src="activeNode.image.src" />
                     <div>Name: {{activeNode.name}}</div>
                     <div>Label: {{activeNode.label}}</div>
+                    <div>Labels: {{activeNode.labels}}</div>
                     <div>Links #: {{selectedNodeNeighboursCount}}</div>
                     <div>S: {{scale}}</div>
                     <div>IS: {{scale2}}</div>
@@ -183,8 +185,7 @@ export default {
         activeImgWidth: 0, // default - set on mount from CanvasStore class
         borderWidth: 0, // default - set on mount from CanvasStore class
         range: 0,
-        classify: false, // toggle classify mode on/off
-        cuttedNodes: [], // selected nodes for classification
+        cuttedNodes: [], // selected nodes through scissor
         showOptions: false, // show options menu
         scrollGrowth: 0,
         scrollImgGrowth: 0,
@@ -251,12 +252,7 @@ export default {
             this.store.borderWidth -= 1; // update canvasState
             this.borderWidth = this.store.borderWidth; // update ui
         },
-        toggleClassify() {
-            console.log('classify clicked');
-            this.classify = !this.classify;
-            this.store.classify = this.classify;
-            console.log(this.store.classify);
-        },
+
         addNodeToClassify(node) {
             console.log('addNodeToClassify');
             console.log(node);
@@ -466,17 +462,11 @@ export default {
 </script>
 
 <style scoped>
-
-
     #canvas {
         margin: 5px;
         background-color: white;
         box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08);
     }
-    #canvas.classify {
-        cursor: cell;
-    }
-
 
     .sub-header {
         display: flex;
@@ -517,10 +507,6 @@ export default {
     .img {
         max-width: 100%;
         max-height: 20rem;
-    }
-
-    input {
-
     }
 
     .loader {

@@ -1,7 +1,7 @@
 <template>
     <div class="classifier">
         <div class="imgArea">
-            <div class="image" v-for="(n, i) in nodes" :key="i">
+            <div class="image" v-for="(n, i) in selectedNodes" :key="i">
                 <img
                     :src="n.icon.src"
                     alt=""
@@ -22,16 +22,26 @@
 <script>
 export default {
     name: 'classifier',
-    props: ['nodes', 'labels'],
+    props: ['nodes', 'node', 'labels'],
     data: () => ({
         label: '',
         showLabels: false,
+        selectedNodes: [],
     }),
+    watch: {
+        node(n) {
+            this.addNode(n);
+        },
+        nodes(nodes) {
+            if (nodes) nodes.forEach(n => this.addNode(n));
+        },
+    },
     methods: {
+        addNode(n) {
+            if (n && this.selectedNodes.indexOf(n) === -1) this.selectedNodes.push(n)
+        },
         removeNode(i) {
-            console.log(`remove node ${i} clicked`);
-            console.log(this.nodes);
-            this.nodes.splice(i, 1);
+            this.selectedNodes.splice(i, 1);
         },
         addLabel({ target }) {
             console.log('addLabel clicked');
@@ -41,16 +51,13 @@ export default {
             if (this.labels.indexOf(this.label) === -1) this.labels.push(this.label);
 
             // ad label to nodes after checking that is npot allready used at node
-            this.nodes.forEach((node) => {
+            this.selectedNodes.forEach((node) => {
                 if (node.labels.indexOf(this.label) === -1) node.labels.push(this.label);
             });
 
             // reset input/label
             this.label = '';
 
-
-            // TODO add label to choosen pictures if they not have this label allready
-            // TODO add label to a global list of labels witch will be generated while reciving nodes from backend
             this.showLabels = false;
         },
         handleFocus(e) {

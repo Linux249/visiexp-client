@@ -60,9 +60,6 @@ export default class CanvasState {
         this._scrollImgGrowth = 1.1;
         this._clusterGrowth = 1.2;
 
-        this.classify = false; // set via UI
-        this.addNodeToClassify = null; // UI set function here
-
         this.interval = 100;
 
         this.offsetLeft = canvas.getBoundingClientRect().left;
@@ -511,7 +508,7 @@ export default class CanvasState {
         console.log('mousedown');
         // console.log(e.offsetX);
         // console.log(e.offsetY);
-        console.log(this.classify);
+
 
         // save start position
         this.startX = e.offsetX;
@@ -547,10 +544,6 @@ export default class CanvasState {
                     // add to right // positives
                     this.activeNode.positives.push(nodeUnderMouse);
                 }
-            } else if (this.classify) {
-                // add node to
-                console.log('click while classify mode');
-                this.addNodeToClassify(nodeUnderMouse);
             }
         } else if (this.scissors) {
             console.log('Scissors');

@@ -134,12 +134,15 @@ export default {
 
     .imgArea {
         min-height: 4rem;
+        max-height: 15rem;
         box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08);
         display: flex;
         align-items: center;
         flex-flow: wrap;
         flex-direction: row;
         margin-bottom: 1rem;
+
+        overflow:auto;
     }
 
     .activePositiv {
