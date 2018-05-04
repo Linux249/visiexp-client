@@ -21,7 +21,7 @@
         </div>
         <div class="row">
             <div class="btn" @click="trainSvm">train</div>
-            <div class="btn">stop</div>
+            <div class="btn" @click="stopSvm">stop</div>
         </div>
     </div>
 
@@ -70,6 +70,7 @@ export default {
             console.log('trainSvm clicked');
             this.loading = true
 
+            // save nodes
             this.positives.forEach(n => this.positivesAll.indexOf(n) === -1 && this.positivesAll.push(n))
             this.negatives.forEach(n => this.negativesAll.indexOf(n) === -1 && this.negativesAll.push(n))
 
@@ -77,7 +78,7 @@ export default {
                 p: this.positivesAll,
                 n: this.negativesAll,
             });
-            const data = await fetch('/api/v1/updateSvm', {
+            const data = await fetch('/api/v1/trainSvm', {
                 method: 'POST',
                 headers: { 'Content-type': 'application/json' },
                 body,
@@ -93,15 +94,15 @@ export default {
             console.log('stopSvm clicked');
             this.loading = true
 
-            const data = await fetch('/api/v1/updateSvm', {
+            // save nodes
+            this.positives.forEach(n => this.positivesAll.indexOf(n) === -1 && this.positivesAll.push(n))
+            this.negatives.forEach(n => this.negativesAll.indexOf(n) === -1 && this.negativesAll.push(n))
+
+            await fetch('/api/v1/stopSvm', {
                 method: 'POST',
                 headers: { 'Content-type': 'application/json' },
-            }).then(res => res.json()).catch(e => console.error(e));
+            }).then(res => res.text()).catch(e => console.error(e));
 
-            this.positives = [];    // reset
-            data.p.forEach(i => this.positives.push(this.getNode(i)));
-            this.negatives = [];    // reset
-            data.n.forEach(i => this.negatives.push(this.getNode(i)));
             this.loading = false
         },
         handleMouseOver(n) {
