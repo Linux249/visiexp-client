@@ -91,10 +91,6 @@ export default {
 <style scoped>
     .classifier {
         width: 100%;
-        /*height: 5rem;*/
-
-        /*border: 1px solid red;*/
-
     }
 
     .row {
@@ -118,7 +114,6 @@ export default {
     img {
         height: 100%;
         width: 100%;
-
         object-fit: scale-down;
     }
 
@@ -128,8 +123,6 @@ export default {
         display: flex;
         justify-content: center;
         align-content: center;
-        /*border: 1px solid red;*/
-
         padding: 0.1rem;
     }
 

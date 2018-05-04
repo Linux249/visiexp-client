@@ -1,41 +1,46 @@
 <template>
     <div class="body">
         <div class="sub-header">
-            <div class="tool-box row">
-                <div v-if="loadingNodes" class="loader" ></div>
-                <scissors :active="scissors" :clickHandler="selectScissors">a</scissors>
-            </div>
+            <div></div>
 
-            <div>
+
+            <!--<div>
                 <div class="row">
                     <div># {{nodesCount}}</div>
                     <div>connected: {{connectedToSocket}}</div>
-                    <!--<div @click="scaleUp" class="btn">+</div>
-                    <div @click="scaleDown" class="btn">-</div>-->
+                    &lt;!&ndash;<div @click="scaleUp" class="btn">+</div>
+                    <div @click="scaleDown" class="btn">-</div>&ndash;&gt;
                 </div>
-            </div>
+            </div>-->
             <div class="row">
-                <div
-                    v-for="(value, i) in labels"
-                    class="btn"
-                    :class="{ active: selectedLabel === value }"
-                    :key="i"
-                    @click="toogleLabel(value)"
-                    v-bind:style="{'color': value}"
-                >
-                    {{ value }}
+                <div class="labels" @mouseenter="showLabels = true" @mouseleave="showLabels = false">
+                    <div class="btn">labels</div>
+                    <div v-if="showLabels">
+                        <div
+                            v-for="(value, i) in labels"
+                            class="btn"
+                            :class="{ active: selectedLabel === value }"
+                            :key="i"
+                            @click="toogleLabel(value)"
+                            v-bind:style="{'color': value}"
+                        >
+                            {{ value }}
+                        </div>
+                        <div
+                            class="btn"
+                            :class="{ active: showKLabels }"
+                            @click="toggleShowKLabels"
+                        >
+                            K-Label
+                        </div>
+                    </div>
                 </div>
-                <div
-                    class="btn"
-                    :class="{ active: showKLabels }"
-                    @click="toggleShowKLabels"
-                >
-                    K-Label
-                </div>
-            </div>
-            <div class="row">
                 <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">Options</div>
                 <div @click="sendData" class="btn" >Update Data</div>
+                <div class="tool-box row">
+                    <div v-if="loadingNodes" class="loader" ></div>
+                    <scissors :active="scissors" :clickHandler="selectScissors">a</scissors>
+                </div>
             </div>
         </div>
         <div class="row">
@@ -172,6 +177,7 @@ export default {
         scale2: 0,
         labels: [],
         selectedLabel: null,
+        showLabels: false, // show the labels in a dropdown
         clickedNode: null,
         labelColor: '#6057ff',
         showKLabels: false,
@@ -476,7 +482,7 @@ export default {
     .sub-header {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        /*align-items: center;*/
         height: 2.5rem;
         padding: 5px;
     }
@@ -523,6 +529,12 @@ export default {
     @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
+    }
+
+    .labels {
+        /*display: flex;*/
+        /*flex-direction: column;*/
+        z-index: 1;
     }
 
 </style>
