@@ -11,8 +11,13 @@
         </div>
         <div class="row">
             <input type="text" v-model="label" @focus="handleFocus" @blur="handleBlur"/>
-            <div v-if="showLabels" class="dropdown" >
-                <div class="item" v-for="label in labelsFiltered" :key="label" @click="chooseLabel(label)">{{label}}</div>
+            <div v-if="showLabels" class="dropdown" @mouseenter="mouseOver = true" @mouseleave="mouseOver = false">
+                <div
+                    class="item"
+                    v-for="label in labelsFiltered"
+                    :key="label"
+                    @click="chooseLabel(label)"
+                >{{label}}</div>
             </div>
             <div @click="addLabel" class="btn">add label</div>
         </div>
@@ -27,6 +32,7 @@ export default {
         label: '',
         showLabels: false,
         selectedNodes: [],
+        mouseOver: false
     }),
     watch: {
         node(n) {
@@ -66,9 +72,10 @@ export default {
         },
         handleBlur(e) {
             console.log('input blur');
-            // this.focus = false
+            if(!this.mouseOver) this.showLabels = false
         },
         chooseLabel(label) {
+            console.log("chooselabel")
             this.label = label;
             this.showLabels = false;
         },
