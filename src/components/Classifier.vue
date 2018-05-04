@@ -19,7 +19,7 @@
                     @click="chooseLabel(label)"
                 >{{label}}</div>
             </div>
-            <div @click="addLabel" class="btn">add label</div>
+            <div @click="addLabel" class="btn">add</div>
         </div>
     </div>
 </template>

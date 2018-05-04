@@ -13,9 +13,10 @@
                 </div>
             </div>-->
             <div class="row">
-                <div class="labels" @mouseenter="showLabels = true" @mouseleave="showLabels = false">
+                <div class="dropdownArea"></div>
+                <div class="labelsArea" @mouseenter="showLabels = true" @mouseleave="showLabels = false">
                     <div class="btn">labels</div>
-                    <div v-if="showLabels">
+                    <div class="labels" v-if="showLabels">
                         <div
                             v-for="(value, i) in labels"
                             class="btn"
@@ -531,10 +532,19 @@ export default {
         100% { transform: rotate(360deg); }
     }
 
+    .labelsArea {
+        position: relative;
+        z-index: 1;
+    }
+
     .labels {
+        /*position: absolute;*/
+        top: 25px;
+        width: 100%;
+
         /*display: flex;*/
         /*flex-direction: column;*/
-        z-index: 1;
+        /*z-index: 1;*/
     }
 
 </style>

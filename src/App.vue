@@ -62,6 +62,7 @@ export default {
     .btn {
         align-self: center;
         text-decoration: none;
+        /*text-overflow: ;*/
         margin: 0.5rem;
         height: 20px;
         line-height: 20px;
