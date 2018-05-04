@@ -105,6 +105,7 @@
                     :labels="labels"
                     :node="clickedNode"
                     :getNode="getNode"
+                    :changeActiveNode="changeActiveNode"
                 />
 
 
@@ -114,12 +115,10 @@
                     <div>Label: {{activeNode.label}}</div>
                     <div>Labels: {{activeNode.labels}}</div>
                     <div>Links #: {{selectedNodeNeighboursCount}}</div>
-                    <div>S: {{scale}}</div>
-                    <div>IS: {{scale2}}</div>
                 </div>
             </div>
         </div>
-        <triblets :node="activeNode"/>
+        <triplets :node="activeNode"/>
     </div>
 </template>
 
@@ -129,7 +128,7 @@ import Node from '../util/Node';
 import CanvasState from '../util/CanvasState';
 
 import RangeSlider from './RangeSlider';
-import Triblets from './Triblets';
+import Triplets from './Triplets';
 import Classifier from './Classifier';
 import Scissors from '../icons/Scissors';
 
@@ -157,7 +156,7 @@ export default {
     components: {
         Scissors,
         RangeSlider,
-        Triblets,
+        Triplets,
         Classifier,
     },
     data: () => ({
@@ -204,6 +203,11 @@ export default {
             this.socket.emit('updateNodes', nodes);
             this.loadingNodes = true;
             this.nodesCount = 0;
+        },
+
+        changeActiveNode(n) {
+            this.activeNode = n
+            return null
         },
 
         //
@@ -463,6 +467,7 @@ export default {
 
 <style scoped>
     #canvas {
+        height: 700px;
         margin: 5px;
         background-color: white;
         box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08);
@@ -472,16 +477,13 @@ export default {
         display: flex;
         justify-content: space-between;
         align-items: center;
-
         height: 2.5rem;
-
         padding: 5px;
-
     }
 
     .body {
-        width: 100%;
-        height: 100%;
+        /*width: 100%;*/
+        /*height: 100%;*/
         /*background-color: rgb(255, 90, 75);*/
         /*//color: black;*/
         /*padding: 5px;*/

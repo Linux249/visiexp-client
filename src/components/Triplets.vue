@@ -46,7 +46,7 @@
  */
 
 export default {
-    name: 'triblets',
+    name: 'triplets',
     props: ['node', 'positives', 'negatives'],
     data: () => ({
         redActive: false,

@@ -3,10 +3,9 @@ import Router from 'vue-router';
 import Welcome from '@/components/Welcome';
 import Svm from '@/components/Svm';
 import Classifier from '../components/Classifier';
-import { TRIBLETS, TSNE, SVM, CLASSIFIER, NEIGHBOURS } from '../util/modes';
+import { TRIPLETS, TSNE, SVM, CLASSIFIER, NEIGHBOURS } from '../util/modes';
 
 Vue.use(Router);
-
 
 export default new Router({
     routes: [

@@ -1,7 +1,8 @@
 <template>
     <div class="area">
+        <div v-if="loading" class="loading"><div class="loading-wheel"></div></div>
         <div class="imgArea" :class="{activePositiv: selectPositives}" @click="toggleActive(true)">
-            <div class="image" v-for="(n, i) in positives" :key="i">
+            <div class="image" v-for="(n, i) in positives" :key="i" @mouseover="handleMouseOver(n)">
                 <img
                     :src="n.icon.src"
                     alt=""
@@ -10,7 +11,7 @@
             </div>
         </div>
         <div class="imgArea" :class="{activeNegativ: !selectPositives}" @click="toggleActive(false)">
-            <div class="image" v-for="(n, i) in negatives" :key="i">
+            <div class="image" v-for="(n, i) in negatives" :key="i" @mouseover="handleMouseOver(n)">
                 <img
                     :src="n.icon.src"
                     alt=""
@@ -18,9 +19,8 @@
                 >
             </div>
         </div>
-        <div :class="{loading}"><div :class="{'loading-wheel': loading}"></div></div>
         <div class="row">
-            <div class="btn" @click="sendData">train</div>
+            <div class="btn" @click="trainSvm">train</div>
             <div class="btn">stop</div>
         </div>
     </div>
@@ -30,10 +30,12 @@
 <script>
 export default {
     name: 'Svm',
-    props: ['node', 'nodes', 'getNode'],
+    props: ['node', 'nodes', 'getNode', 'changeActiveNode'],
     data: () => ({
         positives: [],
+        positivesAll: [],
         negatives: [],
+        negativesAll: [],
         selectPositives: true,
         loading: false,
     }),
@@ -64,12 +66,16 @@ export default {
             this.positives.push(this.negatives[i]);
             this.negatives.splice(i, 1);
         },
-        async sendData() {
+        async trainSvm() {
+            console.log('trainSvm clicked');
             this.loading = true
-            console.log('send data clicked');
+
+            this.positives.forEach(n => this.positivesAll.indexOf(n) === -1 && this.positivesAll.push(n))
+            this.negatives.forEach(n => this.negativesAll.indexOf(n) === -1 && this.negativesAll.push(n))
+
             const body = JSON.stringify({
-                p: this.positives,
-                n: this.negatives,
+                p: this.positivesAll,
+                n: this.negativesAll,
             });
             const data = await fetch('/api/v1/updateSvm', {
                 method: 'POST',
@@ -77,13 +83,30 @@ export default {
                 body,
             }).then(res => res.json()).catch(e => console.error(e));
 
-
-            this.positives = [];
+            this.positives = [];    // reset
             data.p.forEach(i => this.positives.push(this.getNode(i)));
-            this.negatives = [];
+            this.negatives = [];    // reset
             data.n.forEach(i => this.negatives.push(this.getNode(i)));
             this.loading = false
         },
+        async stopSvm() {
+            console.log('stopSvm clicked');
+            this.loading = true
+
+            const data = await fetch('/api/v1/updateSvm', {
+                method: 'POST',
+                headers: { 'Content-type': 'application/json' },
+            }).then(res => res.json()).catch(e => console.error(e));
+
+            this.positives = [];    // reset
+            data.p.forEach(i => this.positives.push(this.getNode(i)));
+            this.negatives = [];    // reset
+            data.n.forEach(i => this.negatives.push(this.getNode(i)));
+            this.loading = false
+        },
+        handleMouseOver(n) {
+            this.changeActiveNode(n)
+        }
     },
 
 };
@@ -122,6 +145,7 @@ export default {
         border-style: double;
         border-color: #ccc transparent;
     }
+    /*http://jsfiddle.net/8k2NV/2/*/
 
     @-webkit-keyframes spin {
         0% {
@@ -160,8 +184,8 @@ export default {
     }
 
     .image {
-        width: 4rem;
-        height: 4rem;
+        width: 3.5rem;
+        height: 3.5rem;
         display: flex;
         justify-content: center;
         align-content: center;
