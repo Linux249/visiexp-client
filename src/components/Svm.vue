@@ -167,7 +167,7 @@ export default {
         flex-direction: row;
         margin-bottom: 1rem;
 
-        overflow:auto;
+        overflow: auto;
     }
 
     .activePositiv {

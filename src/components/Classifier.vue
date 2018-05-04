@@ -99,10 +99,10 @@ export default {
     }
 
     .imgArea {
-        /*height: 10rem;*/
-        /*border: 1px solid rgba(0, 255, 10, 0.5);*/
-        /*border-radius: 15px;*/
-        /*background-color: rgba(0, 255, 10, 0.1);*/
+        min-height: 4rem;
+        max-height: 15rem;
+        overflow: auto;
+
         box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08);
         display: flex;
         /*justify-content: center;*/
@@ -118,8 +118,8 @@ export default {
     }
 
     .image {
-        width: 4rem;
-        height: 4rem;
+        width: 3.5rem;
+        height: 3.5rem;
         display: flex;
         justify-content: center;
         align-content: center;
