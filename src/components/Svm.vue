@@ -6,7 +6,8 @@
                 <img
                     :src="n.icon.src"
                     alt=""
-                    @click="removePositives(i)"
+                    @click="switchPositivs(i)"
+                    @contextmenu.prevent="removePositives(i)"
                 >
             </div>
         </div>
@@ -15,13 +16,15 @@
                 <img
                     :src="n.icon.src"
                     alt=""
-                    @click="removeNegatives(i)"
+                    @click="switchNegatives(i)"
+                    @contextmenu.prevent="removeNegatives(i)"
                 >
             </div>
         </div>
         <div class="row">
             <div class="btn" @click="trainSvm">train</div>
             <div class="btn" @click="stopSvm">stop</div>
+            <div class="btn" @click="clearSvm">clear</div>
         </div>
     </div>
 
@@ -58,12 +61,18 @@ export default {
         toggleActive(v) {
             this.selectPositives = v;
         },
-        removePositives(i) {
+        switchPositivs(i) {
             this.negatives.push(this.positives[i]);
             this.positives.splice(i, 1);
         },
-        removeNegatives(i) {
+        switchNegatives(i) {
             this.positives.push(this.negatives[i]);
+            this.negatives.splice(i, 1);
+        },
+        removePositives(i) {
+            this.positives.splice(i, 1);
+        },
+        removeNegatives(i) {
             this.negatives.splice(i, 1);
         },
         async trainSvm() {
@@ -104,6 +113,12 @@ export default {
             }).then(res => res.text()).catch(e => console.error(e));
 
             this.loading = false;
+        },
+        clearSvm() {
+            this.positives = []; // reset
+            this.positivesAll = []; // reset
+            this.negatives = []; // reset
+            this.negativesAll = []; // reset
         },
         handleMouseOver(n) {
             this.changeActiveNode(n);
