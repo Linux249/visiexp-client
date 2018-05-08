@@ -32,7 +32,7 @@ export default {
         label: '',
         showLabels: false,
         selectedNodes: [],
-        mouseOver: false
+        mouseOver: false,
     }),
     watch: {
         node(n) {
@@ -44,7 +44,7 @@ export default {
     },
     methods: {
         addNode(n) {
-            if (n && this.selectedNodes.indexOf(n) === -1) this.selectedNodes.push(n)
+            if (n && this.selectedNodes.indexOf(n) === -1) this.selectedNodes.push(n);
         },
         removeNode(i) {
             this.selectedNodes.splice(i, 1);
@@ -72,10 +72,10 @@ export default {
         },
         handleBlur(e) {
             console.log('input blur');
-            if(!this.mouseOver) this.showLabels = false
+            if (!this.mouseOver) this.showLabels = false;
         },
         chooseLabel(label) {
-            console.log("chooselabel")
+            console.log('chooselabel');
             this.label = label;
             this.showLabels = false;
         },

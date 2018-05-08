@@ -23,6 +23,9 @@ export default new Router({
             name: SVM,
             component: Svm,
             props: true,
+        }, {
+            path: `/${NEIGHBOURS}`,
+            name: NEIGHBOURS,
         },
     ],
 });

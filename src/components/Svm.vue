@@ -68,11 +68,11 @@ export default {
         },
         async trainSvm() {
             console.log('trainSvm clicked');
-            this.loading = true
+            this.loading = true;
 
             // save nodes
-            this.positives.forEach(n => this.positivesAll.indexOf(n) === -1 && this.positivesAll.push(n))
-            this.negatives.forEach(n => this.negativesAll.indexOf(n) === -1 && this.negativesAll.push(n))
+            this.positives.forEach(n => this.positivesAll.indexOf(n) === -1 && this.positivesAll.push(n));
+            this.negatives.forEach(n => this.negativesAll.indexOf(n) === -1 && this.negativesAll.push(n));
 
             const body = JSON.stringify({
                 p: this.positivesAll,
@@ -84,30 +84,30 @@ export default {
                 body,
             }).then(res => res.json()).catch(e => console.error(e));
 
-            this.positives = [];    // reset
+            this.positives = []; // reset
             data.p.forEach(i => this.positives.push(this.getNode(i)));
-            this.negatives = [];    // reset
+            this.negatives = []; // reset
             data.n.forEach(i => this.negatives.push(this.getNode(i)));
-            this.loading = false
+            this.loading = false;
         },
         async stopSvm() {
             console.log('stopSvm clicked');
-            this.loading = true
+            this.loading = true;
 
             // save nodes
-            this.positives.forEach(n => this.positivesAll.indexOf(n) === -1 && this.positivesAll.push(n))
-            this.negatives.forEach(n => this.negativesAll.indexOf(n) === -1 && this.negativesAll.push(n))
+            this.positives.forEach(n => this.positivesAll.indexOf(n) === -1 && this.positivesAll.push(n));
+            this.negatives.forEach(n => this.negativesAll.indexOf(n) === -1 && this.negativesAll.push(n));
 
             await fetch('/api/v1/stopSvm', {
                 method: 'POST',
                 headers: { 'Content-type': 'application/json' },
             }).then(res => res.text()).catch(e => console.error(e));
 
-            this.loading = false
+            this.loading = false;
         },
         handleMouseOver(n) {
-            this.changeActiveNode(n)
-        }
+            this.changeActiveNode(n);
+        },
     },
 
 };

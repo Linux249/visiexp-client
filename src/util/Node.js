@@ -39,7 +39,7 @@ export default class Node {
         this.scale = null; // used for scaling the x/y position
         this.imgScale = null; // used for scaling img width
         //
-        this.timerId = 0;
+        // this.timerId = 0;
 
         this._value = null; // value will be set by the active nodes neighbour-values, default is 5
 

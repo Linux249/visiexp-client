@@ -196,7 +196,6 @@ export default {
         scrollGrowth: 0,
         scrollImgGrowth: 0,
         clusterGrowth: 0,
-
     }),
     methods: {
         getNode(i) {
@@ -213,8 +212,8 @@ export default {
         },
 
         changeActiveNode(n) {
-            this.activeNode = n
-            return null
+            this.activeNode = n;
+            return null;
         },
 
         //

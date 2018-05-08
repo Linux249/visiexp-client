@@ -1,5 +1,5 @@
 import range from './range';
-import { SVM } from './modes';
+import { SVM, NEIGHBOURS } from './modes';
 
 export default class CanvasState {
     constructor(canvas, hitCanvas, socket, ui) {
@@ -75,11 +75,11 @@ export default class CanvasState {
 
 
         // add event listener
-        this.canvas.onmousedown = this.handleMouseDown;
-        this.canvas.onmousemove = this.handleMouseMove;
-        this.canvas.onmouseup = this.handleMouseUp;
-        this.canvas.ondblclick = this.handleDoubleClick;
-        this.canvas.onwheel = this.zoom;
+        this.canvas.onmousedown = e => this.handleMouseDown(e);
+        this.canvas.onmousemove = e => this.handleMouseMove(e);
+        this.canvas.onmouseup = e => this.handleMouseUp(e);
+        this.canvas.ondblclick = e => this.handleDoubleClick(e);
+        this.canvas.onwheel = e => this.zoom(e);
         // this.canvas.onblur = this.blur;
         // this.timerId = setInterval(() => this.draw(), this.interval);
     }
@@ -87,7 +87,7 @@ export default class CanvasState {
     set scale(value) {
         if (value < 1) this._scale = 1;
         else this._scale = value;
-        this.valid = false;
+        this.triggerDraw();
         this.updateScaleUI(this.scale);
     }
 
@@ -98,7 +98,7 @@ export default class CanvasState {
     set scale2(value) {
         if (value < 1) this._scale = 1;
         else this._scale2 = value;
-        this.valid = false;
+        this.triggerDraw();
         this.updateScale2UI(this.scale2);
     }
 
@@ -109,7 +109,7 @@ export default class CanvasState {
     set imgScale(value) {
         if (value < 1) this._imgScale = 1;
         else this._imgScale = value;
-        this.valid = false;
+        this.triggerDraw();
     }
 
     get imgScale() {
@@ -119,7 +119,7 @@ export default class CanvasState {
     set activeImgScale(value) {
         if (value < 1) this._activeImgScale = 1;
         else this._activeImgScale = value;
-        this.valid = false;
+        this.triggerDraw();
     }
 
     get activeImgScale() {
@@ -129,7 +129,7 @@ export default class CanvasState {
     set borderWidth(value) {
         if (value < 0) this._borderWidth = 0;
         else this._borderWidth = value;
-        this.valid = false;
+        this.triggerDraw();
     }
 
     get borderWidth() {
@@ -140,7 +140,7 @@ export default class CanvasState {
         // console.log(this._cluster);
         if (value < 1) this._cluster = 1;
         else this._cluster = value;
-        this.valid = false;
+        this.triggerDraw();
         this.ui.cluster = this.cluster;
     }
 
@@ -177,7 +177,7 @@ export default class CanvasState {
     }
 
     set valid(v) {
-        if (!v) window.requestAnimationFrame(this.draw);
+        if (!v) window.requestAnimationFrame(() => this.draw());
         this._valid = v;
     }
 
@@ -185,20 +185,20 @@ export default class CanvasState {
         return this._valid;
     }
 
-    triggerDraw = () => {
+    triggerDraw() {
         this.valid = false;
     }
 
 
-    addNode = (node) => {
+    addNode(node) {
         // console.log('Node addded');
         this.nodes[node.index] = node;
         this.colorHash[node.colorKey] = node.index;
-        this.valid = false; // for redrawing
+        this.triggerDraw(); // for redrawing
     }
 
     getNodes() {
-        this.removeSelection(); // for updating values in links before sending
+        this.unselectNode(); // for updating values in links before sending
         return this.nodes;
     }
 
@@ -217,7 +217,7 @@ export default class CanvasState {
     resetStore() {
         this.nodes = {};
         this.colorHash = {};
-        this.valid = false;
+        this.triggerDraw();
     }
 
     clear() {
@@ -234,32 +234,44 @@ export default class CanvasState {
         this.hitCtx.scale(this.scale, this.scale);
     }
 
-    draw = () => {
+    draw() {
         // if our state is invalid, redraw and validate!
         if (!this.valid) {
             console.log('reDraw started');
             // const nodes = this.nodes;
             this.clear();
 
-            // ** Add stuff you want drawn in the background all the time here **
-
 
             // if some nodes are active set other transparent
             // if (this.selection) this.ctx.globalAlpha = 0.3;
             // else this.ctx.globalAlpha = 1;
+            if (this.selection) {
+                Object.values(this.nodes).forEach((node) => {
+                    // if node is clustered dont draw and draw pixel instead
+                    if (node.isActive) {
+                        this.ctx.globalAlpha = 0.2;
+                        node.drawAsActive(this.scale, this.activeImgScale);
+                        this.ctx.globalAlpha = 1;
+                    } else if (node.isActiveNeighbour) {
+                        this.ctx.globalAlpha = 0.2;
+                        node.drawAsNeighbour(this.scale, this.activeImgScale);
+                        this.ctx.globalAlpha = 1;
+                    } else if (this.cluster < node.cluster) {
+                        node.drawClusterd(this.scale, this.scale2, this.imgScale, this.cluster);
+                    } else node.draw(this.scale, this.scale2, this.imgScale, this.cluster);
+                });
+            } else {
+                // draw images
+                Object.values(this.nodes).forEach((node) => {
+                    // if node is clustered dont draw and draw pixel instead
+                    if (this.cluster < node.cluster) {
+                        node.drawClusterd(this.scale, this.scale2, this.imgScale, this.cluster);
+                    } else node.draw(this.scale, this.scale2, this.imgScale, this.cluster);
+                });
+            }
 
-            // draw images
-            Object.values(this.nodes).forEach((node) => {
-                // if (node.isActive) node.drawAsActive(this.scale, this.activeImgScale, this.cluster);
-                // else if (node.isActiveNeighbour) node.drawAsNeighbour(this.scale, this.activeImgScale, this.cluster);
-                // else
 
-                // if node is clustered dont draw and draw pixel instead
-                if (this.cluster < node.cluster) {
-                    node.drawClusterd(this.scale, this.scale2, this.imgScale, this.cluster);
-                } else node.draw(this.scale, this.scale2, this.imgScale, this.cluster);
-            });
-
+            // draw borders
             if (this.showKLabels) {
                 // draw borders
                 Object.values(this.nodes).forEach((node) => {
@@ -323,12 +335,12 @@ export default class CanvasState {
         }
     }
 
-    zoom = (wheelEvent) => {
+    zoom(wheelEvent) {
         console.log('zoom event');
         wheelEvent.preventDefault();
         wheelEvent.stopPropagation();
         // console.log(wheelEvent)
-        const nodeUnderMouse = this.findNodeByMousePosition(wheelEvent.offsetX, wheelEvent.offsetY);
+        const nodeUnderMouse = () => this.findNodeByMousePosition(wheelEvent.offsetX, wheelEvent.offsetY);
 
         if (this.selection && nodeUnderMouse && nodeUnderMouse.isActiveNeighbour) {
             console.log('nodeUnderMouse');
@@ -345,7 +357,7 @@ export default class CanvasState {
                 nodeUnderMouse.value += 0.1;
             }
 
-            this.valid = false;
+            this.triggerDraw();
         } else {
             const mouseX = wheelEvent.offsetX;
             const mouseY = wheelEvent.offsetY;
@@ -385,7 +397,7 @@ export default class CanvasState {
             this.translateX -= offsetX * scaleChange;
             this.translateY -= offsetY * scaleChange;
 
-            this.valid = false;
+            this.triggerDraw();
         }
 
         // console.log(this.scale);
@@ -408,12 +420,13 @@ export default class CanvasState {
         const nodeId = this.colorHash[color];
         if (nodeId >= 0) {
             return this.nodes[nodeId];
-        } return null;
+        }
+        return null;
     }
 
     selectNode(node) {
         // delete old node
-        if (this.selection && this.selection !== node) this.removeSelection();
+        // if (this.selection && this.selection !== node) this.unselectNode();
         this.selection = node;
         console.log('selected Node');
         console.log(node);
@@ -451,7 +464,7 @@ export default class CanvasState {
         this.triggerDraw();
     }
 
-    removeSelection() {
+    unselectNode() {
         const selectedNode = this.selection;
 
         // this.updateSelectionUI(false);
@@ -481,10 +494,10 @@ export default class CanvasState {
         }
         // remove selection
         this.selection = null;
-        this.valid = false; // redraw
+        this.triggerDraw();
     }
 
-    handleMouseDown = (e) => {
+    handleMouseDown(e) {
         // tell the browser we're handling this mouse event
         e.preventDefault();
         e.stopPropagation();
@@ -500,7 +513,7 @@ export default class CanvasState {
         const altKeyPressed = e.altKey;
 
         const nodeUnderMouse = this.findNodeByMousePosition(e.offsetX, e.offsetY);
-        // saving node under mouse while mouseDown
+        // saving node under mouse for checking in handlingMouseUp
         this.nodeUnderMouse = nodeUnderMouse;
 
         // TODO test if mouse hits Image and set their drag flag
@@ -526,7 +539,7 @@ export default class CanvasState {
                         nodeUnderMouse.isActiveNeighbour = false;
                         // this.selection.neighbours = this.selection.neighbours.filter(item => item.target !== nodeUnderMouse.index);
                         delete this.selection.links[nodeUnderMouse.index]; // remove link
-                        this.valid = false;
+                        this.triggerDraw();
                     }
                     // add neighbour if node is is not active node
                     else if (this.selection !== nodeUnderMouse) {
@@ -535,7 +548,7 @@ export default class CanvasState {
                         this.selection.links[nodeUnderMouse.index] = 0.5;
                         nodeUnderMouse.isActiveNeighbour = true;
                         nodeUnderMouse.value = 0.5;
-                        this.valid = false;
+                        this.triggerDraw();
                     }
                 } else if (ctrlKeyPressed) {
                     // add to left /negatives
@@ -551,7 +564,7 @@ export default class CanvasState {
             this.drawScissors = true;
             this.scissorsStartX = this.startX;
             this.scissorsStartY = this.startY;
-            this.valid = false;
+            this.triggerDraw();
         } else {
             // if nothing is clicked
             this.dragging = true;
@@ -559,7 +572,7 @@ export default class CanvasState {
     }
 
 
-    handleMouseMove = (e) => {
+    handleMouseMove(e) {
         // other way for getting x/y
         /* const mousePos = {
             x: e.clientX - canvas.offsetLeft,
@@ -572,7 +585,7 @@ export default class CanvasState {
         if (this.scissors) {
             this.scissorsEndX = mouseX;
             this.scissorsEndY = mouseY;
-            this.valid = false;
+            this.triggerDraw();
         }
 
 
@@ -582,10 +595,13 @@ export default class CanvasState {
         // load high resoultion image
         if (nodeUnderMouse && !nodeUnderMouse.hasImage) this.socket.emit('requestImage', { name: nodeUnderMouse.name, index: nodeUnderMouse.index });
 
-        if (!this.activeMode) {
-            if (nodeUnderMouse) this.ui.activeNode = nodeUnderMouse;
-            else this.ui.activeNode = false;
-        }
+        if (nodeUnderMouse) {
+            if (this.ui.$route.name === NEIGHBOURS) {
+
+            } else {
+                this.ui.activeNode = nodeUnderMouse;
+            }
+        } else if (this.ui.activeNode) this.ui.activeNode = false;
 
 
         if (this.draggNode || this.dragging) {
@@ -621,12 +637,12 @@ export default class CanvasState {
             this.triggerDraw();
         } else if (!this.activeMode) {
             // mouse moves over empty area after being over a node
-            if (!nodeUnderMouse && this.selection) this.removeSelection();
+            if (!nodeUnderMouse && this.selection) this.unselectNode();
             // mouse over picture and no picture before
             else if (!this.selection && nodeUnderMouse) this.selectNode(nodeUnderMouse);
             // mouse over picture but not the is allread selected = new picture selected
             else if (nodeUnderMouse && nodeUnderMouse !== this.selection) {
-                this.removeSelection();
+                this.unselectNode();
                 this.selectNode(nodeUnderMouse);
             }
         }
@@ -657,7 +673,7 @@ export default class CanvasState {
 
                 }
 
-                this.valid = false;
+                this.triggerDraw()
             }
         } else if (this.dragging === true) {
            /!* console.log('dragging');
@@ -669,13 +685,13 @@ export default class CanvasState {
 
 
             // start drawing
-            this.valid = false;*!/
+            this.triggerDraw()*!/
         } else
 
         // mouse over empty area */
     }
 
-    handleMouseUp = (e) => {
+    handleMouseUp(e) {
         console.log('mouseup');
         const nodeUnderMouse = this.findNodeByMousePosition(e.offsetX, e.offsetY);
         if (nodeUnderMouse === this.nodeUnderMouse) {
@@ -716,16 +732,19 @@ export default class CanvasState {
             this.scissors = false;
             this.ui.scissors = false;
             this.drawScissors = false;
-            this.valid = false;
+            this.triggerDraw();
             // TODO handle object in scissors rectangle
         }
     }
 
 
-    handleDoubleClick = () => {
+    handleDoubleClick() {
         console.log('Double click');
 
-        if (this.selection && !this.activeMode) {
+        if (this.activeNode && this.activeNode !== this.selection) this.selectNode(this.activeNode);
+        else this.unselectNode();
+
+        /* if (this.selection && !this.activeMode) {
             this.activeMode = true;
             this.ui.activeNode = this.activeNode;
             // this.activeNode = this.selection;
@@ -734,7 +753,7 @@ export default class CanvasState {
             this.ui.activeNode = false;
             this.activeNode = false;
             // this.activeMode = false;
-        }
+        } */
         this.triggerDraw();
     }
 }
