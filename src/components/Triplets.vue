@@ -3,9 +3,8 @@
 
         <div v-if="node.negatives" class="negatives area" :class="{redActive}" @click="toogleRed">
             <template v-if="node.negatives">
-                <div class="image" v-for="(n, i) in node.negatives">
+                <div class="image" v-for="(n, i) in node.negatives" :key="i">
                     <img
-                        :key="i"
                         :src="n.icon.src"
                         alt=""
                         @click="removeNegativ(i)"
@@ -18,12 +17,10 @@
                 <img :src="node.icon.src" alt="">
             </template>
         </div>
-
         <div v-if="node.positives" class="positives area" :class="{greenActive}" @click="toogleBlue">
             <template v-if="node.positives">
-                <div class="image" v-for="(n, i) in node.positives">
+                <div class="image" v-for="(n, i) in node.positives" :key="i">
                     <img
-                        :key="i"
                         :src="n.icon.src"
                         alt=""
                         @click="removePositiv(i)"

@@ -47,7 +47,13 @@ module.exports = {
     // allow debugger during development
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
 
+    // allow debugger during development
+    'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+
     // custom indentation
-    "indent": ["error", 4]
+    "indent": ["error", 4],
+
+    // allow underscore in class setter/getter/constructor
+    "no-underscore-dangle": ["error", { "allowAfterThis": true }]
   }
 }

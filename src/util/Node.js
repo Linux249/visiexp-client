@@ -208,28 +208,14 @@ export default class Node {
         const y = this._y - (h / 2);
 
 
-        if (this.isActive) {
-            // console.log(`Active node while draw: ${this.name}}`);
-            // console.log(this);
-            this.ctx.globalAlpha = 1;
+        this.ctx.drawImage(imgData, x, y, w, h);
 
-            this.ctx.drawImage(imgData, x, y, w, h);
-            this.ctx.globalAlpha = 0.3;
-            // ctx.rect(this.x,this.y, this.width/scale,this.height/scale);
-            // ctx.stroke();
-        } else if (this.isActiveNeighbour) {
-            // console.log(`Neighbour node while draw: ${this.name}}`);
-            // console.log(this);
-            this.ctx.globalAlpha = 1;
-            this.ctx.drawImage(imgData, x, y, w, h);
-            this.ctx.globalAlpha = 0.3;
-        }
         // draw HitCanvas rect
         this.hitCtx.fillStyle = this.colorKey;
         this.hitCtx.fillRect(x, y, w, h);
     }
 
-    drawAsNeighbour(scale, activeImgWidth, value) {
+    drawAsNeighbour(scale, activeImgWidth, strength) {
         this.scale = 1; // scale;
 
         const imgData = this.icon; // this.hasImage ? this.image : this.icon;
@@ -241,15 +227,13 @@ export default class Node {
 
         /* const w = (activeImgWidth / 10) * this.value;
         const h = (activeImgWidth / 10) * this.value; */
-        const w = imgData.width * activeImgWidth / 1000 * this.value; // TODO if image returns check if this width should be still used
-        const h = imgData.height * activeImgWidth / 1000 * this.value;
+        const w = imgData.width * activeImgWidth * strength / 1000; //* this.value; // TODO if image returns check if this width should be still used
+        const h = imgData.height * activeImgWidth * strength / 1000; //* this.value;
         const x = this._x - (w / 2);
         const y = this._y - (h / 2);
 
 
-        this.ctx.globalAlpha = 1;
         this.ctx.drawImage(imgData, x, y, w, h);
-        this.ctx.globalAlpha = 0.3;
 
         // draw HitCanvas rect
         this.hitCtx.fillStyle = this.colorKey;
@@ -278,8 +262,7 @@ export default class Node {
                     ? activeImgWidth * this.value
                     : imgWidth
         ) / 1000;
-        /* const w = (this.isActive ? activeImgWidth : this.isActiveNeighbour ? activeImgWidth * this.value : imgWidth) / 10;
-        const h = (this.isActive ? activeImgWidth : this.isActiveNeighbour ? activeImgWidth * this.value : imgWidth) / 10; */
+
         const x = this._x - (w / 2);
         const y = this._y - (h / 2);
 
@@ -297,23 +280,5 @@ export default class Node {
             this.hitCtx.fillRect(x, y, w / scale, h / scale);
         }
     }
-
-
-    // unused cause of non-math method for findNodeUnderMouse
-    /* contains(x, y, scale) {
-        // All we have to do is make sure the Mouse X,Y fall in the area between
-        // the Node X and (X + Width) and its Y and (Y + Height)
-        const w = this.width / scale;
-        const h = this.height / scale;
-
-        // const contains = (x >= this.x) && (x <= this.x + w) && (y >= this.y) && (y <= this.y + h);
-        return (x >= this.x) && (x <= this.x + w) && (y >= this.y) && (y <= this.y + h);
-        // console.log(contains);
-        // console.log(this);
-        // console.log({ mx, my, x, y, w, h });
-
-
-        // return contains;
-    } */
 }
 
