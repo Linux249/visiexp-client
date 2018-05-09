@@ -26,6 +26,7 @@
             <div class="btn" @click="stopSvm">stop</div>
             <div class="btn" @click="clearSvm">clear</div>
         </div>
+        <div class="btn" @click="clearSvm">{{count}}</div>
     </div>
 
 </template>
@@ -41,6 +42,7 @@ export default {
         negativesAll: [],
         selectPositives: true,
         loading: false,
+        count: 0,
     }),
     watch: {
         node(n) {
@@ -86,12 +88,15 @@ export default {
             const body = JSON.stringify({
                 p: this.positivesAll,
                 n: this.negativesAll,
+                count: this.count,
             });
             const data = await fetch('/api/v1/trainSvm', {
                 method: 'POST',
                 headers: { 'Content-type': 'application/json' },
                 body,
             }).then(res => res.json()).catch(e => console.error(e));
+
+            this.count += 1;
 
             this.positives = []; // reset
             data.p.forEach(i => this.positives.push(this.getNode(i)));
@@ -115,6 +120,8 @@ export default {
             this.loading = false;
         },
         clearSvm() {
+            // reset hole process (same like reload page/component)
+            this.count = 0;
             this.positives = []; // reset
             this.positivesAll = []; // reset
             this.negatives = []; // reset
