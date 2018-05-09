@@ -223,6 +223,7 @@ export default {
             this.cluster = this.store.cluster; // update ui
         },
 
+        /*
         updateSelection(node) {
             if (!node) {
                 // deactivation
@@ -231,7 +232,9 @@ export default {
                 this.activeNode = node;
             }
         },
+        */
 
+        /*
         updateScale(scale) {
             this.scale = scale;
         },
@@ -239,6 +242,7 @@ export default {
         updateScale2(scale2) {
             this.scale2 = scale2;
         },
+        */
 
         changeImgWidth(v) {
             this.store.imgScale += v; // update canvasState
@@ -263,11 +267,13 @@ export default {
             this.borderWidth = this.store.borderWidth; // update ui
         },
 
+        /*
         addNodeToClassify(node) {
             console.log('addNodeToClassify');
             console.log(node);
             if (this.cuttedNodes.indexOf(node) === -1) this.cuttedNodes.push(node);
         },
+        */
         toggleShowOptions() {
             this.showOptions = !this.showOptions;
         },
@@ -304,7 +310,7 @@ export default {
     },
     watch: {
         cluster(value) {
-            console.log('change cluster');
+            // console.log('change cluster');
             this.store.cluster = value;
         },
     },
@@ -345,10 +351,10 @@ export default {
 
         this.store = s;
 
-        s.updateSelectionUI = this.updateSelection;
-        s.updateScaleUI = this.updateScale;
-        s.updateScale2UI = this.updateScale2;
-        s.addNodeToClassify = this.addNodeToClassify;
+        // s.updateSelectionUI = this.updateSelection;
+        // s.updateScaleUI = this.updateScale;
+        // s.updateScale2UI = this.updateScale2;
+        // s.addNodeToClassify = this.addNodeToClassify;
 
         // sync values from UI to store
         s.labelColor = this.labelColor;
