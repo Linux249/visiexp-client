@@ -47,11 +47,11 @@ export default class CanvasState {
         this.scissorsEndY = 0;
 
         this._cluster = 500;
-        this.updateClusterUI = null;
+        // this.updateClusterUI = null;
         this._scale = 20;
         this._scale2 = 20;
-        this.updateScaleUI = null;
-        this.updateScale2UI = null;
+        // this.updateScaleUI = null;
+        // this.updateScale2UI = null;
         this._imgScale = 12;
         this._activeImgScale = 10;
         this._borderWidth = 5;
@@ -88,7 +88,7 @@ export default class CanvasState {
         if (value < 1) this._scale = 1;
         else this._scale = value;
         this.triggerDraw();
-        this.updateScaleUI(this.scale);
+        this.ui.scale = this.scale;
     }
 
     get scale() {
@@ -99,7 +99,7 @@ export default class CanvasState {
         if (value < 1) this._scale = 1;
         else this._scale2 = value;
         this.triggerDraw();
-        this.updateScale2UI(this.scale2);
+        this.ui.scale2 = this.scale2;
     }
 
     get scale2() {
@@ -236,7 +236,8 @@ export default class CanvasState {
     draw() {
         // if our state is invalid, redraw and validate!
         if (!this.valid) {
-            console.log('reDraw started');
+            console.time('draw');
+            console.time('nextFrameAfterDraw')
             // const nodes = this.nodes;
             this.clear();
 
@@ -310,6 +311,8 @@ export default class CanvasState {
                 this.ctx.globalAlpha = 1.0;
             }
             this.valid = true;
+            console.timeEnd('draw');
+            requestAnimationFrame(() => console.timeEnd('nextFrameAfterDraw'));
         }
     }
 

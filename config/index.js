@@ -14,7 +14,7 @@ module.exports = {
         '/api': {
             target: 'http://localhost:3000',
             changeOrigin: true,
-                    }
+        }
     },
 
     // Various Dev Server settings

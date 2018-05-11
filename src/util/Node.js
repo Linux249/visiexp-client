@@ -148,7 +148,7 @@ export default class Node {
 
     // ctx is the canvas context
     // scale change through zooming and is used for positioning the images
-    async draw(scale, scale2, imgWidth, cluster) {
+    draw(scale, scale2, imgWidth, cluster) {
         // console.log('start draw Image');
         // check which picture to use
         // this.scale = 1; // scale;
@@ -171,6 +171,7 @@ export default class Node {
         //     console.log(data)
         //     this.ctx.drawImage(data, x, y)
         // })
+        console.log({x,y,h,w})
         this.ctx.drawImage(imgData, x, y, w, h);
 
 
