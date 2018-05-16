@@ -26,7 +26,8 @@ export default class CanvasState {
         this.dragging = false; // Keep track of when we are dragging
         this.draggNode = false; // save the node for dragging
 
-        // the current selected object. TODO  In the future we could turn this into an array for multiple selection
+        // the current selected object.
+        // TODO  In the future we could turn this into an array for multiple selection
         this.selection = null; // pointer to the activated node
         this.nodeOnMouseDown = false; // save node on mouseDown for check in mouseUp
 
@@ -46,17 +47,17 @@ export default class CanvasState {
         this.scissorsEndX = 0;
         this.scissorsEndY = 0;
 
-        this._cluster = 500;
+        this._cluster = 50000;
         // this.updateClusterUI = null;
         this._scale = 20;
-        this._scale2 = 20;
+        this._scale2 = 0;
         // this.updateScaleUI = null;
         // this.updateScale2UI = null;
         this._imgScale = 12;
         this._activeImgScale = 10;
         this._borderWidth = 5;
 
-        this._scrollGrowth = 1.3;
+        this._scrollGrowth = 20;
         this._scrollImgGrowth = 1.1;
         this._clusterGrowth = 1.2;
 
@@ -85,7 +86,7 @@ export default class CanvasState {
     }
 
     set scale(value) {
-        if (value < 1) this._scale = 1;
+        if (value < 20) this._scale = 20;
         else this._scale = value;
         this.triggerDraw();
         this.ui.scale = this.scale;
@@ -96,7 +97,8 @@ export default class CanvasState {
     }
 
     set scale2(value) {
-        if (value < 1) this._scale = 1;
+        if (value < 0) this._scale2 = 0;
+        else if (value > 9) this._scale2 = 9;
         else this._scale2 = value;
         this.triggerDraw();
         this.ui.scale2 = this.scale2;
@@ -114,6 +116,24 @@ export default class CanvasState {
 
     get imgScale() {
         return this._imgScale;
+    }
+
+    set translateX(value) {
+        this._translateX = value;
+        // this.ui.translateX = value;
+    }
+
+    get translateX() {
+        return this._translateX;
+    }
+
+    set translateY(value) {
+        this._translateY = value;
+        // this.ui.translateY = value;
+    }
+
+    get translateY() {
+        return this._translateY;
     }
 
     set activeImgScale(value) {
@@ -208,7 +228,8 @@ export default class CanvasState {
 
     range(minX, minY, maxX, maxY) {
         // TODO min x, max should be automatic
-        const result = range(this.kdtree.ids, this.kdtree.coords, minX, minY, maxX, maxY, this.kdtree.nodeSize); // TODO is this fast?
+        const result = range(this.kdtree.ids,
+            this.kdtree.coords, minX, minY, maxX, maxY, this.kdtree.nodeSize);
         console.log('range');
         console.log(result);
     }
@@ -224,20 +245,20 @@ export default class CanvasState {
         this.ctx.resetTransform();
         this.ctx.clearRect(0, 0, this.width, this.height);
         this.ctx.translate(this.translateX, this.translateY);
-        this.ctx.scale(this.scale, this.scale);
+        // this.ctx.scale(this.scale, this.scale);
 
         // same on hit ctx
         this.hitCtx.resetTransform();
         this.hitCtx.clearRect(0, 0, this.width, this.height);
         this.hitCtx.translate(this.translateX, this.translateY);
-        this.hitCtx.scale(this.scale, this.scale);
+        // this.hitCtx.scale(this.scale, this.scale);
     }
 
     draw() {
         // if our state is invalid, redraw and validate!
         if (!this.valid) {
             console.time('draw');
-            console.time('nextFrameAfterDraw')
+            console.time('nextFrameAfterDraw');
             // const nodes = this.nodes;
             this.clear();
 
@@ -263,7 +284,11 @@ export default class CanvasState {
                     } else if (this.selection.links[node.index]) {
                         console.log('LINKED NODE');
                         this.ctx.globalAlpha = 1;
-                        node.drawAsNeighbour(this.scale, this.activeImgScale, this.selection.links[node.index]);
+                        node.drawAsNeighbour(
+                            this.scale,
+                            this.activeImgScale,
+                            this.selection.links[node.index],
+                        );
                         this.ctx.globalAlpha = 0.2;
                     } else if (this.cluster < node.cluster) {
                         node.drawClusterd(this.scale, this.scale2, this.imgScale, this.cluster);
@@ -286,12 +311,23 @@ export default class CanvasState {
             if (this.showKLabels) {
                 // draw borders
                 Object.values(this.nodes).forEach((node) => {
-                    node.drawBorder(this.scale, this.imgScale, this.activeImgScale, this.cluster, this.borderWidth);
+                    node.drawBorder(
+                        this.scale,
+                        this.imgScale,
+                        this.activeImgScale,
+                        this.cluster,
+                        this.borderWidth);
                 });
             } else if (this.selectedLabel) {
                 Object.values(this.nodes).forEach((node) => {
                     if (node.labels.indexOf(this.selectedLabel) !== -1) {
-                        node.drawBorder(this.scale, this.imgScale, this.activeImgScale, this.cluster, this.borderWidth, this.labelColor);
+                        node.drawBorder(
+                            this.scale,
+                            this.imgScale,
+                            this.activeImgScale,
+                            this.cluster,
+                            this.borderWidth,
+                            this.labelColor);
                     }
                 });
             }
@@ -342,32 +378,34 @@ export default class CanvasState {
             if (links[i] > 1) links[i] = 1;
             this.triggerDraw();
         } else {
+            const oldScale = this.scale;
             const mouseX = wheelEvent.offsetX;
             const mouseY = wheelEvent.offsetY;
+            console.log({mouseX, mouseY})
             // get mouse movement based on the last triggered event
-            const offsetX = (mouseX - this.translateX) / this.scale; // +80 means move 80px to right
-            const offsetY = (mouseY - this.translateY) / this.scale; // -50 means move 50 to top
-            // console.log({ moveX, moveY });
-
-            const oldScale = this.scale;
+            const offsetX = (mouseX - this.translateX) / oldScale; // +80 means move 80px to right
+            const offsetY = (mouseY - this.translateY) / oldScale; // -50 means move 50 to top
+            console.log({ offsetX, offsetY });
 
             // Zoom in = increase = wheel up = negativ delta Y
             if (wheelEvent.deltaY < 0) {
                 console.log('zoom in');
-
-                this.scale *= this.scrollGrowth;
-                this.scale2 *= this.scrollImgGrowth;
+                this.scale += this.scrollGrowth;
+                this.scale2 += 1;
                 this.cluster *= this.clusterGrowth;
             }
 
             // Zoom out = decrease = wheel down = positiv delta Y
             if (wheelEvent.deltaY > 0) {
                 console.log('zoom out');
-
-                this.scale /= this.scrollGrowth;
-                this.scale2 /= this.scrollImgGrowth;
+                this.scale -= this.scrollGrowth;
+                this.scale2 -= 1;
                 this.cluster /= this.clusterGrowth;
             }
+
+
+
+
             const scaleChange = this.scale - oldScale;
             this.translateX -= offsetX * scaleChange;
             this.translateY -= offsetY * scaleChange;
@@ -415,34 +453,6 @@ export default class CanvasState {
         // if there is no mouse under mouse then move everything
         if (nodeUnderMouse) {
             this.draggNode = nodeUnderMouse;
-            // freeze = activation Mode
-            /* if (this.activeMode) {
-                if (false) {
-                    // remove neighbour
-                    if (nodeUnderMouse.isActiveNeighbour) {
-                        nodeUnderMouse.isActiveNeighbour = false;
-                        // this.selection.neighbours = this.selection.neighbours.filter(item => item.target !== nodeUnderMouse.index);
-                        delete this.selection.links[nodeUnderMouse.index]; // remove link
-                        this.triggerDraw();
-                    }
-                    // add neighbour if node is is not active node
-                    else if (this.selection !== nodeUnderMouse) {
-                        // nodeUnderMouse.v = 5
-                        // this.selection.neighbours.push({ target: nodeUnderMouse.index, value: 0.5 });
-                        this.selection.links[nodeUnderMouse.index] = 0.5;
-                        nodeUnderMouse.isActiveNeighbour = true;
-                        nodeUnderMouse.value = 0.5;
-                        this.triggerDraw();
-                    }
-                } else if (ctrlKeyPressed) {
-                    // add to left /negatives
-                    this.nodeUnderMouse.negatives.push(nodeUnderMouse);
-                } else if (altKeyPressed || shiftKeyPressed) {
-                    // add to right // positives
-                    this.nodeUnderMouse.positives.push(nodeUnderMouse);
-                }
-            }
-        } else */
         } else if (this.scissors) {
             console.log('Scissors');
             // save start X/Y
@@ -474,7 +484,8 @@ export default class CanvasState {
         }
 
 
-        // there is a freeze and not freeze mode - different interaction based ob if a node is active or node
+        // there is a freeze and not freeze mode -
+        // different interaction based ob if a node is active or node
         const nodeUnderMouse = this.findNodeByMousePosition(mouseX, mouseY);
         this.nodeUnderMouse = nodeUnderMouse;
         this.ui.activeNode = nodeUnderMouse;
@@ -527,7 +538,8 @@ export default class CanvasState {
         if (nodeUnderMouse === this.nodeOnMouseDown) {
             // click event on a special node - do something
             console.log('click on node');
-            this.ui.clickedNode = nodeUnderMouse; // used for components for adding nodes to special cases
+            // used for components for adding nodes to special cases
+            this.ui.clickedNode = nodeUnderMouse;
             switch (this.ui.$route.name) {
             case SVM:
                 break;
@@ -588,8 +600,9 @@ export default class CanvasState {
 
     handleDoubleClick() {
         console.log('Double click');
-        if (this.nodeUnderMouse && this.nodeUnderMouse !== this.selection) this.selection = this.nodeUnderMouse;
-        else this.selection = null;
+        if (this.nodeUnderMouse && this.nodeUnderMouse !== this.selection) {
+            this.selection = this.nodeUnderMouse;
+        } else this.selection = null;
         this.triggerDraw();
     }
 }
