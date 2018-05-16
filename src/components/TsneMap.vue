@@ -4,14 +4,16 @@
             <div></div>
 
 
-            <!--<div>
+            <div>
                 <div class="row">
-                    <div># {{nodesCount}}</div>
-                    <div>connected: {{connectedToSocket}}</div>
-                    &lt;!&ndash;<div @click="scaleUp" class="btn">+</div>
-                    <div @click="scaleDown" class="btn">-</div>&ndash;&gt;
+                    <!--<div># {{nodesCount}}</div>-->
+                    <!--<div>connected: {{connectedToSocket}}</div>-->
+                    <div class="btn"> {{scale}}</div>
+                    <div class="btn">{{scale2}}</div>
+                    <!--<div class="btn">{{translateX}}</div>-->
+                    <!--<div class="btn">{{translateY}}</div>-->
                 </div>
-            </div>-->
+            </div>
             <div class="row">
                 <div class="dropdownArea"></div>
                 <div class="labelsArea" @mouseenter="showLabels = true" @mouseleave="showLabels = false">
@@ -196,6 +198,8 @@ export default {
         scrollGrowth: 0,
         scrollImgGrowth: 0,
         clusterGrowth: 0,
+        // translateX: 0,
+        // translateY: 0,
     }),
     methods: {
         getNode(i) {
@@ -393,7 +397,7 @@ export default {
             // s.clear() // maybe there is something inside?
         });
 
-        socket.on('node', (data, cb) => {
+        socket.on('node', data => {
             if (data.index % 100 === 0) {
                 console.log(`receive node ${data.index}`);
                 console.log(data);
@@ -401,7 +405,6 @@ export default {
 
             s.addNode(new Node(data, s.ctx, s.hitCtx));
             s.triggerDraw();
-            cb(data.index);
         });
 
         socket.on('receiveImage', (data) => {

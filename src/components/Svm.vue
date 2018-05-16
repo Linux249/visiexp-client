@@ -21,6 +21,14 @@
                 >
             </div>
         </div>
+        <div class="imgArea">
+            <div class="image" v-for="(n, i) in topScored" :key="i">
+                <img
+                    :src="n.icon.src"
+                    alt=""
+                >
+            </div>
+        </div>
         <div class="row">
             <div class="btn" @click="trainSvm">train</div>
             <div class="btn" @click="stopSvm">stop</div>
@@ -40,6 +48,7 @@ export default {
         positivesAll: [],
         negatives: [],
         negativesAll: [],
+        topScored: [],
         selectPositives: true,
         loading: false,
         count: 0,
@@ -94,23 +103,42 @@ export default {
                 method: 'POST',
                 headers: { 'Content-type': 'application/json' },
                 body,
-            }).then(res => res.json()).catch(e => console.error(e));
+            }).then(res => res.json()).catch((e) => {
+                this.loading = false;
+                console.error(e);
+            });
 
+            console.log(data);
             this.count += 1;
 
             this.positives = []; // reset
-            data.p.forEach(i => this.positives.push(this.getNode(i)));
+            data.p.forEach((i) => {
+                const node = this.getNode(i);
+                if (node) this.positives.push(node);
+                else console.log(new Error('der zurückgegebene Index in trainSvm ist nicht als Knoten vorhanden'));
+            });
             this.negatives = []; // reset
-            data.n.forEach(i => this.negatives.push(this.getNode(i)));
+            data.n.forEach((i) => {
+                const node = this.getNode(i);
+                if (node) this.negatives.push(node);
+                else console.log(new Error('der zurückgegebene Index in trainSvm ist nicht als Knoten vorhanden'));
+            });
+            this.topScored = []; // reset
+            data.t.forEach((i) => {
+                const node = this.getNode(i);
+                if (node) this.topScored.push(node);
+                else console.log(new Error('der zurückgegebene Index in trainSvm ist nicht als Knoten vorhanden'));
+            });
             this.loading = false;
+            console.log('done');
         },
         async stopSvm() {
             console.log('stopSvm clicked');
             this.loading = true;
 
             // save nodes
-            this.positives.forEach(n => this.positivesAll.indexOf(n) === -1 && this.positivesAll.push(n));
-            this.negatives.forEach(n => this.negativesAll.indexOf(n) === -1 && this.negativesAll.push(n));
+            // this.positives.forEach(n => this.positivesAll.indexOf(n) === -1 && this.positivesAll.push(n));
+            // this.negatives.forEach(n => this.negativesAll.indexOf(n) === -1 && this.negativesAll.push(n));
 
             await fetch('/api/v1/stopSvm', {
                 method: 'POST',
