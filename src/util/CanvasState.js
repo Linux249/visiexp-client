@@ -87,7 +87,7 @@ export default class CanvasState {
 
     set scale(value) {
         if (value < 20) this._scale = 20;
-        else this._scale = value;
+        else this._scale = Math.round(value);
         this.triggerDraw();
         this.ui.scale = this.scale;
     }
@@ -119,8 +119,8 @@ export default class CanvasState {
     }
 
     set translateX(value) {
-        this._translateX = value;
-        // this.ui.translateX = value;
+        this._translateX = Math.round(value);
+        this.ui.translateX = value;
     }
 
     get translateX() {
@@ -128,8 +128,8 @@ export default class CanvasState {
     }
 
     set translateY(value) {
-        this._translateY = value;
-        // this.ui.translateY = value;
+        this._translateY = Math.round(value);
+        this.ui.translateY = value;
     }
 
     get translateY() {
@@ -197,7 +197,11 @@ export default class CanvasState {
     }
 
     set valid(v) {
-        if (!v) window.requestAnimationFrame(() => this.draw());
+        let i
+        // TODO so wird jeder neue draw ausgetzt weil der alte noch läuft
+        if (!v && this.valid) i = window.requestAnimationFrame(() => this.draw2());
+        // console.log(i)
+        //if (i > 2) window.cancelAnimationFrame(i)
         this._valid = v;
     }
 
@@ -352,6 +356,69 @@ export default class CanvasState {
         }
     }
 
+    draw2() {
+        console.time('draw2');
+
+        const canvasW = this.width,
+            canvasH = this.height,
+            tx = this.translateX, // wird auf die node x,y aufaddiert
+            ty = this.translateY,
+            scale = this.scale, // node x,y werden multipliziert
+            zoomStage = this.scale2
+        const canvasPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
+        // console.log({ canvasW, canvasH, tx, ty, scale });
+
+        Object.values(this.nodes).forEach((node) => {
+            if(node.imageData[zoomStage]) {
+                const img = node.imageData[zoomStage],
+                    imgData = img.data,
+                    iw = img.width,
+                    ih = img.height,
+                    nodeX = node.x,
+                    nodeY = node.y;
+
+                // start x,y ist x *scale + translateX
+                const canvasX = Math.floor(nodeX * scale + tx);
+                const canvasY = Math.floor(nodeY * scale + ty);
+
+                // console.log({ iw, ih, nodeX, nodeY, canvasX, canvasY });
+
+
+                // wir gehen durch alle reihen des bildes
+                for (let row = 0; row < ih; row += 1) {
+                    const canvasRow = ((canvasY + row) * canvasW + canvasX ) * 4 ;
+                    // copy row to pixel
+                    // wir laufen durch alle spalten des bildes und betrachten dann 4 werte im array
+                    for (let col = 0; col < iw; col += 1) {
+                        const c = canvasRow + col * 4;
+                        // console.log(c)
+                        // console.log(canvasPixel[c])
+                        const p = (row * iw + col)*4;
+                        // if(c > canvasW * canvasH * 4) console.error("CRY")
+                        canvasPixel[c] = imgData[p]; // R
+                        canvasPixel[c + 1] = imgData[p + 1]; // G
+                        canvasPixel[c + 2] = imgData[p + 2]; // B
+                        canvasPixel[c + 3] = imgData[p + 3]; // A
+                        // console.log(canvasPixel[c])
+                    }
+                }
+            }
+        });
+
+        const pic = new ImageData(canvasPixel, canvasW, canvasH);
+        this.ctx.resetTransform();
+        this.ctx.clearRect(0, 0, this.width, this.height);
+        this.ctx.putImageData(pic, 0, 0);
+
+        // console.log(pic);
+        // console.log(canvasPixel);
+
+
+        // console.log({ w, h, tx, ty, pixel });
+        console.timeEnd('draw2');
+        this.valid = true;
+    }
+
     zoom(wheelEvent) {
         console.log('zoom event');
         wheelEvent.preventDefault();
@@ -381,7 +448,7 @@ export default class CanvasState {
             const oldScale = this.scale;
             const mouseX = wheelEvent.offsetX;
             const mouseY = wheelEvent.offsetY;
-            console.log({mouseX, mouseY})
+            // console.log({ mouseX, mouseY });
             // get mouse movement based on the last triggered event
             const offsetX = (mouseX - this.translateX) / oldScale; // +80 means move 80px to right
             const offsetY = (mouseY - this.translateY) / oldScale; // -50 means move 50 to top
@@ -402,8 +469,6 @@ export default class CanvasState {
                 this.scale2 -= 1;
                 this.cluster /= this.clusterGrowth;
             }
-
-
 
 
             const scaleChange = this.scale - oldScale;

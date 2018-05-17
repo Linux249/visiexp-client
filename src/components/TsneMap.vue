@@ -10,8 +10,9 @@
                     <!--<div>connected: {{connectedToSocket}}</div>-->
                     <div class="btn"> {{scale}}</div>
                     <div class="btn">{{scale2}}</div>
-                    <!--<div class="btn">{{translateX}}</div>-->
-                    <!--<div class="btn">{{translateY}}</div>-->
+                    <div class="btn">{{translateX}}</div>
+                    <div class="btn">{{translateY}}</div>
+                    <div class="btn" @click="draw2">draw2</div>
                 </div>
             </div>
             <div class="row">
@@ -198,8 +199,8 @@ export default {
         scrollGrowth: 0,
         scrollImgGrowth: 0,
         clusterGrowth: 0,
-        // translateX: 0,
-        // translateY: 0,
+        translateX: 0,
+        translateY: 0,
     }),
     methods: {
         getNode(i) {
@@ -225,6 +226,10 @@ export default {
             // console.log("cluster more clicked")
             this.store.cluster += v; // update canvasState
             this.cluster = this.store.cluster; // update ui
+        },
+
+        draw2() {
+            this.store.draw2()
         },
 
         /*

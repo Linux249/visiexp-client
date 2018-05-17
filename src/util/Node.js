@@ -29,12 +29,22 @@ export default class Node {
         this.icon.src = data.buffer;
 
         this.pics = {};
+        this.imageData = {};
+
         try {
+            // TODO das kann sicherlich optimiert werden
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
             Object.values(data.pics).map((pic, i) => {
                 const img = new Image();
                 img.src = pic;
-                img.onload = async () => this.pics[i] = await createImageBitmap(img);
-                // this.pics[i] = await createImageBitmap(img);
+                img.onload = async () => {
+                    this.pics[i] = await createImageBitmap(img);
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    context.drawImage(img, 0, 0);
+                    this.imageData[i] = context.getImageData(0, 0, img.width, img.height);
+                };
             });
         } catch (e) {
             console.error(e);
@@ -171,8 +181,8 @@ export default class Node {
             const h = imgData.height;
             // const x = (this._x - (w / 2)) * scale;
             // const y = (this._y - (h / 2)) * scale;
-            const x = (this._x * scale) - (w / 2);
-            const y = (this._y * scale) - (h / 2);
+            const x = Math.floor((this._x * scale) - (w / 2)); // TODO PERFORMANCE ??? Rounde faster than not?
+            const y = Math.floor((this._y * scale) - (h / 2));
 
 
             // const data = await createImageBitmap(imgData, 0, 0, w, h)
@@ -181,7 +191,7 @@ export default class Node {
             //     this.ctx.drawImage(data, x, y)
             // })
             // console.log({ x, y, h, w });
-            this.ctx.drawImage(imgData, x, y);
+            this.ctx.drawImage(imgData, x, y); // TODO Performance drawImage - putImageData
 
 
             this.hitCtx.fillStyle = this.colorKey;
@@ -218,7 +228,7 @@ export default class Node {
         const y = this._y - (h / 2);
 
 
-        this.ctx.drawImage(imgData, x, y, w, h);
+        this.ctx.putImageData(imgData, x, y, w, h);
 
         // draw HitCanvas rect
         this.hitCtx.fillStyle = this.colorKey;
