@@ -1,7 +1,7 @@
 <template>
     <div class="body">
         <div class="sub-header">
-            <div></div>
+            <div class="btn" :if="nodesTotal">{{nodesRecived + "/" + nodesTotal}}</div>
 
 
             <div>
@@ -176,7 +176,8 @@ export default {
         socket: null,
         connectedToSocket: false,
         loadingNodes: false,
-        nodesCount: 0,
+        nodesTotal: 0,
+        nodesRecived: 0,
         scale: 0,
         scale2: 0,
         labels: [],
@@ -212,8 +213,7 @@ export default {
             // this.store.clear()
             this.store.resetStore();
             this.socket.emit('updateNodes', nodes);
-            this.loadingNodes = true;
-            this.nodesCount = 0;
+            this.reset();
         },
 
         changeActiveNode(n) {
@@ -315,6 +315,11 @@ export default {
             this.scissors = !this.scissors;
             this.store.scissors = this.scissors;
         },
+        reset() {
+            this.loadingNodes = true;
+            this.nodesRecived = 0;
+            this.nodesTotal = 0;
+        }
 
     },
     watch: {
@@ -391,7 +396,7 @@ export default {
             console.log(nodes);
             if (!Object.keys(nodes).length && !this.loadingNodes) {
                 socket.emit('updateNodes', {});
-                this.loadingNodes = true;
+                this.reset()
             }
             // s.clear() // maybe there is something inside?
         });
@@ -407,7 +412,8 @@ export default {
                 console.log(`receive node ${data.index}`);
                 console.log(data);
             }
-
+            if(!this.nodesRecived) console.time('loadAllNodes')
+            this.nodesRecived += 1
             s.addNode(new Node(data, s.ctx, s.hitCtx));
             s.triggerDraw();
         });
@@ -422,13 +428,22 @@ export default {
             s.valid = false;
         });
 
-        socket.on('allNodesUpdated', () => {
-            this.loadingNodes = false;
+        socket.on('totalNodesCount', (data) => {
+            console.log('totalNodesCount')
+            console.log(data)
+            this.nodesTotal = data
         });
-        socket.on('nodesCount', (nodesCount) => {
+
+        socket.on('allNodesSend', () => {
+            console.log('allNodesSend')
+            this.loadingNodes = false;
+            console.timeEnd('loadAllNodes')
+        });
+
+        /*socket.on('nodesCount', (nodesCount) => {
             console.log(`nodesCount: ${nodesCount}`);
             this.nodesCount = nodesCount;
-        });
+        });*/
 
         socket.on('updateLabels', (data) => {
             console.log('updateLabels');

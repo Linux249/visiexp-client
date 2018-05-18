@@ -33,18 +33,19 @@ export default class Node {
 
         try {
             // TODO das kann sicherlich optimiert werden
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
+            // const canvas = document.createElement('canvas');
+            // const context = canvas.getContext('2d');
             Object.values(data.pics).map((pic, i) => {
-                const img = new Image();
-                img.src = pic;
-                img.onload = async () => {
-                    this.pics[i] = await createImageBitmap(img);
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    context.drawImage(img, 0, 0);
-                    this.imageData[i] = context.getImageData(0, 0, img.width, img.height);
-                };
+                this.imageData[i] = new ImageData(new Uint8ClampedArray(pic.data), pic.info.width, pic.info.height)
+                // const img = new Image();
+                // img.src = pic;
+                // img.onload = async () => {
+                //     this.pics[i] = await createImageBitmap(img);
+                //     canvas.width = img.width;
+                //     canvas.height = img.height;
+                //     context.drawImage(img, 0, 0);
+                //     this.imageData[i] = context.getImageData(0, 0, img.width, img.height);
+                // };
             });
         } catch (e) {
             console.error(e);
