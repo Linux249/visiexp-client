@@ -19,7 +19,7 @@ export default class CanvasState {
         this.kdtree = {};
 
 
-        this.valid = false; // when set to false, the canvas will redraw everything
+        this.valid = true; // when set to false, the canvas will redraw everything
         this._valid = false;
         this.nodes = {}; // hash for all nodes
         this.colorHash = {}; // find nodes by color
@@ -50,14 +50,14 @@ export default class CanvasState {
         this._cluster = 50000;
         // this.updateClusterUI = null;
         this._scale = 20;
-        this._scale2 = 0;
+        this._scale2 = 20;  // vorher 0
         // this.updateScaleUI = null;
         // this.updateScale2UI = null;
         this._imgScale = 12;
         this._activeImgScale = 10;
         this._borderWidth = 5;
 
-        this._scrollGrowth = 20;
+        this._scrollGrowth = 1.3;  // vorher 20
         this._scrollImgGrowth = 1.1;
         this._clusterGrowth = 1.2;
 
@@ -106,6 +106,18 @@ export default class CanvasState {
 
     get scale2() {
         return this._scale2;
+    }
+
+    set zoomLvl(value) {
+        if (value < 0) this._zoomLvl = 0;
+        else if (value > 9) this._zoomLvl = 9;
+        else this._zoomLvl = value;
+        this.triggerDraw();
+        this.ui._zoomLvl = this.zoomLvl;
+    }
+
+    get zoomLvl() {
+        return this._zoomLvl;
     }
 
     set imgScale(value) {
@@ -199,7 +211,7 @@ export default class CanvasState {
     set valid(v) {
         // let i;
         // TODO so wird jeder neue draw ausgetzt weil der alte noch läuft
-        if (!v && this.valid) window.requestAnimationFrame(() => this.draw2());
+        if (!v && this.valid) window.requestAnimationFrame(() => this.draw());
         // console.log(i)
         // if (i > 2) window.cancelAnimationFrame(i)
         this._valid = v;
@@ -246,16 +258,19 @@ export default class CanvasState {
 
     clear() {
         // move point 0,0 to middle of canvas
+        // console.log(this.ctx)
         this.ctx.resetTransform();
         this.ctx.clearRect(0, 0, this.width, this.height);
         this.ctx.translate(this.translateX, this.translateY);
-        // this.ctx.scale(this.scale, this.scale);
+        this.ctx.scale(this.scale, this.scale);
+        // console.log(this.ctx)
+        console.log(this.translateX, this.translateY)
 
         // same on hit ctx
         this.hitCtx.resetTransform();
         this.hitCtx.clearRect(0, 0, this.width, this.height);
         this.hitCtx.translate(this.translateX, this.translateY);
-        // this.hitCtx.scale(this.scale, this.scale);
+        this.hitCtx.scale(this.scale, this.scale);
     }
 
     draw() {
@@ -294,7 +309,7 @@ export default class CanvasState {
                             this.selection.links[node.index],
                         );
                         this.ctx.globalAlpha = 0.2;
-                    } else if (this.cluster < node.cluster) {
+                    } else if (this.cluster < node.cluster) {   // TODO add cluster mode
                         node.drawClusterd(this.scale, this.scale2, this.imgScale, this.cluster);
                     } else node.draw(this.scale, this.scale2, this.imgScale, this.cluster);
                 });
@@ -304,7 +319,7 @@ export default class CanvasState {
                 // draw images
                 Object.values(this.nodes).forEach((node) => {
                     // if node is clustered dont draw and draw pixel instead
-                    if (this.cluster < node.cluster) {
+                    if (this.cluster < node.cluster) { // TODO add cluster mode
                         node.drawClusterd(this.scale, this.scale2, this.imgScale, this.cluster);
                     } else node.draw(this.scale, this.scale2, this.imgScale, this.cluster);
                 });
@@ -364,7 +379,7 @@ export default class CanvasState {
             tx = this.translateX, // wird auf die node x,y aufaddiert
             ty = this.translateY,
             scale = this.scale, // node x,y werden multipliziert
-            zoomStage = this.scale2;
+            zoomStage = this.zoomLvl;
         const canvasPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
         // console.log({ canvasW, canvasH, tx, ty, scale });
 
@@ -453,6 +468,7 @@ export default class CanvasState {
                 console.log('zoom in');
                 this.scale += this.scrollGrowth;
                 this.scale2 += 1;
+                this.zoomLvl += 1;
                 this.cluster *= this.clusterGrowth;
             }
 
@@ -461,6 +477,7 @@ export default class CanvasState {
                 console.log('zoom out');
                 this.scale -= this.scrollGrowth;
                 this.scale2 -= 1;
+                this.zoomLvl -= 1;
                 this.cluster /= this.clusterGrowth;
             }
 
@@ -563,10 +580,12 @@ export default class CanvasState {
             this.startY = mouseY;
 
             if (this.dragging) {
+                //console.log("dragging")
                 // move the x/y
                 this.translateX += moveX;
                 this.translateY += moveY;
             } else if (this.draggNode) {
+                //console.log("draggeNode")
                 // scale the X/Y
                 const nodeX = moveX / this.scale;
                 const nodeY = moveY / this.scale;
@@ -594,9 +613,10 @@ export default class CanvasState {
         const ctrlKeyPressed = e.ctrlKey;
         // const shiftKeyPressed = e.shiftKey;
         // const altKeyPressed = e.altKey;
-        if (nodeUnderMouse === this.nodeOnMouseDown) {
+        if (nodeUnderMouse && nodeUnderMouse === this.nodeOnMouseDown) {
             // click event on a special node - do something
-            console.log('click on node');
+            console.log('click on node:');
+            console.log(nodeUnderMouse)
             // used for components for adding nodes to special cases
             this.ui.clickedNode = nodeUnderMouse;
             switch (this.ui.$route.name) {

@@ -32,6 +32,9 @@ export default class Node {
         this.imageData = {};
 
         try {
+            this.icon = new Image();
+            this.icon.src = data.buffer;
+
             // TODO das kann sicherlich optimiert werden
             // const canvas = document.createElement('canvas');
             // const context = canvas.getContext('2d');
@@ -58,7 +61,7 @@ export default class Node {
         this.isActiveNeighbour = false; // is this a neighbour of a active node?
         this.hasImage = false; // is there detailed image?
 
-        this.image = new Image();
+        this.image = new Image();   // rest is set throuh socket-receiveImage
         // this.image.src = `data:image/jpeg;base64,${data.buffer}`;
 
         this.imgScale = null; // used for scaling img width
@@ -102,34 +105,6 @@ export default class Node {
 
     set isActive(v) {
         this._isActive = v;
-
-        /* if(this.timerId) clearInterval(this.timerId);
-        this._isActive = v;
-        if (v === true) {
-            this._isActive = v;
-            this.timerId = setInterval(() => {
-                console.log(this.activeScale)
-                this.activeScale += 0.1;
-                ;
-                if (this.activeScale >= 5) {
-                    clearInterval(this.timerId);
-                    this.activeScale = 5
-                }
-                this.triggerDraw()
-            }, 100);
-        } else if(v === false) {
-            this.timerId = setInterval(() => {
-                this.activeScale -= 0.1;
-                this.triggerDraw();
-
-                if (this.activeScale <= 1) {
-                    this._isActive = v;
-                    clearInterval(this.timerId);
-                    this.activeScale = 1
-                }
-                this.triggerDraw();
-            }, 100);
-        } */
     }
 
     // if isActive
@@ -171,19 +146,33 @@ export default class Node {
         // check which picture to use
         // this.scale = 1; // scale;
 
-        const imgData = this.pics[scale2];
+        // const imgData = this.imageData[scale2];
+        const imgData = this.icon
         if (imgData) {
-        /* const x = this.x;
-        const y = this.y;
-        const w = this.width; // scale / 2;
-        const h = this.height; // scale / 2 ;
-        */
-            const w = imgData.width;
-            const h = imgData.height;
+            // const x = this.x;
+            // const y = this.y;
+            // const w = this.width / scale / 2;
+            // const h = this.height / scale / 2;
+
+            // old architecture
+            const w = imgData.width * imgWidth / 100 / scale2;
+            const h = imgData.height * imgWidth / 100 / scale2;
+            const x = this._x - (w / 2);
+            const y = this._y - (h / 2);
+
+
+            // new archetecture 1
+            // const w = imgData.width;
+            // const h = imgData.height;
+            // const x = (this._x * scale) - (w / 2);
+            // const y = (this._y * scale) - (h / 2);
+
+            // const w = imgData.width;
+            // const h = imgData.height;
             // const x = (this._x - (w / 2)) * scale;
             // const y = (this._y - (h / 2)) * scale;
-            const x = Math.floor((this._x * scale) - (w / 2)); // TODO PERFORMANCE ??? Rounde faster than not?
-            const y = Math.floor((this._y * scale) - (h / 2));
+            // const x = Math.floor((this._x * scale) - (w / 2)); // TODO PERFORMANCE ??? Rounde faster than not?
+            // const y = Math.floor((this._y * scale) - (h / 2));
 
 
             // const data = await createImageBitmap(imgData, 0, 0, w, h)
@@ -192,11 +181,11 @@ export default class Node {
             //     this.ctx.drawImage(data, x, y)
             // })
             // console.log({ x, y, h, w });
-            this.ctx.drawImage(imgData, x, y); // TODO Performance drawImage - putImageData
+            this.ctx.drawImage(imgData, x, y, w, h); // TODO Performance drawImage - putImageData
 
 
-            this.hitCtx.fillStyle = this.colorKey;
-            this.hitCtx.fillRect(x, y, w, h);
+            // this.hitCtx.fillStyle = this.colorKey;
+            // this.hitCtx.fillRect(x, y, w, h);
         }
 
         // draw HitCanvas rect

@@ -10,6 +10,7 @@
                     <!--<div>connected: {{connectedToSocket}}</div>-->
                     <div class="btn"> {{scale}}</div>
                     <div class="btn">{{scale2}}</div>
+                    <div class="btn">{{zoomLvl}}</div>
                     <div class="btn">{{translateX}}</div>
                     <div class="btn">{{translateY}}</div>
                     <div class="btn" @click="draw2">draw2</div>
@@ -180,6 +181,7 @@ export default {
         nodesRecived: 0,
         scale: 0,
         scale2: 0,
+        zoomLvl: 0,
         labels: [],
         selectedLabel: null,
         showLabels: false, // show the labels in a dropdown
@@ -240,16 +242,6 @@ export default {
             } else {
                 this.activeNode = node;
             }
-        },
-        */
-
-        /*
-        updateScale(scale) {
-            this.scale = scale;
-        },
-
-        updateScale2(scale2) {
-            this.scale2 = scale2;
         },
         */
 
@@ -365,10 +357,6 @@ export default {
 
         this.store = s;
 
-        // s.updateSelectionUI = this.updateSelection;
-        // s.updateScaleUI = this.updateScale;
-        // s.updateScale2UI = this.updateScale2;
-        // s.addNodeToClassify = this.addNodeToClassify;
 
         // sync values from UI to store
         s.labelColor = this.labelColor;
