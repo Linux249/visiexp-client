@@ -1,5 +1,6 @@
 import range from './range';
 import { SVM, NEIGHBOURS } from './modes';
+import Node from "./Node";
 
 export default class CanvasState {
     constructor(canvas, hitCanvas, socket, ui) {
@@ -20,7 +21,7 @@ export default class CanvasState {
 
 
         this.valid = true; // when set to false, the canvas will redraw everything
-        this._valid = false;
+        this._valid = true;
         this.nodes = {}; // hash for all nodes
         this.colorHash = {}; // find nodes by color
         this.dragging = false; // Keep track of when we are dragging
@@ -51,13 +52,15 @@ export default class CanvasState {
         // this.updateClusterUI = null;
         this._scale = 20;
         this._scale2 = 20;  // vorher 0
+        this._zoomStage = 0; // default zoom stage, 0 is the smalest pic
         // this.updateScaleUI = null;
         // this.updateScale2UI = null;
         this._imgScale = 12;
         this._activeImgScale = 10;
         this._borderWidth = 5;
 
-        this._scrollGrowth = 1.3;  // vorher 20
+        this._scrollGrowth = 100;  // vorher 20
+        this.scaleStage = [20, 50, 100, 200, 400, 800, 1600, 3200]
         this._scrollImgGrowth = 1.1;
         this._clusterGrowth = 1.2;
 
@@ -108,16 +111,16 @@ export default class CanvasState {
         return this._scale2;
     }
 
-    set zoomLvl(value) {
-        if (value < 0) this._zoomLvl = 0;
-        else if (value > 9) this._zoomLvl = 9;
-        else this._zoomLvl = value;
+    set zoomStage(value) {
+        if (value < 0) this._zoomStage = 0;
+        else if (value > 9) this._zoomStage = 9;
+        else this._zoomStage = value;
         this.triggerDraw();
-        this.ui._zoomLvl = this.zoomLvl;
+        this.ui._zoomStage = this.zoomStage;
     }
 
-    get zoomLvl() {
-        return this._zoomLvl;
+    get zoomStage() {
+        return this._zoomStage;
     }
 
     set imgScale(value) {
@@ -211,7 +214,7 @@ export default class CanvasState {
     set valid(v) {
         // let i;
         // TODO so wird jeder neue draw ausgetzt weil der alte noch läuft
-        if (!v && this.valid) window.requestAnimationFrame(() => this.draw());
+        if (!v && this.valid) window.requestAnimationFrame(() => this.draw2());
         // console.log(i)
         // if (i > 2) window.cancelAnimationFrame(i)
         this._valid = v;
@@ -223,6 +226,20 @@ export default class CanvasState {
 
     triggerDraw() {
         this.valid = false;
+    }
+
+    doubleNodes() {
+        const l = Object.keys(this.nodes).length
+        const e = Math.random()*2 - 1
+        console.log(l)
+        Object.values(this.nodes).map((node, i) => {
+            const index = l + i
+            const newNode = {x:  (i % 2) ? node.x - e : node.x + e, y: (i % 2) ? node.y - e : node.y + e, ...node}
+            newNode.index = index
+            console.log({newNode, node, index})
+            this.addNode(newNode)
+        });
+        console.log(this.nodes)
     }
 
 
@@ -378,39 +395,72 @@ export default class CanvasState {
             canvasH = this.height,
             tx = this.translateX, // wird auf die node x,y aufaddiert
             ty = this.translateY,
-            scale = this.scale, // node x,y werden multipliziert
-            zoomStage = this.zoomLvl;
+            zoomStage = this.zoomStage,
+            scale = this.scale// node x,y werden multipliziert
         const canvasPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
         // console.log({ canvasW, canvasH, tx, ty, scale });
 
         Object.values(this.nodes).forEach((node) => {
             // start x,y ist x *scale + translateX
+            // console.log(node)
+            // console.log(zoomStage)
             const canvasX = Math.floor(node.x * scale + tx);
             const canvasY = Math.floor(node.y * scale + ty);
             const img = node.imageData[zoomStage];
+            // console.log(img)
             const iw = img.width;
             const ih = img.height;
             const inside = canvasX > 0 && canvasY > 0 && canvasX < (canvasW - iw) && canvasY < (canvasH - ih);
 
+            // test if image obj exists
             if (img && inside) {
-                const imgData = img.data;
-                // wir gehen durch alle reihen des bildes
-                for (let row = 0; row < ih; row += 1) {
-                    const canvasRow = ((canvasY + row) * canvasW + canvasX) * 4;
-                    // copy row to pixel
-                    // wir laufen durch alle spalten des bildes und betrachten dann 4 werte im array
-                    for (let col = 0; col < iw; col += 1) {
-                        const c = canvasRow + col * 4;
-                        // console.log(c)
-                        // console.log(canvasPixel[c])
-                        const p = (row * iw + col) * 4;
-                        // if(c > canvasW * canvasH * 4) console.error("CRY")
-                        canvasPixel[c] = imgData[p]; // R
-                        canvasPixel[c + 1] = imgData[p + 1]; // G
-                        canvasPixel[c + 2] = imgData[p + 2]; // B
-                        canvasPixel[c + 3] = imgData[p + 3]; // A
+                //cluster
+                if(node.cluster < this.cluster) {
+                    const imgData = img.data;
+                    // wir gehen durch alle reihen des bildes
+                    for (let row = 0; row < ih; row += 1) {
+                        const canvasRow = ((canvasY + row) * canvasW + canvasX) * 4;
+                        // copy row to pixel
+                        // wir laufen durch alle spalten des bildes und betrachten dann 4 werte im array
+                        for (let col = 0; col < iw; col += 1) {
+                            const c = canvasRow + col * 4;
+                            // console.log(c)
+                            // console.log(canvasPixel[c])
+                            const p = (row * iw + col) * 4;
+                            // if(c > canvasW * canvasH * 4) console.error("CRY")
+                            canvasPixel[c] = imgData[p]; // R
+                            canvasPixel[c + 1] = imgData[p + 1]; // G
+                            canvasPixel[c + 2] = imgData[p + 2]; // B
+                            canvasPixel[c + 3] ? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50//imgData[p + 3]; // A
+                        }
                     }
+                } else {
+                    // drawcluster
+                    let c = (canvasY * canvasW + canvasX) * 4
+                    canvasPixel[c] = 0
+                    canvasPixel[c + 1] = 0
+                    canvasPixel[c + 2] = 0
+                    canvasPixel[c + 3] = 255
+                    c = (canvasY * canvasW + canvasX + 1) * 4
+                    canvasPixel[c] = 0
+                    canvasPixel[c + 1] = 0
+                    canvasPixel[c + 2] = 0
+                    canvasPixel[c + 3] = 255
+                    c = (canvasY * canvasW + canvasW + canvasX) * 4
+                    canvasPixel[c] = 0
+                    canvasPixel[c + 1] = 0
+                    canvasPixel[c + 2] = 0
+                    canvasPixel[c + 3] = 255
+                    c = (canvasY * canvasW + canvasW + canvasX + 1) * 4
+                    canvasPixel[c] = 0
+                    canvasPixel[c + 1] = 0
+                    canvasPixel[c + 2] = 0
+                    canvasPixel[c + 3] = 255
                 }
+            } else if(inside) {
+                console.error("Bild scheint nicht fertig geladen")
+                console.log(node)
+                console.log(zoomStage)
             }
         });
 
@@ -466,18 +516,18 @@ export default class CanvasState {
             // Zoom in = increase = wheel up = negativ delta Y
             if (wheelEvent.deltaY < 0) {
                 console.log('zoom in');
-                this.scale += this.scrollGrowth;
                 this.scale2 += 1;
-                this.zoomLvl += 1;
+                this.zoomStage += 1;
+                this.scale *= 2 //this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
                 this.cluster *= this.clusterGrowth;
             }
 
             // Zoom out = decrease = wheel down = positiv delta Y
             if (wheelEvent.deltaY > 0) {
                 console.log('zoom out');
-                this.scale -= this.scrollGrowth;
                 this.scale2 -= 1;
-                this.zoomLvl -= 1;
+                this.zoomStage -= 1;
+                this.scale /= 2 //this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
                 this.cluster /= this.clusterGrowth;
             }
 

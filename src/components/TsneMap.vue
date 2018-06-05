@@ -14,6 +14,7 @@
                     <div class="btn">{{translateX}}</div>
                     <div class="btn">{{translateY}}</div>
                     <div class="btn" @click="draw2">draw2</div>
+                    <div class="btn" @click="doubleNodes">doubleNodes</div>
                 </div>
             </div>
             <div class="row">
@@ -266,6 +267,9 @@ export default {
         borderWidthLess() {
             this.store.borderWidth -= 1; // update canvasState
             this.borderWidth = this.store.borderWidth; // update ui
+        },
+        doubleNodes() {
+            this.store.doubleNodes()
         },
 
         /*
