@@ -141,7 +141,7 @@
 import io from 'socket.io-client';
 import Node from '../util/Node';
 import CanvasState from '../util/CanvasState';
-import simpleheat from 'simpleheat'
+import simpleheat from 'simpleheat';
 import RangeSlider from './RangeSlider';
 import Triplets from './Triplets';
 import Classifier from './Classifier';
@@ -153,7 +153,7 @@ import Scissors from '../icons/Scissors';
     - rename scale to zoom
 */
 
-/*function makeImgageData(img) {
+/* function makeImgageData(img) {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     canvas.width = img.width;
@@ -162,7 +162,7 @@ import Scissors from '../icons/Scissors';
     const data = context.getImageData(0, 0, img.width, img.height);
     console.log(data);
     return data;
-}*/
+} */
 
 
 export default {
@@ -236,22 +236,22 @@ export default {
         },
 
         draw2() {
-            this.store.draw2()
+            this.store.draw2();
         },
 
         drawHeatmap() {
-            const canvas = this.heatmapCanvas
+            const canvas = this.heatmapCanvas;
             // canvas.getContext('2d').translate(50,50)
             // canvas.width = 50
             // canvas.height = 50
             const heatmap = simpleheat(canvas);
-            heatmap.clear()
+            heatmap.clear();
 
-            const data = Object.values(this.store.getNodes()).map(node => [node.x*8, node.y*8])
-            console.log(data)
-            heatmap.data(data)
-            heatmap.radius(2,10)
-            heatmap.draw(data)
+            const data = Object.values(this.store.getNodes()).map(node => [node.x * 8, node.y * 8]);
+            console.log(data);
+            heatmap.data(data);
+            heatmap.radius(2, 10);
+            heatmap.draw(data);
         },
 
         changeImgWidth(v) {
@@ -277,7 +277,7 @@ export default {
             this.borderWidth = this.store.borderWidth; // update ui
         },
         doubleNodes() {
-            this.store.doubleNodes()
+            this.store.doubleNodes();
         },
 
         /*
@@ -323,7 +323,7 @@ export default {
             this.loadingNodes = true;
             this.nodesRecived = 0;
             this.nodesTotal = 0;
-        }
+        },
 
     },
     watch: {
@@ -344,26 +344,24 @@ export default {
         },
     },
     mounted() {
-
-
         const socket = io.connect('http://localhost:3000', {
             transports: ['websocket'],
             reconnectionDelay: 100,
             reconnectionDelayMax: 1000,
         });
         const canvas = document.getElementById('canvas');
-        const parantWidth = canvas.parentNode.clientWidth //* 0.8;
-        const parantHeight = canvas.parentNode.clientHeight //700; // canvas.parentNode.clientHeight //* 0.8
+        const parantWidth = canvas.parentNode.clientWidth; //* 0.8;
+        const parantHeight = canvas.parentNode.clientHeight; // 700; // canvas.parentNode.clientHeight //* 0.8
 
         // this.width = parantWidth;
         // this.height = parantHeight;
 
         const hitCanvas = document.createElement('canvas');
 
-        this.heatmapCanvas = document.getElementById('heatmap')
-        this.heatmapCanvas.width = parantWidth/4;
-        this.heatmapCanvas.height = parantHeight/4;
-        this.heatmapCanvas.getContext('2d').translate(this.heatmapCanvas.width / 2, this.heatmapCanvas.height/2)
+        this.heatmapCanvas = document.getElementById('heatmap');
+        this.heatmapCanvas.width = parantWidth / 4;
+        this.heatmapCanvas.height = parantHeight / 4;
+        this.heatmapCanvas.getContext('2d').translate(this.heatmapCanvas.width / 2, this.heatmapCanvas.height / 2);
 
         canvas.width = parantWidth;
         canvas.height = parantHeight;
@@ -403,7 +401,7 @@ export default {
             console.log(nodes);
             if (!Object.keys(nodes).length && !this.loadingNodes) {
                 socket.emit('updateNodes', {});
-                this.reset()
+                this.reset();
             }
             // s.clear() // maybe there is something inside?
         });
@@ -414,13 +412,13 @@ export default {
             // s.clear() // maybe there is something inside?
         });
 
-        socket.on('node', data => {
+        socket.on('node', (data) => {
             if (data.index % 100 === 0) {
                 console.log(`receive node ${data.index}`);
                 console.log(data);
             }
-            if(!this.nodesRecived) console.time('loadAllNodes')
-            this.nodesRecived += 1
+            if (!this.nodesRecived) console.time('loadAllNodes');
+            this.nodesRecived += 1;
             s.addNode(new Node(data, s.ctx, s.hitCtx));
             s.triggerDraw();
         });
@@ -436,21 +434,21 @@ export default {
         });
 
         socket.on('totalNodesCount', (data) => {
-            console.log('totalNodesCount')
-            console.log(data)
-            this.nodesTotal = data
+            console.log('totalNodesCount');
+            console.log(data);
+            this.nodesTotal = data;
         });
 
         socket.on('allNodesSend', () => {
-            console.log('allNodesSend')
+            console.log('allNodesSend');
             this.loadingNodes = false;
-            console.timeEnd('loadAllNodes')
+            console.timeEnd('loadAllNodes');
         });
 
-        /*socket.on('nodesCount', (nodesCount) => {
+        /* socket.on('nodesCount', (nodesCount) => {
             console.log(`nodesCount: ${nodesCount}`);
             this.nodesCount = nodesCount;
-        });*/
+        }); */
 
         socket.on('updateLabels', (data) => {
             console.log('updateLabels');

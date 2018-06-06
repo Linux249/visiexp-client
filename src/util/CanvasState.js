@@ -1,6 +1,6 @@
 import range from './range';
 import { SVM, NEIGHBOURS } from './modes';
-import Node from "./Node";
+import Node from './Node';
 
 export default class CanvasState {
     constructor(canvas, hitCanvas, socket, ui) {
@@ -51,7 +51,7 @@ export default class CanvasState {
         this._cluster = 50000;
         // this.updateClusterUI = null;
         this._scale = 20;
-        this._scale2 = 20;  // vorher 0
+        this._scale2 = 20; // vorher 0
         this._zoomStage = 0; // default zoom stage, 0 is the smalest pic
         // this.updateScaleUI = null;
         // this.updateScale2UI = null;
@@ -59,8 +59,8 @@ export default class CanvasState {
         this._activeImgScale = 10;
         this._borderWidth = 5;
 
-        this._scrollGrowth = 100;  // vorher 20
-        this.scaleStage = [20, 50, 100, 200, 400, 800, 1600, 3200]
+        this._scrollGrowth = 100; // vorher 20
+        this.scaleStage = [20, 50, 100, 200, 400, 800, 1600, 3200];
         this._scrollImgGrowth = 1.1;
         this._clusterGrowth = 1.2;
 
@@ -229,17 +229,17 @@ export default class CanvasState {
     }
 
     doubleNodes() {
-        const l = Object.keys(this.nodes).length
-        const e = Math.random()*2 - 1
-        console.log(l)
+        const l = Object.keys(this.nodes).length;
+        const e = Math.random() * 2 - 1;
+        console.log(l);
         Object.values(this.nodes).map((node, i) => {
-            const index = l + i
-            const newNode = {x:  (i % 2) ? node.x - e : node.x + e, y: (i % 2) ? node.y - e : node.y + e, ...node}
-            newNode.index = index
-            console.log({newNode, node, index})
-            this.addNode(newNode)
+            const index = l + i;
+            const newNode = { x: (i % 2) ? node.x - e : node.x + e, y: (i % 2) ? node.y - e : node.y + e, ...node };
+            newNode.index = index;
+            console.log({ newNode, node, index });
+            this.addNode(newNode);
         });
-        console.log(this.nodes)
+        console.log(this.nodes);
     }
 
 
@@ -281,7 +281,7 @@ export default class CanvasState {
         this.ctx.translate(this.translateX, this.translateY);
         this.ctx.scale(this.scale, this.scale);
         // console.log(this.ctx)
-        console.log(this.translateX, this.translateY)
+        console.log(this.translateX, this.translateY);
 
         // same on hit ctx
         this.hitCtx.resetTransform();
@@ -326,7 +326,7 @@ export default class CanvasState {
                             this.selection.links[node.index],
                         );
                         this.ctx.globalAlpha = 0.2;
-                    } else if (this.cluster < node.cluster) {   // TODO add cluster mode
+                    } else if (this.cluster < node.cluster) { // TODO add cluster mode
                         node.drawClusterd(this.scale, this.scale2, this.imgScale, this.cluster);
                     } else node.draw(this.scale, this.scale2, this.imgScale, this.cluster);
                 });
@@ -396,7 +396,7 @@ export default class CanvasState {
             tx = this.translateX, // wird auf die node x,y aufaddiert
             ty = this.translateY,
             zoomStage = this.zoomStage,
-            scale = this.scale// node x,y werden multipliziert
+            scale = this.scale;// node x,y werden multipliziert
         const canvasPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
         // console.log({ canvasW, canvasH, tx, ty, scale });
 
@@ -414,8 +414,8 @@ export default class CanvasState {
 
             // test if image obj exists
             if (img && inside) {
-                //cluster
-                if(node.cluster < this.cluster) {
+                // cluster
+                if (node.cluster < this.cluster) {
                     const imgData = img.data;
                     // wir gehen durch alle reihen des bildes
                     for (let row = 0; row < ih; row += 1) {
@@ -431,36 +431,36 @@ export default class CanvasState {
                             canvasPixel[c] = imgData[p]; // R
                             canvasPixel[c + 1] = imgData[p + 1]; // G
                             canvasPixel[c + 2] = imgData[p + 2]; // B
-                            canvasPixel[c + 3] ? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50//imgData[p + 3]; // A
+                            canvasPixel[c + 3] ? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50;// imgData[p + 3]; // A
                         }
                     }
                 } else {
                     // drawcluster
-                    let c = (canvasY * canvasW + canvasX) * 4
-                    canvasPixel[c] = 0
-                    canvasPixel[c + 1] = 0
-                    canvasPixel[c + 2] = 0
-                    canvasPixel[c + 3] = 255
-                    c = (canvasY * canvasW + canvasX + 1) * 4
-                    canvasPixel[c] = 0
-                    canvasPixel[c + 1] = 0
-                    canvasPixel[c + 2] = 0
-                    canvasPixel[c + 3] = 255
-                    c = (canvasY * canvasW + canvasW + canvasX) * 4
-                    canvasPixel[c] = 0
-                    canvasPixel[c + 1] = 0
-                    canvasPixel[c + 2] = 0
-                    canvasPixel[c + 3] = 255
-                    c = (canvasY * canvasW + canvasW + canvasX + 1) * 4
-                    canvasPixel[c] = 0
-                    canvasPixel[c + 1] = 0
-                    canvasPixel[c + 2] = 0
-                    canvasPixel[c + 3] = 255
+                    let c = (canvasY * canvasW + canvasX) * 4;
+                    canvasPixel[c] = 0;
+                    canvasPixel[c + 1] = 0;
+                    canvasPixel[c + 2] = 0;
+                    canvasPixel[c + 3] = 255;
+                    c = (canvasY * canvasW + canvasX + 1) * 4;
+                    canvasPixel[c] = 0;
+                    canvasPixel[c + 1] = 0;
+                    canvasPixel[c + 2] = 0;
+                    canvasPixel[c + 3] = 255;
+                    c = (canvasY * canvasW + canvasW + canvasX) * 4;
+                    canvasPixel[c] = 0;
+                    canvasPixel[c + 1] = 0;
+                    canvasPixel[c + 2] = 0;
+                    canvasPixel[c + 3] = 255;
+                    c = (canvasY * canvasW + canvasW + canvasX + 1) * 4;
+                    canvasPixel[c] = 0;
+                    canvasPixel[c + 1] = 0;
+                    canvasPixel[c + 2] = 0;
+                    canvasPixel[c + 3] = 255;
                 }
-            } else if(inside) {
-                console.error("Bild scheint nicht fertig geladen")
-                console.log(node)
-                console.log(zoomStage)
+            } else if (inside) {
+                console.error('Bild scheint nicht fertig geladen');
+                console.log(node);
+                console.log(zoomStage);
             }
         });
 
@@ -518,7 +518,7 @@ export default class CanvasState {
                 console.log('zoom in');
                 this.scale2 += 1;
                 this.zoomStage += 1;
-                this.scale *= 2 //this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
+                this.scale *= 2; // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
                 this.cluster *= this.clusterGrowth;
             }
 
@@ -527,7 +527,7 @@ export default class CanvasState {
                 console.log('zoom out');
                 this.scale2 -= 1;
                 this.zoomStage -= 1;
-                this.scale /= 2 //this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
+                this.scale /= 2; // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
                 this.cluster /= this.clusterGrowth;
             }
 
@@ -630,12 +630,12 @@ export default class CanvasState {
             this.startY = mouseY;
 
             if (this.dragging) {
-                //console.log("dragging")
+                // console.log("dragging")
                 // move the x/y
                 this.translateX += moveX;
                 this.translateY += moveY;
             } else if (this.draggNode) {
-                //console.log("draggeNode")
+                // console.log("draggeNode")
                 // scale the X/Y
                 const nodeX = moveX / this.scale;
                 const nodeY = moveY / this.scale;
@@ -666,7 +666,7 @@ export default class CanvasState {
         if (nodeUnderMouse && nodeUnderMouse === this.nodeOnMouseDown) {
             // click event on a special node - do something
             console.log('click on node:');
-            console.log(nodeUnderMouse)
+            console.log(nodeUnderMouse);
             // used for components for adding nodes to special cases
             this.ui.clickedNode = nodeUnderMouse;
             switch (this.ui.$route.name) {

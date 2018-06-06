@@ -39,7 +39,7 @@ export default class Node {
             // const canvas = document.createElement('canvas');
             // const context = canvas.getContext('2d');
             Object.values(data.pics).map((pic, i) => {
-                this.imageData[i] = new ImageData(new Uint8ClampedArray(pic.data), pic.info.width, pic.info.height)
+                this.imageData[i] = new ImageData(new Uint8ClampedArray(pic.data), pic.info.width, pic.info.height);
                 // const img = new Image();
                 // img.src = pic;
                 // img.onload = async () => {
@@ -61,7 +61,7 @@ export default class Node {
         this.isActiveNeighbour = false; // is this a neighbour of a active node?
         this.hasImage = false; // is there detailed image?
 
-        this.image = new Image();   // rest is set throuh socket-receiveImage
+        this.image = new Image(); // rest is set throuh socket-receiveImage
         // this.image.src = `data:image/jpeg;base64,${data.buffer}`;
 
         this.imgScale = null; // used for scaling img width
@@ -147,7 +147,7 @@ export default class Node {
         // this.scale = 1; // scale;
 
         // const imgData = this.imageData[scale2];
-        const imgData = this.icon
+        const imgData = this.icon;
         if (imgData) {
             // const x = this.x;
             // const y = this.y;
