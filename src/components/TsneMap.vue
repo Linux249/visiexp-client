@@ -15,6 +15,7 @@
                     <div class="btn">{{translateY}}</div>
                     <div class="btn" @click="draw2">draw2</div>
                     <div class="btn" @click="doubleNodes">doubleNodes</div>
+                    <div class="btn" @click="drawHeatmap">heatmap</div>
                 </div>
             </div>
             <div class="row">
@@ -50,7 +51,10 @@
             </div>
         </div>
         <div class="row">
-            <canvas  ref="canvas" id="canvas" tabindex="0" ></canvas>
+            <div class="stack">
+                <canvas ref="canvas" id="canvas" tabindex="0" ></canvas>
+                <canvas id="heatmap" tabindex="0" ></canvas>
+            </div>
             <div class="details">
                 <div v-if="showOptions" class="options info-box">
                     <div class="row-btn">
@@ -137,7 +141,7 @@
 import io from 'socket.io-client';
 import Node from '../util/Node';
 import CanvasState from '../util/CanvasState';
-
+import simpleheat from 'simpleheat'
 import RangeSlider from './RangeSlider';
 import Triplets from './Triplets';
 import Classifier from './Classifier';
@@ -149,7 +153,7 @@ import Scissors from '../icons/Scissors';
     - rename scale to zoom
 */
 
-function makeImgageData(img) {
+/*function makeImgageData(img) {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     canvas.width = img.width;
@@ -158,7 +162,7 @@ function makeImgageData(img) {
     const data = context.getImageData(0, 0, img.width, img.height);
     console.log(data);
     return data;
-}
+}*/
 
 
 export default {
@@ -235,16 +239,20 @@ export default {
             this.store.draw2()
         },
 
-        /*
-        updateSelection(node) {
-            if (!node) {
-                // deactivation
-                this.activeNode = {};
-            } else {
-                this.activeNode = node;
-            }
+        drawHeatmap() {
+            const canvas = this.heatmapCanvas
+            // canvas.getContext('2d').translate(50,50)
+            // canvas.width = 50
+            // canvas.height = 50
+            const heatmap = simpleheat(canvas);
+            heatmap.clear()
+
+            const data = Object.values(this.store.getNodes()).map(node => [node.x*8, node.y*8])
+            console.log(data)
+            heatmap.data(data)
+            heatmap.radius(2,10)
+            heatmap.draw(data)
         },
-        */
 
         changeImgWidth(v) {
             this.store.imgScale += v; // update canvasState
@@ -336,19 +344,26 @@ export default {
         },
     },
     mounted() {
+
+
         const socket = io.connect('http://localhost:3000', {
             transports: ['websocket'],
             reconnectionDelay: 100,
             reconnectionDelayMax: 1000,
         });
         const canvas = document.getElementById('canvas');
-        const parantWidth = canvas.parentNode.clientWidth * 0.8;
-        const parantHeight = 700; // canvas.parentNode.clientHeight //* 0.8
+        const parantWidth = canvas.parentNode.clientWidth //* 0.8;
+        const parantHeight = canvas.parentNode.clientHeight //700; // canvas.parentNode.clientHeight //* 0.8
 
-        this.width = parantWidth;
-        this.height = parantHeight;
+        // this.width = parantWidth;
+        // this.height = parantHeight;
 
         const hitCanvas = document.createElement('canvas');
+
+        this.heatmapCanvas = document.getElementById('heatmap')
+        this.heatmapCanvas.width = parantWidth/4;
+        this.heatmapCanvas.height = parantHeight/4;
+        this.heatmapCanvas.getContext('2d').translate(this.heatmapCanvas.width / 2, this.heatmapCanvas.height/2)
 
         canvas.width = parantWidth;
         canvas.height = parantHeight;
@@ -493,11 +508,26 @@ export default {
 </script>
 
 <style scoped>
-    #canvas {
+    .stack {
+        position: relative;
         height: 700px;
+        width: 70%;
         margin: 5px;
         background-color: white;
         box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08);
+    }
+
+    /*#canvas {
+        width: 100%;
+        height: 100%;
+    }*/
+
+    #heatmap {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 10;
+        border: 1px solid black;
     }
 
     .sub-header {

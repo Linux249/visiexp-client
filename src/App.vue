@@ -40,6 +40,7 @@ export default {
 
     .row {
         display: flex;
+        align-items: flex-start;
     }
 
     .button {
