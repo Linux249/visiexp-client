@@ -108,6 +108,28 @@
                             <div @click="changeClusterGrowth(0.01)" class="btn">+0.1</div>
                         </div>
                     </div>
+                    <div class="option-title">Heatmap</div>
+                    <div class="row-btn">
+                        <div>Radius: {{heatmapRadius}}</div>
+                        <div class="row">
+                            <div @click="changeHeatmapRadius(-1)" class="btn">+1</div>
+                            <div @click="changeHeatmapRadius(1)" class="btn">+1</div>
+                        </div>
+                    </div>
+                    <div class="row-btn">
+                        <div>Blur: {{heatmapBlur}}</div>
+                        <div class="row">
+                            <div @click="changeHeatmapBlur(-1)" class="btn">-1</div>
+                            <div @click="changeHeatmapBlur(1)" class="btn">+1</div>
+                        </div>
+                    </div>
+                    <div class="row-btn">
+                        <div>MinOpacity: {{heatmapMinOpacity}}</div>
+                        <div class="row">
+                            <div @click="changeHeatmapMinOpacity(-0.01)" class="btn">-0.01</div>
+                            <div @click="changeHeatmapMinOpacity(0.01)" class="btn">+0.01</div>
+                        </div>
+                    </div>
 
                     <!--<div class="row-btn">
                         <div>{{range}}}</div>
@@ -209,6 +231,10 @@ export default {
         clusterGrowth: 0,
         translateX: 0,
         translateY: 0,
+        // heatmap: {}, // this object should not be controlled by vue
+        heatmapRadius: 2,
+        heatmapBlur: 10,
+        heatmapMinOpacity: 0.05,
     }),
     methods: {
         getNode(i) {
@@ -240,18 +266,21 @@ export default {
         },
 
         drawHeatmap() {
-            const canvas = this.heatmapCanvas;
             // canvas.getContext('2d').translate(50,50)
             // canvas.width = 50
             // canvas.height = 50
-            const heatmap = simpleheat(canvas);
-            heatmap.clear();
+            const heatmap = this.heatmap;
 
-            const data = Object.values(this.store.getNodes()).map(node => [node.x * 8, node.y * 8]);
+            heatmap._canvas.getContext('2d').clearRect(-canvas.width/2, -canvas.height/2, 2*canvas.width, 2*canvas.height)
+            // heatmap.getContext('2d').clearRect(0, 0, canvas.width, canvas.height)
+            const data = Object.values(this.store.getNodes()).map(node => [node.x * 8, node.y * 8, 1]);
             console.log(data);
-            heatmap.data(data);
-            heatmap.radius(2, 10);
-            heatmap.draw(data);
+            heatmap.radius(this.heatmapRadius, this.heatmapBlur);
+            heatmap.data(data); // setting data should clear the old one
+            heatmap.draw(this.heatmapMinOpacity);
+            const {_width, _height, _canvas, _ctx, _max, _data, _circle, _r, _grad} = heatmap
+            // console.log({_width, _height, _canvas, _ctx, _max, _data, _circle, _r, _grad})
+            console.log(heatmap)
         },
 
         changeImgWidth(v) {
@@ -301,6 +330,15 @@ export default {
         changeClusterGrowth(v) {
             this.store.clusterGrowth = Math.round((this.store.clusterGrowth + v) * 100) / 100;
             // this.clusterGrowth = this.store.clusterGrowth;
+        },
+        changeHeatmapRadius(v) {
+            this.heatmapRadius += v;
+        },
+        changeHeatmapBlur(v) {
+            this.heatmapBlur += v;
+        },
+        changeHeatmapMinOpacity(v) {
+            this.heatmapMinOpacity += v;
         },
         toggleShowKLabels() {
             this.showKLabels = !this.showKLabels;
@@ -358,10 +396,12 @@ export default {
 
         const hitCanvas = document.createElement('canvas');
 
-        this.heatmapCanvas = document.getElementById('heatmap');
-        this.heatmapCanvas.width = parantWidth / 4;
-        this.heatmapCanvas.height = parantHeight / 4;
-        this.heatmapCanvas.getContext('2d').translate(this.heatmapCanvas.width / 2, this.heatmapCanvas.height / 2);
+        const heatmapCanvas = document.getElementById('heatmap');
+        heatmapCanvas.width = parantWidth / 4;
+        heatmapCanvas.height = parantHeight / 4;
+        heatmapCanvas.getContext('2d').translate(heatmapCanvas.width / 2, heatmapCanvas.height / 2)
+
+        this.heatmap = simpleheat(heatmapCanvas)
 
         canvas.width = parantWidth;
         canvas.height = parantHeight;
@@ -593,6 +633,15 @@ export default {
         /*display: flex;*/
         /*flex-direction: column;*/
         /*z-index: 1;*/
+    }
+
+    .option-title {
+        color: #6772e5;
+        border-radius: 4px;
+        font-size: 15px;
+        font-weight: 600;
+        border-radius: 1px;
+        border-bottom: 0.1rem solid grey;
     }
 
 </style>
