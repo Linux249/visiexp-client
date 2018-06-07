@@ -15,7 +15,9 @@
                     <div class="btn">{{translateY}}</div>
                     <div class="btn" @click="draw2">draw2</div>
                     <div class="btn" @click="doubleNodes">doubleNodes</div>
-                    <div class="btn" @click="drawHeatmap">heatmap</div>
+                    <div class="btn" @click="showHeatmap = !showHeatmap">heatmap</div>
+                    <div class="btn" @click="toggleShowNavMap">NavMap</div>
+                    <div class="btn" @click="drawNavMapRect">NavMapRec</div>
                 </div>
             </div>
             <div class="row">
@@ -52,8 +54,14 @@
         </div>
         <div class="row">
             <div class="stack">
-                <canvas ref="canvas" id="canvas" tabindex="0" ></canvas>
-                <canvas id="heatmap" tabindex="0" ></canvas>
+                <canvas ref="canvas" id="canvas" class="canvas" tabindex="0" ></canvas>
+                <div class="maps">
+                    <canvas id="heatmap" class="canvas" :class="{ hide: !showHeatmap }" tabindex="0" ></canvas>
+                    <div class="navMap" :class="{ hide: !showNavMap }">
+                        <canvas id="navMap" class="canvas" tabindex="0" ></canvas>
+                        <canvas id="navMapRect" tabindex="0" ></canvas>
+                    </div>
+                </div>
             </div>
             <div class="details">
                 <div v-if="showOptions" class="options info-box">
@@ -161,9 +169,9 @@
 
 <script>
 import io from 'socket.io-client';
+import simpleheat from 'simpleheat';
 import Node from '../util/Node';
 import CanvasState from '../util/CanvasState';
-import simpleheat from 'simpleheat';
 import RangeSlider from './RangeSlider';
 import Triplets from './Triplets';
 import Classifier from './Classifier';
@@ -231,10 +239,12 @@ export default {
         clusterGrowth: 0,
         translateX: 0,
         translateY: 0,
-        // heatmap: {}, // this object should not be controlled by vue
-        heatmapRadius: 2,
-        heatmapBlur: 10,
+        // heatmap: {}, // this object should not be controlled by
+        showHeatmap: false,
+        heatmapRadius: 1,
+        heatmapBlur: 5,
         heatmapMinOpacity: 0.05,
+        showNavMap: false,
     }),
     methods: {
         getNode(i) {
@@ -266,21 +276,78 @@ export default {
         },
 
         drawHeatmap() {
-            // canvas.getContext('2d').translate(50,50)
-            // canvas.width = 50
-            // canvas.height = 50
+            console.time('drawHeatmap');
             const heatmap = this.heatmap;
 
-            heatmap._canvas.getContext('2d').clearRect(-canvas.width/2, -canvas.height/2, 2*canvas.width, 2*canvas.height)
-            // heatmap.getContext('2d').clearRect(0, 0, canvas.width, canvas.height)
-            const data = Object.values(this.store.getNodes()).map(node => [node.x * 8, node.y * 8, 1]);
-            console.log(data);
+            // data in form of [[x,y,v], [x,y,v], ...]
+            const data = Object.values(this.store.getNodes()).map((node) => {
+                const x = (node.x * this.store.scale + this.store.translateX) / 4;
+                const y = (node.y * this.store.scale + this.store.translateY) / 4;
+                return [x, y, 1];
+            });
+
+            // refresh radius before drawing
             heatmap.radius(this.heatmapRadius, this.heatmapBlur);
-            heatmap.data(data); // setting data should clear the old one
+
+            // add data
+            heatmap.data(data); // setting data clear the old one
+
+            // draw heatmap
             heatmap.draw(this.heatmapMinOpacity);
-            const {_width, _height, _canvas, _ctx, _max, _data, _circle, _r, _grad} = heatmap
-            // console.log({_width, _height, _canvas, _ctx, _max, _data, _circle, _r, _grad})
-            console.log(heatmap)
+            requestAnimationFrame(() => console.timeEnd('drawHeatmap'));
+        },
+
+        drawNavMap() {
+            console.time('drawNavMap');
+            const ctx = this.navMap.getContext('2d'),
+                w = this.navMap.width,
+                h = this.navMap.height;
+
+            // clean the canvas first
+            ctx.clearRect(0, 0, w, h);
+
+            ctx.fillStyle = 'grey';
+            ctx.strokeStyle = 'grey';
+            ctx.lineWidth = 0.05;
+
+            for (const i in this.store.nodes) {
+                const node = this.store.nodes[i];
+                const x = node.x * 5 + w / 2; // 5 = initscale (20) / 4 (25%)
+                const y = node.y * 5 + h / 2;
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, 2 * Math.PI);
+                ctx.globalAlpha = 0.1;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+                ctx.stroke();
+            }
+            requestAnimationFrame(() => console.timeEnd('drawNavMap'));
+        },
+
+        drawNavMapRect() {
+            console.time('drawNavMapRect');
+            const ctx = this.navMapRect.getContext('2d');
+            const scale = 20 /this.store.scale
+            const tx =  this.store.translateX / 4;
+            const ty =  this.store.translateY / 4;
+            const initSclae = 20;
+
+            const w = this.navMapRect.width;
+            const h =  this.navMapRect.height;
+
+            // const x = tx + w/2 ;
+            const x = w/2 - tx*scale;
+            // const y = ty + h/2;
+            const y = h/2 - ty*scale;
+
+            ctx.clearRect(0, 0, this.navMapRect.width, this.navMapRect.height);
+            ctx.strokeRect(x, y, w * scale, h*scale);
+            requestAnimationFrame(() => console.timeEnd('drawNavMapRect'));
+        },
+
+        toggleShowNavMap() {
+            this.showNavMap = !this.showNavMap
+            if(this.showNavMap) requestAnimationFrame(this.drawNavMap)
         },
 
         changeImgWidth(v) {
@@ -390,24 +457,33 @@ export default {
         const canvas = document.getElementById('canvas');
         const parantWidth = canvas.parentNode.clientWidth; //* 0.8;
         const parantHeight = canvas.parentNode.clientHeight; // 700; // canvas.parentNode.clientHeight //* 0.8
+        canvas.width = parantWidth;
+        canvas.height = parantHeight;
 
         // this.width = parantWidth;
         // this.height = parantHeight;
 
         const hitCanvas = document.createElement('canvas');
+        hitCanvas.width = parantWidth;
+        hitCanvas.height = parantHeight;
 
         const heatmapCanvas = document.getElementById('heatmap');
         heatmapCanvas.width = parantWidth / 4;
         heatmapCanvas.height = parantHeight / 4;
-        heatmapCanvas.getContext('2d').translate(heatmapCanvas.width / 2, heatmapCanvas.height / 2)
+        this.heatmap = simpleheat(heatmapCanvas);
 
-        this.heatmap = simpleheat(heatmapCanvas)
+        const navMap = document.getElementById('navMap');
+        navMap.width = parantWidth / 4;
+        navMap.height = parantHeight / 4;
+        this.navMap = navMap;
 
-        canvas.width = parantWidth;
-        canvas.height = parantHeight;
+        const navMapRect = document.getElementById('navMapRect');
+        navMapRect.width = parantWidth / 4;
+        navMapRect.height = parantHeight / 4;
+        navMapRect.getContext('2d').strokeStyle = '#3882ff';
+        navMapRect.getContext('2d').lineWidth = 2;
+        this.navMapRect = navMapRect;
 
-        hitCanvas.width = parantWidth;
-        hitCanvas.height = parantHeight;
 
         // const ctx = canvas.getContext('2d');
         const s = new CanvasState(canvas, hitCanvas, socket, this);
@@ -550,22 +626,47 @@ export default {
         position: relative;
         height: 700px;
         width: 70%;
-        margin: 5px;
-        background-color: white;
-        box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08);
+
     }
 
-    /*#canvas {
-        width: 100%;
-        height: 100%;
-    }*/
+    .canvas {
+        background-color: white;
+        box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08);
+        margin: 1%;
+    }
+
+    .maps {
+        position: absolute;
+        top: 2%;
+        right: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .navMap {
+        position: relative;
+    }
 
     #heatmap {
-        position: absolute;
-        top: 10px;
-        right: 10px;
         z-index: 10;
-        border: 1px solid black;
+    }
+
+    #navMap {
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 10;
+    }
+
+    #navMapRect {
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 20;
+    }
+
+    .hide {
+        display: none;
     }
 
     .sub-header {
@@ -637,11 +738,11 @@ export default {
 
     .option-title {
         color: #6772e5;
-        border-radius: 4px;
+        /*border-radius: 1px;*/
         font-size: 15px;
         font-weight: 600;
-        border-radius: 1px;
-        border-bottom: 0.1rem solid grey;
+        /*border-radius: 1px;*/
+        border-bottom: 0.05rem solid grey;
     }
 
 </style>

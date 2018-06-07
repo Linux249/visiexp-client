@@ -476,6 +476,8 @@ export default class CanvasState {
         // console.log({ w, h, tx, ty, pixel });
         console.timeEnd('draw2');
         this.valid = true;
+        if(this.ui.showHeatmap) requestAnimationFrame(this.ui.drawHeatmap)
+        if(this.ui.showNavMap) requestAnimationFrame(this.ui.drawNavMapRect)
     }
 
     zoom(wheelEvent) {
