@@ -15,13 +15,12 @@
                     <div class="btn">{{translateY}}</div>
                     <div class="btn" @click="draw2">draw2</div>
                     <div class="btn" @click="doubleNodes">doubleNodes</div>
-                    <div class="btn" @click="showHeatmap = !showHeatmap">heatmap</div>
-                    <div class="btn" @click="toggleShowNavMap">NavMap</div>
-                    <div class="btn" @click="drawNavMapRect">NavMapRec</div>
                 </div>
             </div>
             <div class="row">
                 <div class="dropdownArea"></div>
+                <div class="btn" @click="toggleShowHeatmap">heatmap</div>
+                <div class="btn" @click="toggleShowNavMap">NavMap</div>
                 <div class="labelsArea" @mouseenter="showLabels = true" @mouseleave="showLabels = false">
                     <div class="btn">labels</div>
                     <div class="labels" v-if="showLabels">
@@ -65,7 +64,7 @@
             </div>
             <div class="details">
                 <div v-if="showOptions" class="options info-box">
-                    <div class="row-btn">
+                    <div class="">
                         <div>Cluster: {{Math.round(cluster)}}</div>
                         <div class="row">
                             <div @click="changeCluster(-100)" class="btn">-100</div>
@@ -350,6 +349,11 @@ export default {
             if(this.showNavMap) requestAnimationFrame(this.drawNavMap)
         },
 
+        toggleShowHeatmap() {
+            this.showHeatmap = !this.showHeatmap
+            if(this.showHeatmap) requestAnimationFrame(this.drawHeatmap)
+        },
+
         changeImgWidth(v) {
             this.store.imgScale += v; // update canvasState
             this.imgWidth = this.store.imgScale; // update ui
@@ -481,7 +485,7 @@ export default {
         navMapRect.width = parantWidth / 4;
         navMapRect.height = parantHeight / 4;
         navMapRect.getContext('2d').strokeStyle = '#3882ff';
-        navMapRect.getContext('2d').lineWidth = 2;
+        navMapRect.getContext('2d').lineWidth = 1.5;
         this.navMapRect = navMapRect;
 
 
@@ -623,24 +627,27 @@ export default {
 
 <style scoped>
     .stack {
+        display: flex;
         position: relative;
         height: 700px;
-        width: 70%;
-
+        width: calc(100% - 25rem);
+        /*margin: 0.5rem;*/
     }
 
     .canvas {
         background-color: white;
         box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08);
-        margin: 1%;
+        margin: 0.5rem;
+        outline: none;
     }
 
     .maps {
         position: absolute;
-        top: 2%;
+        top: 0;
         right: 0;
         display: flex;
         flex-direction: column;
+        margin: 0.5rem;
     }
 
     .navMap {
@@ -663,6 +670,8 @@ export default {
         top: 0;
         right: 0;
         z-index: 20;
+        margin: 0.5rem;
+        outline: none;
     }
 
     .hide {
@@ -686,9 +695,9 @@ export default {
     }
 
     .details {
-        width: 18%;
+        width: 25rem;
         height: 100%;
-        margin: 5px;
+        margin: 0.5rem;
         background-color: white;
     }
 
@@ -699,7 +708,7 @@ export default {
     }
 
     .info-box {
-        padding: 0.5rem;
+        /*padding: 0.5rem;*/
     }
 
     .img {
@@ -730,18 +739,12 @@ export default {
         /*position: absolute;*/
         top: 25px;
         width: 100%;
-
-        /*display: flex;*/
-        /*flex-direction: column;*/
-        /*z-index: 1;*/
     }
 
     .option-title {
         color: #6772e5;
-        /*border-radius: 1px;*/
         font-size: 15px;
         font-weight: 600;
-        /*border-radius: 1px;*/
         border-bottom: 0.05rem solid grey;
     }
 
