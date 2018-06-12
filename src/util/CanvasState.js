@@ -431,7 +431,7 @@ export default class CanvasState {
                             canvasPixel[c] = imgData[p]; // R
                             canvasPixel[c + 1] = imgData[p + 1]; // G
                             canvasPixel[c + 2] = imgData[p + 2]; // B
-                            canvasPixel[c + 3] ? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50;// imgData[p + 3]; // A
+                            canvasPixel[c + 3] ? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
                         }
                     }
                 } else {

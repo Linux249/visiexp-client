@@ -9,7 +9,7 @@
                     <!--<div># {{nodesCount}}</div>-->
                     <!--<div>connected: {{connectedToSocket}}</div>-->
                     <div class="btn"> {{scale}}</div>
-                    <div class="btn">{{scale2}}</div>
+                    <!--<div class="btn">{{scale2}}</div>-->
                     <div class="btn">{{zoomLvl}}</div>
                     <div class="btn">{{translateX}}</div>
                     <div class="btn">{{translateY}}</div>
@@ -130,11 +130,19 @@
                             <div @click="changeHeatmapBlur(1)" class="btn">+1</div>
                         </div>
                     </div>
-                    <div class="row-btn">
+<!--                    <div class="row-btn">
                         <div>MinOpacity: {{heatmapMinOpacity}}</div>
                         <div class="row">
                             <div @click="changeHeatmapMinOpacity(-0.01)" class="btn">-0.01</div>
                             <div @click="changeHeatmapMinOpacity(0.01)" class="btn">+0.01</div>
+                        </div>
+                    </div>-->
+                    <div class="option-title">Navmap</div>
+                    <div class="row-btn">
+                        <div>NavMapAlpha: {{navMapAlpha}}</div>
+                        <div class="row">
+                            <div @click="changeNavMapAlpha(-0.1)" class="btn">-0.1</div>
+                            <div @click="changeNavMapAlpha(0.1)" class="btn">+0.1</div>
                         </div>
                     </div>
 
@@ -242,8 +250,9 @@ export default {
         showHeatmap: false,
         heatmapRadius: 1,
         heatmapBlur: 5,
-        heatmapMinOpacity: 0.05,
+        // heatmapMinOpacity: 0.05,
         showNavMap: false,
+        navMapAlpha: 0.1,
     }),
     methods: {
         getNode(i) {
@@ -292,7 +301,7 @@ export default {
             heatmap.data(data); // setting data clear the old one
 
             // draw heatmap
-            heatmap.draw(this.heatmapMinOpacity);
+            heatmap.draw(/* this.heatmapMinOpacity */);
             requestAnimationFrame(() => console.timeEnd('drawHeatmap'));
         },
 
@@ -315,7 +324,7 @@ export default {
                 const y = node.y * 5 + h / 2;
                 ctx.beginPath();
                 ctx.arc(x, y, 3, 0, 2 * Math.PI);
-                ctx.globalAlpha = 0.1;
+                ctx.globalAlpha = this.navMapAlpha;
                 ctx.fill();
                 ctx.globalAlpha = 1;
                 ctx.stroke();
@@ -326,32 +335,33 @@ export default {
         drawNavMapRect() {
             console.time('drawNavMapRect');
             const ctx = this.navMapRect.getContext('2d');
-            const scale = 20 /this.store.scale
-            const tx =  this.store.translateX / 4;
-            const ty =  this.store.translateY / 4;
+            const scale = 20 / this.store.scale;
+            const tx = this.store.translateX / 4;
+            const ty = this.store.translateY / 4;
             const initSclae = 20;
 
             const w = this.navMapRect.width;
-            const h =  this.navMapRect.height;
+            const h = this.navMapRect.height;
 
             // const x = tx + w/2 ;
-            const x = w/2 - tx*scale;
+            const x = w / 2 - tx * scale;
             // const y = ty + h/2;
-            const y = h/2 - ty*scale;
+            const y = h / 2 - ty * scale;
 
             ctx.clearRect(0, 0, this.navMapRect.width, this.navMapRect.height);
-            ctx.strokeRect(x, y, w * scale, h*scale);
+            ctx.strokeRect(x, y, w * scale, h * scale);
             requestAnimationFrame(() => console.timeEnd('drawNavMapRect'));
         },
 
         toggleShowNavMap() {
-            this.showNavMap = !this.showNavMap
-            if(this.showNavMap) requestAnimationFrame(this.drawNavMap)
+            this.showNavMap = !this.showNavMap;
+            if (this.showNavMap) requestAnimationFrame(this.drawNavMap);
+            if (this.showNavMap) requestAnimationFrame(this.drawNavMapRect);
         },
 
         toggleShowHeatmap() {
-            this.showHeatmap = !this.showHeatmap
-            if(this.showHeatmap) requestAnimationFrame(this.drawHeatmap)
+            this.showHeatmap = !this.showHeatmap;
+            if (this.showHeatmap) requestAnimationFrame(this.drawHeatmap);
         },
 
         changeImgWidth(v) {
@@ -404,12 +414,19 @@ export default {
         },
         changeHeatmapRadius(v) {
             this.heatmapRadius += v;
+            this.drawHeatmap();
         },
         changeHeatmapBlur(v) {
             this.heatmapBlur += v;
+            this.drawHeatmap();
         },
-        changeHeatmapMinOpacity(v) {
+        /* changeHeatmapMinOpacity(v) {
             this.heatmapMinOpacity += v;
+            this.drawHeatmap()
+        }, */
+        changeNavMapAlpha(v) {
+            this.navMapAlpha += v;
+            this.drawNavMap();
         },
         toggleShowKLabels() {
             this.showKLabels = !this.showKLabels;
@@ -697,7 +714,7 @@ export default {
     .details {
         width: 25rem;
         height: 100%;
-        margin: 0.5rem;
+        padding: 0.5rem;
         background-color: white;
     }
 
