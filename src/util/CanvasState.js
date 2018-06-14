@@ -400,17 +400,25 @@ export default class CanvasState {
         const canvasPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
         // console.log({ canvasW, canvasH, tx, ty, scale });
 
+        const drawBoarder = this.ui.boarderRanked
+        const rankSize = this.ui.sizeRanked
+        const borderW = 1
+        const gradient = this.ui.gradient
+
         Object.values(this.nodes).forEach((node) => {
             // start x,y ist x *scale + translateX
             // console.log(node)
             // console.log(zoomStage)
             const canvasX = Math.floor(node.x * scale + tx);
             const canvasY = Math.floor(node.y * scale + ty);
-            const img = node.imageData[zoomStage];
+            const rank = node.rank*10
+
+            const img = node.imageData[rankSize ? rank : zoomStage];
             // console.log(img)
             const iw = img.width;
             const ih = img.height;
-            const inside = canvasX > 0 && canvasY > 0 && canvasX < (canvasW - iw) && canvasY < (canvasH - ih);
+            const inside = canvasX > borderW && canvasY > borderW && canvasX < (canvasW - iw - borderW) && canvasY < (canvasH - ih - borderW);
+
 
             // test if image obj exists
             if (img && inside) {
@@ -424,8 +432,6 @@ export default class CanvasState {
                         // wir laufen durch alle spalten des bildes und betrachten dann 4 werte im array
                         for (let col = 0; col < iw; col += 1) {
                             const c = canvasRow + col * 4;
-                            // console.log(c)
-                            // console.log(canvasPixel[c])
                             const p = (row * iw + col) * 4;
                             // if(c > canvasW * canvasH * 4) console.error("CRY")
                             canvasPixel[c] = imgData[p]; // R
@@ -434,6 +440,41 @@ export default class CanvasState {
                             canvasPixel[c + 3] ? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
                         }
                     }
+
+                    if (drawBoarder) {
+                        const color = gradient[rank]
+                        // draw boarder
+                        for (let row = 0; row < ih; row += 1) {
+                            const canvasRow = ((canvasY + row) * canvasW + canvasX) * 4;
+                            if (row === 0 || row === ih - 1) {
+                                //draw top line r
+                                for (let col = 0; col < iw; col += 1) {
+                                    const c = canvasRow + col * 4;
+                                    canvasPixel[c] = color[0]; // R
+                                    canvasPixel[c + 1] = color[1]; // G
+                                    canvasPixel[c + 2] = color[2]; // B
+                                    canvasPixel[c + 3] ? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                                }
+                            } else  {
+                                // draw left boarder
+                                const l = canvasRow
+                                canvasPixel[l] = color[0]; // R
+                                canvasPixel[l + 1] = color[1]; // G
+                                canvasPixel[l + 2] = color[2]; // B
+                                canvasPixel[l + 3] ? canvasPixel[l + 3] += 10 : canvasPixel[l + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+
+                                // draw left boarder
+                                const r = canvasRow + (iw - 1) * 4;
+                                canvasPixel[r] = color[0]; // R
+                                canvasPixel[r + 1] = color[1]; // G
+                                canvasPixel[r + 2] = color[2]; // B
+                                canvasPixel[r + 3] ? canvasPixel[r + 3] += 10 : canvasPixel[r + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                            }
+
+                        }
+                    }
+
+
                 } else {
                     // drawcluster
                     let c = (canvasY * canvasW + canvasX) * 4;
@@ -476,8 +517,9 @@ export default class CanvasState {
         // console.log({ w, h, tx, ty, pixel });
         console.timeEnd('draw2');
         this.valid = true;
-        if(this.ui.showHeatmap) requestAnimationFrame(this.ui.drawHeatmap)
-        if(this.ui.showNavMap) requestAnimationFrame(this.ui.drawNavMapRect)
+        if (this.ui.showHeatmap) requestAnimationFrame(this.ui.drawHeatmap);
+        if (this.ui.showNavMap) requestAnimationFrame(this.ui.drawNavMapRect);
+        if (this.ui.showNavHeatmap) requestAnimationFrame(this.ui.drawNavHeatmapRect);
     }
 
     zoom(wheelEvent) {

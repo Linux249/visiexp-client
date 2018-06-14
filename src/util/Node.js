@@ -28,6 +28,8 @@ export default class Node {
         this.icon = new Image();
         this.icon.src = data.buffer;
 
+        this.rank = data.rank
+
         this.pics = {};
         this.imageData = {};
 

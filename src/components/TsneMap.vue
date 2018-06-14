@@ -19,8 +19,11 @@
             </div>
             <div class="row">
                 <div class="dropdownArea"></div>
-                <div class="btn" @click="toggleShowHeatmap">heatmap</div>
-                <div class="btn" @click="toggleShowNavMap">NavMap</div>
+                <div class="btn" :class="{ active: boarderRanked }" @click="toggleBoarderRanked">boarderRanked</div>
+                <div class="btn" :class="{ active: sizeRanked }" @click="toggleSizeRanked">sizeRanked</div>
+                <div class="btn" :class="{ active: showHeatmap }" @click="toggleShowHeatmap">heatmap</div>
+                <div class="btn" :class="{ active: showNavMap }" @click="toggleShowNavMap">NavMap</div>
+                <div class="btn" :class="{ active: showNavHeatmap }" @click="toggleShowNavHeatmap">NavHeatmap</div>
                 <div class="labelsArea" @mouseenter="showLabels = true" @mouseleave="showLabels = false">
                     <div class="btn">labels</div>
                     <div class="labels" v-if="showLabels">
@@ -59,6 +62,10 @@
                     <div class="navMap" :class="{ hide: !showNavMap }">
                         <canvas id="navMap" class="canvas" tabindex="0" ></canvas>
                         <canvas id="navMapRect" tabindex="0" ></canvas>
+                    </div>
+                    <div class="navMap" :class="{ hide: !showNavHeatmap }">
+                        <canvas id="navHeatmap" class="canvas" tabindex="0" ></canvas>
+                        <canvas id="navHeatmapRect" tabindex="0" ></canvas>
                     </div>
                 </div>
             </div>
@@ -253,6 +260,21 @@ export default {
         // heatmapMinOpacity: 0.05,
         showNavMap: false,
         navMapAlpha: 0.1,
+        showNavHeatmap: false,
+        boarderRanked: false,
+        sizeRanked: false,
+        gradient: [
+            [255, 0, 0],    // 0
+            [255, 50, 0],   // 1
+            [255, 100, 0],  // 2
+            [255, 150, 0],  // 3
+            [255, 150, 0],  // 4
+            [255, 250, 0],  // 5
+            [200, 250, 0],  // 6
+            [150, 250, 0],  // 7
+            [100, 250, 0],  // 8
+            [50, 250, 0],  // 9
+        ],
     }),
     methods: {
         getNode(i) {
@@ -314,14 +336,18 @@ export default {
             // clean the canvas first
             ctx.clearRect(0, 0, w, h);
 
-            ctx.fillStyle = 'grey';
-            ctx.strokeStyle = 'grey';
+
             ctx.lineWidth = 0.05;
 
             for (const i in this.store.nodes) {
                 const node = this.store.nodes[i];
                 const x = node.x * 5 + w / 2; // 5 = initscale (20) / 4 (25%)
                 const y = node.y * 5 + h / 2;
+
+                const c = this.gradient[node.rank*10]
+                const color = this.boarderRanked ? `rgb(${c[0]},${c[1]},${c[2]})` : 'grey'
+                ctx.fillStyle = color;
+                ctx.strokeStyle = color;
                 ctx.beginPath();
                 ctx.arc(x, y, 3, 0, 2 * Math.PI);
                 ctx.globalAlpha = this.navMapAlpha;
@@ -338,7 +364,6 @@ export default {
             const scale = 20 / this.store.scale;
             const tx = this.store.translateX / 4;
             const ty = this.store.translateY / 4;
-            const initSclae = 20;
 
             const w = this.navMapRect.width;
             const h = this.navMapRect.height;
@@ -353,15 +378,76 @@ export default {
             requestAnimationFrame(() => console.timeEnd('drawNavMapRect'));
         },
 
+        drawNavHeatmap() {
+            console.time('drawNavHeatmap');
+            const navHeatmap = this.navHeatmap;
+            const w = this.navHeatmapRect.width
+            const h = this.navHeatmapRect.height
+
+            // data in form of [[x,y,v], [x,y,v], ...]
+            const data = Object.values(this.store.getNodes()).map((node) => {
+                const x = node.x * 5 + w/2
+                const y = node.y * 5  + h/2
+                return [x, y, 1];
+            });
+
+            // refresh radius before drawing
+            navHeatmap.radius(this.heatmapRadius, this.heatmapBlur);
+
+            // add data
+            navHeatmap.data(data); // setting data clear the old one
+
+            // draw heatmap
+            navHeatmap.draw(/* this.heatmapMinOpacity */);
+            requestAnimationFrame(() => console.timeEnd('drawNavHeatmap'));
+        },
+
+        drawNavHeatmapRect() {
+            console.time('drawNavHeatmapRect');
+            const ctx = this.navHeatmapRect.getContext('2d');
+            const scale = 20 / this.store.scale;
+            const tx = this.store.translateX / 4;
+            const ty = this.store.translateY / 4;
+
+            const w = this.navMapRect.width;
+            const h = this.navMapRect.height;
+
+            // const x = tx + w/2 ;
+            const x = w / 2 - tx * scale;
+            // const y = ty + h/2;
+            const y = h / 2 - ty * scale;
+
+            ctx.clearRect(0, 0, this.navHeatmapRect.width, this.navHeatmapRect.height);
+            ctx.strokeRect(x, y, w * scale, h * scale);
+            requestAnimationFrame(() => console.timeEnd('drawNavHeatmapRect'));
+        },
+
+
         toggleShowNavMap() {
             this.showNavMap = !this.showNavMap;
             if (this.showNavMap) requestAnimationFrame(this.drawNavMap);
             if (this.showNavMap) requestAnimationFrame(this.drawNavMapRect);
         },
 
+        toggleShowNavHeatmap() {
+            this.showNavHeatmap = !this.showNavHeatmap;
+            if (this.showNavHeatmap) requestAnimationFrame(this.drawNavHeatmap);
+            if (this.showNavHeatmap) requestAnimationFrame(this.drawNavHeatmapRect);
+        },
+
         toggleShowHeatmap() {
             this.showHeatmap = !this.showHeatmap;
             if (this.showHeatmap) requestAnimationFrame(this.drawHeatmap);
+        },
+
+        toggleSizeRanked() {
+            this.sizeRanked = !this.sizeRanked;
+            this.store.draw2();
+        },
+
+        toggleBoarderRanked() {
+            this.boarderRanked = !this.boarderRanked;
+            this.store.draw2();
         },
 
         changeImgWidth(v) {
@@ -415,10 +501,12 @@ export default {
         changeHeatmapRadius(v) {
             this.heatmapRadius += v;
             this.drawHeatmap();
+            this.drawNavHeatmap();
         },
         changeHeatmapBlur(v) {
             this.heatmapBlur += v;
             this.drawHeatmap();
+            this.drawNavHeatmap();
         },
         /* changeHeatmapMinOpacity(v) {
             this.heatmapMinOpacity += v;
@@ -504,6 +592,18 @@ export default {
         navMapRect.getContext('2d').strokeStyle = '#3882ff';
         navMapRect.getContext('2d').lineWidth = 1.5;
         this.navMapRect = navMapRect;
+
+        const navHeatmapCanvas = document.getElementById('navHeatmap');
+        navHeatmapCanvas.width = parantWidth / 4;
+        navHeatmapCanvas.height = parantHeight / 4;
+        this.navHeatmap = simpleheat(navHeatmapCanvas);
+
+        const navHeatmapRect = document.getElementById('navHeatmapRect');
+        navHeatmapRect.width = parantWidth / 4;
+        navHeatmapRect.height = parantHeight / 4;
+        navHeatmapRect.getContext('2d').strokeStyle = '#3882ff';
+        navHeatmapRect.getContext('2d').lineWidth = 1.5;
+        this.navHeatmapRect = navHeatmapRect;
 
 
         // const ctx = canvas.getContext('2d');
@@ -675,14 +775,14 @@ export default {
         z-index: 10;
     }
 
-    #navMap {
+    #navMap, #navHeatmap {
         position: absolute;
         top: 0;
         right: 0;
         z-index: 10;
     }
 
-    #navMapRect {
+    #navMapRect, #navHeatmapRect {
         position: absolute;
         top: 0;
         right: 0;
