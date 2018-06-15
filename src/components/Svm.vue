@@ -4,7 +4,7 @@
         <div class="imgArea" :class="{activePositiv: selectPositives}" @click="toggleActive(true)">
             <div class="image" v-for="(n, i) in positives" :key="i" @mouseover="handleMouseOver(n)">
                 <img
-                    :src="n.icon.src"
+                    :src="n.icon"
                     alt=""
                     @click="switchPositivs(i)"
                     @contextmenu.prevent="removePositives(i)"
@@ -14,7 +14,7 @@
         <div class="imgArea" :class="{activeNegativ: !selectPositives}" @click="toggleActive(false)">
             <div class="image" v-for="(n, i) in negatives" :key="i" @mouseover="handleMouseOver(n)">
                 <img
-                    :src="n.icon.src"
+                    :src="n.icon"
                     alt=""
                     @click="switchNegatives(i)"
                     @contextmenu.prevent="removeNegatives(i)"
@@ -24,7 +24,7 @@
         <div class="imgArea">
             <div class="image" v-for="(n, i) in topScored" :key="i">
                 <img
-                    :src="n.icon.src"
+                    :src="n.icon"
                     alt=""
                 >
             </div>

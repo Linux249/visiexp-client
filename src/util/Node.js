@@ -34,8 +34,9 @@ export default class Node {
         this.imageData = {};
 
         try {
-            this.icon = new Image();
-            this.icon.src = data.buffer;
+            // this.icon = new Image();
+            // this.icon.src = data.buffer;
+
 
             // TODO das kann sicherlich optimiert werden
             // const canvas = document.createElement('canvas');
@@ -51,7 +52,19 @@ export default class Node {
                 //     context.drawImage(img, 0, 0);
                 //     this.imageData[i] = context.getImageData(0, 0, img.width, img.height);
                 // };
+                if(i === 9) {
+                    const canvas = document.createElement('canvas');
+                    const img = this.imageData[i]
+                    canvas.width = img.width; // or 'width' if you want a special/scaled size
+                    canvas.height = img.height; // or 'height' if you want a special/scaled size
+
+                    canvas.getContext('2d').putImageData(img, 0, 0)
+                    this.icon = canvas.toDataURL('image/png')
+
+                }
             });
+
+
         } catch (e) {
             console.error(e);
             console.log(this);
