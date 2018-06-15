@@ -246,7 +246,7 @@ export default class CanvasState {
     addNode(node) {
         // console.log('Node addded');
         this.nodes[node.index] = node;
-        this.colorHash[node.colorKey] = node.index;
+        this.colorHash[`rgb(${node.colorKey[0]},${node.colorKey[1]},${node.colorKey[2]})`] = node.index;
         this.triggerDraw(); // for redrawing
     }
 
@@ -388,6 +388,101 @@ export default class CanvasState {
         }
     }
 
+
+    drawHitmap() {
+        console.time('drawHitmap');
+
+        const canvasW = this.width,
+            canvasH = this.height,
+            tx = this.translateX, // wird auf die node x,y aufaddiert
+            ty = this.translateY,
+            zoomStage = this.zoomStage,
+            scale = this.scale;// node x,y werden multipliziert
+        const canvasPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
+        // console.log({ canvasW, canvasH, tx, ty, scale });
+
+        const drawBoarder = this.ui.boarderRanked;
+        const rankSize = this.ui.sizeRanked;
+
+        Object.values(this.nodes).forEach((node) => {
+            // start x,y ist x *scale + translateX
+            const nodeX = Math.floor(node.x * scale + tx);
+            const nodeY = Math.floor(node.y * scale + ty);
+            const rank = node.rank * 10;
+
+            const img = node.imageData[rankSize ? rank : zoomStage];
+            // console.log(img)
+            const iw = img.width;
+            const ih = img.height;
+            const inside = nodeX > 0 && nodeY > 0 && nodeX < (canvasW - iw) && nodeY < (canvasH - ih);
+
+
+            // test if image obj exists
+            if (img && inside) {
+                // cluster
+                if (node.cluster < this.cluster) {
+                    const imgData = img.data;
+                    const color = node.colorKey
+                    // wir gehen durch alle reihen des bildes
+                    for (let row = 0; row < ih; row += 1) {
+                        const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
+                        // copy row to pixel
+                        // wir laufen durch alle spalten des bildes und betrachten dann 4 werte im array
+                        for (let col = 0; col < iw; col += 1) {
+                            const c = canvasRow + col * 4;
+                            const p = (row * iw + col) * 4;
+                            // if(c > canvasW * canvasH * 4) console.error("CRY")
+                            canvasPixel[c] = node.colorKey[0]; // R
+                            canvasPixel[c + 1] = node.colorKey[1]; // G
+                            canvasPixel[c + 2] = node.colorKey[2]; // B
+                            canvasPixel[c + 3] = 255 //? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                        }
+                    }
+
+                } else {
+                    // drawcluster
+                    let c = (nodeY * canvasW + nodeX) * 4;
+                    canvasPixel[c] = node.colorKey[0];
+                    canvasPixel[c + 1] = node.colorKey[1];
+                    canvasPixel[c + 2] = node.colorKey[2];
+                    canvasPixel[c + 3] = 255;
+                    c = (nodeY * canvasW + nodeX + 1) * 4;
+                    canvasPixel[c] = node.colorKey[0];
+                    canvasPixel[c + 1] = node.colorKey[1];
+                    canvasPixel[c + 2] = node.colorKey[2];
+                    canvasPixel[c + 3] = 255;
+                    c = (nodeY * canvasW + canvasW + nodeX) * 4;
+                    canvasPixel[c] = node.colorKey[0];
+                    canvasPixel[c + 1] = node.colorKey[1];
+                    canvasPixel[c + 2] = node.colorKey[2];
+                    canvasPixel[c + 3] = 255;
+                    c = (nodeY * canvasW + canvasW + nodeX + 1) * 4;
+                    canvasPixel[c] = node.colorKey[0];
+                    canvasPixel[c + 1] = node.colorKey[1];
+                    canvasPixel[c + 2] = node.colorKey[2];
+                    canvasPixel[c + 3] = 255;
+                }
+            } else if (inside) {
+                console.error('Bild scheint nicht fertig geladen');
+                console.log(node);
+                console.log(zoomStage);
+            }
+        });
+
+        const pic = new ImageData(canvasPixel, canvasW, canvasH);
+        const ctx = this.ui.toggle ? this.ctx : this.hitCtx
+        ctx.resetTransform();
+        ctx.clearRect(0, 0, this.width, this.height);
+        ctx.putImageData(pic, 0, 0);
+
+        // console.log(pic);
+        // console.log(canvasPixel);
+
+
+        // console.log({ w, h, tx, ty, pixel });
+        console.timeEnd('drawHitmap');
+    }
+
     draw2() {
         console.time('draw2');
 
@@ -400,10 +495,10 @@ export default class CanvasState {
         const canvasPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
         // console.log({ canvasW, canvasH, tx, ty, scale });
 
-        const drawBoarder = this.ui.boarderRanked
-        const rankSize = this.ui.sizeRanked
-        const borderW = 1
-        const gradient = this.ui.gradient
+        const drawBoarder = this.ui.boarderRanked;
+        const rankSize = this.ui.sizeRanked;
+        const borderW = 1;
+        const gradient = this.ui.gradient;
 
         Object.values(this.nodes).forEach((node) => {
             // start x,y ist x *scale + translateX
@@ -411,7 +506,7 @@ export default class CanvasState {
             // console.log(zoomStage)
             const canvasX = Math.floor(node.x * scale + tx);
             const canvasY = Math.floor(node.y * scale + ty);
-            const rank = node.rank*10
+            const rank = node.rank * 10;
 
             const img = node.imageData[rankSize ? rank : zoomStage];
             // console.log(img)
@@ -442,12 +537,12 @@ export default class CanvasState {
                     }
 
                     if (drawBoarder) {
-                        const color = gradient[rank]
+                        const color = gradient[rank];
                         // draw boarder
                         for (let row = 0; row < ih; row += 1) {
                             const canvasRow = ((canvasY + row) * canvasW + canvasX) * 4;
                             if (row === 0 || row === ih - 1) {
-                                //draw top line r
+                                // draw top line r
                                 for (let col = 0; col < iw; col += 1) {
                                     const c = canvasRow + col * 4;
                                     canvasPixel[c] = color[0]; // R
@@ -455,9 +550,9 @@ export default class CanvasState {
                                     canvasPixel[c + 2] = color[2]; // B
                                     canvasPixel[c + 3] ? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
                                 }
-                            } else  {
+                            } else {
                                 // draw left boarder
-                                const l = canvasRow
+                                const l = canvasRow;
                                 canvasPixel[l] = color[0]; // R
                                 canvasPixel[l + 1] = color[1]; // G
                                 canvasPixel[l + 2] = color[2]; // B
@@ -470,11 +565,8 @@ export default class CanvasState {
                                 canvasPixel[r + 2] = color[2]; // B
                                 canvasPixel[r + 3] ? canvasPixel[r + 3] += 10 : canvasPixel[r + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
                             }
-
                         }
                     }
-
-
                 } else {
                     // drawcluster
                     let c = (canvasY * canvasW + canvasX) * 4;
@@ -516,6 +608,7 @@ export default class CanvasState {
 
         // console.log({ w, h, tx, ty, pixel });
         console.timeEnd('draw2');
+        requestAnimationFrame(() => this.drawHitmap())
         this.valid = true;
         if (this.ui.showHeatmap) requestAnimationFrame(this.ui.drawHeatmap);
         if (this.ui.showNavMap) requestAnimationFrame(this.ui.drawNavMapRect);
@@ -589,6 +682,8 @@ export default class CanvasState {
         const pixel = this.hitCtx.getImageData(x, y, 1, 1).data;
         const color = `rgb(${pixel[0]},${pixel[1]},${pixel[2]})`;
         const nodeId = this.colorHash[color];
+        console.log({x,y})
+        console.log(pixel)
         if (nodeId >= 0) {
             return this.nodes[nodeId];
         }

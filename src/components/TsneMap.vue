@@ -19,6 +19,7 @@
             </div>
             <div class="row">
                 <div class="dropdownArea"></div>
+                <div class="btn" :class="{ active: toggle }" @click="toggleToggle">toggle</div>
                 <div class="btn" :class="{ active: boarderRanked }" @click="toggleBoarderRanked">boarderRanked</div>
                 <div class="btn" :class="{ active: sizeRanked }" @click="toggleSizeRanked">sizeRanked</div>
                 <div class="btn" :class="{ active: showHeatmap }" @click="toggleShowHeatmap">heatmap</div>
@@ -275,6 +276,7 @@ export default {
             [100, 250, 0],  // 8
             [50, 250, 0],  // 9
         ],
+        toggle: false
     }),
     methods: {
         getNode(i) {
@@ -448,6 +450,11 @@ export default {
         toggleBoarderRanked() {
             this.boarderRanked = !this.boarderRanked;
             this.store.draw2();
+        },
+
+        toggleToggle() {
+            this.toggle = !this.toggle
+            this.store.draw2()
         },
 
         changeImgWidth(v) {
@@ -748,13 +755,13 @@ export default {
         position: relative;
         height: 700px;
         width: calc(100% - 25rem);
-        /*margin: 0.5rem;*/
+        margin: 0.5rem;
     }
 
     .canvas {
         background-color: white;
         box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08);
-        margin: 0.5rem;
+        /*margin: 0.5rem;*/
         outline: none;
     }
 

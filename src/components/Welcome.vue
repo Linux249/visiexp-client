@@ -1,5 +1,5 @@
 <template>
-    <div>Hallo Welt</div>
+    <div>Welcome Route</div>
 </template>
 
 <script>
