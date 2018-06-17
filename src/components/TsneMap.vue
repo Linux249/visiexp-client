@@ -81,6 +81,7 @@
                             <div @click="changeCluster(1000)" class="btn">+1000</div>
                         </div>
                     </div>
+                    <!--
                     <div class="row-btn">
                         <div>ImageWidth: {{imgWidth}}</div>
                         <div class="row">
@@ -114,6 +115,13 @@
                         <div class="row">
                             <div @click="changeScrollImgGrowth(-0.01)" class="btn">-0.1</div>
                             <div @click="changeScrollImgGrowth(0.01)" class="btn">+0.1</div>
+                        </div>
+                    </div> -->
+                    <div class="row-btn">
+                        <div>zoomStage: {{zoomStage}}</div>
+                        <div class="row">
+                            <div @click="changeZoomStage(-1)" class="btn">-1</div>
+                            <div @click="changeZoomStage(1)" class="btn">+1</div>
                         </div>
                     </div>
                     <div class="row-btn">
@@ -276,7 +284,8 @@ export default {
             [100, 250, 0],  // 8
             [50, 250, 0],  // 9
         ],
-        toggle: false
+        toggle: false,
+        zoomStage: 0,
     }),
     methods: {
         getNode(i) {
@@ -504,6 +513,10 @@ export default {
         changeClusterGrowth(v) {
             this.store.clusterGrowth = Math.round((this.store.clusterGrowth + v) * 100) / 100;
             // this.clusterGrowth = this.store.clusterGrowth;
+        },
+        changeZoomStage(v) {
+            this.store.zoomStage += v;
+            this.zoomStage = this.store.zoomStage;
         },
         changeHeatmapRadius(v) {
             this.heatmapRadius += v;
