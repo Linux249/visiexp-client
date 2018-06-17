@@ -243,6 +243,11 @@ export default class CanvasState {
     }
 
 
+    clearGroup() {
+
+    }
+
+
     addNode(node) {
         // console.log('Node addded');
         this.nodes[node.index] = node;
@@ -531,7 +536,11 @@ export default class CanvasState {
                             canvasPixel[c] = imgData[p]; // R
                             canvasPixel[c + 1] = imgData[p + 1]; // G
                             canvasPixel[c + 2] = imgData[p + 2]; // B
-                            canvasPixel[c + 3] ? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                            if(node.group) {
+                                canvasPixel[c + 3] = imgData[p +3]
+                            } else {
+                                canvasPixel[c + 3] ? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                            }
                         }
                     }
 
@@ -820,7 +829,15 @@ export default class CanvasState {
                 const nodeX = moveX / this.scale;
                 const nodeY = moveY / this.scale;
 
-                this.draggNode.move(nodeX, nodeY);
+                // drag hole group
+                if (this.draggNode.group) {
+                    Object.values(this.nodes).forEach(node => {
+                        if(node.group) node.move(nodeX, nodeY)
+                    })
+                } else {
+                    // drag only one node
+                    this.draggNode.move(nodeX, nodeY);
+                }
 
                 // drag neighbours in freeze mode
                 if (this.selection && this.selection === this.draggNode) {
@@ -851,6 +868,7 @@ export default class CanvasState {
             this.ui.clickedNode = nodeUnderMouse;
             switch (this.ui.$route.name) {
             case SVM:
+                if (ctrlKeyPressed) nodeUnderMouse.group = !nodeUnderMouse.group
                 break;
             case NEIGHBOURS:
                 if (this.selection && this.selection !== this.nodeUnderMouse && ctrlKeyPressed) {

@@ -14,6 +14,8 @@ export default class Node {
         this.ctx = ctx;
         this.hitCtx = hitCtx;
 
+        this.group = false
+
         this.cluster = data.cluster;
         this.positives = data.positives;
         this.negatives = data.negatives;
