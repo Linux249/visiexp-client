@@ -257,7 +257,11 @@ export default class CanvasState {
     }
 
     getNodes() {
-        return this.nodes;
+        const nodes = {}
+        Object.values(this.nodes).forEach(({index, x, y, name, negatives, positives, links}, i) => {
+            nodes[i] = {index, x, y, name, negatives, positives, links}
+        });
+        return nodes
     }
 
     getNode(i) {
