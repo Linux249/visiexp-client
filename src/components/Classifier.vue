@@ -10,10 +10,11 @@
             >
                 {{cat.name}}
             </div>
-            <div class="btn" @click="showAddCategory = true">
+            <div class="btn" @click="showAddCategory = !showAddCategory">
                 +
             </div>
         </div>
+
         <div class="row" v-if="showAddCategory">
             <input type="text" v-model="category"/>
             <div @click="addCategory" class="btn">add</div>
@@ -28,6 +29,7 @@
                 >
             </div>
         </div>
+
         <div class="row">
             <input type="text" v-model="label" @focus="handleFocus" @blur="handleBlur"/>
             <div v-if="showLabelOptions" class="dropdown" @mouseenter="mouseOver = true" @mouseleave="mouseOver = false">
