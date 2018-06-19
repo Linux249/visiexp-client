@@ -13,13 +13,13 @@
                     <div class="btn">{{zoomLvl}}</div>
                     <div class="btn">{{translateX}}</div>
                     <div class="btn">{{translateY}}</div>
-                    <div class="btn" @click="draw2">draw2</div>
+                    <!--<div class="btn" @click="draw2">draw2</div>-->
                     <div class="btn" @click="doubleNodes">doubleNodes</div>
                 </div>
             </div>
             <div class="row">
                 <div class="dropdownArea"></div>
-                <div class="btn" :class="{ active: toggle }" @click="toggleToggle">toggle</div>
+                <!--<div class="btn" :class="{ active: toggle }" @click="toggleToggle">toggle</div>-->
                 <div class="btn" :class="{ active: boarderRanked }" @click="toggleBoarderRanked">boarderRanked</div>
                 <div class="btn" :class="{ active: sizeRanked }" @click="toggleSizeRanked">sizeRanked</div>
                 <div class="btn" :class="{ active: showHeatmap }" @click="toggleShowHeatmap">heatmap</div>
