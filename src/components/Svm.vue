@@ -42,7 +42,8 @@
 <script>
 export default {
     name: 'Svm',
-    props: ['node', 'nodes', 'getNode', 'changeActiveNode'],
+    props: ['node', 'nodes', 'getNode', 'changeActiveNode', 'triggerDraw'],
+
     data: () => ({
         positives: [],
         positivesAll: [],
@@ -53,6 +54,7 @@ export default {
         loading: false,
         count: 0,
     }),
+
     watch: {
         node(n) {
             this.addNode(n);
@@ -141,13 +143,14 @@ export default {
                 headers: { 'Content-type': 'application/json' },
             }).then(res => res.json()).catch(e => console.error(e));
 
-            data.map((i) => {
+            data.forEach((i) => {
                 const node = this.getNode(i);
                 node.group = true;
             });
 
 
             this.loading = false;
+            this.triggerDraw();
         },
         clearSvm() {
             // reset hole process (same like reload page/component)

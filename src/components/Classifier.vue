@@ -1,9 +1,21 @@
 <template>
     <div class="classifier">
+        <div class="row">
+            <div
+                class="btn"
+                v-for="(cat, i) in labels"
+                :key="i"
+                :class="{active: selectedCategory === i}"
+                @click="selectedCategory = i"
+            >
+                {{cat.name}}
+            </div>
+        </div>
+
         <div class="imgArea">
             <div class="image" v-for="(n, i) in selectedNodes" :key="i">
                 <img
-                    :src="n.icon.src"
+                    :src="n.icon"
                     alt=""
                     @click="removeNode(i)"
                 >
@@ -11,7 +23,7 @@
         </div>
         <div class="row">
             <input type="text" v-model="label" @focus="handleFocus" @blur="handleBlur"/>
-            <div v-if="showLabels" class="dropdown" @mouseenter="mouseOver = true" @mouseleave="mouseOver = false">
+            <div v-if="showLabelOptions" class="dropdown" @mouseenter="mouseOver = true" @mouseleave="mouseOver = false">
                 <div
                     class="item"
                     v-for="label in labelsFiltered"
@@ -27,12 +39,13 @@
 <script>
 export default {
     name: 'classifier',
-    props: ['nodes', 'node', 'labels'],
+    props: ['nodes', 'node', 'labels', 'triggerDraw'],
     data: () => ({
         label: '',
-        showLabels: false,
+        showLabelOptions: false,
         selectedNodes: [],
         mouseOver: false,
+        selectedCategory: '0',
     }),
     watch: {
         node(n) {
@@ -49,40 +62,41 @@ export default {
         removeNode(i) {
             this.selectedNodes.splice(i, 1);
         },
-        addLabel({ target }) {
+        addLabel() {
             console.log('addLabel clicked');
             console.log(this.label);
 
             // check if label is in list of labels allready?
-            if (this.labels.indexOf(this.label) === -1) this.labels.push(this.label);
+            if (this.labels[this.selectedCategory].labels.indexOf(this.label) === -1) this.labels[this.selectedCategory].labels.push(this.label);
 
             // ad label to nodes after checking that is npot allready used at node
             this.selectedNodes.forEach((node) => {
-                if (node.labels.indexOf(this.label) === -1) node.labels.push(this.label);
+                node.labels[this.selectedCategory] = this.label;
             });
 
             // reset input/label
             this.label = '';
 
-            this.showLabels = false;
+            this.showLabelOptions = false;
+            this.triggerDraw()
         },
         handleFocus(e) {
             console.log('input focus');
-            this.showLabels = true;
+            this.showLabelOptions = true;
         },
         handleBlur(e) {
             console.log('input blur');
-            if (!this.mouseOver) this.showLabels = false;
+            if (!this.mouseOver) this.showLabelOptions = false;
         },
         chooseLabel(label) {
             console.log('chooselabel');
             this.label = label;
-            this.showLabels = false;
+            this.showLabelOptions = false;
         },
     },
     computed: {
         labelsFiltered() {
-            return this.labels.filter(label => label.includes(this.label));
+            return this.labels[this.selectedCategory].labels.filter(label => label.includes(this.label));
         },
     },
 };

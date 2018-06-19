@@ -189,6 +189,7 @@
                     :labels="labels"
                     :node="clickedNode"
                     :getNode="getNode"
+                    :triggerDraw="triggerDraw"
                     :changeActiveNode="changeActiveNode"
                 />
 
@@ -329,8 +330,8 @@ export default {
             this.cluster = this.store.cluster; // update ui
         },
 
-        draw2() {
-            this.store.draw2();
+        triggerDraw() {
+            this.store.triggerDraw();
         },
 
         drawHeatmap() {
