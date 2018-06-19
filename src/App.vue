@@ -43,6 +43,10 @@ export default {
         align-items: flex-start;
     }
 
+    .wrap {
+        flex-wrap: wrap;
+    }
+
     .button {
         margin: 10px;
         height: 40px;

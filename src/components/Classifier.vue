@@ -1,6 +1,6 @@
 <template>
     <div class="classifier">
-        <div class="row">
+        <div class="row wrap">
             <div
                 class="btn"
                 v-for="(cat, i) in labels"
@@ -10,6 +10,13 @@
             >
                 {{cat.name}}
             </div>
+            <div class="btn" @click="showAddCategory = true">
+                +
+            </div>
+        </div>
+        <div class="row" v-if="showAddCategory">
+            <input type="text" v-model="category"/>
+            <div @click="addCategory" class="btn">add</div>
         </div>
 
         <div class="imgArea">
@@ -46,6 +53,9 @@ export default {
         selectedNodes: [],
         mouseOver: false,
         selectedCategory: '0',
+        showAddCategory: false,
+        category: '',
+
     }),
     watch: {
         node(n) {
@@ -61,6 +71,15 @@ export default {
         },
         removeNode(i) {
             this.selectedNodes.splice(i, 1);
+        },
+        addCategory() {
+            console.log('addLabel clicked');
+            console.log(this.category);
+            const newKey = Object.keys(this.labels).length;
+            this.labels[newKey] = { name: this.category, labels: [] };
+
+            this.category = ''; // clear input
+            this.showAddCategory = false; // remove input
         },
         addLabel() {
             console.log('addLabel clicked');
@@ -78,7 +97,7 @@ export default {
             this.label = '';
 
             this.showLabelOptions = false;
-            this.triggerDraw()
+            this.triggerDraw();
         },
         handleFocus(e) {
             console.log('input focus');
