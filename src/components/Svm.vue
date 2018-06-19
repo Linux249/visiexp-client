@@ -2,9 +2,9 @@
     <div class="area">
         <div v-if="loading" class="loading"><div class="loading-wheel"></div></div>
         <div class="imgArea" :class="{activePositiv: selectPositives}" @click="toggleActive(true)">
-            <div class="image" v-for="(n, i) in positives" :key="i" @mouseover="handleMouseOver(n)">
+            <div class="image" v-for="(node, i) in positives" :key="i" @mouseover="handleMouseOver(n)">
                 <img
-                    :src="n.icon"
+                    :src="node.icon"
                     alt=""
                     @click="switchPositivs(i)"
                     @contextmenu.prevent="removePositives(i)"
@@ -12,9 +12,9 @@
             </div>
         </div>
         <div class="imgArea" :class="{activeNegativ: !selectPositives}" @click="toggleActive(false)">
-            <div class="image" v-for="(n, i) in negatives" :key="i" @mouseover="handleMouseOver(n)">
+            <div class="image" v-for="(node, i) in negatives" :key="i" @mouseover="handleMouseOver(n)">
                 <img
-                    :src="n.icon"
+                    :src="node.icon"
                     alt=""
                     @click="switchNegatives(i)"
                     @contextmenu.prevent="removeNegatives(i)"
@@ -97,8 +97,8 @@ export default {
             this.negatives.forEach(n => this.negativesAll.indexOf(n) === -1 && this.negativesAll.push(n));
 
             const body = JSON.stringify({
-                p: this.positivesAll,
-                n: this.negativesAll,
+                p: this.positivesAll.map(node => node.index),
+                n: this.negativesAll.map(node => node.index),
                 count: this.count,
             });
             const data = await fetch('/api/v1/trainSvm', {

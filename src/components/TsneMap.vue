@@ -53,7 +53,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <!--<div
                             class="btn"
                             :class="{ active: showKLabels }"
@@ -63,6 +62,7 @@
                         </div>-->
                     </div>
                 </div>
+
                 <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">Options</div>
                 <div @click="sendData" class="btn" >Update Data</div>
                 <div class="tool-box row">
@@ -194,7 +194,7 @@
                 />
 
 
-                <div class="info-box">
+                <div class="info-box"  v-if="activeNode">
                     <img class="img" v-if="activeNode.hasImage" :src="activeNode.image.src" />
                     <div>Name: {{activeNode.name}}</div>
                     <div>Label: {{activeNode.label}}</div>
