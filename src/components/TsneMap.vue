@@ -273,16 +273,16 @@ export default {
         boarderRanked: false,
         sizeRanked: false,
         gradient: [
-            [255, 0, 0],    // 0
-            [255, 50, 0],   // 1
-            [255, 100, 0],  // 2
-            [255, 150, 0],  // 3
-            [255, 150, 0],  // 4
-            [255, 250, 0],  // 5
-            [200, 250, 0],  // 6
-            [150, 250, 0],  // 7
-            [100, 250, 0],  // 8
-            [50, 250, 0],  // 9
+            [255, 0, 0], // 0
+            [255, 50, 0], // 1
+            [255, 100, 0], // 2
+            [255, 150, 0], // 3
+            [255, 150, 0], // 4
+            [255, 250, 0], // 5
+            [200, 250, 0], // 6
+            [150, 250, 0], // 7
+            [100, 250, 0], // 8
+            [50, 250, 0], // 9
         ],
         toggle: false,
         zoomStage: 0,
@@ -355,8 +355,8 @@ export default {
                 const x = node.x * 5 + w / 2; // 5 = initscale (20) / 4 (25%)
                 const y = node.y * 5 + h / 2;
 
-                const c = this.gradient[node.rank*10]
-                const color = this.boarderRanked ? `rgb(${c[0]},${c[1]},${c[2]})` : 'grey'
+                const c = this.gradient[node.rank * 10];
+                const color = this.boarderRanked ? `rgb(${c[0]},${c[1]},${c[2]})` : 'grey';
                 ctx.fillStyle = color;
                 ctx.strokeStyle = color;
                 ctx.beginPath();
@@ -392,13 +392,13 @@ export default {
         drawNavHeatmap() {
             console.time('drawNavHeatmap');
             const navHeatmap = this.navHeatmap;
-            const w = this.navHeatmapRect.width
-            const h = this.navHeatmapRect.height
+            const w = this.navHeatmapRect.width;
+            const h = this.navHeatmapRect.height;
 
             // data in form of [[x,y,v], [x,y,v], ...]
             const data = Object.values(this.store.getNodes()).map((node) => {
-                const x = node.x * 5 + w/2
-                const y = node.y * 5  + h/2
+                const x = node.x * 5 + w / 2;
+                const y = node.y * 5 + h / 2;
                 return [x, y, 1];
             });
 
@@ -462,8 +462,8 @@ export default {
         },
 
         toggleToggle() {
-            this.toggle = !this.toggle
-            this.store.draw2()
+            this.toggle = !this.toggle;
+            this.store.draw2();
         },
 
         changeImgWidth(v) {

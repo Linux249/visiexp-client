@@ -14,7 +14,7 @@ export default class Node {
         this.ctx = ctx;
         this.hitCtx = hitCtx;
 
-        this.group = false
+        this.group = false;
 
         this.cluster = data.cluster;
         this.positives = data.positives;
@@ -30,7 +30,7 @@ export default class Node {
         this.icon = new Image();
         this.icon.src = data.buffer;
 
-        this.rank = data.rank
+        this.rank = data.rank;
 
         this.pics = {};
         this.imageData = {};
@@ -54,19 +54,16 @@ export default class Node {
                 //     context.drawImage(img, 0, 0);
                 //     this.imageData[i] = context.getImageData(0, 0, img.width, img.height);
                 // };
-                if(i === 9) {
+                if (i === 9) {
                     const canvas = document.createElement('canvas');
-                    const img = this.imageData[i]
+                    const img = this.imageData[i];
                     canvas.width = img.width; // or 'width' if you want a special/scaled size
                     canvas.height = img.height; // or 'height' if you want a special/scaled size
 
-                    canvas.getContext('2d').putImageData(img, 0, 0)
-                    this.icon = canvas.toDataURL('image/png')
-
+                    canvas.getContext('2d').putImageData(img, 0, 0);
+                    this.icon = canvas.toDataURL('image/png');
                 }
             });
-
-
         } catch (e) {
             console.error(e);
             console.log(this);

@@ -136,20 +136,15 @@ export default {
             console.log('stopSvm clicked');
             this.loading = true;
 
-            // save nodes
-            // this.positives.forEach(n => this.positivesAll.indexOf(n) === -1 && this.positivesAll.push(n));
-            // this.negatives.forEach(n => this.negativesAll.indexOf(n) === -1 && this.negativesAll.push(n));
-
             const data = await fetch('/api/v1/stopSvm', {
                 method: 'POST',
                 headers: { 'Content-type': 'application/json' },
             }).then(res => res.json()).catch(e => console.error(e));
 
-            data.map(i => {
-                console.log(i)
-                const node = this.getNode(i)
-                node.group = true
-            })
+            data.map((i) => {
+                const node = this.getNode(i);
+                node.group = true;
+            });
 
 
             this.loading = false;

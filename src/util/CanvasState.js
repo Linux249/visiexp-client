@@ -399,14 +399,13 @@ export default class CanvasState {
 
         const canvasW = this.width,
             canvasH = this.height,
-            tx = this.translateX, // wird auf die node x,y aufaddiert
+            tx = this.translateX, // verschiebung des Nullpunktes im Raum
             ty = this.translateY,
             zoomStage = this.zoomStage,
-            scale = this.scale;// node x,y werden multipliziert
+            scale = this.scale; // skalierung der x,y Koordinaten
         const canvasPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
         // console.log({ canvasW, canvasH, tx, ty, scale });
 
-        const drawBoarder = this.ui.boarderRanked;
         const rankSize = this.ui.sizeRanked;
 
         Object.values(this.nodes).forEach((node) => {
@@ -417,30 +416,26 @@ export default class CanvasState {
 
             const img = node.imageData[rankSize ? rank : zoomStage];
             // console.log(img)
-            const iw = img.width;
-            const ih = img.height;
-            const inside = nodeX > 0 && nodeY > 0 && nodeX < (canvasW - iw) && nodeY < (canvasH - ih);
+            const imgW = img.width;
+            const imgH = img.height;
+            const inside = nodeX > 0 && nodeY > 0 && nodeX < (canvasW - imgW) && nodeY < (canvasH - imgH);
 
 
             // test if image obj exists
             if (img && inside) {
                 // cluster
                 if (node.cluster < this.cluster) {
-                    const imgData = img.data;
-                    const color = node.colorKey;
                     // wir gehen durch alle reihen des bildes
-                    for (let row = 0; row < ih; row += 1) {
+                    for (let row = 0; row < imgH; row += 1) {
                         const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
-                        // copy row to pixel
                         // wir laufen durch alle spalten des bildes und betrachten dann 4 werte im array
-                        for (let col = 0; col < iw; col += 1) {
+                        for (let col = 0; col < imgW; col += 1) {
                             const c = canvasRow + col * 4;
-                            const p = (row * iw + col) * 4;
-                            // if(c > canvasW * canvasH * 4) console.error("CRY")
+                            const p = (row * imgW + col) * 4;
                             canvasPixel[c] = node.colorKey[0]; // R
                             canvasPixel[c + 1] = node.colorKey[1]; // G
                             canvasPixel[c + 2] = node.colorKey[2]; // B
-                            canvasPixel[c + 3] = 255; // ? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                            canvasPixel[c + 3] = 255; //
                         }
                     }
                 } else {
@@ -536,8 +531,8 @@ export default class CanvasState {
                             canvasPixel[c] = imgData[p]; // R
                             canvasPixel[c + 1] = imgData[p + 1]; // G
                             canvasPixel[c + 2] = imgData[p + 2]; // B
-                            if(node.group) {
-                                canvasPixel[c + 3] = imgData[p +3]
+                            if (node.group) {
+                                canvasPixel[c + 3] = imgData[p + 3];
                             } else {
                                 canvasPixel[c + 3] ? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
                             }
@@ -831,9 +826,9 @@ export default class CanvasState {
 
                 // drag hole group
                 if (this.draggNode.group) {
-                    Object.values(this.nodes).forEach(node => {
-                        if(node.group) node.move(nodeX, nodeY)
-                    })
+                    Object.values(this.nodes).forEach((node) => {
+                        if (node.group) node.move(nodeX, nodeY);
+                    });
                 } else {
                     // drag only one node
                     this.draggNode.move(nodeX, nodeY);
@@ -868,7 +863,7 @@ export default class CanvasState {
             this.ui.clickedNode = nodeUnderMouse;
             switch (this.ui.$route.name) {
             case SVM:
-                if (ctrlKeyPressed) nodeUnderMouse.group = !nodeUnderMouse.group
+                if (ctrlKeyPressed) nodeUnderMouse.group = !nodeUnderMouse.group;
                 break;
             case NEIGHBOURS:
                 if (this.selection && this.selection !== this.nodeUnderMouse && ctrlKeyPressed) {
