@@ -35,6 +35,7 @@ export default class CanvasState {
         // K labels for development
         this.showKLabels = false;
         this.selectedLabel = null; // the choosen label for highlighten images
+        this.selectedCategory = null; // the choosen Category
         this.labelColor = null; // updatet throud ui
 
         this.activeMode = false; // freeze for handling selection
@@ -571,8 +572,9 @@ export default class CanvasState {
                         }
                     }
 
-                    if (this.ui.test) {
-                        const color = gradient[rank];
+                    if (this.selectedCategory && this.selectedLabel && this.selectedLabel === node.labels[this.selectedCategory]) {
+
+                        const color = [0, 0, 140];
                         // draw boarder
                         for (let row = -2; row <= ih + 1; row += 1) {
                             const canvasRow = ((canvasY + row) * canvasW + canvasX) * 4;

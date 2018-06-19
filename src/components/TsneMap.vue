@@ -25,26 +25,42 @@
                 <div class="btn" :class="{ active: showHeatmap }" @click="toggleShowHeatmap">heatmap</div>
                 <div class="btn" :class="{ active: showNavMap }" @click="toggleShowNavMap">NavMap</div>
                 <div class="btn" :class="{ active: showNavHeatmap }" @click="toggleShowNavHeatmap">NavHeatmap</div>
-                <div class="labelsArea" @mouseenter="showLabels = true" @mouseleave="showLabels = false">
-                    <div class="btn">labels</div>
-                    <div class="labels" v-if="showLabels">
+
+
+                <div class="categoriesArea" @mouseenter="showLabels = true" @mouseleave="showLabels = false">
+                    <div class="btn">categories</div>
+                    <div class="categories" v-if="showLabels">
                         <div
-                            v-for="(value, i) in labels"
-                            class="btn"
-                            :class="{ active: selectedLabel === value }"
+                            v-for="(category, i) in labels"
                             :key="i"
-                            @click="toogleLabel(value)"
-                            v-bind:style="{'color': value}"
                         >
-                            {{ value }}
+                            <div
+                                class="btn"
+                                :class="{ active: selectedCategory === i }"
+                                @click="toogleCategory(i)"
+                            >
+                                {{ category.name }}
+                            </div>
+                            <div  v-if="selectedCategory === i">
+                                <div
+                                    class="btn"
+                                    v-for="label in category.labels"
+                                    :class="{ active: selectedLabel === label }"
+                                    @click="toogleLabel(label)"
+                                    :key="label"
+                                >
+                                    {{label}}
+                                </div>
+                            </div>
                         </div>
-                        <div
+
+                        <!--<div
                             class="btn"
                             :class="{ active: showKLabels }"
                             @click="toggleShowKLabels"
                         >
                             K-Label
-                        </div>
+                        </div>-->
                     </div>
                 </div>
                 <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">Options</div>
@@ -241,7 +257,8 @@ export default {
         scale2: 0,
         zoomLvl: 0,
         labels: [],
-        selectedLabel: null,
+        selectedLabel: null, // save the selected label
+        selectedCategory: null,
         showLabels: false, // show the labels in a dropdown
         clickedNode: null,
         labelColor: '#6057ff',
@@ -542,6 +559,14 @@ export default {
             this.store.valid = false;
             console.log(this.showKLabels);
         },
+
+        toogleCategory(cat) {
+            if (this.selectedCategory === cat) this.selectedCategory = null;
+            else this.selectedCategory = cat;
+            this.store.selectedCategory = this.selectedCategory;
+            this.store.triggerDraw();
+        },
+
         toogleLabel(label) {
             if (this.selectedLabel === label) this.selectedLabel = null;
             else this.selectedLabel = label;
@@ -867,12 +892,12 @@ export default {
         100% { transform: rotate(360deg); }
     }
 
-    .labelsArea {
+    .categoriesArea {
         position: relative;
         z-index: 1;
     }
 
-    .labels {
+    .categories {
         /*position: absolute;*/
         top: 25px;
         width: 100%;
