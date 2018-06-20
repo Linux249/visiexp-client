@@ -138,17 +138,19 @@ export default {
             console.log('stopSvm clicked');
             this.loading = true;
 
-            const ids = await fetch('/api/v1/stopSvm', {
+            const { group } = await fetch('/api/v1/stopSvm', {
                 method: 'POST',
                 headers: { 'Content-type': 'application/json' },
             }).then(res => res.json()).catch(e => console.error(e));
 
-            this.groupNodesByIds(ids)
+            this.groupNodesByIds(group)
 
 
             this.loading = false;
-            this.triggerDraw();
+            //this.triggerDraw();
+
         },
+
         clearSvm() {
             // reset hole process (same like reload page/component)
             this.count = 0;
