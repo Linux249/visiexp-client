@@ -193,6 +193,7 @@
                     :getNode="getNode"
                     :triggerDraw="triggerDraw"
                     :changeActiveNode="changeActiveNode"
+                    :groupNodesByIds="groupNodesByIds"
                 />
 
 
@@ -324,6 +325,10 @@ export default {
         changeActiveNode(n) {
             this.activeNode = n;
             return null;
+        },
+
+        groupNodesByIds(ids) {
+            this.store.groupNodesByIds(ids)
         },
 
         //

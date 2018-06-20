@@ -2,7 +2,7 @@
     <div class="area">
         <div v-if="loading" class="loading"><div class="loading-wheel"></div></div>
         <div class="imgArea" :class="{activePositiv: selectPositives}" @click="toggleActive(true)">
-            <div class="image" v-for="(node, i) in positives" :key="i" @mouseover="handleMouseOver(n)">
+            <div class="image" v-for="(node, i) in positives" :key="i" @mouseover="handleMouseOver(node)">
                 <img
                     :src="node.icon"
                     alt=""
@@ -12,7 +12,7 @@
             </div>
         </div>
         <div class="imgArea" :class="{activeNegativ: !selectPositives}" @click="toggleActive(false)">
-            <div class="image" v-for="(node, i) in negatives" :key="i" @mouseover="handleMouseOver(n)">
+            <div class="image" v-for="(node, i) in negatives" :key="i" @mouseover="handleMouseOver(node)">
                 <img
                     :src="node.icon"
                     alt=""
@@ -42,7 +42,7 @@
 <script>
 export default {
     name: 'Svm',
-    props: ['node', 'nodes', 'getNode', 'changeActiveNode', 'triggerDraw'],
+    props: ['node', 'nodes', 'getNode', 'changeActiveNode', 'groupNodesByIds'],
 
     data: () => ({
         positives: [],
@@ -138,15 +138,12 @@ export default {
             console.log('stopSvm clicked');
             this.loading = true;
 
-            const data = await fetch('/api/v1/stopSvm', {
+            const ids = await fetch('/api/v1/stopSvm', {
                 method: 'POST',
                 headers: { 'Content-type': 'application/json' },
             }).then(res => res.json()).catch(e => console.error(e));
 
-            data.forEach((i) => {
-                const node = this.getNode(i);
-                node.group = true;
-            });
+            this.groupNodesByIds(ids)
 
 
             this.loading = false;
@@ -159,6 +156,7 @@ export default {
             this.positivesAll = []; // reset
             this.negatives = []; // reset
             this.negativesAll = []; // reset
+            this.groupNodesByIds([])
         },
         handleMouseOver(n) {
             this.changeActiveNode(n);

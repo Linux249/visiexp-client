@@ -245,7 +245,13 @@ export default class CanvasState {
 
 
     clearGroup() {
+        Object.values(this.nodes).forEach(node => (node.group ? node.group = false : null));
+    }
 
+    groupNodesByIds(ids = []) {
+        this.clearGroup()
+        ids.forEach(id => this.nodes[id].group = true)
+        this.triggerDraw()
     }
 
 
@@ -257,11 +263,11 @@ export default class CanvasState {
     }
 
     getNodes() {
-        const nodes = {}
-        Object.values(this.nodes).forEach(({index, x, y, name, negatives, positives, links}, i) => {
-            nodes[i] = {index, x, y, name, negatives, positives, links}
+        const nodes = {};
+        Object.values(this.nodes).forEach(({ index, x, y, name, negatives, positives, links, labels }, i) => {
+            nodes[i] = { index, x, y, name, negatives, positives, links, labels };
         });
-        return nodes
+        return nodes;
     }
 
     getNode(i) {
@@ -556,7 +562,7 @@ export default class CanvasState {
                                     canvasPixel[c] = color[0]; // R
                                     canvasPixel[c + 1] = color[1]; // G
                                     canvasPixel[c + 2] = color[2]; // B
-                                    canvasPixel[c + 3] = 200 //? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                                    canvasPixel[c + 3] = 200; // ? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
                                 }
                             } else {
                                 // draw left boarder
@@ -564,20 +570,19 @@ export default class CanvasState {
                                 canvasPixel[l] = color[0]; // R
                                 canvasPixel[l + 1] = color[1]; // G
                                 canvasPixel[l + 2] = color[2]; // B
-                                canvasPixel[l + 3] = 200 //? canvasPixel[l + 3] += 10 : canvasPixel[l + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                                canvasPixel[l + 3] = 200; // ? canvasPixel[l + 3] += 10 : canvasPixel[l + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
 
                                 // draw left boarder
                                 const r = canvasRow + (iw + 1) * 4;
                                 canvasPixel[r] = color[0]; // R
                                 canvasPixel[r + 1] = color[1]; // G
                                 canvasPixel[r + 2] = color[2]; // B
-                                canvasPixel[r + 3] = 200 //? canvasPixel[r + 3] += 10 : canvasPixel[r + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                                canvasPixel[r + 3] = 200; // ? canvasPixel[r + 3] += 10 : canvasPixel[r + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
                             }
                         }
                     }
 
                     if (this.selectedCategory && this.selectedLabel && this.selectedLabel === node.labels[this.selectedCategory]) {
-
                         const color = [0, 0, 140];
                         // draw boarder
                         for (let row = -2; row <= ih + 1; row += 1) {
@@ -589,7 +594,7 @@ export default class CanvasState {
                                     canvasPixel[c] = color[0]; // R
                                     canvasPixel[c + 1] = color[1]; // G
                                     canvasPixel[c + 2] = color[2]; // B
-                                    canvasPixel[c + 3] = 200 //? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                                    canvasPixel[c + 3] = 200; // ? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
                                 }
                             } else {
                                 // draw left boarder
@@ -597,14 +602,14 @@ export default class CanvasState {
                                 canvasPixel[l] = color[0]; // R
                                 canvasPixel[l + 1] = color[1]; // G
                                 canvasPixel[l + 2] = color[2]; // B
-                                canvasPixel[l + 3] = 200 //? canvasPixel[l + 3] += 10 : canvasPixel[l + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                                canvasPixel[l + 3] = 200; // ? canvasPixel[l + 3] += 10 : canvasPixel[l + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
 
                                 // draw left boarder
                                 const r = canvasRow + (iw + 1) * 4;
                                 canvasPixel[r] = color[0]; // R
                                 canvasPixel[r + 1] = color[1]; // G
                                 canvasPixel[r + 2] = color[2]; // B
-                                canvasPixel[r + 3] = 200 //? canvasPixel[r + 3] += 10 : canvasPixel[r + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                                canvasPixel[r + 3] = 200; // ? canvasPixel[r + 3] += 10 : canvasPixel[r + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
                             }
                         }
                     }
