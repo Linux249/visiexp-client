@@ -143,12 +143,11 @@ export default {
                 headers: { 'Content-type': 'application/json' },
             }).then(res => res.json()).catch(e => console.error(e));
 
-            this.groupNodesByIds(group)
+            this.groupNodesByIds(group);
 
 
             this.loading = false;
-            //this.triggerDraw();
-
+            // this.triggerDraw();
         },
 
         clearSvm() {
@@ -158,7 +157,7 @@ export default {
             this.positivesAll = []; // reset
             this.negatives = []; // reset
             this.negativesAll = []; // reset
-            this.groupNodesByIds([])
+            this.groupNodesByIds([]);
         },
         handleMouseOver(n) {
             this.changeActiveNode(n);

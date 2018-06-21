@@ -313,10 +313,10 @@ export default {
             return this.store.getNode(i);
         },
         sendData() {
-            console.log('send data clicked')
-            console.log(this.store.nodes)
+            console.log('send data clicked');
+            console.log(this.store.nodes);
             const nodes = this.store.getNodes();
-            console.log(nodes)
+            console.log(nodes);
             this.store.resetStore();
             this.socket.emit('updateNodes', { nodes });
             this.reset();
@@ -328,7 +328,7 @@ export default {
         },
 
         groupNodesByIds(ids) {
-            this.store.groupNodesByIds(ids)
+            this.store.groupNodesByIds(ids);
         },
 
         //
@@ -691,7 +691,7 @@ export default {
             console.log('nodes in store while connect (its maybe just a reconnect)');
             console.log(nodes);
             if (!Object.keys(nodes).length && !this.loadingNodes) {
-                socket.emit('updateNodes', {nodes: {} });
+                socket.emit('updateNodes', { nodes: {} });
                 this.reset();
             }
             // s.clear() // maybe there is something inside?

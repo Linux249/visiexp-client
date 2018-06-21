@@ -116,7 +116,7 @@ export default {
             this.showLabelOptions = false;
         },
         clear() {
-            this.selectedNodes = []
+            this.selectedNodes = [];
         },
     },
     computed: {

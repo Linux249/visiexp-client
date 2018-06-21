@@ -249,9 +249,9 @@ export default class CanvasState {
     }
 
     groupNodesByIds(ids = []) {
-        this.clearGroup()
-        ids.forEach(id => this.nodes[id].group = true)
-        this.triggerDraw()
+        this.clearGroup();
+        ids.forEach(id => this.nodes[id].group = true);
+        this.triggerDraw();
     }
 
 
