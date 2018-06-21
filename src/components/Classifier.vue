@@ -41,6 +41,7 @@
                 >{{label}}</div>
             </div>
             <div @click="addLabel" class="btn">add</div>
+            <div @click="clear" class="btn">clear</div>
         </div>
     </div>
 </template>
@@ -113,6 +114,9 @@ export default {
             console.log('chooselabel');
             this.label = label;
             this.showLabelOptions = false;
+        },
+        clear() {
+            this.selectedNodes = []
         },
     },
     computed: {
