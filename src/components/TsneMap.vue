@@ -186,6 +186,11 @@
                     </div>-->
                 </div>
 
+                <groups v-if="this.showGroups"
+                    :groupNodesByIds="groupNodesByIds"
+                    :getGroupeIds="getGroupeIds"
+                />
+
                 <router-view
                     :nodes="cuttedNodes"
                     :labels="labels"
@@ -194,6 +199,7 @@
                     :triggerDraw="triggerDraw"
                     :changeActiveNode="changeActiveNode"
                     :groupNodesByIds="groupNodesByIds"
+                    :getGroupeIds="getGroupeIds"
                 />
 
 
@@ -218,6 +224,7 @@ import CanvasState from '../util/CanvasState';
 import RangeSlider from './RangeSlider';
 import Triplets from './Triplets';
 import Classifier from './Classifier';
+import Groups from './Groups';
 import Scissors from '../icons/Scissors';
 
 /*
@@ -246,6 +253,7 @@ export default {
         RangeSlider,
         Triplets,
         Classifier,
+        Groups,
     },
     data: () => ({
         items: [],
@@ -307,6 +315,7 @@ export default {
         ],
         toggle: false,
         zoomStage: 0,
+        showGroups: true
     }),
     methods: {
         getNode(i) {
@@ -331,7 +340,11 @@ export default {
             this.store.groupNodesByIds(ids);
         },
 
-        //
+        getGroupeIds(ids) {
+            return this.store.getGroupeIds(ids)
+        },
+
+
         changeCluster(v) {
             // console.log("cluster more clicked")
             this.store.cluster += v; // update canvasState

@@ -254,6 +254,12 @@ export default class CanvasState {
         this.triggerDraw();
     }
 
+    getGroupeIds() {
+        const ids = []
+        Object.values(this.nodes).forEach(node => node.group ? ids.push(node.index) : null)
+        return ids
+    }
+
 
     addNode(node) {
         // console.log('Node addded');
