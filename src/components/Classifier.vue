@@ -43,13 +43,14 @@
             <div @click="addLabel" class="btn">add</div>
             <div @click="clear" class="btn">clear</div>
         </div>
+        <div @click="update" class="btn">update labels</div>
     </div>
 </template>
 
 <script>
 export default {
     name: 'classifier',
-    props: ['nodes', 'node', 'labels', 'triggerDraw'],
+    props: ['nodes', 'node', 'labels', 'triggerDraw', 'getStore'],
     data: () => ({
         label: '',
         showLabelOptions: false,
@@ -114,6 +115,27 @@ export default {
             console.log('chooselabel');
             this.label = label;
             this.showLabelOptions = false;
+        },
+        async update() {
+            console.log("update")
+            const nodes = this.getStore().getNodes()
+
+            const body = JSON.stringify({
+                nodes,
+            });
+            const data = await fetch('/api/v1/updateLabels', {
+                method: 'POST',
+                headers: { 'Content-type': 'application/json' },
+                body,
+            }).then(res => res.json()).catch((e) => {
+                // TODO Errorhandling after loading is implemented
+                //this.loading = false;
+                console.error(e);
+            });
+
+            console.log(data);
+
+            console.log(data)
         },
         clear() {
             this.selectedNodes = [];

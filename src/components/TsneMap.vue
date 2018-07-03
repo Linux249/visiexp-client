@@ -200,6 +200,7 @@
                     :changeActiveNode="changeActiveNode"
                     :groupNodesByIds="groupNodesByIds"
                     :getGroupeIds="getGroupeIds"
+                    :getStore="getStore"
                 />
 
 
@@ -320,6 +321,9 @@ export default {
     methods: {
         getNode(i) {
             return this.store.getNode(i);
+        },
+        getStore() {
+            return this.store
         },
         sendData() {
             console.log('send data clicked');
