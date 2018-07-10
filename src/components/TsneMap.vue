@@ -164,6 +164,13 @@
                             <div @click="changeHeatmapBlur(1)" class="btn">+1</div>
                         </div>
                     </div>
+                    <div class="row-btn">
+                        <div>sizeRange: {{sizeRange}}</div>
+                        <div class="row">
+                            <div @click="changeSizeRange(-1)" class="btn">-1</div>
+                            <div @click="changeSizeRange(1)" class="btn">+1</div>
+                        </div>
+                    </div>
 <!--                    <div class="row-btn">
                         <div>MinOpacity: {{heatmapMinOpacity}}</div>
                         <div class="row">
@@ -318,6 +325,7 @@ export default {
         zoomStage: 0,
         showGroups: true,
         sorted: false,
+        sizeRange: 5,
     }),
     methods: {
         getNode(i) {
@@ -581,6 +589,10 @@ export default {
             this.heatmapMinOpacity += v;
             this.drawHeatmap()
         }, */
+        changeSizeRange(v) {
+            this.store.sizeRange += v
+            this.sizeRange = this.store.sizeRange
+        },
         changeNavMapAlpha(v) {
             this.navMapAlpha += v;
             this.drawNavMap();

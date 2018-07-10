@@ -90,6 +90,17 @@ export default class CanvasState {
         this.sorted = false;
         // this.canvas.onblur = this.blur;
         // this.timerId = setInterval(() => this.draw(), this.interval);
+        this.sizeRange = 3;
+    }
+
+    set sizeRange(v) {
+        if (v < 0) this._sizeRange = 0;
+        else this._sizeRange = v;
+        this.triggerDraw();
+    }
+
+    get sizeRange() {
+        return this._sizeRange;
     }
 
     set scale(value) {
@@ -117,7 +128,7 @@ export default class CanvasState {
 
     set zoomStage(value) {
         if (value < 0) this._zoomStage = 0;
-        else if (value > 9) this._zoomStage = 9;
+        // else if (value > 9) this._zoomStage = 9;
         else this._zoomStage = value;
         this.triggerDraw();
         this.ui.zoomLvl = this.zoomStage;
@@ -309,7 +320,7 @@ export default class CanvasState {
             // nodes.forEach(node => console.log(`name: ${node.name}: ${node.clique.length}`))
             console.timeEnd('sortNodes');
         }
-        this.triggerDraw()
+        this.triggerDraw();
     }
 
     clear() {
@@ -441,14 +452,18 @@ export default class CanvasState {
         // console.log({ canvasW, canvasH, tx, ty, scale });
 
         const rankSize = this.ui.sizeRanked;
+        const nodes = this.sorted ? this.sortedNodes : Object.values(this.nodes);
 
-        Object.values(this.nodes).forEach((node) => {
+        nodes.forEach((node) => {
             // start x,y ist x *scale + translateX
             const nodeX = Math.floor(node.x * scale + tx);
             const nodeY = Math.floor(node.y * scale + ty);
-            const rank = node.rank * 10;
 
-            const img = node.imageData[rankSize ? rank : zoomStage];
+            let imgSize = rankSize ? zoomStage - node.rank * 10 + this.sizeRange : zoomStage;
+            if (imgSize < 0) imgSize = 0;
+            if (imgSize > 9) imgSize = 9;
+
+            const img = node.imageData[imgSize];
             // console.log(img)
             const imgW = img.width;
             const imgH = img.height;
@@ -540,9 +555,13 @@ export default class CanvasState {
             // console.log(zoomStage)
             const canvasX = Math.floor(node.x * scale + tx);
             const canvasY = Math.floor(node.y * scale + ty);
-            const rank = node.rank * 10;
 
-            const img = node.imageData[rankSize ? rank : zoomStage];
+            // can be between 0-9
+            let imgSize = rankSize ? zoomStage - node.rank * 10 + this.sizeRange : zoomStage;
+            if (imgSize < 0) imgSize = 0;
+            if (imgSize > 9) imgSize = 9;
+
+            const img = node.imageData[imgSize];
             // console.log(img)
             const iw = img.width;
             const ih = img.height;
@@ -640,24 +659,24 @@ export default class CanvasState {
                 } else {
                     // drawcluster
                     let c = (canvasY * canvasW + canvasX) * 4;
-                    canvasPixel[c] = 0;
-                    canvasPixel[c + 1] = 0;
-                    canvasPixel[c + 2] = 0;
+                    canvasPixel[c] = 210;
+                    canvasPixel[c + 1] = 210;
+                    canvasPixel[c + 2] = 210;
                     canvasPixel[c + 3] = 255;
                     c = (canvasY * canvasW + canvasX + 1) * 4;
-                    canvasPixel[c] = 0;
-                    canvasPixel[c + 1] = 0;
-                    canvasPixel[c + 2] = 0;
+                    canvasPixel[c] = 210;
+                    canvasPixel[c + 1] = 210;
+                    canvasPixel[c + 2] = 210;
                     canvasPixel[c + 3] = 255;
                     c = (canvasY * canvasW + canvasW + canvasX) * 4;
-                    canvasPixel[c] = 0;
-                    canvasPixel[c + 1] = 0;
-                    canvasPixel[c + 2] = 0;
+                    canvasPixel[c] = 210;
+                    canvasPixel[c + 1] = 210;
+                    canvasPixel[c + 2] = 210;
                     canvasPixel[c + 3] = 255;
                     c = (canvasY * canvasW + canvasW + canvasX + 1) * 4;
-                    canvasPixel[c] = 0;
-                    canvasPixel[c + 1] = 0;
-                    canvasPixel[c + 2] = 0;
+                    canvasPixel[c] = 210;
+                    canvasPixel[c + 1] = 210;
+                    canvasPixel[c + 2] = 210;
                     canvasPixel[c + 3] = 255;
                 }
             } else if (inside) {
