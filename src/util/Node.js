@@ -15,6 +15,7 @@ export default class Node {
         this.hitCtx = hitCtx;
 
         this.group = false;
+        this.clique = data.clique
 
         this.cluster = data.cluster;
         this.positives = data.positives;
@@ -23,16 +24,16 @@ export default class Node {
         this.label = data.label;
         this.labels = data.labels;
         // x,y for reseting
-        this.initX = data.x;
-        this.initY = data.y;
+        //this.initX = data.x;
+        //this.initY = data.y;
 
-        this.activeScale = 3; // showing images bigger
-        this.icon = new Image();
-        this.icon.src = data.buffer;
+        //this.activeScale = 3; // showing images bigger
+        //this.icon = new Image();
+        //this.icon.src = data.buffer;
 
         this.rank = data.rank;
 
-        this.pics = {};
+        //this.pics = {};
         this.imageData = {};
 
         try {

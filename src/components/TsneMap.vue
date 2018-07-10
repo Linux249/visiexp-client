@@ -19,7 +19,7 @@
             </div>
             <div class="row">
                 <div class="dropdownArea"></div>
-                <!--<div class="btn" :class="{ active: toggle }" @click="toggleToggle">toggle</div>-->
+                <div class="btn" :class="{ active: sorted }" @click="sortNodes">sort</div>
                 <div class="btn" :class="{ active: boarderRanked }" @click="toggleBoarderRanked">boarderRanked</div>
                 <div class="btn" :class="{ active: sizeRanked }" @click="toggleSizeRanked">sizeRanked</div>
                 <div class="btn" :class="{ active: showHeatmap }" @click="toggleShowHeatmap">heatmap</div>
@@ -316,7 +316,8 @@ export default {
         ],
         toggle: false,
         zoomStage: 0,
-        showGroups: true
+        showGroups: true,
+        sorted: false,
     }),
     methods: {
         getNode(i) {
@@ -357,6 +358,11 @@ export default {
 
         triggerDraw() {
             this.store.triggerDraw();
+        },
+
+        sortNodes() {
+            this.store.sortNodes()
+            this.sorted = this.store.sorted
         },
 
         drawHeatmap() {

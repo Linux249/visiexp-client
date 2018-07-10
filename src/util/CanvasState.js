@@ -85,6 +85,9 @@ export default class CanvasState {
         this.canvas.onmouseup = e => this.handleMouseUp(e);
         this.canvas.ondblclick = e => this.handleDoubleClick(e);
         this.canvas.onwheel = e => this.zoom(e);
+
+        this.sortedNodes = [];
+        this.sorted = false;
         // this.canvas.onblur = this.blur;
         // this.timerId = setInterval(() => this.draw(), this.interval);
     }
@@ -255,9 +258,9 @@ export default class CanvasState {
     }
 
     getGroupeIds() {
-        const ids = []
-        Object.values(this.nodes).forEach(node => node.group ? ids.push(node.index) : null)
-        return ids
+        const ids = [];
+        Object.values(this.nodes).forEach(node => (node.group ? ids.push(node.index) : null));
+        return ids;
     }
 
 
@@ -293,6 +296,20 @@ export default class CanvasState {
         this.nodes = {};
         this.colorHash = {};
         this.triggerDraw();
+    }
+
+    sortNodes() {
+        this.sorted = !this.sorted;
+        if (!this.sortedNodes.length) {
+            console.time('sortNodes');
+            this.sortedNodes = Object.values(this.nodes).sort((a, b) => {
+                console.log(a.clique.length - b.clique.length);
+                return a.clique.length - b.clique.length;
+            });
+            // nodes.forEach(node => console.log(`name: ${node.name}: ${node.clique.length}`))
+            console.timeEnd('sortNodes');
+        }
+        this.triggerDraw()
     }
 
     clear() {
@@ -515,8 +532,9 @@ export default class CanvasState {
         const rankSize = this.ui.sizeRanked;
         const borderW = 1;
         const gradient = this.ui.gradient;
+        const nodes = this.sorted ? this.sortedNodes : Object.values(this.nodes);
 
-        Object.values(this.nodes).forEach((node) => {
+        nodes.forEach((node) => {
             // start x,y ist x *scale + translateX
             // console.log(node)
             // console.log(zoomStage)

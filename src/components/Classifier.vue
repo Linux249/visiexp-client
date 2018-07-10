@@ -127,15 +127,13 @@ export default {
                 method: 'POST',
                 headers: { 'Content-type': 'application/json' },
                 body,
-            }).then(res => res.json()).catch((e) => {
+            }).then(res => res.text()).catch((e) => {
                 // TODO Errorhandling after loading is implemented
                 //this.loading = false;
                 console.error(e);
             });
 
             console.log(data);
-
-            console.log(data)
         },
         clear() {
             this.selectedNodes = [];
