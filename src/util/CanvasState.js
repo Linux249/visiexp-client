@@ -340,7 +340,7 @@ export default class CanvasState {
         this.hitCtx.scale(this.scale, this.scale);
     }
 
-    draw() {
+    /* draw() {
         // if our state is invalid, redraw and validate!
         if (!this.valid) {
             console.time('draw');
@@ -437,7 +437,7 @@ export default class CanvasState {
             requestAnimationFrame(() => console.timeEnd('nextFrameAfterDraw'));
         }
     }
-
+*/
 
     drawHitmap() {
         console.time('drawHitmap');
@@ -459,9 +459,9 @@ export default class CanvasState {
             const nodeX = Math.floor(node.x * scale + tx);
             const nodeY = Math.floor(node.y * scale + ty);
 
-            let imgSize = rankSize ? zoomStage - node.rank * 10 + this.sizeRange : zoomStage;
+            let imgSize = rankSize ? zoomStage + Math.round(node.rank * this.sizeRange) : zoomStage;
             if (imgSize < 0) imgSize = 0;
-            if (imgSize > 9) imgSize = 9;
+            if (imgSize > 14) imgSize = 14;
 
             const img = node.imageData[imgSize];
             // console.log(img)
@@ -556,17 +556,15 @@ export default class CanvasState {
             const canvasX = Math.floor(node.x * scale + tx);
             const canvasY = Math.floor(node.y * scale + ty);
 
-            // can be between 0-9
-            let imgSize = rankSize ? zoomStage - node.rank * 10 + this.sizeRange : zoomStage;
+            let imgSize = rankSize ? zoomStage + Math.round(node.rank * this.sizeRange) : zoomStage;
             if (imgSize < 0) imgSize = 0;
-            if (imgSize > 9) imgSize = 9;
+            if (imgSize > 14) imgSize = 14;
 
             const img = node.imageData[imgSize];
             // console.log(img)
             const iw = img.width;
             const ih = img.height;
             const inside = canvasX > borderW && canvasY > borderW && canvasX < (canvasW - iw - borderW) && canvasY < (canvasH - ih - borderW);
-
 
             // test if image obj exists
             if (img && inside) {
@@ -594,7 +592,7 @@ export default class CanvasState {
                     }
 
                     if (drawBoarder) {
-                        const color = gradient[rank];
+                        const color = gradient[node.clique.length];
                         // draw boarder
                         for (let row = -2; row <= ih + 1; row += 1) {
                             const canvasRow = ((canvasY + row) * canvasW + canvasX) * 4;
