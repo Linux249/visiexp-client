@@ -17,6 +17,7 @@
     "simpleheat": "^0.4.0",
     "socket.io-client": "^2.1.0",
     "vue": "^2.5.16",
+    "vue-color": "^2.4.6",
     "vue-router": "^3.0.1"
   },
   "devDependencies": {

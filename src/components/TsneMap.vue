@@ -186,6 +186,21 @@
                             <div @click="changeNavMapAlpha(0.1)" class="btn">+0.1</div>
                         </div>
                     </div>
+                    <div class="row-btn">
+                        <div
+                            class="color"
+                            :class="{activeColor: selectedGradient === i}"
+                            v-for="(color, i) in gradient"
+                            :key="i"
+                            v-bind:style="{ backgroundColor: `rgb(${color[0]},${color[1]},${color[2]})`}"
+                            @click="changeGradientColor(i)"
+                        >
+                            {{i}}
+                        </div>
+                    </div>
+
+
+                    <slider-picker v-model="colors" @input="changeColor"/>
 
                     <!--<div class="row-btn">
                         <div>{{range}}}</div>
@@ -227,6 +242,7 @@
 <script>
 import io from 'socket.io-client';
 import simpleheat from 'simpleheat';
+import { Slider } from 'vue-color';
 import Node from '../util/Node';
 import CanvasState from '../util/CanvasState';
 import RangeSlider from './RangeSlider';
@@ -234,7 +250,6 @@ import Triplets from './Triplets';
 import Classifier from './Classifier';
 import Groups from './Groups';
 import Scissors from '../icons/Scissors';
-
 /*
     TODO:
     - rename imageWidth to imageSize
@@ -262,6 +277,7 @@ export default {
         Triplets,
         Classifier,
         Groups,
+        'slider-picker': Slider,
     },
     data: () => ({
         items: [],
@@ -310,29 +326,38 @@ export default {
         boarderRanked: false,
         sizeRanked: false,
         gradient: [
-            [255, 0, 0], // 0
-            [255, 50, 0], // 1
-            [255, 100, 0], // 2
-            [255, 150, 0], // 3
-            [255, 150, 0], // 4
-            [255, 250, 0], // 5
-            [200, 250, 0], // 6
-            [150, 250, 0], // 7
-            [100, 250, 0], // 8
             [50, 250, 0], // 9
+            [100, 250, 0], // 8
+            [150, 250, 0], // 7
+            [200, 250, 0], // 6
+            [255, 250, 0], // 5
+            [255, 150, 0], // 4
+            [255, 150, 0], // 3
+            [255, 100, 0], // 2
+            [255, 50, 0], // 1
+            [255, 0, 0], // 0
         ],
         toggle: false,
         zoomStage: 0,
         showGroups: true,
         sorted: false,
         sizeRange: 5,
+        showColorPicker: false,
+        colors: {
+            hex: '#194d33',
+            hsl: { h: 150, s: 0.5, l: 0.2, a: 1 },
+            hsv: { h: 150, s: 0.66, v: 0.30, a: 1 },
+            rgba: { r: 25, g: 77, b: 51, a: 1 },
+            a: 1
+        },
+        selectedGradient: 0, // default is the first
     }),
     methods: {
         getNode(i) {
             return this.store.getNode(i);
         },
         getStore() {
-            return this.store
+            return this.store;
         },
         sendData() {
             console.log('send data clicked');
@@ -354,7 +379,7 @@ export default {
         },
 
         getGroupeIds(ids) {
-            return this.store.getGroupeIds(ids)
+            return this.store.getGroupeIds(ids);
         },
 
 
@@ -369,8 +394,8 @@ export default {
         },
 
         sortNodes() {
-            this.store.sortNodes()
-            this.sorted = this.store.sorted
+            this.store.sortNodes();
+            this.sorted = this.store.sorted;
         },
 
         drawHeatmap() {
@@ -590,8 +615,8 @@ export default {
             this.drawHeatmap()
         }, */
         changeSizeRange(v) {
-            this.store.sizeRange += v
-            this.sizeRange = this.store.sizeRange
+            this.store.sizeRange += v;
+            this.sizeRange = this.store.sizeRange;
         },
         changeNavMapAlpha(v) {
             this.navMapAlpha += v;
@@ -627,12 +652,39 @@ export default {
             this.nodesRecived = 0;
             this.nodesTotal = 0;
         },
+        changeGradientColor(i) {
+            console.log('changeGradientColor');
+            // console.log(this.gradient);
+            // console.log(i);
+            // console.log(this.gradient[i]);
+            // console.log(this.colors);
+            // console.log(this.colors.rgba);
+            this.selectedGradient = i;
+            console.log(this.selectedGradient)
+            this.colors.rgba.r = this.gradient[i][0];
+            this.colors.rgba.g = this.gradient[i][1];
+            this.colors.rgba.b = this.gradient[i][2];
+            console.log(this.colors.rgba);
+        },
+        changeColor(color) {
+            console.log('changeColor');
+            console.log(color);
+            const { rgba } = color
+            console.log(rgba);
+            this.gradient.splice(this.selectedGradient, 1, [rgba.r, rgba.g, rgba.b]);
+        },
 
     },
     watch: {
         cluster(value) {
             // console.log('change cluster');
             this.store.cluster = value;
+        },
+        colors(value) {
+            console.log('watch color')
+            console.log(value);
+            console.log(this.colors);
+            const { b, g, r } = this.colors.rgba;
         },
     },
     computed: {
@@ -954,4 +1006,16 @@ export default {
         border-bottom: 0.05rem solid grey;
     }
 
+    .color {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        flex-grow: 1;
+        margin-bottom: 1rem;
+    }
+
+    .activeColor {
+        border: 1px solid black;
+    }
 </style>
