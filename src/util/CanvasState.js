@@ -586,7 +586,6 @@ export default class CanvasState {
                             canvasPixel[c + 2] = imgData[p + 2]; // B
 
                             canvasPixel[c + 3] ? canvasPixel[c + 3] += 10 * node.cliqueLen : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
-
                         }
                     }
 

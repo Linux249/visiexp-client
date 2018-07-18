@@ -348,7 +348,7 @@ export default {
             hsl: { h: 150, s: 0.5, l: 0.2, a: 1 },
             hsv: { h: 150, s: 0.66, v: 0.30, a: 1 },
             rgba: { r: 25, g: 77, b: 51, a: 1 },
-            a: 1
+            a: 1,
         },
         selectedGradient: 0, // default is the first
     }),
@@ -660,7 +660,7 @@ export default {
             // console.log(this.colors);
             // console.log(this.colors.rgba);
             this.selectedGradient = i;
-            console.log(this.selectedGradient)
+            console.log(this.selectedGradient);
             this.colors.rgba.r = this.gradient[i][0];
             this.colors.rgba.g = this.gradient[i][1];
             this.colors.rgba.b = this.gradient[i][2];
@@ -669,7 +669,7 @@ export default {
         changeColor(color) {
             console.log('changeColor');
             console.log(color);
-            const { rgba } = color
+            const { rgba } = color;
             console.log(rgba);
             this.gradient.splice(this.selectedGradient, 1, [rgba.r, rgba.g, rgba.b]);
         },
@@ -681,7 +681,7 @@ export default {
             this.store.cluster = value;
         },
         colors(value) {
-            console.log('watch color')
+            console.log('watch color');
             console.log(value);
             console.log(this.colors);
             const { b, g, r } = this.colors.rgba;

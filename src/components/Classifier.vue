@@ -117,8 +117,8 @@ export default {
             this.showLabelOptions = false;
         },
         async update() {
-            console.log("update")
-            const nodes = this.getStore().getNodes()
+            console.log('update');
+            const nodes = this.getStore().getNodes();
 
             const body = JSON.stringify({
                 nodes,
@@ -129,7 +129,7 @@ export default {
                 body,
             }).then(res => res.text()).catch((e) => {
                 // TODO Errorhandling after loading is implemented
-                //this.loading = false;
+                // this.loading = false;
                 console.error(e);
             });
 

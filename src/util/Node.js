@@ -15,8 +15,8 @@ export default class Node {
         this.hitCtx = hitCtx;
 
         this.group = false;
-        this.clique = data.clique
-        this.cliqueLen = data.clique.length
+        this.clique = data.clique;
+        this.cliqueLen = data.clique.length;
 
         this.cluster = data.cluster;
         this.positives = data.positives;
@@ -25,16 +25,16 @@ export default class Node {
         this.label = data.label;
         this.labels = data.labels;
         // x,y for reseting
-        //this.initX = data.x;
-        //this.initY = data.y;
+        // this.initX = data.x;
+        // this.initY = data.y;
 
-        //this.activeScale = 3; // showing images bigger
-        //this.icon = new Image();
-        //this.icon.src = data.buffer;
+        // this.activeScale = 3; // showing images bigger
+        // this.icon = new Image();
+        // this.icon.src = data.buffer;
 
         this.rank = data.rank;
 
-        //this.pics = {};
+        // this.pics = {};
         this.imageData = {};
 
         try {
@@ -45,8 +45,12 @@ export default class Node {
             // TODO das kann sicherlich optimiert werden
             // const canvas = document.createElement('canvas');
             // const context = canvas.getContext('2d');
-            Object.values(data.pics).map((pic, i) => {
-                this.imageData[i] = new ImageData(new Uint8ClampedArray(pic.data), pic.info.width, pic.info.height);
+            Object.values(data.pics).forEach((pic, i) => {
+                this.imageData[i] = new ImageData(
+                    new Uint8ClampedArray(pic.data),
+                    pic.info.width,
+                    pic.info.height,
+                );
                 // const img = new Image();
                 // img.src = pic;
                 // img.onload = async () => {
@@ -127,7 +131,10 @@ export default class Node {
     // scale x to real/current 2d-coords
     // subtract half width for moving left, width scaled with ImageScale
     // scale back to Node x/y
-    // TODO the last point is because of the context is scaling it again - maybe we could get rid of this?
+    /*
+        TODO the last point is because of the context ...
+        TODO ... is scaling it again - maybe we could get rid of this?
+    */
 
     get x() {
         // return this._x - (this.width / 2 / this.scale);
@@ -157,7 +164,7 @@ export default class Node {
 
     // ctx is the canvas context
     // scale change through zooming and is used for positioning the images
-    draw(scale, scale2, imgWidth, cluster) {
+    draw(scale, scale2, imgWidth) {
         // console.log('start draw Image');
         // check which picture to use
         // this.scale = 1; // scale;
@@ -171,8 +178,8 @@ export default class Node {
             // const h = this.height / scale / 2;
 
             // old architecture
-            const w = imgData.width * imgWidth / 100 / scale2;
-            const h = imgData.height * imgWidth / 100 / scale2;
+            const w = (imgData.width * imgWidth) / 100 / scale2;
+            const h = (imgData.height * imgWidth) / 100 / scale2;
             const x = this._x - (w / 2);
             const y = this._y - (h / 2);
 
@@ -203,7 +210,6 @@ export default class Node {
             // this.hitCtx.fillStyle = this.colorKey;
             // this.hitCtx.fillRect(x, y, w, h);
         }
-
         // draw HitCanvas rect
     }
 

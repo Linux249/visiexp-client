@@ -7,6 +7,7 @@
 
         <div class="group-item row"
              v-for="(group, i) in savedGroups"
+             :key="i"
         >
             <div class="btn" @click="loadGroup(i)">{{`${group.name } (${group.ids.length})`}}</div>
             <div class="btn" @click="loadGroup(i)">load</div>
@@ -22,34 +23,34 @@ export default {
     name: 'Groups',
     props: ['groupNodesByIds', 'getGroupeIds'],
     data: () => ({
-        savedGroups: []
+        savedGroups: [],
     }),
     methods: {
         saveGroup() {
             // save the actually group
 
             // get the name
-            const name = "Group " +  this.savedGroups.length
+            const name = `Group ${this.savedGroups.length}`;
             // get the ids of the grouped nodes
-            const ids = this.getGroupeIds()
+            const ids = this.getGroupeIds();
 
 
             this.savedGroups.push({
                 ids,
                 name,
-            })
-            console.log("saved groups")
-            console.log(this.savedGroups)
+            });
+            console.log('saved groups');
+            console.log(this.savedGroups);
         },
         loadGroup(i) {
-            const {ids} = this.savedGroups[i] || []
-            this.groupNodesByIds(ids)
+            const { ids } = this.savedGroups[i] || [];
+            this.groupNodesByIds(ids);
         },
         deleteGroup(i) {
-            this.savedGroups.splice(i,1)
-        }
+            this.savedGroups.splice(i, 1);
+        },
 
-    }
+    },
 };
 </script>
 
