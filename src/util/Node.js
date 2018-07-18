@@ -16,6 +16,7 @@ export default class Node {
 
         this.group = false;
         this.clique = data.clique
+        this.cliqueLen = data.clique.length
 
         this.cluster = data.cluster;
         this.positives = data.positives;

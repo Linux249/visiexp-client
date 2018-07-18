@@ -56,7 +56,7 @@ export default class CanvasState {
         this._zoomStage = 0; // default zoom stage, 0 is the smalest pic
         // this.updateScaleUI = null;
         // this.updateScale2UI = null;
-        this._imgScale = 12;
+        this._imgSize = 0; // for adding higher img size as standart
         this._activeImgScale = 10;
         this._borderWidth = 5;
 
@@ -138,14 +138,13 @@ export default class CanvasState {
         return this._zoomStage;
     }
 
-    set imgScale(value) {
-        if (value < 1) this._imgScale = 1;
-        else this._imgScale = value;
+    set imgSize(value) {
+        if (!(value < 0)) this._imgSize = value;
         this.triggerDraw();
     }
 
-    get imgScale() {
-        return this._imgScale;
+    get imgSize() {
+        return this._imgSize;
     }
 
     set translateX(value) {
@@ -314,10 +313,10 @@ export default class CanvasState {
         if (!this.sortedNodes.length) {
             console.time('sortNodes');
             this.sortedNodes = Object.values(this.nodes).sort((a, b) => {
-                console.log(a.clique.length - b.clique.length);
-                return a.clique.length - b.clique.length;
+                console.log(a.cliqueLen - b.cliqueLen);
+                return a.cliqueLen - b.cliqueLen;
             });
-            // nodes.forEach(node => console.log(`name: ${node.name}: ${node.clique.length}`))
+            // nodes.forEach(node => console.log(`name: ${node.name}: ${node.cliqueLen}`))
             console.timeEnd('sortNodes');
         }
         this.triggerDraw();
@@ -460,6 +459,7 @@ export default class CanvasState {
             const nodeY = Math.floor(node.y * scale + ty);
 
             let imgSize = rankSize ? zoomStage + Math.round(node.rank * this.sizeRange) : zoomStage;
+            imgSize += this.imgSize; // add imgSize from user input
             if (imgSize < 0) imgSize = 0;
             if (imgSize > 14) imgSize = 14;
 
@@ -557,6 +557,7 @@ export default class CanvasState {
             const canvasY = Math.floor(node.y * scale + ty);
 
             let imgSize = rankSize ? zoomStage + Math.round(node.rank * this.sizeRange) : zoomStage;
+            imgSize += this.imgSize; // add imgSize from user input
             if (imgSize < 0) imgSize = 0;
             if (imgSize > 14) imgSize = 14;
 
@@ -583,16 +584,14 @@ export default class CanvasState {
                             canvasPixel[c] = imgData[p]; // R
                             canvasPixel[c + 1] = imgData[p + 1]; // G
                             canvasPixel[c + 2] = imgData[p + 2]; // B
-                            if (node.group) {
-                                canvasPixel[c + 3] = imgData[p + 3];
-                            } else {
-                                canvasPixel[c + 3] ? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
-                            }
+
+                            canvasPixel[c + 3] ? canvasPixel[c + 3] += 10 * node.cliqueLen : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+
                         }
                     }
 
                     if (drawBoarder) {
-                        const color = gradient[node.clique.length];
+                        const color = gradient[node.cliqueLen];
                         // draw boarder
                         for (let row = -2; row <= ih + 1; row += 1) {
                             const canvasRow = ((canvasY + row) * canvasW + canvasX) * 4;

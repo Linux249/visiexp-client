@@ -99,14 +99,14 @@
                             <div @click="changeCluster(1000)" class="btn">+1000</div>
                         </div>
                     </div>
-                    <!--
                     <div class="row-btn">
-                        <div>ImageWidth: {{imgWidth}}</div>
+                        <div>ImageSize: {{imgSize}}</div>
                         <div class="row">
-                            <div @click="changeImgWidth(-2)" class="btn">-2</div>
-                            <div @click="changeImgWidth(2)" class="btn">+2</div>
+                            <div @click="changeImgSize(-1)" class="btn">-1</div>
+                            <div @click="changeImgSize(1)" class="btn">+1</div>
                         </div>
                     </div>
+                    <!--
                     <div class="row-btn">
                         <div>ImageWidth(active): {{activeImgWidth}}</div>
                         <div class="row">
@@ -304,7 +304,7 @@ export default {
         height: 0,
         activeNode: {},
         cluster: 5, // default - set on mount from CanvasStore class
-        imgWidth: 0, // default - set on mount from CanvasStore class
+        imgSize: 0, // default - set on mount from CanvasStore class
         activeImgWidth: 0, // default - set on mount from CanvasStore class
         borderWidth: 0, // default - set on mount from CanvasStore class
         range: 0,
@@ -548,9 +548,9 @@ export default {
             this.store.draw2();
         },
 
-        changeImgWidth(v) {
-            this.store.imgScale += v; // update canvasState
-            this.imgWidth = this.store.imgScale; // update ui
+        changeImgSize(v) {
+            this.store.imgSize += v; // update canvasState
+            this.imgSize = this.store.imgSize; // update ui
         },
 
         activeImgWidthMore() {
@@ -758,7 +758,6 @@ export default {
 
         // set init value in UI
         this.cluster = s.cluster;
-        this.imgWidth = s.imgScale;
         this.activeImgWidth = s.activeImgScale;
         this.borderWidth = s.borderWidth;
         this.scrollGrowth = s.scrollGrowth;
