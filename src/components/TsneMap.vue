@@ -250,22 +250,7 @@ import Triplets from './Triplets';
 import Classifier from './Classifier';
 import Groups from './Groups';
 import Scissors from '../icons/Scissors';
-/*
-    TODO:
-    - rename imageWidth to imageSize
-    - rename scale to zoom
-*/
-
-/* function makeImgageData(img) {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    canvas.width = img.width;
-    canvas.height = img.height;
-    context.drawImage(img, 0, 0);
-    const data = context.getImageData(0, 0, img.width, img.height);
-    console.log(data);
-    return data;
-} */
+import TestWorker from '../worker/test.worker';
 
 
 export default {
@@ -699,6 +684,18 @@ export default {
         },
     },
     mounted() {
+
+        const worker = new TestWorker();
+
+        worker.postMessage({ a: 1 });
+
+
+        worker.onmessage = function (event) {
+            console.log("worker post a message")
+            console.log(event)
+            console.log(event.data)
+        };
+
         const socket = io.connect('http://localhost:3000', {
             transports: ['websocket'],
             reconnectionDelay: 100,
