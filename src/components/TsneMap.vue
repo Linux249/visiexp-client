@@ -65,6 +65,7 @@
 
                 <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">Options</div>
                 <div @click="sendData" class="btn" >Update Data</div>
+                <div @click="toggleUpdateEmbedding" class="btn" >{{autoUpdateEmbedding ? 'stop' : 'start'}}</div>
                 <div class="tool-box row">
                     <div v-if="loadingNodes" class="loader" ></div>
                     <scissors :active="scissors" :clickHandler="selectScissors">a</scissors>
@@ -275,7 +276,7 @@ export default {
         nodesTotal: 0,
         nodesRecived: 0,
         scale: 0,
-        scale2: 0,
+        // scale2: 0,
         zoomLvl: 0,
         labels: [],
         selectedLabel: null, // save the selected label
@@ -336,6 +337,8 @@ export default {
             a: 1,
         },
         selectedGradient: 0, // default is the first
+        autoUpdateEmbedding: false,
+        socketId: '',
     }),
     methods: {
         getNode(i) {
@@ -659,6 +662,31 @@ export default {
             this.gradient.splice(this.selectedGradient, 1, [rgba.r, rgba.g, rgba.b]);
         },
 
+        async toggleUpdateEmbedding() {
+            this.autoUpdateEmbedding = !this.autoUpdateEmbedding;
+            if (this.autoUpdateEmbedding) {
+                console.log('startUpdateEmbedding');
+                console.log(this.socketId);
+
+                try {
+                    const body = JSON.stringify({
+                        nodes: this.store.getNodesSimple(),
+                        socketId: this.socketId,
+                    });
+                    await fetch('/api/v1/startUpdateEmbedding', {
+                        method: 'POST',
+                        headers: { 'Content-type': 'application/json' },
+                        body,
+                    }).then(res => res.text());
+                } catch (e) {
+                    console.error(e);
+                }
+            } else {
+                console.log('stopUpdateEmbedding');
+                // console.log()
+            }
+        },
+
     },
     watch: {
         cluster(value) {
@@ -684,16 +712,15 @@ export default {
         },
     },
     mounted() {
-
         const worker = new TestWorker();
 
         worker.postMessage({ a: 1 });
 
 
         worker.onmessage = function (event) {
-            console.log("worker post a message")
-            console.log(event)
-            console.log(event.data)
+            console.log('worker post a message');
+            console.log(event.type);
+            console.log(event.data);
         };
 
         const socket = io.connect('http://localhost:3000', {
@@ -769,6 +796,7 @@ export default {
             console.log('conected'); // das wirft immer unde
             console.log(`Socket id: ${socket.id}`); // das wirft immer unde
             console.log(socket);
+            this.socketId = socket.id;
             // if there is allready data then this is just a reconnect
             const nodes = this.store.getNodes();
             console.log('nodes in store while connect (its maybe just a reconnect)');
@@ -835,6 +863,12 @@ export default {
             console.log(kdtree);
             s.kdtree = kdtree;
             // console.log(s.range(-5 ,-5 ,5 ,5))
+        });
+
+        socket.on('updateEmbedding', (data) => {
+            console.log('updateEmbedding');
+            console.log(data);
+            this.store.updateNodes(data.nodes)
         });
         // this.updateCanvas();
 

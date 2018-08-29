@@ -285,12 +285,24 @@ export default class CanvasState {
         this.triggerDraw(); // for redrawing
     }
 
+    updateNodes(nodes) {
+        nodes.forEach((node) => {
+            this.nodes[node.id].x = node.x;
+            this.nodes[node.id].y = node.y;
+        });
+        this.triggerDraw();
+    }
+
     getNodes() {
         const nodes = {};
         Object.values(this.nodes).forEach(({ index, x, y, name, negatives, positives, links, labels }, i) => {
             nodes[i] = { index, x, y, name, negatives, positives, links, labels };
         });
         return nodes;
+    }
+
+    getNodesSimple() {
+        return Object.values(this.nodes).map(({ index, x, y }) => ({ id: index, x, y }));
     }
 
     getNode(i) {
