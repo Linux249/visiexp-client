@@ -52,7 +52,7 @@ export default class CanvasState {
         this._cluster = 50000;
         // this.updateClusterUI = null;
         this._scale = 20;
-        this._scale2 = 20; // vorher 0
+        // this._scale2 = 20; // vorher 0
         this._zoomStage = 0; // default zoom stage, 0 is the smalest pic
         // this.updateScaleUI = null;
         // this.updateScale2UI = null;
@@ -113,6 +113,7 @@ export default class CanvasState {
     get scale() {
         return this._scale;
     }
+    /*
 
     set scale2(value) {
         if (value < 0) this._scale2 = 0;
@@ -125,6 +126,7 @@ export default class CanvasState {
     get scale2() {
         return this._scale2;
     }
+    */
 
     set zoomStage(value) {
         if (value < 0) this._zoomStage = 0;
@@ -275,7 +277,9 @@ export default class CanvasState {
 
 
     addNode(node) {
-        // console.log('Node addded');
+        // TODO der NodeArray könnte bereits inistalisert sein oder?
+        // TODO wie initaliseren ? https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Array/fill
+
         this.nodes[node.index] = node;
         this.colorHash[`rgb(${node.colorKey[0]},${node.colorKey[1]},${node.colorKey[2]})`] = node.index;
         this.triggerDraw(); // for redrawing
@@ -458,7 +462,7 @@ export default class CanvasState {
             const nodeX = Math.floor(node.x * scale + tx);
             const nodeY = Math.floor(node.y * scale + ty);
 
-            let imgSize = rankSize ? zoomStage + Math.round(node.rank * this.sizeRange) : zoomStage;
+            let imgSize = rankSize ? zoomStage + Math.floor(node.rank * this.sizeRange) : zoomStage;
             imgSize += this.imgSize; // add imgSize from user input
             if (imgSize < 0) imgSize = 0;
             if (imgSize > 14) imgSize = 14;
@@ -556,7 +560,7 @@ export default class CanvasState {
             const canvasX = Math.floor(node.x * scale + tx);
             const canvasY = Math.floor(node.y * scale + ty);
 
-            let imgSize = rankSize ? zoomStage + Math.round(node.rank * this.sizeRange) : zoomStage;
+            let imgSize = rankSize ? zoomStage + Math.floor(node.rank * this.sizeRange) : zoomStage;
             imgSize += this.imgSize; // add imgSize from user input
             if (imgSize < 0) imgSize = 0;
             if (imgSize > 14) imgSize = 14;
@@ -780,18 +784,18 @@ export default class CanvasState {
             // Zoom in = increase = wheel up = negativ delta Y
             if (wheelEvent.deltaY < 0) {
                 console.log('zoom in');
-                this.scale2 += 1;
+                // this.scale2 += 1;
+                this.scale += 20; // *= 2; // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
                 this.zoomStage += 1;
-                this.scale *= 2; // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
                 this.cluster *= this.clusterGrowth;
             }
 
             // Zoom out = decrease = wheel down = positiv delta Y
             if (wheelEvent.deltaY > 0) {
                 console.log('zoom out');
-                this.scale2 -= 1;
+                // this.scale2 -= 1;
+                this.scale -= 20; // /= 2; // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
                 this.zoomStage -= 1;
-                this.scale /= 2; // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
                 this.cluster /= this.clusterGrowth;
             }
 
