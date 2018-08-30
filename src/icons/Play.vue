@@ -1,7 +1,5 @@
 <template>
     <svg
-        @click="clickHandler"
-        :class="{ active }"
         class="play-icon"
         xmlns="http://www.w3.org/2000/svg"
         width="24"
