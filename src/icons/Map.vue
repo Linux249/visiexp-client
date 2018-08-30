@@ -1,8 +1,6 @@
 <template>
     <svg
-        @click="clickHandler"
-        :class="{ active }"
-        class="stop-icon"
+        class="map-icon"
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
@@ -13,25 +11,27 @@
         stroke-linecap="round"
         stroke-linejoin="round"
     >
-        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+        <line x1="8" y1="2" x2="8" y2="18"></line>
+        <line x1="16" y1="6" x2="16" y2="22"></line>
     </svg>
 </template>
 
 <script>
 export default {
-    name: 'Stop',
+    name: 'Map',
     props: ['clickHandler', 'active'],
 };
 </script>
 
 <style scoped>
-    /*.stop-icon:hover{
+    /*.map-icon{
         border: 1px solid transparent;
-    }
-    .stop-icon:hover{
-        border: 1px solid grey;
-    }
-    .stop-icon.active{
-        border: 1px solid grey;
     }*/
+    /*.map-icon:hover{*/
+        /*border: 1px solid grey;*/
+    /*}*/
+    /*.map-icon.active{*/
+        /*border: 1px solid grey;*/
+    /*}*/
 </style>

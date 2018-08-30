@@ -15,16 +15,25 @@
                     <div class="btn">{{translateY}}</div>
                     <!--<div class="btn" @click="draw2">draw2</div>-->
                     <div class="btn" @click="doubleNodes">doubleNodes</div>
+                    <div class="btn" :class="{ active: sorted }" @click="sortNodes">sort</div>
+                    <div class="btn" :class="{ active: boarderRanked }" @click="toggleBoarderRanked">boarderRanked</div>
+                    <div class="btn" :class="{ active: sizeRanked }" @click="toggleSizeRanked">sizeRanked</div>
                 </div>
             </div>
             <div class="row">
                 <div class="dropdownArea"></div>
-                <div class="btn" :class="{ active: sorted }" @click="sortNodes">sort</div>
-                <div class="btn" :class="{ active: boarderRanked }" @click="toggleBoarderRanked">boarderRanked</div>
-                <div class="btn" :class="{ active: sizeRanked }" @click="toggleSizeRanked">sizeRanked</div>
-                <div class="btn" :class="{ active: showHeatmap }" @click="toggleShowHeatmap">heatmap</div>
+                <div @click="toggleShowHeatmap" :class="{ active: showHeatmap }" class="btn">
+                    <navmap></navmap>
+                </div>
+                <div @click="toggleShowNavMap" :class="{ active: showNavMap }" class="btn">
+                    <navmap></navmap>
+                </div>
+                <div @click="toggleShowNavHeatmap" :class="{ active: showNavHeatmap }" class="btn">
+                    <navmap></navmap>
+                </div>
+                <!--<div class="btn" :class="{ active: showHeatmap }" @click="toggleShowHeatmap"></div>
                 <div class="btn" :class="{ active: showNavMap }" @click="toggleShowNavMap">NavMap</div>
-                <div class="btn" :class="{ active: showNavHeatmap }" @click="toggleShowNavHeatmap">NavHeatmap</div>
+                <div class="btn" :class="{ active: showNavHeatmap }" @click="toggleShowNavHeatmap">NavHeatmap</div>-->
 
 
                 <div class="categoriesArea" @mouseenter="showLabels = true" @mouseleave="showLabels = false">
@@ -66,12 +75,15 @@
                 <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">Options</div>
                 <div @click="sendData" class="btn" >Update Data<send></send></div>
                 <div @click="toggleUpdateEmbedding" class="btn" >
+                    {{autoUpdateEmbedding ? 'stop' : 'start'}}
                     <play v-if="!autoUpdateEmbedding"></play>
                     <stop v-if="autoUpdateEmbedding"></stop>
                 </div>
                 <div class="tool-box row">
                     <div v-if="loadingNodes" class="loader" ></div>
-                    <scissors :active="scissors" :clickHandler="selectScissors">a</scissors>
+                    <div @click="selectScissors" :class="{ active: scissors }" class="btn">
+                        <scissors></scissors>
+                    </div>
                 </div>
             </div>
         </div>
@@ -257,6 +269,7 @@ import Scissors from '../icons/Scissors';
 import Play from '../icons/Play';
 import Stop from '../icons/Stop';
 import Send from '../icons/Send';
+import Navmap from '../icons/Map';
 import TestWorker from '../worker/test.worker';
 
 
@@ -268,6 +281,7 @@ export default {
         Play,
         Stop,
         Send,
+        Navmap,
         RangeSlider,
         Triplets,
         Classifier,
