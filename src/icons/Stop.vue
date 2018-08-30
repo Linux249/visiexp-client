@@ -2,7 +2,7 @@
     <svg
         @click="clickHandler"
         :class="{ active }"
-        class="scissors-icon"
+        class="stop-icon"
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
@@ -13,29 +13,25 @@
         stroke-linecap="round"
         stroke-linejoin="round"
     >
-        <circle cx="6" cy="6" r="3"></circle>
-        <circle cx="6" cy="18" r="3"></circle>
-        <line x1="20" y1="4" x2="8.12" y2="15.88"></line>
-        <line x1="14.47" y1="14.48" x2="20" y2="20"></line>
-        <line x1="8.12" y1="8.12" x2="12" y2="12"></line>
+        <rect x="4" y="4" width="16" height="16"></rect>
     </svg>
 </template>
 
 <script>
 export default {
-    name: 'Scissors',
+    name: 'Stop',
     props: ['clickHandler', 'active'],
 };
 </script>
 
 <style scoped>
-    .scissors-icon{
+    /*.stop-icon:hover{
         border: 1px solid transparent;
     }
-    .scissors-icon:hover{
+    .stop-icon:hover{
         border: 1px solid grey;
     }
-    .scissors-icon.active{
+    .stop-icon.active{
         border: 1px solid grey;
-    }
+    }*/
 </style>

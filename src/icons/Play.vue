@@ -2,7 +2,7 @@
     <svg
         @click="clickHandler"
         :class="{ active }"
-        class="scissors-icon"
+        class="play-icon"
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
@@ -13,29 +13,25 @@
         stroke-linecap="round"
         stroke-linejoin="round"
     >
-        <circle cx="6" cy="6" r="3"></circle>
-        <circle cx="6" cy="18" r="3"></circle>
-        <line x1="20" y1="4" x2="8.12" y2="15.88"></line>
-        <line x1="14.47" y1="14.48" x2="20" y2="20"></line>
-        <line x1="8.12" y1="8.12" x2="12" y2="12"></line>
+        <polygon points="5 3 19 12 5 21 5 3"></polygon>
     </svg>
 </template>
 
 <script>
 export default {
-    name: 'Scissors',
+    name: 'Play',
     props: ['clickHandler', 'active'],
 };
 </script>
 
 <style scoped>
-    .scissors-icon{
+    /*.play-icon{
         border: 1px solid transparent;
     }
-    .scissors-icon:hover{
+    .play-icon:hover{
         border: 1px solid grey;
     }
-    .scissors-icon.active{
+    .play-icon.active{
         border: 1px solid grey;
-    }
+    }*/
 </style>

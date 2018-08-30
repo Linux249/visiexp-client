@@ -64,8 +64,11 @@
                 </div>
 
                 <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">Options</div>
-                <div @click="sendData" class="btn" >Update Data</div>
-                <div @click="toggleUpdateEmbedding" class="btn" >{{autoUpdateEmbedding ? 'stop' : 'start'}}</div>
+                <div @click="sendData" class="btn" >Update Data<send></send></div>
+                <div @click="toggleUpdateEmbedding" class="btn" >
+                    <play v-if="!autoUpdateEmbedding"></play>
+                    <stop v-if="autoUpdateEmbedding"></stop>
+                </div>
                 <div class="tool-box row">
                     <div v-if="loadingNodes" class="loader" ></div>
                     <scissors :active="scissors" :clickHandler="selectScissors">a</scissors>
@@ -251,6 +254,9 @@ import Triplets from './Triplets';
 import Classifier from './Classifier';
 import Groups from './Groups';
 import Scissors from '../icons/Scissors';
+import Play from '../icons/Play';
+import Stop from '../icons/Stop';
+import Send from '../icons/Send';
 import TestWorker from '../worker/test.worker';
 
 
@@ -259,6 +265,9 @@ export default {
     name: 'TsneMap',
     components: {
         Scissors,
+        Play,
+        Stop,
+        Send,
         RangeSlider,
         Triplets,
         Classifier,

@@ -65,13 +65,15 @@ export default {
     }
 
     .btn {
-        align-self: center;
+        display: flex;
+        align-items: center;
+        /*align-self: center;*/
         text-decoration: none;
         /*text-overflow: ;*/
         margin: 0.5rem;
-        height: 20px;
+        /*height: 20px;*/
         line-height: 20px;
-        padding: 0 14px;
+        padding: 1px 14px;
         box-shadow: 0 4px 6px rgba(50, 50, 93, .11), 0 1px 3px rgba(0, 0, 0, .08);
         background: #fff;
         color: #6772e5;
