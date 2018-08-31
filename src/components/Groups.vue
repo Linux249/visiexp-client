@@ -34,7 +34,6 @@ export default {
             // get the ids of the grouped nodes
             const ids = this.getGroupeIds();
 
-
             this.savedGroups.push({
                 ids,
                 name,
@@ -49,7 +48,6 @@ export default {
         deleteGroup(i) {
             this.savedGroups.splice(i, 1);
         },
-
     },
 };
 </script>

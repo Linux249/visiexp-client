@@ -698,6 +698,122 @@ export default class CanvasState {
             }
         });
 
+
+        // TODO use color user can choose in UI + add choose color in UI
+        const lineColor = [225, 225, 115]; // let s = '#ffff73'
+        nodes.forEach((node) => {
+            // start x,y ist x *scale + translateX
+
+            // TODO test perfomance if the group-marks are bedder collected in the first loop
+            // in an array and draw after
+            if (node.group) {
+                const canvasX = Math.floor(node.x * scale + tx);
+                const canvasY = Math.floor(node.y * scale + ty);
+
+                let imgSize = rankSize ? zoomStage + Math.floor(node.rank * this.sizeRange) : zoomStage;
+                imgSize += this.imgSize; // add imgSize from user input
+                if (imgSize < 0) imgSize = 0;
+                if (imgSize > 14) imgSize = 14;
+
+                const img = node.imageData[imgSize];
+                // console.log(img)
+                const iw = img.width;
+                const ih = img.height;
+
+                const inside = canvasX > borderW && canvasY > borderW && canvasX < (canvasW - iw - borderW) && canvasY < (canvasH - ih - borderW);
+
+                if (img && inside) {
+                    const h = Math.ceil(ih / 10);
+                    const w = Math.ceil(iw / 10);
+                    // wir gehen durch alle reihen des bildes
+                    for (let row = 0; row < h; row += 1) {
+                        const canvasRow = ((canvasY + ih + h + row) * canvasW + canvasX - w) * 4;
+                        // copy row to pixel
+                        // wir laufen durch alle spalten des bildes und betrachten dann 4 werte im array
+                        for (let col = 0; col < iw + 2 * w; col += 1) {
+                            const c = canvasRow + col * 4;
+                            // if(c > canvasW * canvasH * 4) console.error("CRY")
+                            canvasPixel[c] = lineColor[0]; // R
+                            canvasPixel[c + 1] = lineColor[1]; // G
+                            canvasPixel[c + 2] = lineColor[2]; // B
+                            canvasPixel[c + 3] = 225; // ? canvasPixel[c + 3] += 10 * node.cliqueLen : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                        }
+                    }
+
+                    if (drawBoarder) {
+                        const color = gradient[node.cliqueLen];
+                        // draw boarder
+                        for (let row = -2; row <= ih + 1; row += 1) {
+                            const canvasRow = ((canvasY + row) * canvasW + canvasX) * 4;
+                            if (row === -2 || row === ih + 1) {
+                                // draw top line r
+                                for (let col = 0; col < iw; col += 1) {
+                                    const c = canvasRow + col * 4;
+                                    canvasPixel[c] = color[0]; // R
+                                    canvasPixel[c + 1] = color[1]; // G
+                                    canvasPixel[c + 2] = color[2]; // B
+                                    canvasPixel[c + 3] = 200; // ? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                                }
+                            } else {
+                                // draw left boarder
+                                const l = canvasRow - 8;
+                                canvasPixel[l] = color[0]; // R
+                                canvasPixel[l + 1] = color[1]; // G
+                                canvasPixel[l + 2] = color[2]; // B
+                                canvasPixel[l + 3] = 200; // ? canvasPixel[l + 3] += 10 : canvasPixel[l + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+
+                                // draw left boarder
+                                const r = canvasRow + (iw + 1) * 4;
+                                canvasPixel[r] = color[0]; // R
+                                canvasPixel[r + 1] = color[1]; // G
+                                canvasPixel[r + 2] = color[2]; // B
+                                canvasPixel[r + 3] = 200; // ? canvasPixel[r + 3] += 10 : canvasPixel[r + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                            }
+                        }
+                    }
+
+                    if (this.selectedCategory && this.selectedLabel && this.selectedLabel === node.labels[this.selectedCategory]) {
+                        const color = [0, 0, 140];
+                        // draw boarder
+                        for (let row = -2; row <= ih + 1; row += 1) {
+                            const canvasRow = ((canvasY + row) * canvasW + canvasX) * 4;
+                            if (row === -2 || row === ih + 1) {
+                                // draw top line r
+                                for (let col = 0; col < iw; col += 1) {
+                                    const c = canvasRow + col * 4;
+                                    canvasPixel[c] = color[0]; // R
+                                    canvasPixel[c + 1] = color[1]; // G
+                                    canvasPixel[c + 2] = color[2]; // B
+                                    canvasPixel[c + 3] = 200; // ? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                                }
+                            } else {
+                                // draw left boarder
+                                const l = canvasRow - 8;
+                                canvasPixel[l] = color[0]; // R
+                                canvasPixel[l + 1] = color[1]; // G
+                                canvasPixel[l + 2] = color[2]; // B
+                                canvasPixel[l + 3] = 200; // ? canvasPixel[l + 3] += 10 : canvasPixel[l + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+
+                                // draw left boarder
+                                const r = canvasRow + (iw + 1) * 4;
+                                canvasPixel[r] = color[0]; // R
+                                canvasPixel[r + 1] = color[1]; // G
+                                canvasPixel[r + 2] = color[2]; // B
+                                canvasPixel[r + 3] = 200; // ? canvasPixel[r + 3] += 10 : canvasPixel[r + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                            }
+                        }
+                    }
+                } else if (inside) {
+                    console.error('Bild scheint nicht fertig geladen');
+                    console.log(node);
+                    console.log(zoomStage);
+                }
+            }
+
+
+            // test if image obj exists
+        });
+
         if (this.drawScissors) {
             const canvasX = this.scissorsStartX < this.scissorsEndX ? this.scissorsStartX : this.scissorsEndX;
             const canvasY = this.scissorsStartY < this.scissorsEndY ? this.scissorsStartY : this.scissorsEndY;
