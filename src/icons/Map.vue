@@ -20,7 +20,7 @@
 <script>
 export default {
     name: 'Map',
-    props: ['clickHandler', 'active'],
+    // props: ['clickHandler', 'active'],
 };
 </script>
 

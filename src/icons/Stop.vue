@@ -18,7 +18,7 @@
 <script>
 export default {
     name: 'Stop',
-    props: ['clickHandler', 'active'],
+    // props: ['clickHandler', 'active'],
 };
 </script>
 

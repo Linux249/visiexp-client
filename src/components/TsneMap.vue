@@ -73,14 +73,17 @@
                 </div>
 
                 <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">Options</div>
-                <div @click="sendData" class="btn" >Update Data<send></send></div>
-                <div @click="toggleUpdateEmbedding" class="btn" >
+                <div @click="sendData" class="btn" :class="{ active: loadingNodes }">
+                    Update Data
+                    <send v-if="!loadingNodes"></send>
+                    <div v-if="loadingNodes" class="loader" ></div>
+                </div>
+                <div @click="toggleUpdateEmbedding" :class="{ active: autoUpdateEmbedding }" class="btn" >
                     {{autoUpdateEmbedding ? 'stop' : 'start'}}
                     <play v-if="!autoUpdateEmbedding"></play>
                     <stop v-if="autoUpdateEmbedding"></stop>
                 </div>
                 <div class="tool-box row">
-                    <div v-if="loadingNodes" class="loader" ></div>
                     <div @click="selectScissors" :class="{ active: scissors }" class="btn">
                         <scissors></scissors>
                     </div>
@@ -1028,8 +1031,8 @@ export default {
     }
 
     .loader {
-        border: 3px solid #f3f3f3; /* Light grey */
-        border-top: 3px solid #6772e5; /* Blue */
+        border: 3px solid #707bff; /* Blue */
+        border-top: 3px solid #f3f3f3; /* Light grey */
         border-radius: 50%;
         width: 15px;
         height: 15px;

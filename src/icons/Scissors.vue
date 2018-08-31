@@ -22,7 +22,7 @@
 <script>
 export default {
     name: 'Scissors',
-    props: ['clickHandler', 'active'],
+    // props: ['clickHandler', 'active'],
 };
 </script>
 
