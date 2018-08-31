@@ -91,6 +91,8 @@ export default class CanvasState {
         // this.canvas.onblur = this.blur;
         // this.timerId = setInterval(() => this.draw(), this.interval);
         this.sizeRange = 3;
+
+        this.moveGroupToMouse = false;
     }
 
     set sizeRange(v) {
@@ -261,7 +263,7 @@ export default class CanvasState {
 
     clearGroup() {
         Object.values(this.nodes).forEach(node => (node.group ? node.group = false : null));
-        this.triggerDraw()
+        this.triggerDraw();
     }
 
     groupNodesByIds(ids = []) {
@@ -275,6 +277,16 @@ export default class CanvasState {
         const ids = [];
         Object.values(this.nodes).forEach(node => (node.group ? ids.push(node.index) : null));
         return ids;
+    }
+
+    moveGroupToPosition(x, y) {
+        Object.values(this.nodes).forEach((node) => {
+            if (node.group) {
+                node.x += (x - node.x) / 2;
+                node.y += (y - node.y) / 2;
+            }
+        });
+        this.triggerDraw();
     }
 
 
@@ -1139,11 +1151,17 @@ export default class CanvasState {
     }
 
 
-    handleDoubleClick() {
+    handleDoubleClick(e) {
         console.log('Double click');
         if (this.nodeUnderMouse && this.nodeUnderMouse !== this.selection) {
             this.selection = this.nodeUnderMouse;
         } else this.selection = null;
+        if (this.moveGroupToMouse) {
+            const x = (e.offsetX - this.translateX) / this.scale;
+            const y = (e.offsetY - this.translateY) / this.scale;
+            this.moveGroupToPosition(x, y);
+        }
+
         this.triggerDraw();
     }
 }

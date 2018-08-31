@@ -84,6 +84,9 @@
                     <stop v-if="autoUpdateEmbedding"></stop>
                 </div>
                 <div class="tool-box row">
+                    <div @click="selectTarget" :class="{ active: target }" class="btn">
+                        <target></target>
+                    </div>
                     <div @click="selectScissors" :class="{ active: scissors }" class="btn">
                         <scissors></scissors>
                     </div>
@@ -277,6 +280,7 @@ import Play from '../icons/Play';
 import Stop from '../icons/Stop';
 import Send from '../icons/Send';
 import Navmap from '../icons/Map';
+import Target from '../icons/Target';
 import TestWorker from '../worker/test.worker';
 
 
@@ -290,6 +294,7 @@ export default {
         Stop,
         Send,
         Navmap,
+        Target,
         RangeSlider,
         Triplets,
         Classifier,
@@ -317,6 +322,7 @@ export default {
         labelColor: '#6057ff',
         showKLabels: false,
         scissors: false,
+        target: false,
         width: 0,
         height: 0,
         activeNode: {},
@@ -660,6 +666,10 @@ export default {
             else this.selectedLabel = label;
             this.store.selectedLabel = this.selectedLabel;
             this.store.triggerDraw();
+        },
+        selectTarget() {
+            this.target = !this.target
+            this.store.moveGroupToMouse = this.target
         },
         selectScissors() {
             console.log('selectScissors');
