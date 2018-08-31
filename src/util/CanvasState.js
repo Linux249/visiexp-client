@@ -261,6 +261,7 @@ export default class CanvasState {
 
     clearGroup() {
         Object.values(this.nodes).forEach(node => (node.group ? node.group = false : null));
+        this.triggerDraw()
     }
 
     groupNodesByIds(ids = []) {
@@ -269,6 +270,7 @@ export default class CanvasState {
         this.triggerDraw();
     }
 
+    // return the id's of all nodes with group flag
     getGroupeIds() {
         const ids = [];
         Object.values(this.nodes).forEach(node => (node.group ? ids.push(node.index) : null));
@@ -1073,11 +1075,13 @@ export default class CanvasState {
             // click event on a special node - do something
             console.log('click on node:');
             console.log(nodeUnderMouse);
+
+            // marke node as group in every case
+            if (ctrlKeyPressed) nodeUnderMouse.group = !nodeUnderMouse.group;
             // used for components for adding nodes to special cases
             this.ui.clickedNode = nodeUnderMouse;
             switch (this.ui.$route.name) {
             case SVM:
-                if (ctrlKeyPressed) nodeUnderMouse.group = !nodeUnderMouse.group;
                 break;
             case NEIGHBOURS:
                 if (this.selection && this.selection !== this.nodeUnderMouse && ctrlKeyPressed) {
@@ -1120,6 +1124,7 @@ export default class CanvasState {
                 if ((node.x > startX && node.x < endX) || (node.x < startX && node.x > endX)) {
                     if ((node.y < startY && node.y > endY) || (node.y > startY && node.y < endY)) {
                         this.ui.cuttedNodes.push(node);
+                        node.group = true;
                     }
                 }
             });

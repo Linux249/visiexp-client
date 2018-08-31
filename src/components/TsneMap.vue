@@ -87,6 +87,9 @@
                     <div @click="selectScissors" :class="{ active: scissors }" class="btn">
                         <scissors></scissors>
                     </div>
+                    <div @click="clearGroup" class="btn">
+                        <x></x>
+                    </div>
                 </div>
             </div>
         </div>
@@ -269,6 +272,7 @@ import Triplets from './Triplets';
 import Classifier from './Classifier';
 import Groups from './Groups';
 import Scissors from '../icons/Scissors';
+import X from '../icons/X';
 import Play from '../icons/Play';
 import Stop from '../icons/Stop';
 import Send from '../icons/Send';
@@ -281,6 +285,7 @@ export default {
     name: 'TsneMap',
     components: {
         Scissors,
+        X,
         Play,
         Stop,
         Send,
@@ -660,6 +665,9 @@ export default {
             console.log('selectScissors');
             this.scissors = !this.scissors;
             this.store.scissors = this.scissors;
+        },
+        clearGroup() {
+            this.store.clearGroup();
         },
         reset() {
             this.loadingNodes = true;
