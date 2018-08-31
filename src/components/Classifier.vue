@@ -40,17 +40,25 @@
                     @click="chooseLabel(label)"
                 >{{label}}</div>
             </div>
-            <div @click="addLabel" class="btn">add</div>
-            <div @click="clear" class="btn">clear</div>
+            <div @click="addLabel" class="btn">add<hash></hash></div>
+            <div @click="clear" class="btn">clear<x></x></div>
         </div>
         <div @click="update" class="btn">update labels</div>
     </div>
 </template>
 
 <script>
+import Hash from '../icons/Hash';
+import X from '../icons/X';
+
+
 export default {
     name: 'classifier',
     props: ['nodes', 'node', 'labels', 'triggerDraw', 'getStore'],
+    components: {
+        Hash,
+        X,
+    },
     data: () => ({
         label: '',
         showLabelOptions: false,
