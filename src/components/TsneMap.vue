@@ -59,6 +59,9 @@
                                     :key="label"
                                 >
                                     {{label}}
+                                    <div v-on:click.stop="addLabeledToGroup(label)" class="btn">
+                                        <grid></grid>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -281,6 +284,7 @@ import Stop from '../icons/Stop';
 import Send from '../icons/Send';
 import Navmap from '../icons/Map';
 import Target from '../icons/Target';
+import Grid from '../icons/Grid';
 import TestWorker from '../worker/test.worker';
 
 
@@ -295,6 +299,7 @@ export default {
         Send,
         Navmap,
         Target,
+        Grid,
         RangeSlider,
         Triplets,
         Classifier,
@@ -666,6 +671,9 @@ export default {
             else this.selectedLabel = label;
             this.store.selectedLabel = this.selectedLabel;
             this.store.triggerDraw();
+        },
+        addLabeledToGroup(label) {
+            this.store.addLabeledToGroup(label)
         },
         selectTarget() {
             this.target = !this.target

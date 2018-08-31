@@ -272,6 +272,11 @@ export default class CanvasState {
         this.triggerDraw();
     }
 
+    addLabeledToGroup(label) {
+        Object.values(this.nodes).forEach(node => (node.labels.includes(label) ? node.group = true : null));
+        this.triggerDraw()
+    }
+
     // return the id's of all nodes with group flag
     getGroupeIds() {
         const ids = [];
