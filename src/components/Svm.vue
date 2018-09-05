@@ -101,7 +101,7 @@ export default {
                 n: this.negativesAll.map(node => node.index),
                 count: this.count,
             });
-            const data = await fetch('/api/v1/trainSvm', {
+            const data = await fetch('/api/v1/svm/train', {
                 method: 'POST',
                 headers: { 'Content-type': 'application/json' },
                 body,
@@ -138,7 +138,7 @@ export default {
             console.log('stopSvm clicked');
             this.loading = true;
 
-            const { group } = await fetch('/api/v1/stopSvm', {
+            const { group } = await fetch('/api/v1/svm/stop', {
                 method: 'POST',
                 headers: { 'Content-type': 'application/json' },
             }).then(res => res.json()).catch(e => console.error(e));
