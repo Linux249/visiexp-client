@@ -36,9 +36,9 @@
                 <div
                     class="item"
                     v-for="label in labelsFiltered"
-                    :key="label"
-                    @click="chooseLabel(label)"
-                >{{label}}</div>
+                    :key="label.name"
+                    @click="chooseLabel(label.name)"
+                >{{label.name}}</div>
             </div>
             <div @click="addLabel" class="btn">add<hash></hash></div>
             <div @click="clear" class="btn">clear<x></x></div>
@@ -98,7 +98,7 @@ export default {
             console.log(this.label);
 
             // check if label is in list of labels allready?
-            if (this.labels[this.selectedCategory].labels.indexOf(this.label) === -1) this.labels[this.selectedCategory].labels.push(this.label);
+            if (!this.labels[this.selectedCategory].labels.some(e => e.name === this.label)) this.labels[this.selectedCategory].labels.push({ name: this.label, show: true });
 
             // ad label to nodes after checking that is npot allready used at node
             this.selectedNodes.forEach((node) => {
@@ -149,7 +149,7 @@ export default {
     },
     computed: {
         labelsFiltered() {
-            return this.labels[this.selectedCategory].labels.filter(label => label.includes(this.label));
+            return this.labels[this.selectedCategory].labels.filter(label => label.name.includes(this.label));
         },
     },
 };

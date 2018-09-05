@@ -49,18 +49,40 @@
                                 @click="toogleCategory(i)"
                             >
                                 {{ category.name }}
+                                <div v-on:click.stop="toogleShowCategory(i)" class="btn" :class="{ active: !category.show }">
+                                    <slash></slash>
+                                </div>
                             </div>
                             <div  v-if="selectedCategory === i">
                                 <div
                                     class="btn"
-                                    v-for="label in category.labels"
-                                    :class="{ active: selectedLabel === label }"
-                                    @click="toogleLabel(label)"
-                                    :key="label"
+                                    v-for="(label, i) in category.labels"
+                                    :class="{ active: selectedLabel === label.name }"
+                                    @click="toogleLabel(label.name)"
+                                    :key="label.name"
                                 >
-                                    {{label}}
-                                    <div v-on:click.stop="addLabeledToGroup(label)" class="btn">
+                                    {{label.name}}
+                                    <div v-on:click.stop="addLabeledToGroup(label.name)" class="btn">
                                         <grid></grid>
+                                    </div>
+                                    <div
+                                        v-on:click.stop="toogleShowLabel(i)"
+                                        class="btn"
+                                        :class="{ active: !label.show }"
+                                    >
+                                        <slash></slash>
+                                    </div>
+                                    <div
+                                        class="btn"
+                                    >
+                                        <input
+                                            class="color-box"
+                                            type="color"
+                                            v-on:change.prevent="changeLabelColor(i, $event)"
+                                            :value="rgbToHex(label.color[0], label.color[1], label.color[2])"
+                                            :style="{backgroundColor: `rgb(${label.color[0]},${label.color[1]},${label.color[2]})`}"
+                                        />
+
                                     </div>
                                 </div>
                             </div>
@@ -281,12 +303,26 @@ import Scissors from '../icons/Scissors';
 import X from '../icons/X';
 import Play from '../icons/Play';
 import Stop from '../icons/Stop';
+import Slash from '../icons/Slash';
 import Send from '../icons/Send';
 import Navmap from '../icons/Map';
 import Target from '../icons/Target';
 import Grid from '../icons/Grid';
 import TestWorker from '../worker/test.worker';
 
+function rgbToHex(R, G, B) { return `#${toHex(R)}${toHex(G)}${toHex(B)}`; }
+function toHex(n) {
+    n = parseInt(n, 10);
+    if (isNaN(n)) return '00';
+    n = Math.max(0, Math.min(n, 255));
+    return '0123456789ABCDEF'.charAt((n - n % 16) / 16)
+        + '0123456789ABCDEF'.charAt(n % 16);
+}
+
+function hexToR(h) {return parseInt((cutHex(h)).substring(0,2),16)}
+function hexToG(h) {return parseInt((cutHex(h)).substring(2,4),16)}
+function hexToB(h) {return parseInt((cutHex(h)).substring(4,6),16)}
+function cutHex(h) {return (h.charAt(0)=="#") ? h.substring(1,7):h}
 
 export default {
     store: null,
@@ -300,6 +336,7 @@ export default {
         Navmap,
         Target,
         Grid,
+        Slash,
         RangeSlider,
         Triplets,
         Classifier,
@@ -381,6 +418,8 @@ export default {
         selectedGradient: 0, // default is the first
         autoUpdateEmbedding: false,
         socketId: '',
+        rgbToHex,
+
     }),
     methods: {
         getNode(i) {
@@ -658,26 +697,41 @@ export default {
             this.store.valid = false;
             console.log(this.showKLabels);
         },
-
+        toogleShowLabel(i) {
+            this.labels[this.selectedCategory].labels[i].show = !this.labels[this.selectedCategory].labels[i].show;
+            this.store.triggerDraw();
+        },
+        toogleShowCategory(i) {
+            this.labels[i].show = !this.labels[i].show;
+            this.labels[i].labels.forEach(label => label.show = this.labels[i].show);
+            this.store.triggerDraw();
+        },
         toogleCategory(cat) {
             if (this.selectedCategory === cat) this.selectedCategory = null;
             else this.selectedCategory = cat;
             this.store.selectedCategory = this.selectedCategory;
             this.store.triggerDraw();
         },
-
         toogleLabel(label) {
             if (this.selectedLabel === label) this.selectedLabel = null;
             else this.selectedLabel = label;
             this.store.selectedLabel = this.selectedLabel;
             this.store.triggerDraw();
         },
+        changeLabelColor(i, e) {
+            console.log('changeLabelColor')
+            // e.stopPropagation()
+            this.labels[this.selectedCategory].labels[i].color[0] = hexToR(e.target.value)
+            this.labels[this.selectedCategory].labels[i].color[1] = hexToG(e.target.value)
+            this.labels[this.selectedCategory].labels[i].color[2] = hexToB(e.target.value)
+            this.store.triggerDraw()
+        },
         addLabeledToGroup(label) {
-            this.store.addLabeledToGroup(label)
+            this.store.addLabeledToGroup(label);
         },
         selectTarget() {
-            this.target = !this.target
-            this.store.moveGroupToMouse = this.target
+            this.target = !this.target;
+            this.store.moveGroupToMouse = this.target;
         },
         selectScissors() {
             console.log('selectScissors');
@@ -920,7 +974,7 @@ export default {
         socket.on('updateEmbedding', (data) => {
             console.log('updateEmbedding');
             console.log(data);
-            this.store.updateNodes(data.nodes)
+            this.store.updateNodes(data.nodes);
         });
         // this.updateCanvas();
 
@@ -1099,5 +1153,12 @@ export default {
 
     .activeColor {
         border: 1px solid black;
+    }
+
+    .color-box {
+        /*width: 30px;*/
+        /*height: 20px;*/
+        border: 0;
+        padding: 0;
     }
 </style>
