@@ -304,23 +304,27 @@ export default class CanvasState {
     }
 
     updateNodes(nodes) {
-        nodes.forEach((node) => {
-            this.nodes[node.id].x = node.x;
-            this.nodes[node.id].y = node.y;
+        Object.values(nodes).forEach((node) => {
+            this.nodes[node.index].x = node.x;
+            this.nodes[node.index].y = node.y;
         });
         this.triggerDraw();
     }
 
     getNodes() {
         const nodes = {};
-        Object.values(this.nodes).forEach(({ index, x, y, name, negatives, positives, links, labels }, i) => {
-            nodes[i] = { index, x, y, name, negatives, positives, links, labels };
+        Object.values(this.nodes).forEach(({ index, x, y, name, negatives, positives, links, labels }) => {
+            nodes[index] = { index, x, y, name, negatives, positives, links, labels };
         });
         return nodes;
     }
 
     getNodesSimple() {
-        return Object.values(this.nodes).map(({ index, x, y }) => ({ id: index, x, y }));
+        // TODO check perfomance: what is faster?
+        // return Object.values(this.nodes).map(({ index, x, y }) => ({ id: index, x, y }));
+        const nodes = {};
+        Object.values(this.nodes).forEach(({ index, x, y }) => nodes[index] = { index, x, y });
+        return nodes;
     }
 
     getNode(i) {
