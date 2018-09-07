@@ -273,6 +273,8 @@
                     :groupNodesByIds="groupNodesByIds"
                     :getGroupeIds="getGroupeIds"
                     :getStore="getStore"
+                    :dataset="dataset"
+                    :handleChangeDataset="handleChangeDataset"
                 />
 
 
@@ -319,10 +321,10 @@ function toHex(n) {
         + '0123456789ABCDEF'.charAt(n % 16);
 }
 
-function hexToR(h) {return parseInt((cutHex(h)).substring(0,2),16)}
-function hexToG(h) {return parseInt((cutHex(h)).substring(2,4),16)}
-function hexToB(h) {return parseInt((cutHex(h)).substring(4,6),16)}
-function cutHex(h) {return (h.charAt(0)=="#") ? h.substring(1,7):h}
+function hexToR(h) { return parseInt((cutHex(h)).substring(0, 2), 16); }
+function hexToG(h) { return parseInt((cutHex(h)).substring(2, 4), 16); }
+function hexToB(h) { return parseInt((cutHex(h)).substring(4, 6), 16); }
+function cutHex(h) { return (h.charAt(0) == '#') ? h.substring(1, 7) : h; }
 
 export default {
     store: null,
@@ -419,7 +421,7 @@ export default {
         autoUpdateEmbedding: false,
         socketId: '',
         rgbToHex,
-
+        dataset: '001',
     }),
     methods: {
         getNode(i) {
@@ -719,12 +721,12 @@ export default {
             this.store.triggerDraw();
         },
         changeLabelColor(i, e) {
-            console.log('changeLabelColor')
+            console.log('changeLabelColor');
             // e.stopPropagation()
-            this.labels[this.selectedCategory].labels[i].color[0] = hexToR(e.target.value)
-            this.labels[this.selectedCategory].labels[i].color[1] = hexToG(e.target.value)
-            this.labels[this.selectedCategory].labels[i].color[2] = hexToB(e.target.value)
-            this.store.triggerDraw()
+            this.labels[this.selectedCategory].labels[i].color[0] = hexToR(e.target.value);
+            this.labels[this.selectedCategory].labels[i].color[1] = hexToG(e.target.value);
+            this.labels[this.selectedCategory].labels[i].color[2] = hexToB(e.target.value);
+            this.store.triggerDraw();
         },
         addLabeledToGroup(label) {
             this.store.addLabeledToGroup(label);
@@ -793,6 +795,11 @@ export default {
             }
         },
 
+        handleChangeDataset(dataset) {
+            this.dataset = dataset;
+            // TODO trigger reload of datas
+        },
+
     },
     watch: {
         cluster(value) {
@@ -829,7 +836,8 @@ export default {
             console.log(event.data);
         };
 
-        const socket = io.connect('http://localhost:3000', {
+        const socketIp = process.env.NODE_ENV === 'production' ? '129.206.117.172' : 'localhost';
+        const socket = io.connect(`http://${socketIp}:3000`, {
             transports: ['websocket'],
             reconnectionDelay: 100,
             reconnectionDelayMax: 1000,

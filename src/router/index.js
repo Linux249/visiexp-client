@@ -3,7 +3,8 @@ import Router from 'vue-router';
 import Welcome from '@/components/Welcome';
 import Svm from '@/components/Svm';
 import Classifier from '../components/Classifier';
-import { TRIPLETS, TSNE, SVM, CLASSIFIER, NEIGHBOURS } from '../util/modes';
+import Dataset from '../components/Dataset';
+import { TRIPLETS, TSNE, SVM, CLASSIFIER, NEIGHBOURS, DATASET } from '../util/modes';
 
 Vue.use(Router);
 
@@ -26,6 +27,10 @@ export default new Router({
         }, {
             path: `/${NEIGHBOURS}`,
             name: NEIGHBOURS,
+        }, {
+            path: `/${DATASET}`,
+            name: DATASET,
+            component: Dataset,
         },
     ],
 });

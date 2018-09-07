@@ -1,10 +1,16 @@
 <template>
-    <div id="header">
-        <router-link to="/svm">SVM</router-link>
-        <router-link to="/classifier">Classifier</router-link>
-        <router-link to="/triplets">Triplets</router-link>
-        <router-link to="/neighbours">Neighbours</router-link>
-        <router-link to="/tsne">t-SNE</router-link>
+    <div class="header">
+        <div class="left-header">
+            <router-link to="/svm">SVM</router-link>
+            <router-link to="/classifier">Classifier</router-link>
+            <router-link to="/triplets">Triplets</router-link>
+            <router-link to="/neighbours">Neighbours</router-link>
+            <router-link to="/tsne">t-SNE</router-link>
+        </div>
+        <div class="right-header">
+            <router-link to="/Dataset">Dataset</router-link>
+            <router-link to="/Dataset">Dataset</router-link>
+        </div>
     </div>
 </template>
 
@@ -15,12 +21,16 @@ export default {
 </script>
 
 <style scoped>
-    #header {
+    .header {
         display: flex;
-        /*justify-content: flex-end;*/
-        align-items: center;
+        justify-content: space-between;
         /*height: 50px;*/
         box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+    }
+
+    .left-header, .right-header {
+        display: flex;
+        align-items: center;
     }
 
     a {
