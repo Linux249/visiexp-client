@@ -979,9 +979,10 @@ export default {
             // console.log(s.range(-5 ,-5 ,5 ,5))
         });
 
-        socket.on('updateEmbedding', (data) => {
+        socket.on('updateEmbedding', (data, fn) => {
             console.log('updateEmbedding');
             console.log(data);
+            fn({ stopped: this.autoUpdateEmbedding })
             this.store.updateNodes(data.nodes);
         });
         // this.updateCanvas();
