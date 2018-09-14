@@ -307,6 +307,7 @@ export default class CanvasState {
         Object.values(nodes).forEach((node) => {
             this.nodes[node.index].x = node.x;
             this.nodes[node.index].y = node.y;
+            if (node.labels) this.nodes[node.index].labels = node.labels;
         });
         this.triggerDraw();
     }
