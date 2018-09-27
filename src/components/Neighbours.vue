@@ -1,14 +1,20 @@
 <template>
     <div>
         <div class="btn" @click="getGroupNeighbours">Update Neighbours</div>
+        {{groupNeighboursThreshold}}<range-slider :value="groupNeighboursThreshold" :change="changeNeighboursThreshold"></range-slider>
 
     </div>
 </template>
 
 <script>
+import RangeSlider from './RangeSlider';
+
 export default {
     name: 'Neighbours',
-    props: ['getStore'],
+    props: ['getStore', 'groupNeighboursThreshold', 'changeNeighboursThreshold'],
+    components: {
+        RangeSlider,
+    },
     data: () => ({
         loading: false,
         neighbours: [],
@@ -20,10 +26,10 @@ export default {
         async getGroupNeighbours() {
             try {
                 this.loading = true;
-                const body = {
-                    group: [],
-                };
                 const store = this.getStore()
+                const body = {
+                    group: store.getGroupeIds(),
+                };
                 const groupNeighbours = store.groupNeighbours
                 // add neighbours to body depending on existing neighbours to show init getNeighbours or update
                 if (Object.keys(groupNeighbours).length) body.neighbours = [];

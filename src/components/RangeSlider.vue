@@ -1,5 +1,5 @@
 <template>
-    <input type="range" min="0" max="800" step="10" :value="value"/>
+    <input type="range" min="0" max="1" step="0.01" :value="value" @input="change"/>
 </template>
 
 <script>

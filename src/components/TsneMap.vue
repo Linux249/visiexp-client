@@ -275,6 +275,8 @@
                     :getStore="getStore"
                     :dataset="dataset"
                     :handleChangeDataset="handleChangeDataset"
+                    :groupNeighboursThreshold="groupNeighboursThreshold"
+                    :changeNeighboursThreshold="changeNeighboursThreshold"
                 />
 
 
@@ -422,7 +424,7 @@ export default {
         socketId: '',
         rgbToHex,
         dataset: '001', // defualt value is 001
-        groupNeighboursTreshold: 0.1,
+        groupNeighboursThreshold: 0.2,
     }),
     methods: {
         getNode(i) {
@@ -454,6 +456,12 @@ export default {
             return this.store.getGroupeIds(ids);
         },
 
+        changeNeighboursThreshold({target}) {
+            console.log('changeNeighboursThreshold')
+            console.log(target.v)
+            this.groupNeighboursThreshold = target.value
+            this.store.triggerDraw()
+        },
 
         changeCluster(v) {
             // console.log("cluster more clicked")

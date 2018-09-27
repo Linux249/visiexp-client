@@ -631,7 +631,7 @@ export default class CanvasState {
             if (neighbourMode && !node.group) {
                 // the node should not be in the neighbours list
                 const neighbour = this.groupNeighbours[node.index];
-                if (!neighbour || neighbour > this.ui.groupNeighboursTreshold) show = false;
+                if (!neighbour || neighbour > this.ui.groupNeighboursThreshold) show = false;
             }
 
             // test if image obj exists
