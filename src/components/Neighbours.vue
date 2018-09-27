@@ -46,6 +46,7 @@ export default {
                 });
                 const { neighbours, group } = data;
                 store.updateGroupNeighbours(neighbours);
+                store.groupNodesByIds(group);
                 console.log({ neighbours, group });
                 this.loading = false;
             } catch (e) {
