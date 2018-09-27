@@ -421,7 +421,8 @@ export default {
         autoUpdateEmbedding: false,
         socketId: '',
         rgbToHex,
-        dataset: '001',
+        dataset: '001', // defualt value is 001
+        groupNeighboursTreshold: 0.1,
     }),
     methods: {
         getNode(i) {
@@ -982,7 +983,7 @@ export default {
         socket.on('updateEmbedding', (data, cb) => {
             console.log('updateEmbedding');
             console.log(data);
-            cb({ stopped: this.autoUpdateEmbedding })
+            cb({ stopped: this.autoUpdateEmbedding });
             this.store.updateNodes(data.nodes);
         });
         // this.updateCanvas();

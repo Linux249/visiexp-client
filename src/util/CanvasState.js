@@ -92,6 +92,9 @@ export default class CanvasState {
         this.sizeRange = 3;
 
         this.moveGroupToMouse = false;
+
+        // array of node index's
+        this.groupNeighbours = {};
     }
 
     set sizeRange(v) {
@@ -293,6 +296,10 @@ export default class CanvasState {
         this.triggerDraw();
     }
 
+    updateGroupNeighbours(neighbours) {
+        this.groupNeighbours = neighbours;
+        this.triggerDraw();
+    }
 
     addNode(node) {
         // TODO der NodeArray könnte bereits inistalisert sein oder?
@@ -588,6 +595,9 @@ export default class CanvasState {
         const gradient = this.ui.gradient;
         const nodes = this.sorted ? this.sortedNodes : Object.values(this.nodes);
 
+        // check if it is NEIGHBOUR mode
+        const neighbourMode = this.ui.$route.name === NEIGHBOURS;
+
         nodes.forEach((node) => {
             // start x,y ist x *scale + translateX
             // console.log(node)
@@ -606,8 +616,9 @@ export default class CanvasState {
             const ih = img.height;
             const inside = canvasX > borderW && canvasY > borderW && canvasX < (canvasW - iw - borderW) && canvasY < (canvasH - ih - borderW);
 
+            // check if the image is allowed to draw in certain rules
             let show = true;
-
+            // 1. Rule: some labels can be selected as "not show this"
             node.labels.forEach((nodeLabel, i) => {
                 if (nodeLabel && this.ui.labels[i]) {
                     this.ui.labels[i].labels.forEach((e) => {
@@ -615,6 +626,13 @@ export default class CanvasState {
                     });
                 }
             });
+
+            // 2. if neighbours mode:  check if node is not grouped
+            if (neighbourMode && !node.group) {
+                // the node should not be in the neighbours list
+                const neighbour = this.groupNeighbours[node.index];
+                if (!neighbour || neighbour > this.ui.groupNeighboursTreshold) show = false;
+            }
 
             // test if image obj exists
             if (img && inside) {
@@ -735,6 +753,7 @@ export default class CanvasState {
         });
 
 
+        // DRAW UNDLINE FOR GROUPED NODES
         // TODO use color user can choose in UI + add choose color in UI
         const lineColor = [225, 225, 115]; // let s = '#ffff73'
         nodes.forEach((node) => {
@@ -1050,20 +1069,21 @@ export default class CanvasState {
             case SVM:
                 break;
             case NEIGHBOURS:
-                if (this.selection && this.selection !== this.nodeUnderMouse && ctrlKeyPressed) {
-                    console.log('Add or remove link');
-                    const links = Object.keys(this.selection.links);
-                    const i = this.nodeUnderMouse.index;
-                    console.log({ i, links });
-                    if (this.selection.links[i]) {
-                        console.log('remove link');
-                        delete this.selection.links[i];
-                    } else {
-                        console.log('Add link');
-                        this.selection.links[i] = 0.5;
-                    }
-                    console.log(this.selection);
-                }
+                /* if (this.selection && this.selection !== this.nodeUnderMouse && ctrlKeyPressed) {
+                        console.log('Add or remove link');
+                        const links = Object.keys(this.selection.links);
+                        const i = this.nodeUnderMouse.index;
+                        console.log({ i, links });
+                        if (this.selection.links[i]) {
+                            console.log('remove link');
+                            delete this.selection.links[i];
+                        } else {
+                            console.log('Add link');
+                            this.selection.links[i] = 0.5;
+                        }
+                        console.log(this.selection);
+                    } */
+                if(this.groupNeighbours[nodeUnderMouse.index]) this.groupNeighbours[nodeUnderMouse.index] = undefined
                 break;
             default:
                 console.log('no mode selected - what to do with a node click now?');
