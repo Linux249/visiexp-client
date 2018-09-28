@@ -95,6 +95,7 @@ export default class CanvasState {
 
         // array of node index's
         this.groupNeighbours = {};
+        this.removedGroupNeighbours = {};
     }
 
     set sizeRange(v) {
@@ -298,6 +299,7 @@ export default class CanvasState {
 
     updateGroupNeighbours(neighbours) {
         this.groupNeighbours = neighbours;
+        this.removedGroupNeighbours = {};
         this.triggerDraw();
     }
 
@@ -1102,7 +1104,10 @@ export default class CanvasState {
                         }
                         console.log(this.selection);
                     } */
-                if(this.groupNeighbours[nodeUnderMouse.index]) this.groupNeighbours[nodeUnderMouse.index] = undefined
+                if(this.groupNeighbours[nodeUnderMouse.index]) {
+                    this.removedGroupNeighbours[nodeUnderMouse.index] = this.groupNeighbours[nodeUnderMouse.index]
+                    this.groupNeighbours[nodeUnderMouse.index] = undefined
+                }
                 break;
             default:
                 console.log('no mode selected - what to do with a node click now?');

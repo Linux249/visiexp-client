@@ -20,21 +20,26 @@ export default {
         neighbours: [],
     }),
     mounted() {
-        this.getStore().triggerDraw()
+        // TODO store is not set while mount...
+        //this.getStore().triggerDraw();
     },
     methods: {
         async getGroupNeighbours() {
             try {
                 this.loading = true;
-                const store = this.getStore()
+                const store = this.getStore();
                 const body = {
                     group: store.getGroupeIds(),
                     threshold: this.groupNeighboursThreshold,
                 };
-                const groupNeighbours = store.groupNeighbours
+                const { groupNeighbours, removedGroupNeighbours } = store;
                 // add neighbours to body depending on existing neighbours to show init getNeighbours or update
-                if (Object.keys(groupNeighbours).length) body.neighbours = [];
-                Object.keys(groupNeighbours).forEach(key => body.neighbours.push(key))
+                if (Object.keys(groupNeighbours).length) {
+                    body.neighbours = groupNeighbours;
+                    if (Object.keys(removedGroupNeighbours).length) {
+                        body.removedNeighbours = removedGroupNeighbours;
+                    }
+                }
 
                 const data = await fetch('/api/v1/getGroupNeighbours', {
                     method: 'POST',
