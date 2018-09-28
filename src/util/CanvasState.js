@@ -303,6 +303,12 @@ export default class CanvasState {
         this.triggerDraw();
     }
 
+    resetGroupNeighbours() {
+        this.groupNeighbours = {};
+        this.removedGroupNeighbours = {};
+        this.triggerDraw();
+    }
+
     addNode(node) {
         // TODO der NodeArray könnte bereits inistalisert sein oder?
         // TODO wie initaliseren ? https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Array/fill

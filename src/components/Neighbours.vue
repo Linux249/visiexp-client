@@ -2,6 +2,10 @@
     <div>
         <div class="btn" @click="getGroupNeighbours">Update Neighbours</div>
         {{groupNeighboursThreshold}}<range-slider :value="groupNeighboursThreshold" :change="changeNeighboursThreshold"></range-slider>
+        <div class="row">
+            <div class="btn" @click="resetGroup">reset group</div>
+            <div class="btn" @click="resetNeighbours">reset Neighbours</div>
+        </div>
 
     </div>
 </template>
@@ -21,7 +25,7 @@ export default {
     }),
     mounted() {
         // TODO store is not set while mount...
-        //this.getStore().triggerDraw();
+        // this.getStore().triggerDraw();
     },
     methods: {
         async getGroupNeighbours() {
@@ -59,6 +63,14 @@ export default {
                 this.loading = false;
                 console.error(e);
             }
+        },
+
+        resetNeighbours() {
+            this.getStore().resetGroupNeighbours();
+        },
+
+        resetGroup() {
+            this.getStore().clearGroup();
         },
     },
 };
