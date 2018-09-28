@@ -29,6 +29,7 @@ export default {
                 const store = this.getStore()
                 const body = {
                     group: store.getGroupeIds(),
+                    threshold: this.groupNeighboursThreshold,
                 };
                 const groupNeighbours = store.groupNeighbours
                 // add neighbours to body depending on existing neighbours to show init getNeighbours or update

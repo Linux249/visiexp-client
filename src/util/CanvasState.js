@@ -499,6 +499,8 @@ export default class CanvasState {
         const rankSize = this.ui.sizeRanked;
         const nodes = this.sorted ? this.sortedNodes : Object.values(this.nodes);
 
+        const neighbourMode = this.ui.$route.name === NEIGHBOURS;
+
         nodes.forEach((node) => {
             // start x,y ist x *scale + translateX
             const nodeX = Math.floor(node.x * scale + tx);
@@ -515,11 +517,28 @@ export default class CanvasState {
             const imgH = img.height;
             const inside = nodeX > 0 && nodeY > 0 && nodeX < (canvasW - imgW) && nodeY < (canvasH - imgH);
 
+            // check if the image is allowed to draw in certain rules
+            let show = true;
+            // 1. Rule: some labels can be selected as "not show this"
+            node.labels.forEach((nodeLabel, i) => {
+                if (nodeLabel && this.ui.labels[i]) {
+                    this.ui.labels[i].labels.forEach((e) => {
+                        if (e && !e.show && e.name === nodeLabel) show = false;
+                    });
+                }
+            });
+
+            // 2. if neighbours mode:  check if node is not grouped
+            if (neighbourMode && !node.group) {
+                // the node should not be in the neighbours list
+                const neighbour = this.groupNeighbours[node.index];
+                if (!neighbour || neighbour > this.ui.groupNeighboursThreshold) show = false;
+            }
 
             // test if image obj exists
             if (img && inside) {
                 // cluster
-                if (node.cluster < this.cluster) {
+                if (node.cluster < this.cluster && show) {
                     // wir gehen durch alle reihen des bildes
                     for (let row = 0; row < imgH; row += 1) {
                         const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;

@@ -10,22 +10,22 @@ const socket = io.connect('http://localhost:3000', {
 // STATE
 
 const state = {
-    dataset: '',    // save the name of the actual dataset
-    count: 0,       // count of all nodes
-    nodes: [],       // TODO is there a way to initial the array bedder
+    dataset: '', // save the name of the actual dataset
+    count: 0, // count of all nodes
+    nodes: [], // TODO is there a way to initial the array bedder
 
 
-}
+};
 
 // AKTIONS
 
-const CLEAR_ALL = 0
+const CLEAR_ALL = 0;
 
-const UPDATE_EMBEDING = 0
+const UPDATE_EMBEDING = 0;
 
-const SET_DATASET = 0
+const SET_DATASET = 0;
 
-const GET_IMAGES = 0
+const GET_IMAGES = 0;
 
 /*
     1. get name/id of Dataset from main thread (args)
@@ -38,34 +38,32 @@ const GET_IMAGES = 0
 
 // actionHandler is used for the messages and also can be handlet from other functions
 const actionHandler = (action = { type: undefined, payload: undefined }) => {
-
     switch (action.type) {
-        case SET_DATASET:
-            state.dataset = action.payload
+    case SET_DATASET:
+        state.dataset = action.payload;
 
-            // TODO fetch dataset from the server
+        // TODO fetch dataset from the server
 
-            // TODO create all nodes with {name, id, imgs, x, y)
-            break
-        case CLEAR_ALL:
-            state.nodes = []
-            state.count = 0
-            // TODO drigger draw???
-            break
+        // TODO create all nodes with {name, id, imgs, x, y)
+        break;
+    case CLEAR_ALL:
+        state.nodes = [];
+        state.count = 0;
+        // TODO drigger draw???
+        break;
 
-        case GET_IMAGES:
-            // TODO first get all over the socket like before with (dataset)
+    case GET_IMAGES:
+        // TODO first get all over the socket like before with (dataset)
 
-            // TODO second - iterate over all nodes and fetch images - if possible as bytes
+        // TODO second - iterate over all nodes and fetch images - if possible as bytes
 
-        default:
-            return null
+    default:
+        return null;
     }
 
 
-    return null
-
-}
+    return null;
+};
 
 /* TODO
     Der canvas Store sollte eigentlich in einem worker sein
