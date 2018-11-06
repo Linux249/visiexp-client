@@ -1258,10 +1258,4 @@ export default {
     border: 1px solid black;
 }
 
-.color-box {
-    /*width: 30px;*/
-    /*height: 20px;*/
-    border: 0;
-    padding: 0;
-}
 </style>

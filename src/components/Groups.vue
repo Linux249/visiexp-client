@@ -1,19 +1,22 @@
 <template>
-    <div>
-    <div class="btn" @click="saveGroup">save group</div>
-
-    <div v-if="this.savedGroups.length"
-         class="group-list">
-
-        <div class="group-item row"
-             v-for="(group, i) in savedGroups"
-             :key="i"
-        >
-            <div class="btn" @click="loadGroup(i)">{{`${group.name } (${group.ids.length})`}}</div>
-            <div class="btn" @click="loadGroup(i)">load</div>
-            <div class="btn" @click="deleteGroup(i)">delete</div>
+    <div class="area">
+        <div class="title">Save/load groups</div>
+        <div class="row v-center">
+            <input class="input" type="text" v-model="groupName"/>
+            <div @click="saveGroup" class="btn">save group</div>
         </div>
-    </div>
+        <div v-if="this.savedGroups.length"
+             class="group-list">
+
+            <div class="group-item row"
+                 v-for="(group, i) in savedGroups"
+                 :key="i"
+            >
+                <div class="btn" @click="loadGroup(i)">{{`${group.name } (${group.ids.length})`}}</div>
+                <!--<div class="btn" @click="loadGroup(i)">load</div>-->
+                <div class="btn" @click="deleteGroup(i)">delete</div>
+            </div>
+        </div>
     </div>
 
 </template>
@@ -24,13 +27,14 @@ export default {
     props: ['groupNodesByIds', 'getGroupeIds'],
     data: () => ({
         savedGroups: [],
+        groupName: '',
     }),
     methods: {
         saveGroup() {
             // save the actually group
 
             // get the name
-            const name = `Group ${this.savedGroups.length}`;
+            const name = this.groupName || `Group ${this.savedGroups.length}`;
             // get the ids of the grouped nodes
             const ids = this.getGroupeIds();
 
@@ -53,8 +57,7 @@ export default {
 </script>
 
 <style scoped>
-
-    .group-item {
-        display: flex;
-    }
+.group-item {
+    display: flex;
+}
 </style>

@@ -4,7 +4,7 @@
             <div class="btn" @click="getGroupNeighbours">Update Neighbours</div>
             <div class="btn between">
                 {{groupNeighboursThreshold}}
-                <range-slider style="{width: '20%'}" :value="groupNeighboursThreshold" :change="changeNeighboursThreshold"></range-slider>
+                <range-slider :value="groupNeighboursThreshold" :change="changeNeighboursThreshold"></range-slider>
             </div>
             <div class="row">
                 <div class="btn" @click="resetGroup">reset group</div>
@@ -120,18 +120,5 @@ export default {
 </script>
 
 <style scoped>
-.between {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    align-content: center;
-}
-.v-center {
-    display: flex;
-    align-items: center;
-}
 
-.input {
-    margin-left: 0.5rem;
-}
 </style>

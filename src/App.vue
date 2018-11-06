@@ -112,4 +112,23 @@ export default {
         margin-bottom: 0.5rem;
     }
 
+
+    .between {
+        display: flex;
+        justify-content: space-between;
+    }
+    .v-center {
+        display: flex;
+        align-items: center;
+    }
+    .input {
+        margin-left: 0.5rem;
+    }
+    .color-box {
+        /*width: 30px;*/
+        /*height: 20px;*/
+        border: 0;
+        padding: 0;
+    }
+
 </style>

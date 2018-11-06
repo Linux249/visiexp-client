@@ -841,9 +841,10 @@ export default class CanvasState {
         // DRAW UNDLINE FOR GROUPED NODES
         // TODO use color user can choose in UI + add choose color in UI
         // const groupColor = [225, 225, 115];
-        const neighbourColor = [250,208,44];
         // const neighbourColor = [225, 225, 115];
-        const groupColor = [40,33,32];
+        const neighbourColor = [250,208,44]; // yellow
+        const groupColor = [40,33,32]; // black
+        //const groupColor = [195,230,203];  // bootstrap green
         const label2Color = [153, 0, 51];
 
         nodes.forEach((node) => {
