@@ -2,8 +2,6 @@
     <div class="body">
         <div class="sub-header">
             <div class="btn" :if="nodesTotal">{{nodesRecived + "/" + nodesTotal}}</div>
-
-
             <div>
                 <div class="row">
                     <!--<div># {{nodesCount}}</div>-->
@@ -16,8 +14,16 @@
                     --><!--<div class="btn" @click="draw2">draw2</div>
                     <div class="btn" @click="doubleNodes">doubleNodes</div>-->
                     <div class="btn" :class="{ active: sorted }" @click="sortNodes">sort</div>
-                    <div class="btn" :class="{ active: boarderRanked }" @click="toggleBoarderRanked">boarderRanked</div>
-                    <div class="btn" :class="{ active: sizeRanked }" @click="toggleSizeRanked">sizeRanked</div>
+                    <div
+                        class="btn"
+                        :class="{ active: boarderRanked }"
+                        @click="toggleBoarderRanked"
+                    >
+                        boarderRanked
+                    </div>
+                    <div class="btn" :class="{ active: sizeRanked }" @click="toggleSizeRanked">
+                        sizeRanked
+                    </div>
                 </div>
             </div>
             <div class="row">
@@ -31,12 +37,19 @@
                 <div @click="toggleShowNavHeatmap" :class="{ active: showNavHeatmap }" class="btn">
                     <navmap></navmap>
                 </div>
-                <!--<div class="btn" :class="{ active: showHeatmap }" @click="toggleShowHeatmap"></div>
-                <div class="btn" :class="{ active: showNavMap }" @click="toggleShowNavMap">NavMap</div>
-                <div class="btn" :class="{ active: showNavHeatmap }" @click="toggleShowNavHeatmap">NavHeatmap</div>-->
+                <!--<div class="btn" :class="{ active: showHeatmap }
+                " @click="toggleShowHeatmap"></div>
+                <div class="btn" :class="{ active: showNavMap }"
+                @click="toggleShowNavMap">NavMap</div>
+                <div class="btn" :class="{ active: showNavHeatmap }"
+                @click="toggleShowNavHeatmap">NavHeatmap</div>-->
 
 
-                <div class="categoriesArea" @mouseenter="showLabels = true" @mouseleave="showLabels = false">
+                <div
+                    class="categoriesArea"
+                    @mouseenter="showLabels = true"
+                    @mouseleave="showLabels = false"
+                >
                     <div class="btn">categories</div>
                     <div class="categories" v-if="showLabels">
                         <div
@@ -49,7 +62,11 @@
                                 @click="toogleCategory(i)"
                             >
                                 {{ category.name }}
-                                <div v-on:click.stop="toogleShowCategory(i)" class="btn" :class="{ active: !category.show }">
+                                <div
+                                    v-on:click.stop="toogleShowCategory(i)"
+                                    class="btn"
+                                    :class="{ active: !category.show }"
+                                >
                                     <slash></slash>
                                 </div>
                             </div>
@@ -82,7 +99,6 @@
                                             :value="rgbToHex(label.color[0], label.color[1], label.color[2])"
                                             :style="{backgroundColor: `rgb(${label.color[0]},${label.color[1]},${label.color[2]})`}"
                                         />
-
                                     </div>
                                 </div>
                             </div>
@@ -97,13 +113,19 @@
                     </div>
                 </div>
 
-                <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">Options</div>
+                <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">
+                    Options
+                </div>
                 <div @click="sendData" class="btn" :class="{ active: loadingNodes }">
                     Update
                     <send v-if="!loadingNodes"></send>
                     <div v-if="loadingNodes" class="loader" ></div>
                 </div>
-                <div @click="toggleUpdateEmbedding" :class="{ active: autoUpdateEmbedding }" class="btn" >
+                <div
+                    @click="toggleUpdateEmbedding"
+                    :class="{ active: autoUpdateEmbedding }"
+                    class="btn"
+                >
                     {{autoUpdateEmbedding ? 'stop' : 'start'}}
                     <play v-if="!autoUpdateEmbedding"></play>
                     <stop v-if="autoUpdateEmbedding"></stop>
@@ -126,7 +148,12 @@
             <div class="stack">
                 <canvas ref="canvas" id="canvas" class="canvas" tabindex="0" ></canvas>
                 <div class="maps">
-                    <canvas id="heatmap" class="canvas" :class="{ hide: !showHeatmap }" tabindex="0" ></canvas>
+                    <canvas
+                        id="heatmap"
+                        class="canvas"
+                        :class="{ hide: !showHeatmap }"
+                        tabindex="0"
+                    ></canvas>
                     <div class="navMap" :class="{ hide: !showNavMap }">
                         <canvas id="navMap" class="canvas" tabindex="0" ></canvas>
                         <canvas id="navMapRect" tabindex="0" ></canvas>
@@ -314,19 +341,31 @@ import Target from '../icons/Target';
 import Grid from '../icons/Grid';
 import TestWorker from '../worker/test.worker';
 
-function rgbToHex(R, G, B) { return `#${toHex(R)}${toHex(G)}${toHex(B)}`; }
+function rgbToHex(R, G, B) {
+    return `#${toHex(R)}${toHex(G)}${toHex(B)}`;
+}
 function toHex(n) {
     n = parseInt(n, 10);
     if (isNaN(n)) return '00';
     n = Math.max(0, Math.min(n, 255));
-    return '0123456789ABCDEF'.charAt((n - n % 16) / 16)
-        + '0123456789ABCDEF'.charAt(n % 16);
+    return (
+        '0123456789ABCDEF'.charAt((n - (n % 16)) / 16) +
+        '0123456789ABCDEF'.charAt(n % 16)
+    );
 }
 
-function hexToR(h) { return parseInt((cutHex(h)).substring(0, 2), 16); }
-function hexToG(h) { return parseInt((cutHex(h)).substring(2, 4), 16); }
-function hexToB(h) { return parseInt((cutHex(h)).substring(4, 6), 16); }
-function cutHex(h) { return (h.charAt(0) == '#') ? h.substring(1, 7) : h; }
+function hexToR(h) {
+    return parseInt(cutHex(h).substring(0, 2), 16);
+}
+function hexToG(h) {
+    return parseInt(cutHex(h).substring(2, 4), 16);
+}
+function hexToB(h) {
+    return parseInt(cutHex(h).substring(4, 6), 16);
+}
+function cutHex(h) {
+    return h.charAt(0) == '#' ? h.substring(1, 7) : h;
+}
 
 export default {
     store: null,
@@ -415,7 +454,7 @@ export default {
         colors: {
             hex: '#194d33',
             hsl: { h: 150, s: 0.5, l: 0.2, a: 1 },
-            hsv: { h: 150, s: 0.66, v: 0.30, a: 1 },
+            hsv: { h: 150, s: 0.66, v: 0.3, a: 1 },
             rgba: { r: 25, g: 77, b: 51, a: 1 },
             a: 1,
         },
@@ -456,11 +495,11 @@ export default {
             return this.store.getGroupeIds(ids);
         },
 
-        changeNeighboursThreshold({target}) {
-            console.log('changeNeighboursThreshold')
-            console.log(target.v)
-            this.groupNeighboursThreshold = target.value
-            this.store.triggerDraw()
+        changeNeighboursThreshold({ target }) {
+            console.log('changeNeighboursThreshold');
+            console.log(target.v);
+            this.groupNeighboursThreshold = target.value;
+            this.store.triggerDraw();
         },
 
         changeCluster(v) {
@@ -484,8 +523,10 @@ export default {
 
             // data in form of [[x,y,v], [x,y,v], ...]
             const data = Object.values(this.store.getNodes()).map((node) => {
-                const x = (node.x * this.store.scale + this.store.translateX) / 4;
-                const y = (node.y * this.store.scale + this.store.translateY) / 4;
+                const x =
+                    (node.x * this.store.scale + this.store.translateX) / 4;
+                const y =
+                    (node.y * this.store.scale + this.store.translateY) / 4;
                 return [x, y, 1];
             });
 
@@ -509,7 +550,6 @@ export default {
             // clean the canvas first
             ctx.clearRect(0, 0, w, h);
 
-
             ctx.lineWidth = 0.05;
 
             for (const i in this.store.nodes) {
@@ -518,7 +558,9 @@ export default {
                 const y = node.y * 5 + h / 2;
 
                 const c = this.gradient[node.rank * 10];
-                const color = this.boarderRanked ? `rgb(${c[0]},${c[1]},${c[2]})` : 'grey';
+                const color = this.boarderRanked
+                    ? `rgb(${c[0]},${c[1]},${c[2]})`
+                    : 'grey';
                 ctx.fillStyle = color;
                 ctx.strokeStyle = color;
                 ctx.beginPath();
@@ -590,11 +632,15 @@ export default {
             // const y = ty + h/2;
             const y = h / 2 - ty * scale;
 
-            ctx.clearRect(0, 0, this.navHeatmapRect.width, this.navHeatmapRect.height);
+            ctx.clearRect(
+                0,
+                0,
+                this.navHeatmapRect.width,
+                this.navHeatmapRect.height,
+            );
             ctx.strokeRect(x, y, w * scale, h * scale);
             requestAnimationFrame(() => console.timeEnd('drawNavHeatmapRect'));
         },
-
 
         toggleShowNavMap() {
             this.showNavMap = !this.showNavMap;
@@ -605,7 +651,7 @@ export default {
         toggleShowNavHeatmap() {
             this.showNavHeatmap = !this.showNavHeatmap;
             if (this.showNavHeatmap) requestAnimationFrame(this.drawNavHeatmap);
-            if (this.showNavHeatmap) requestAnimationFrame(this.drawNavHeatmapRect);
+            if (this.showNavHeatmap) { requestAnimationFrame(this.drawNavHeatmapRect); }
         },
 
         toggleShowHeatmap() {
@@ -665,15 +711,18 @@ export default {
             this.showOptions = !this.showOptions;
         },
         changeScrollGrowth(v) {
-            this.store.scrollGrowth = Math.round((this.store.scrollGrowth + v) * 100) / 100;
+            this.store.scrollGrowth =
+                Math.round((this.store.scrollGrowth + v) * 100) / 100;
             this.scrollGrowth = this.store.scrollGrowth;
         },
         changeScrollImgGrowth(v) {
-            this.store.scrollImgGrowth = Math.round((this.store.scrollImgGrowth + v) * 100) / 100;
+            this.store.scrollImgGrowth =
+                Math.round((this.store.scrollImgGrowth + v) * 100) / 100;
             this.scrollImgGrowth = this.store.scrollImgGrowth;
         },
         changeClusterGrowth(v) {
-            this.store.clusterGrowth = Math.round((this.store.clusterGrowth + v) * 100) / 100;
+            this.store.clusterGrowth =
+                Math.round((this.store.clusterGrowth + v) * 100) / 100;
             // this.clusterGrowth = this.store.clusterGrowth;
         },
         changeZoomStage(v) {
@@ -709,12 +758,16 @@ export default {
             console.log(this.showKLabels);
         },
         toogleShowLabel(i) {
-            this.labels[this.selectedCategory].labels[i].show = !this.labels[this.selectedCategory].labels[i].show;
+            this.labels[this.selectedCategory].labels[i].show = !this.labels[
+                this.selectedCategory
+            ].labels[i].show;
             this.store.triggerDraw();
         },
         toogleShowCategory(i) {
             this.labels[i].show = !this.labels[i].show;
-            this.labels[i].labels.forEach(label => label.show = this.labels[i].show);
+            this.labels[i].labels.forEach(
+                label => (label.show = this.labels[i].show),
+            );
             this.store.triggerDraw();
         },
         toogleCategory(cat) {
@@ -732,9 +785,15 @@ export default {
         changeLabelColor(i, e) {
             console.log('changeLabelColor');
             // e.stopPropagation()
-            this.labels[this.selectedCategory].labels[i].color[0] = hexToR(e.target.value);
-            this.labels[this.selectedCategory].labels[i].color[1] = hexToG(e.target.value);
-            this.labels[this.selectedCategory].labels[i].color[2] = hexToB(e.target.value);
+            this.labels[this.selectedCategory].labels[i].color[0] = hexToR(
+                e.target.value,
+            );
+            this.labels[this.selectedCategory].labels[i].color[1] = hexToG(
+                e.target.value,
+            );
+            this.labels[this.selectedCategory].labels[i].color[2] = hexToB(
+                e.target.value,
+            );
             this.store.triggerDraw();
         },
         addLabeledToGroup(label) {
@@ -776,7 +835,11 @@ export default {
             console.log(color);
             const { rgba } = color;
             console.log(rgba);
-            this.gradient.splice(this.selectedGradient, 1, [rgba.r, rgba.g, rgba.b]);
+            this.gradient.splice(this.selectedGradient, 1, [
+                rgba.r,
+                rgba.g,
+                rgba.b,
+            ]);
         },
 
         async toggleUpdateEmbedding() {
@@ -808,7 +871,6 @@ export default {
             this.dataset = dataset;
             // TODO trigger reload of datas
         },
-
     },
     watch: {
         cluster(value) {
@@ -824,13 +886,22 @@ export default {
     },
     computed: {
         selectedNode() {
-            return this.store && this.store.selection && this.store.selection.name;
+            return (
+                this.store && this.store.selection && this.store.selection.name
+            );
         },
         selectedNodeNeighboursCount() {
-            return this.activeNode.links && Object.keys(this.activeNode.links).length;
+            return (
+                this.activeNode.links &&
+                Object.keys(this.activeNode.links).length
+            );
         },
         imageScale() {
-            return this.store && this.store.selection && this.store.selection.imageScale;
+            return (
+                this.store &&
+                this.store.selection &&
+                this.store.selection.imageScale
+            );
         },
     },
     mounted() {
@@ -838,19 +909,24 @@ export default {
 
         worker.postMessage({ a: 1 });
 
-
         worker.onmessage = function (event) {
             console.log('worker post a message');
             console.log(event.type);
             console.log(event.data);
         };
 
-        const socketIp = process.env.NODE_ENV === 'production' ? '129.206.117.172' : 'localhost';
-        const socket = io.connect(`http://${socketIp}:3000`, {
-            transports: ['websocket'],
-            reconnectionDelay: 100,
-            reconnectionDelayMax: 1000,
-        });
+        const socketIp =
+            process.env.NODE_ENV === 'production'
+                ? '129.206.117.172'
+                : 'localhost';
+        const socket = io.connect(
+            `http://${socketIp}:3000`,
+            {
+                transports: ['websocket'],
+                reconnectionDelay: 100,
+                reconnectionDelayMax: 1000,
+            },
+        );
         const canvas = document.getElementById('canvas');
         const parantWidth = canvas.parentNode.clientWidth; //* 0.8;
         const parantHeight = canvas.parentNode.clientHeight; // 700; // canvas.parentNode.clientHeight //* 0.8
@@ -893,12 +969,10 @@ export default {
         navHeatmapRect.getContext('2d').lineWidth = 1.5;
         this.navHeatmapRect = navHeatmapRect;
 
-
         // const ctx = canvas.getContext('2d');
         const s = new CanvasState(canvas, hitCanvas, socket, this);
 
         this.store = s;
-
 
         // sync values from UI to store
         s.labelColor = this.labelColor;
@@ -922,7 +996,9 @@ export default {
             this.socketId = socket.id;
             // if there is allready data then this is just a reconnect
             const nodes = this.store.getNodes();
-            console.log('nodes in store while connect (its maybe just a reconnect)');
+            console.log(
+                'nodes in store while connect (its maybe just a reconnect)',
+            );
             console.log(nodes);
             if (!Object.keys(nodes).length && !this.loadingNodes) {
                 socket.emit('updateNodes', { nodes: {} });
@@ -1038,145 +1114,151 @@ export default {
 </script>
 
 <style scoped>
-    .stack {
-        display: flex;
-        position: relative;
-        height: 700px;
-        width: calc(100% - 25rem);
-        margin: 0.5rem;
-    }
+.stack {
+    display: flex;
+    position: relative;
+    height: 700px;
+    width: calc(100% - 25rem);
+    margin: 0.5rem;
+}
 
-    .canvas {
-        background-color: white;
-        box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08);
-        /*margin: 0.5rem;*/
-        outline: none;
-    }
+.canvas {
+    background-color: white;
+    box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+    /*margin: 0.5rem;*/
+    outline: none;
+}
 
-    .maps {
-        position: absolute;
-        top: 0;
-        right: 0;
-        display: flex;
-        flex-direction: column;
-        margin: 0.5rem;
-    }
+.maps {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    margin: 0.5rem;
+}
 
-    .navMap {
-        position: relative;
-    }
+.navMap {
+    position: relative;
+}
 
-    #heatmap {
-        z-index: 10;
-    }
+#heatmap {
+    z-index: 10;
+}
 
-    #navMap, #navHeatmap {
-        position: absolute;
-        top: 0;
-        right: 0;
-        z-index: 10;
-    }
+#navMap,
+#navHeatmap {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 10;
+}
 
-    #navMapRect, #navHeatmapRect {
-        position: absolute;
-        top: 0;
-        right: 0;
-        z-index: 20;
-        margin: 0.5rem;
-        outline: none;
-    }
+#navMapRect,
+#navHeatmapRect {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 20;
+    margin: 0.5rem;
+    outline: none;
+}
 
-    .hide {
-        display: none;
-    }
+.hide {
+    display: none;
+}
 
-    .sub-header {
-        display: flex;
-        justify-content: space-between;
-        /*align-items: center;*/
-        height: 2.5rem;
-        padding: 5px;
-    }
+.sub-header {
+    display: flex;
+    justify-content: space-between;
+    /*align-items: center;*/
+    height: 2.5rem;
+    padding: 5px;
+}
 
-    .body {
-        /*width: 100%;*/
-        /*height: 100%;*/
-        /*background-color: rgb(255, 90, 75);*/
-        /*//color: black;*/
-        /*padding: 5px;*/
-    }
+.body {
+    /*width: 100%;*/
+    /*height: 100%;*/
+    /*background-color: rgb(255, 90, 75);*/
+    /*//color: black;*/
+    /*padding: 5px;*/
+}
 
-    .details {
-        width: 25rem;
-        height: 100%;
-        padding: 0.5rem;
-        background-color: white;
-    }
+.details {
+    width: 25rem;
+    height: 100%;
+    padding: 0.5rem;
+    background-color: white;
+}
 
-    .row-btn {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
+.row-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-    .info-box {
-        /*padding: 0.5rem;*/
-    }
+.info-box {
+    /*padding: 0.5rem;*/
+}
 
-    .img {
-        max-width: 100%;
-        max-height: 20rem;
-    }
+.img {
+    max-width: 100%;
+    max-height: 20rem;
+}
 
-    .loader {
-        border: 3px solid #707bff; /* Blue */
-        border-top: 3px solid #f3f3f3; /* Light grey */
-        border-radius: 50%;
-        width: 15px;
-        height: 15px;
-        animation: spin 2s linear infinite;
-    }
+.loader {
+    border: 3px solid #707bff; /* Blue */
+    border-top: 3px solid #f3f3f3; /* Light grey */
+    border-radius: 50%;
+    width: 15px;
+    height: 15px;
+    animation: spin 2s linear infinite;
+}
 
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
     }
-
-    .categoriesArea {
-        position: relative;
-        z-index: 1;
+    100% {
+        transform: rotate(360deg);
     }
+}
 
-    .categories {
-        /*position: absolute;*/
-        top: 25px;
-        width: 100%;
-    }
+.categoriesArea {
+    position: relative;
+    z-index: 1;
+}
 
-    .option-title {
-        color: #6772e5;
-        font-size: 15px;
-        font-weight: 600;
-        border-bottom: 0.05rem solid grey;
-    }
+.categories {
+    /*position: absolute;*/
+    top: 25px;
+    width: 100%;
+}
 
-    .color {
-        display: flex;
-        justify-content: center;
-        align-items: center;
+.option-title {
+    color: #6772e5;
+    font-size: 15px;
+    font-weight: 600;
+    border-bottom: 0.05rem solid grey;
+}
 
-        flex-grow: 1;
-        margin-bottom: 1rem;
-    }
+.color {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-    .activeColor {
-        border: 1px solid black;
-    }
+    flex-grow: 1;
+    margin-bottom: 1rem;
+}
 
-    .color-box {
-        /*width: 30px;*/
-        /*height: 20px;*/
-        border: 0;
-        padding: 0;
-    }
+.activeColor {
+    border: 1px solid black;
+}
+
+.color-box {
+    /*width: 30px;*/
+    /*height: 20px;*/
+    border: 0;
+    padding: 0;
+}
 </style>

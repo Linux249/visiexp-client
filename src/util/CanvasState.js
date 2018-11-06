@@ -1110,9 +1110,9 @@ export default class CanvasState {
                         }
                         console.log(this.selection);
                     } */
-                if(this.groupNeighbours[nodeUnderMouse.index]) {
-                    this.removedGroupNeighbours[nodeUnderMouse.index] = this.groupNeighbours[nodeUnderMouse.index]
-                    this.groupNeighbours[nodeUnderMouse.index] = undefined
+                if (this.groupNeighbours[nodeUnderMouse.index]) {
+                    this.removedGroupNeighbours[nodeUnderMouse.index] = this.groupNeighbours[nodeUnderMouse.index];
+                    this.groupNeighbours[nodeUnderMouse.index] = undefined;
                 }
                 break;
             default:

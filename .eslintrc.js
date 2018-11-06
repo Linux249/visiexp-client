@@ -53,6 +53,9 @@ module.exports = {
     // custom indentation
     "indent": ["error", 4],
 
+    // custom line length
+    "code": 120,
+
     // allow underscore in class setter/getter/constructor
     "no-underscore-dangle": ["error", { "allowAfterThis": true }]
   }
