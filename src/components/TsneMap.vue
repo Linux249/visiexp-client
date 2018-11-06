@@ -881,7 +881,10 @@ export default {
             console.log('watch color');
             console.log(value);
             console.log(this.colors);
-            const { b, g, r } = this.colors.rgba;
+            // const { b, g, r } = this.colors.rgba;
+        },
+        $route() {
+            this.store.triggerDraw();
         },
     },
     computed: {

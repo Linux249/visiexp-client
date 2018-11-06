@@ -1,38 +1,36 @@
 <template>
     <div class="">
-        <div class="btn" @click="getGroupNeighbours">Update Neighbours</div>
-        <div class="btn between">
-            {{groupNeighboursThreshold}}
-            <range-slider style="{width: '20%'}" :value="groupNeighboursThreshold" :change="changeNeighboursThreshold"></range-slider>
-        </div>
-        <div class="row">
-            <div class="btn" @click="resetGroup">reset group</div>
-            <div class="btn" @click="resetNeighbours">reset Neighbours</div>
+        <div class="area">
+            <div class="btn" @click="getGroupNeighbours">Update Neighbours</div>
+            <div class="btn between">
+                {{groupNeighboursThreshold}}
+                <range-slider style="{width: '20%'}" :value="groupNeighboursThreshold" :change="changeNeighboursThreshold"></range-slider>
+            </div>
+            <div class="row">
+                <div class="btn" @click="resetGroup">reset group</div>
+                <div class="btn" @click="resetNeighbours">reset Neighbours</div>
+            </div>
         </div>
 
         <div class="area">
             <div class="title">Select a Label or add a new one</div>
             <div
                 class="btn between "
-                v-for="(label, id) in labels2"
+                v-for="label in labels2"
                 :key="label"
-                @click="selectLabel(id)"
-                :class="{ active: selectedLabel === id }"
+                @click="selectLabel(label)"
+                :class="{ active: selectedLabel === label }"
             >
                 {{label}}
-                <div
-                    class="btn"
-                >
-                    <input
-                        class="color-box"
-                        type="color"
-                    />
+                <div class="btn">
+                    <label>
+                        <input class="color-box" type="color" />
+                    </label>
                 </div>
             </div>
             <div class="row v-center">
-                <input type="text" v-model="label2"/>
+                <input class="input" type="text" v-model="label2"/>
                 <div @click="addLabel" class="btn">new label</div>
-
             </div>
         </div>
     </div>
@@ -44,34 +42,23 @@ import RangeSlider from './RangeSlider';
 
 export default {
     name: 'Labels',
-    props: ['labels', 'node', 'getStore', 'groupNeighboursThreshold', 'changeNeighboursThreshold'],
+    props: ['labels', 'getStore', 'groupNeighboursThreshold', 'changeNeighboursThreshold'],
     components: {
         RangeSlider,
     },
     data: () => ({
         label2: '',
         labels2: [],
-        selectedLabel: null,
+        selectedLabel: '',
         loading: false,
         neighbours: [],
     }),
 
-    mounted: () => {
-        console.log('labels mounted');
-        console.log(this.labels);
-    },
-
     watch: {
-        // TODO: Implemnachanges coming from outside so its maybe a
-        node(n) {
-            console.log('node clicked');
-            if (this.selectedLabel) n.label2 = this.selectedLabel;
-        },
         nodes(nodes) {
             if (nodes) nodes.forEach(n => this.addNode(n));
         },
     },
-
     methods: {
         addLabel() {
             console.log('addLabel clicked');
@@ -142,5 +129,9 @@ export default {
 .v-center {
     display: flex;
     align-items: center;
+}
+
+.input {
+    margin-left: 0.5rem;
 }
 </style>

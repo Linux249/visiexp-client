@@ -577,7 +577,7 @@ export default class CanvasState {
                 // the node should not be in the neighbours list
                 const neighbour = this.groupNeighbours[node.index];
                 if (!neighbour || neighbour > this.ui.groupNeighboursThreshold) show = false;
-                //show = !(!this.groupNeighbours[node.index] || neighbour > this.ui.groupNeighboursThreshold);
+                // show = !(!this.groupNeighbours[node.index] || neighbour > this.ui.groupNeighboursThreshold);
             }
 
             // test if image obj exists
@@ -685,13 +685,12 @@ export default class CanvasState {
 
             const iw = img.width;
             const ih = img.height;
+            // nothing to do if the image is outside the canvas
             const inside =
                 canvasX > borderW &&
                 canvasY > borderW &&
                 canvasX < canvasW - iw - borderW &&
                 canvasY < canvasH - ih - borderW;
-
-            // nothing to do if the image is outside the canvas
             if (!inside) return;
 
             // check if the image is allowed to draw in certain rules
@@ -738,9 +737,9 @@ export default class CanvasState {
                             canvasPixel[c] = imgData[p]; // R
                             canvasPixel[c + 1] = imgData[p + 1]; // G
                             canvasPixel[c + 2] = imgData[p + 2]; // B
-                            let alpha = canvasPixel[c + 3] ? (canvasPixel[c + 3] + 10 * node.cliqueLen) : (50 + (zoomStage * 50));
-                            if(node.group) alpha = 255
-                            canvasPixel[c + 3] = alpha;
+                            // const alpha = canvasPixel[c + 3] ? (canvasPixel[c + 3] + 10 * node.cliqueLen) : (50 + (zoomStage * 50));
+                            // if (node.group) alpha = 255;
+                            canvasPixel[c + 3] = canvasPixel[c + 3] ? (canvasPixel[c + 3] + 10 * node.cliqueLen) : (50 + (zoomStage * 50));
                         }
                     }
                 }
@@ -814,40 +813,6 @@ export default class CanvasState {
                         }
                     }
                 }
-
-                const labelBorder2 = node.label2
-                if (labelBorder2) {
-                    const color = [100, 0, 150]
-                    // draw boarder
-                    for (let row = -2; row <= ih + 1; row += 1) {
-                        const canvasRow =
-                            ((canvasY + row) * canvasW + canvasX) * 4;
-                        if (row === -2 || row === ih + 1) {
-                            // draw top line r
-                            for (let col = 0; col < iw; col += 1) {
-                                const c = canvasRow + col * 4;
-                                canvasPixel[c] = color[0]; // R
-                                canvasPixel[c + 1] = color[1]; // G
-                                canvasPixel[c + 2] = color[2]; // B
-                                canvasPixel[c + 3] = 200; // ? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
-                            }
-                        } else {
-                            // draw left boarder
-                            const l = canvasRow - 8;
-                            canvasPixel[l] = color[0]; // R
-                            canvasPixel[l + 1] = color[1]; // G
-                            canvasPixel[l + 2] = color[2]; // B
-                            canvasPixel[l + 3] = 200; // ? canvasPixel[l + 3] += 10 : canvasPixel[l + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
-
-                            // draw left boarder
-                            const r = canvasRow + (iw + 1) * 4;
-                            canvasPixel[r] = color[0]; // R
-                            canvasPixel[r + 1] = color[1]; // G
-                            canvasPixel[r + 2] = color[2]; // B
-                            canvasPixel[r + 3] = 200; // ? canvasPixel[r + 3] += 10 : canvasPixel[r + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
-                        }
-                    }
-                }
             } else {
                 // drawcluster
                 let c = ((canvasY * canvasW) + canvasX) * 4;
@@ -875,17 +840,23 @@ export default class CanvasState {
 
         // DRAW UNDLINE FOR GROUPED NODES
         // TODO use color user can choose in UI + add choose color in UI
-        const lineColor = [225, 225, 115]; // let s = '#ffff73'
-        nodes.forEach((node) => {
-            // start x,y ist x *scale + translateX
+        // const groupColor = [225, 225, 115];
+        const neighbourColor = [250,208,44];
+        // const neighbourColor = [225, 225, 115];
+        const groupColor = [40,33,32];
+        const label2Color = [153, 0, 51];
 
-            // TODO test perfomance if the group-marks are bedder collected in the first loop
-            // in an array and draw after
-            if (!node.group) {
-                return;
-            }
-            const canvasX = Math.floor(node.x * scale + tx);
-            const canvasY = Math.floor(node.y * scale + ty);
+        nodes.forEach((node) => {
+            const neighbour = this.groupNeighbours[node.index];
+            // TODO Perfomance is maybe bedder without another loop
+
+            // draw only if group, label2 or neighbour
+            if (!node.group && !node.label2 && (!neighbour || neighbour > this.ui.groupNeighboursThreshold)) return;
+
+            const lineColor = node.label2 ? label2Color : neighbour ? neighbourColor : groupColor;
+
+            const canvasX = Math.floor((node.x * scale) + tx);
+            const canvasY = Math.floor((node.y * scale) + ty);
             let imgSize = rankSize
                 ? zoomStage + Math.floor(node.rank * this.sizeRange)
                 : zoomStage;
@@ -916,7 +887,7 @@ export default class CanvasState {
                         canvasPixel[c] = lineColor[0]; // R
                         canvasPixel[c + 1] = lineColor[1]; // G
                         canvasPixel[c + 2] = lineColor[2]; // B
-                        canvasPixel[c + 3] = 225; // ? canvasPixel[c + 3] += 10 * node.cliqueLen : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                        canvasPixel[c + 3] = neighbour ? 200 : 255;
                     }
                 }
             }
@@ -1203,6 +1174,9 @@ export default class CanvasState {
             this.ui.clickedNode = nodeUnderMouse;
             switch (this.ui.$route.name) {
             case SVM:
+                break;
+            case LABELS:
+                nodeUnderMouse.label2 = !nodeUnderMouse.label2 ? 'test' : null;
                 break;
             case NEIGHBOURS:
                 /* if (this.selection && this.selection !== this.nodeUnderMouse && ctrlKeyPressed) {

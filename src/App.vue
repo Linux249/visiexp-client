@@ -100,9 +100,8 @@ export default {
         width: 100%;
         font-weight: bold;
         color: #767676;
-        padding-bottom: 0.5rem;
+        margin: 0.5rem;
     }
-
 
     .area {
         background-color: white;
@@ -110,6 +109,7 @@ export default {
         /*margin: 0.5rem;*/
         outline: none;
         padding: 0.2rem;
+        margin-bottom: 0.5rem;
     }
 
 </style>
