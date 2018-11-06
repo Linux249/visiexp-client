@@ -8,13 +8,13 @@
                 <div class="row">
                     <!--<div># {{nodesCount}}</div>-->
                     <!--<div>connected: {{connectedToSocket}}</div>-->
-                    <div class="btn"> {{scale}}</div>
+                    <!--<div class="btn"> {{scale}}</div> -->
                     <!--<div class="btn">{{scale2}}</div>-->
-                    <div class="btn">{{zoomLvl}}</div>
+                    <!--<div class="btn">{{zoomLvl}}</div>
                     <div class="btn">{{translateX}}</div>
-                    <div class="btn">{{translateY}}</div>
-                    <!--<div class="btn" @click="draw2">draw2</div>-->
-                    <div class="btn" @click="doubleNodes">doubleNodes</div>
+                    <div class="btn">{{translateY}}</div> &ndash;&gt;
+                    --><!--<div class="btn" @click="draw2">draw2</div>
+                    <div class="btn" @click="doubleNodes">doubleNodes</div>-->
                     <div class="btn" :class="{ active: sorted }" @click="sortNodes">sort</div>
                     <div class="btn" :class="{ active: boarderRanked }" @click="toggleBoarderRanked">boarderRanked</div>
                     <div class="btn" :class="{ active: sizeRanked }" @click="toggleSizeRanked">sizeRanked</div>
@@ -99,7 +99,7 @@
 
                 <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">Options</div>
                 <div @click="sendData" class="btn" :class="{ active: loadingNodes }">
-                    Update Data
+                    Update
                     <send v-if="!loadingNodes"></send>
                     <div v-if="loadingNodes" class="loader" ></div>
                 </div>

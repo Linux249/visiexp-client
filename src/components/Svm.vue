@@ -56,6 +56,7 @@ export default {
     }),
 
     watch: {
+        // TODO: Implemnachanges coming from outside so its maybe a
         node(n) {
             this.addNode(n);
         },
@@ -72,6 +73,7 @@ export default {
             }
         },
         toggleActive(v) {
+            // switching between positiv and negativ mode
             this.selectPositives = v;
         },
         switchPositivs(i) {
