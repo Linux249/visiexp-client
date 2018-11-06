@@ -15,6 +15,7 @@ export default {
         -webkit-appearance: none;
         width: 85%;
         margin: 6px 0;
+        border-bottom: 0;
     }
     input[type=range]:focus {
         outline: none;
