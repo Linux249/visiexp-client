@@ -22,15 +22,15 @@ export default {
     }
     input[type=range]::-webkit-slider-runnable-track {
         width: 100%;
-        height: 10.9px;
+        height: 11px;
         cursor: pointer;
-        box-shadow: 1.5px 1.5px 5px rgba(104, 114, 229, 0.5), 0px 0px 1.5px rgba(126, 134, 233, 0.5);
+        box-shadow: 1.5px 1.5px 5px rgba(104, 114, 229, 0.5), 0 0 1.5px rgba(126, 134, 233, 0.5);
         background: #ffffff;
         border-radius: 25px;
         border: 0.6px solid #6772e5;
     }
     input[type=range]::-webkit-slider-thumb {
-        box-shadow: 0px 0px 12.3px rgba(103, 114, 229, 0.48), 0px 0px 0px rgba(125, 134, 233, 0.48);
+        box-shadow: 0 0 12.3px rgba(103, 114, 229, 0.48), 0 0 0 rgba(125, 134, 233, 0.48);
         border: 2.5px solid #ffffff;
         height: 23px;
         width: 23px;
@@ -47,13 +47,13 @@ export default {
         width: 100%;
         height: 10.9px;
         cursor: pointer;
-        box-shadow: 1.5px 1.5px 5px rgba(104, 114, 229, 0.5), 0px 0px 1.5px rgba(126, 134, 233, 0.5);
+        box-shadow: 1.5px 1.5px 5px rgba(104, 114, 229, 0.5), 0 0 1.5px rgba(126, 134, 233, 0.5);
         background: #ffffff;
         border-radius: 25px;
         border: 0.6px solid #6772e5;
     }
     input[type=range]::-moz-range-thumb {
-        box-shadow: 0px 0px 12.3px rgba(103, 114, 229, 0.48), 0px 0px 0px rgba(125, 134, 233, 0.48);
+        box-shadow: 0 0 12.3px rgba(103, 114, 229, 0.48), 0 0 0 rgba(125, 134, 233, 0.48);
         border: 2.5px solid #ffffff;
         height: 23px;
         width: 23px;
@@ -72,17 +72,17 @@ export default {
     input[type=range]::-ms-fill-lower {
         background: #f0f0f0;
         border: 0.6px solid #6772e5;
-        border-radius: 50px;
-        box-shadow: 1.5px 1.5px 5px rgba(104, 114, 229, 0.5), 0px 0px 1.5px rgba(126, 134, 233, 0.5);
+        border-radius: 50;
+        box-shadow: 1.5px 1.5px 5px rgba(104, 114, 229, 0.5), 0 0 1.5px rgba(126, 134, 233, 0.5);
     }
     input[type=range]::-ms-fill-upper {
         background: #ffffff;
         border: 0.6px solid #6772e5;
-        border-radius: 50px;
-        box-shadow: 1.5px 1.5px 5px rgba(104, 114, 229, 0.5), 0px 0px 1.5px rgba(126, 134, 233, 0.5);
+        border-radius: 50;
+        box-shadow: 1.5px 1.5px 5px rgba(104, 114, 229, 0.5), 0 0 1.5px rgba(126, 134, 233, 0.5);
     }
     input[type=range]::-ms-thumb {
-        box-shadow: 0px 0px 12.3px rgba(103, 114, 229, 0.48), 0px 0px 0px rgba(125, 134, 233, 0.48);
+        box-shadow: 0 0 12.3px rgba(103, 114, 229, 0.48), 0 0 0 rgba(125, 134, 233, 0.48);
         border: 2.5px solid #ffffff;
         height: 23px;
         width: 23px;

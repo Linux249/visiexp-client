@@ -225,13 +225,13 @@ export default {
         overflow: auto;
     }
 
-    .activePositiv {
+    /*.activePositiv {
         box-shadow: 0 7px 14px rgba(10, 255, 0, 0.2), 0 3px 6px rgba(0,0,0,.2);
     }
 
     .activeNegativ {
         box-shadow: 0 7px 14px rgba(255, 0, 66, 0.2), 0 3px 6px rgba(0,0,0,.2);
-    }
+    }*/
 
     img {
         height: 100%;

@@ -354,6 +354,9 @@ function toHex(n) {
     );
 }
 
+function cutHex(h) {
+    return h.charAt(0) === '#' ? h.substring(1, 7) : h;
+}
 function hexToR(h) {
     return parseInt(cutHex(h).substring(0, 2), 16);
 }
@@ -362,9 +365,6 @@ function hexToG(h) {
 }
 function hexToB(h) {
     return parseInt(cutHex(h).substring(4, 6), 16);
-}
-function cutHex(h) {
-    return h.charAt(0) == '#' ? h.substring(1, 7) : h;
 }
 
 export default {
@@ -554,8 +554,8 @@ export default {
 
             for (const i in this.store.nodes) {
                 const node = this.store.nodes[i];
-                const x = node.x * 5 + w / 2; // 5 = initscale (20) / 4 (25%)
-                const y = node.y * 5 + h / 2;
+                const x = (node.x * 5) + (w / 2); // 5 = initscale (20) / 4 (25%)
+                const y = (node.y * 5) + (h / 2);
 
                 const c = this.gradient[node.rank * 10];
                 const color = this.boarderRanked

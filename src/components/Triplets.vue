@@ -97,10 +97,10 @@ export default {
         object-fit: scale-down;
     }
 
-    .redActive, .greenActive {
+    /*.redActive, .greenActive {
         //border-width: 3px !important;
         //margin: 0 !important;
-    }
+    }*/
     .areas {
         display: flex;
         justify-content: center;
