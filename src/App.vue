@@ -96,5 +96,20 @@ export default {
         box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08);
     }
 
+    .title {
+        width: 100%;
+        font-weight: bold;
+        color: #767676;
+        padding-bottom: 0.5rem;
+    }
+
+
+    .area {
+        background-color: white;
+        box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+        /*margin: 0.5rem;*/
+        outline: none;
+        padding: 0.2rem;
+    }
 
 </style>

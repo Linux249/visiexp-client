@@ -1,5 +1,5 @@
 <template>
-    <div class="area">
+    <div class="areas">
         <div v-if="loading" class="loading"><div class="loading-wheel"></div></div>
         <div class="imgArea" :class="{activePositiv: selectPositives}" @click="toggleActive(true)">
             <div class="image" v-for="(node, i) in positives" :key="i" @mouseover="handleMouseOver(node)">
@@ -170,9 +170,8 @@ export default {
 </script>
 
 <style scoped>
-    .area {
+    .areas {
         position: relative;
-
         padding: 0.1rem;
     }
 

@@ -1,7 +1,7 @@
 <template>
     <div class="triblet-area">
 
-        <div v-if="node.negatives" class="negatives area" :class="{redActive}" @click="toogleRed">
+        <div v-if="node.negatives" class="negatives areas" :class="{redActive}" @click="toogleRed">
             <template v-if="node.negatives">
                 <div class="image" v-for="(n, i) in node.negatives" :key="i">
                     <img
@@ -17,7 +17,7 @@
                 <img :src="node.icon.src" alt="">
             </template>
         </div>
-        <div v-if="node.positives" class="positives area" :class="{greenActive}" @click="toogleBlue">
+        <div v-if="node.positives" class="positives areas" :class="{greenActive}" @click="toogleBlue">
             <template v-if="node.positives">
                 <div class="image" v-for="(n, i) in node.positives" :key="i">
                     <img
@@ -101,7 +101,7 @@ export default {
         //border-width: 3px !important;
         //margin: 0 !important;
     }
-    .area {
+    .areas {
         display: flex;
         justify-content: center;
         align-items: center;

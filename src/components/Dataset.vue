@@ -2,7 +2,7 @@
     <div>
         <div>SELECT A DATASET</div>
         <div
-            class="area"
+            class="areas"
             v-for="set in datasets"
             :key="set.id"
             @click="handleChangeDataset(set.id)"
@@ -38,7 +38,7 @@ export default {
 </script>
 
 <style scoped>
-    .area {
+    .areas {
         min-height: 4rem;
         max-height: 15rem;
         box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08);

@@ -13,8 +13,8 @@ export default {
 <style scoped>
     input[type=range] {
         -webkit-appearance: none;
-        width: 100%;
-        margin: 6.05px 0;
+        width: 85%;
+        margin: 6px 0;
     }
     input[type=range]:focus {
         outline: none;

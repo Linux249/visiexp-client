@@ -1,5 +1,5 @@
 import range from './range';
-import { SVM, NEIGHBOURS } from './modes';
+import { SVM, LABELS, NEIGHBOURS } from './modes';
 
 export default class CanvasState {
     constructor(canvas, hitCanvas, socket, ui) {
@@ -537,7 +537,7 @@ export default class CanvasState {
             ? this.sortedNodes
             : Object.values(this.nodes);
 
-        const neighbourMode = this.ui.$route.name === NEIGHBOURS;
+        const neighbourMode = this.ui.$route.name === LABELS;
 
         nodes.forEach((node) => {
             // start x,y ist x *scale + translateX
@@ -576,12 +576,8 @@ export default class CanvasState {
             if (neighbourMode && !node.group) {
                 // the node should not be in the neighbours list
                 const neighbour = this.groupNeighbours[node.index];
-                if (
-                    !neighbour ||
-                    neighbour > this.ui.groupNeighboursThreshold
-                ) {
-                    show = false;
-                }
+                if (!neighbour || neighbour > this.ui.groupNeighboursThreshold) show = false;
+                //show = !(!this.groupNeighbours[node.index] || neighbour > this.ui.groupNeighboursThreshold);
             }
 
             // test if image obj exists
@@ -665,7 +661,7 @@ export default class CanvasState {
             : Object.values(this.nodes);
 
         // check if it is NEIGHBOUR mode
-        const neighbourMode = this.ui.$route.name === NEIGHBOURS;
+        const neighbourMode = this.ui.$route.name === LABELS;
 
         nodes.forEach((node) => {
             // start x,y ist x *scale + translateX
@@ -742,11 +738,9 @@ export default class CanvasState {
                             canvasPixel[c] = imgData[p]; // R
                             canvasPixel[c + 1] = imgData[p + 1]; // G
                             canvasPixel[c + 2] = imgData[p + 2]; // B
-                            canvasPixel[c + 3]
-                                ? (canvasPixel[c + 3] +=
-                                      10 * node.cliqueLen)
-                                : (canvasPixel[c + 3] =
-                                      50 + (zoomStage * 50));
+                            let alpha = canvasPixel[c + 3] ? (canvasPixel[c + 3] + 10 * node.cliqueLen) : (50 + (zoomStage * 50));
+                            if(node.group) alpha = 255
+                            canvasPixel[c + 3] = alpha;
                         }
                     }
                 }
@@ -790,6 +784,40 @@ export default class CanvasState {
                     const color = this.ui.labels[
                         this.selectedCategory
                     ].labels.find(e => e.name === this.selectedLabel).color;
+                    // draw boarder
+                    for (let row = -2; row <= ih + 1; row += 1) {
+                        const canvasRow =
+                            ((canvasY + row) * canvasW + canvasX) * 4;
+                        if (row === -2 || row === ih + 1) {
+                            // draw top line r
+                            for (let col = 0; col < iw; col += 1) {
+                                const c = canvasRow + col * 4;
+                                canvasPixel[c] = color[0]; // R
+                                canvasPixel[c + 1] = color[1]; // G
+                                canvasPixel[c + 2] = color[2]; // B
+                                canvasPixel[c + 3] = 200; // ? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                            }
+                        } else {
+                            // draw left boarder
+                            const l = canvasRow - 8;
+                            canvasPixel[l] = color[0]; // R
+                            canvasPixel[l + 1] = color[1]; // G
+                            canvasPixel[l + 2] = color[2]; // B
+                            canvasPixel[l + 3] = 200; // ? canvasPixel[l + 3] += 10 : canvasPixel[l + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+
+                            // draw left boarder
+                            const r = canvasRow + (iw + 1) * 4;
+                            canvasPixel[r] = color[0]; // R
+                            canvasPixel[r + 1] = color[1]; // G
+                            canvasPixel[r + 2] = color[2]; // B
+                            canvasPixel[r + 3] = 200; // ? canvasPixel[r + 3] += 10 : canvasPixel[r + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                        }
+                    }
+                }
+
+                const labelBorder2 = node.label2
+                if (labelBorder2) {
+                    const color = [100, 0, 150]
                     // draw boarder
                     for (let row = -2; row <= ih + 1; row += 1) {
                         const canvasRow =

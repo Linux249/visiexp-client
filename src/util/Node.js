@@ -23,6 +23,7 @@ export default class Node {
         this.negatives = data.negatives;
 
         this.label = data.label;
+        this.label2 = data.label2 || null;
         this.labels = data.labels;
         // x,y for reseting
         // this.initX = data.x;

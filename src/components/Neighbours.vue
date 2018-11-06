@@ -45,7 +45,7 @@ export default {
                     }
                 }
 
-                const data = await fetch('/api/v1/getGroupNeighbours', {
+                const data = await fetch('http://localhost:3000/api/v1/getGroupNeighbours', {
                     method: 'POST',
                     headers: { 'Content-type': 'application/json' },
                     body: JSON.stringify(body),
