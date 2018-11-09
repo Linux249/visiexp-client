@@ -59,6 +59,7 @@ export default {
             if (nodes) nodes.forEach(n => this.addNode(n));
         },
     },
+    mounted()
     methods: {
         addLabel() {
             console.log('addLabel clicked');

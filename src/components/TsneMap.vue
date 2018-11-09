@@ -339,7 +339,7 @@ import Send from '../icons/Send';
 import Navmap from '../icons/Map';
 import Target from '../icons/Target';
 import Grid from '../icons/Grid';
-import TestWorker from '../worker/test.worker';
+// import TestWorker from '../worker/test.worker';
 
 function rgbToHex(R, G, B) {
     return `#${toHex(R)}${toHex(G)}${toHex(B)}`;
@@ -349,8 +349,8 @@ function toHex(n) {
     if (isNaN(n)) return '00';
     n = Math.max(0, Math.min(n, 255));
     return (
-        '0123456789ABCDEF'.charAt((n - (n % 16)) / 16) +
-        '0123456789ABCDEF'.charAt(n % 16)
+        '0123456789ABCDEF'.charAt((n - (n % 16)) / 16)
+        + '0123456789ABCDEF'.charAt(n % 16)
     );
 }
 
@@ -453,9 +453,15 @@ export default {
         showColorPicker: false,
         colors: {
             hex: '#194d33',
-            hsl: { h: 150, s: 0.5, l: 0.2, a: 1 },
-            hsv: { h: 150, s: 0.66, v: 0.3, a: 1 },
-            rgba: { r: 25, g: 77, b: 51, a: 1 },
+            hsl: {
+                h: 150, s: 0.5, l: 0.2, a: 1,
+            },
+            hsv: {
+                h: 150, s: 0.66, v: 0.3, a: 1,
+            },
+            rgba: {
+                r: 25, g: 77, b: 51, a: 1,
+            },
             a: 1,
         },
         selectedGradient: 0, // default is the first
@@ -523,10 +529,8 @@ export default {
 
             // data in form of [[x,y,v], [x,y,v], ...]
             const data = Object.values(this.store.getNodes()).map((node) => {
-                const x =
-                    (node.x * this.store.scale + this.store.translateX) / 4;
-                const y =
-                    (node.y * this.store.scale + this.store.translateY) / 4;
+                const x = (node.x * this.store.scale + this.store.translateX) / 4;
+                const y = (node.y * this.store.scale + this.store.translateY) / 4;
                 return [x, y, 1];
             });
 
@@ -543,9 +547,13 @@ export default {
 
         drawNavMap() {
             console.time('drawNavMap');
-            const ctx = this.navMap.getContext('2d'),
-                w = this.navMap.width,
-                h = this.navMap.height;
+            const ctx = this.navMap.getContext('2d');
+
+
+            const w = this.navMap.width;
+
+
+            const h = this.navMap.height;
 
             // clean the canvas first
             ctx.clearRect(0, 0, w, h);
@@ -711,18 +719,15 @@ export default {
             this.showOptions = !this.showOptions;
         },
         changeScrollGrowth(v) {
-            this.store.scrollGrowth =
-                Math.round((this.store.scrollGrowth + v) * 100) / 100;
+            this.store.scrollGrowth = Math.round((this.store.scrollGrowth + v) * 100) / 100;
             this.scrollGrowth = this.store.scrollGrowth;
         },
         changeScrollImgGrowth(v) {
-            this.store.scrollImgGrowth =
-                Math.round((this.store.scrollImgGrowth + v) * 100) / 100;
+            this.store.scrollImgGrowth = Math.round((this.store.scrollImgGrowth + v) * 100) / 100;
             this.scrollImgGrowth = this.store.scrollImgGrowth;
         },
         changeClusterGrowth(v) {
-            this.store.clusterGrowth =
-                Math.round((this.store.clusterGrowth + v) * 100) / 100;
+            this.store.clusterGrowth = Math.round((this.store.clusterGrowth + v) * 100) / 100;
             // this.clusterGrowth = this.store.clusterGrowth;
         },
         changeZoomStage(v) {
@@ -895,33 +900,34 @@ export default {
         },
         selectedNodeNeighboursCount() {
             return (
-                this.activeNode.links &&
-                Object.keys(this.activeNode.links).length
+                this.activeNode.links
+                && Object.keys(this.activeNode.links).length
             );
         },
         imageScale() {
             return (
-                this.store &&
-                this.store.selection &&
-                this.store.selection.imageScale
+                this.store
+                && this.store.selection
+                && this.store.selection.imageScale
             );
         },
     },
     mounted() {
-        const worker = new TestWorker();
+        // const worker = new TestWorker();
 
-        worker.postMessage({ a: 1 });
+        // worker.postMessage({ a: 1 });
 
-        worker.onmessage = function (event) {
+        /* worker.onmessage = function (event) {
             console.log('worker post a message');
             console.log(event.type);
             console.log(event.data);
         };
+        */
 
-        const socketIp =
-            process.env.NODE_ENV === 'production'
-                ? '129.206.117.172'
-                : 'localhost';
+        const socketIp = process.env.NODE_ENV === 'production'
+            ? '129.206.117.172'
+            : 'localhost';
+
         const socket = io.connect(
             `http://${socketIp}:3000`,
             {

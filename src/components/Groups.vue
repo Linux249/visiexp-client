@@ -1,10 +1,6 @@
 <template>
     <div class="area">
         <div class="title">Save/load groups</div>
-        <div class="row v-center">
-            <input class="input" type="text" v-model="groupName"/>
-            <div @click="saveGroup" class="btn">save group</div>
-        </div>
         <div v-if="this.savedGroups.length"
              class="group-list">
 
@@ -13,9 +9,13 @@
                  :key="i"
             >
                 <div class="btn" @click="loadGroup(i)">{{`${group.name } (${group.ids.length})`}}</div>
-                <!--<div class="btn" @click="loadGroup(i)">load</div>-->
-                <div class="btn" @click="deleteGroup(i)">delete</div>
+                <div class="btn" @click="loadGroup(i)">get N.</div>
+                <div class="btn" @click="deleteGroup(i)">X</div>
             </div>
+        </div>
+        <div class="row v-center">
+            <input class="input" type="text" v-model="groupName"/>
+            <div @click="saveGroup" class="btn">save group</div>
         </div>
     </div>
 
