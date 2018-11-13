@@ -483,9 +483,10 @@ export default {
             console.log(this.store.nodes);
             const nodes = this.store.getNodes();
             console.log(nodes);
-            this.store.resetStore();
+            // this.store.resetStore();
+            this.loadingNodes = true
             this.socket.emit('updateNodes', { nodes });
-            this.reset();
+            // this.reset();
         },
 
         changeActiveNode(n) {
@@ -1010,7 +1011,7 @@ export default {
             );
             console.log(nodes);
             if (!Object.keys(nodes).length && !this.loadingNodes) {
-                socket.emit('updateNodes', { nodes: {} });
+                socket.emit('getNodes', { nodes: {} });
                 this.reset();
             }
             // s.clear() // maybe there is something inside?
@@ -1076,6 +1077,9 @@ export default {
         socket.on('updateEmbedding', (data, cb) => {
             console.log('updateEmbedding');
             console.log(data);
+            console.log(this.loadingNodes);
+            this.loadingNodes = false;
+            console.log(this.loadingNodes);
             cb({ stopped: this.autoUpdateEmbedding });
             this.store.updateNodes(data.nodes);
         });
