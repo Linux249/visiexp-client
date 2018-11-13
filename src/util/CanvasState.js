@@ -12,7 +12,7 @@ export default class CanvasState {
         this.width = canvas.width;
         this.height = canvas.height;
 
-        this.hitCanvas = hitCanvas;
+        // this.hitCanvas = hitCanvas;
         this.hitCtx = hitCanvas.getContext('2d');
 
         // **** Keep track of state! ****
@@ -31,10 +31,10 @@ export default class CanvasState {
         this.nodeOnMouseDown = false; // save node on mouseDown for check in mouseUp
 
         // K labels for development
-        this.showKLabels = false;
+        // this.showKLabels = false;
         this.selectedLabel = null; // the choosen label for highlighten images
         this.selectedCategory = null; // the choosen Category
-        this.labelColor = null; // updatet throud ui
+        // this.labelColor = null; // updatet throud ui
 
         this.activeMode = false; // freeze for handling selection
         this.nodeUnderMouse = false; // is set (only!) on mouse move
@@ -339,7 +339,9 @@ export default class CanvasState {
     getNodes() {
         const nodes = {};
         Object.values(this.nodes).forEach(
-            ({ index, x, y, name, negatives, positives, links, labels }) => {
+            ({
+                index, x, y, name, negatives, positives, links, labels,
+            }) => {
                 nodes[index] = {
                     index,
                     x,
@@ -369,7 +371,7 @@ export default class CanvasState {
         return this.nodes[i];
     }
 
-    range(minX, minY, maxX, maxY) {
+    /* range(minX, minY, maxX, maxY) {
         // TODO min x, max should be automatic
         const result = range(
             this.kdtree.ids,
@@ -382,13 +384,13 @@ export default class CanvasState {
         );
         console.log('range');
         console.log(result);
-    }
+    } */
 
-    resetStore() {
+    /* resetStore() {
         this.nodes = {};
         this.colorHash = {};
         this.triggerDraw();
-    }
+    } */
 
     sortNodes() {
         this.sorted = !this.sorted;
@@ -404,7 +406,7 @@ export default class CanvasState {
         this.triggerDraw();
     }
 
-    clear() {
+    /* clear() {
         // move point 0,0 to middle of canvas
         // console.log(this.ctx)
         this.ctx.resetTransform();
@@ -419,7 +421,7 @@ export default class CanvasState {
         this.hitCtx.clearRect(0, 0, this.width, this.height);
         this.hitCtx.translate(this.translateX, this.translateY);
         this.hitCtx.scale(this.scale, this.scale);
-    }
+    } */
 
     /* draw() {
         // if our state is invalid, redraw and validate!
@@ -523,12 +525,22 @@ export default class CanvasState {
     drawHitmap() {
         console.time('drawHitmap');
 
-        const canvasW = this.width,
-            canvasH = this.height,
-            tx = this.translateX, // verschiebung des Nullpunktes im Raum
-            ty = this.translateY,
-            zoomStage = this.zoomStage,
-            scale = this.scale; // skalierung der x,y Koordinaten
+        const canvasW = this.width;
+
+
+        const canvasH = this.height;
+
+
+        const tx = this.translateX;
+        // verschiebung des Nullpunktes im Raum
+
+        const ty = this.translateY;
+
+
+        const zoomStage = this.zoomStage;
+
+
+        const scale = this.scale; // skalierung der x,y Koordinaten
         const canvasPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
         // console.log({ canvasW, canvasH, tx, ty, scale });
 
@@ -555,11 +567,10 @@ export default class CanvasState {
             // console.log(img)
             const imgW = img.width;
             const imgH = img.height;
-            const inside =
-                nodeX > 0 &&
-                nodeY > 0 &&
-                nodeX < canvasW - imgW &&
-                nodeY < canvasH - imgH;
+            const inside = nodeX > 0
+                && nodeY > 0
+                && nodeX < canvasW - imgW
+                && nodeY < canvasH - imgH;
 
             // check if the image is allowed to draw in certain rules
             let show = true;
@@ -643,12 +654,12 @@ export default class CanvasState {
     draw2() {
         console.time('draw2');
 
-        const canvasW = this.width,
-            canvasH = this.height,
-            tx = this.translateX, // wird auf die node x,y aufaddiert
-            ty = this.translateY,
-            zoomStage = this.zoomStage,
-            scale = this.scale; // node x,y werden multipliziert
+        const canvasW = this.width;
+        const canvasH = this.height;
+        const tx = this.translateX;
+        // wird auf die node x,y aufaddiert
+        const ty = this.translateY;
+        const { zoomStage, scale } = this;
         const canvasPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
         // console.log({ canvasW, canvasH, tx, ty, scale });
 
@@ -686,11 +697,10 @@ export default class CanvasState {
             const iw = img.width;
             const ih = img.height;
             // nothing to do if the image is outside the canvas
-            const inside =
-                canvasX > borderW &&
-                canvasY > borderW &&
-                canvasX < canvasW - iw - borderW &&
-                canvasY < canvasH - ih - borderW;
+            const inside = canvasX > borderW
+                && canvasY > borderW
+                && canvasX < canvasW - iw - borderW
+                && canvasY < canvasH - ih - borderW;
             if (!inside) return;
 
             // check if the image is allowed to draw in certain rules
@@ -709,12 +719,7 @@ export default class CanvasState {
             if (neighbourMode && !node.group) {
                 // the node should not be in the neighbours list
                 const neighbour = this.groupNeighbours[node.index];
-                if (
-                    !neighbour ||
-                    neighbour > this.ui.groupNeighboursThreshold
-                ) {
-                    show = false;
-                }
+                if (!neighbour || neighbour > this.ui.groupNeighboursThreshold) show = false;
             }
 
 
@@ -725,8 +730,7 @@ export default class CanvasState {
 
                 if (show) {
                     for (let row = 0; row < ih; row += 1) {
-                        const canvasRow =
-                            ((canvasY + row) * canvasW + canvasX) * 4;
+                        const canvasRow = ((canvasY + row) * canvasW + canvasX) * 4;
                         // copy row to pixel
                         // wir laufen durch alle spalten des bildes
                         // und betrachten dann 4 werte im array
@@ -748,8 +752,7 @@ export default class CanvasState {
                     const color = gradient[node.cliqueLen];
                     // draw boarder
                     for (let row = -2; row <= ih + 1; row += 1) {
-                        const canvasRow =
-                            (((canvasY + row) * canvasW) + canvasX) * 4;
+                        const canvasRow = (((canvasY + row) * canvasW) + canvasX) * 4;
                         if (row === -2 || row === ih + 1) {
                             // draw top line r
                             for (let col = 0; col < iw; col += 1) {
@@ -777,16 +780,15 @@ export default class CanvasState {
                     }
                 }
 
-                const labelBorder = this.selectedCategory && this.selectedLabel &&
-                    this.selectedLabel === node.labels[this.selectedCategory];
+                const labelBorder = this.selectedCategory && this.selectedLabel
+                    && this.selectedLabel === node.labels[this.selectedCategory];
                 if (labelBorder) {
                     const color = this.ui.labels[
                         this.selectedCategory
                     ].labels.find(e => e.name === this.selectedLabel).color;
                     // draw boarder
                     for (let row = -2; row <= ih + 1; row += 1) {
-                        const canvasRow =
-                            ((canvasY + row) * canvasW + canvasX) * 4;
+                        const canvasRow = ((canvasY + row) * canvasW + canvasX) * 4;
                         if (row === -2 || row === ih + 1) {
                             // draw top line r
                             for (let col = 0; col < iw; col += 1) {
@@ -842,9 +844,9 @@ export default class CanvasState {
         // TODO use color user can choose in UI + add choose color in UI
         // const groupColor = [225, 225, 115];
         // const neighbourColor = [225, 225, 115];
-        const neighbourColor = [250,208,44]; // yellow
-        const groupColor = [40,33,32]; // black
-        //const groupColor = [195,230,203];  // bootstrap green
+        const neighbourColor = [250, 208, 44]; // yellow
+        const groupColor = [40, 33, 32]; // black
+        // const groupColor = [195,230,203];  // bootstrap green
         const label2Color = [153, 0, 51];
 
         nodes.forEach((node) => {
@@ -867,19 +869,17 @@ export default class CanvasState {
             const img = node.imageData[imgSize];
             const iw = img.width;
             const ih = img.height;
-            const inside =
-                canvasX > borderW &&
-                canvasY > borderW &&
-                canvasX < canvasW - iw - borderW &&
-                canvasY < canvasH - ih - borderW;
+            const inside = canvasX > borderW
+                && canvasY > borderW
+                && canvasX < canvasW - iw - borderW
+                && canvasY < canvasH - ih - borderW;
 
             if (img && inside) {
                 const h = Math.ceil(ih / 10);
                 const w = Math.ceil(iw / 10);
                 // wir gehen durch alle reihen des bildes
                 for (let row = 0; row < h; row += 1) {
-                    const canvasRow =
-                        (((canvasY + ih + h + row) * canvasW) + canvasX - w) * 4;
+                    const canvasRow = (((canvasY + ih + h + row) * canvasW) + canvasX - w) * 4;
                     // copy row to pixel
                     // wir laufen durch alle spalten des bildes und betrachten dann 4 werte im array
                     for (let col = 0; col < iw + (2 * w); col += 1) {
@@ -897,14 +897,12 @@ export default class CanvasState {
         });
 
         if (this.drawScissors) {
-            const canvasX =
-                this.scissorsStartX < this.scissorsEndX
-                    ? this.scissorsStartX
-                    : this.scissorsEndX;
-            const canvasY =
-                this.scissorsStartY < this.scissorsEndY
-                    ? this.scissorsStartY
-                    : this.scissorsEndY;
+            const canvasX = this.scissorsStartX < this.scissorsEndX
+                ? this.scissorsStartX
+                : this.scissorsEndX;
+            const canvasY = this.scissorsStartY < this.scissorsEndY
+                ? this.scissorsStartY
+                : this.scissorsEndY;
 
             const w = Math.abs(this.scissorsEndX - this.scissorsStartX);
             const h = Math.abs(this.scissorsEndY - this.scissorsStartY);
@@ -1225,12 +1223,12 @@ export default class CanvasState {
                 // console.log(node)
                 // check for all nodes if they are inside the rectangle
                 if (
-                    (node.x > startX && node.x < endX) ||
-                    (node.x < startX && node.x > endX)
+                    (node.x > startX && node.x < endX)
+                    || (node.x < startX && node.x > endX)
                 ) {
                     if (
-                        (node.y < startY && node.y > endY) ||
-                        (node.y > startY && node.y < endY)
+                        (node.y < startY && node.y > endY)
+                        || (node.y > startY && node.y < endY)
                     ) {
                         this.ui.cuttedNodes.push(node);
                         node.group = true;

@@ -484,7 +484,7 @@ export default {
             const nodes = this.store.getNodes();
             console.log(nodes);
             // this.store.resetStore();
-            this.loadingNodes = true
+            this.loadingNodes = true;
             this.socket.emit('updateNodes', { nodes });
             // this.reset();
         },
@@ -707,6 +707,9 @@ export default {
         },
         doubleNodes() {
             this.store.doubleNodes();
+            // Update count nodes in UI
+            this.nodesTotal *= 2;
+            this.nodesRecived *= 2;
         },
 
         /*

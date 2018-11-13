@@ -59,7 +59,9 @@ export default {
             if (nodes) nodes.forEach(n => this.addNode(n));
         },
     },
-    mounted()
+    mounted() {
+        this.getGroupNeighbours()
+    },
     methods: {
         addLabel() {
             console.log('addLabel clicked');
