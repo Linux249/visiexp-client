@@ -47,7 +47,7 @@ export default class CanvasState {
         this.scissorsEndX = 0;
         this.scissorsEndY = 0;
 
-        this._cluster = 50000;
+        this._cluster = 100;
         // this.updateClusterUI = null;
         this._scale = 20;
         // this._scale2 = 20; // vorher 0
@@ -649,7 +649,9 @@ export default class CanvasState {
         const canvasPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
         // console.log({ canvasW, canvasH, tx, ty, scale });
 
-        const { boarderRanked: drawBoarder, sizeRanked: rankSize, gradient } = this.ui;
+        const {
+            boarderRanked: drawBoarder, sizeRanked: rankSize, gradient, clusterMode,
+        } = this.ui;
         const borderW = 1;
         const nodes = this.sorted ? this.sortedNodes : Object.values(this.nodes);
 
@@ -665,8 +667,12 @@ export default class CanvasState {
 
             let imgSize = rankSize ? zoomStage + Math.floor(node.rank * this.sizeRange) : zoomStage;
             imgSize += this.imgSize; // add imgSize from user input
+
+            if (clusterMode && node.cluster < this.cluster) imgSize += 5;
+
             if (imgSize < 0) imgSize = 0;
             if (imgSize > 14) imgSize = 14;
+
 
             const img = node.imageData[imgSize];
             if (!img) {
@@ -703,7 +709,8 @@ export default class CanvasState {
             }
 
             // cluster
-            if (node.cluster < this.cluster) {
+            // if (node.cluster < this.cluster) {
+            if (true) {
                 const imgData = img.data;
                 // wir gehen durch alle reihen des bildes
 

@@ -65,7 +65,8 @@ module.exports = {
     "no-underscore-dangle": ["error", { "allowAfterThis": true }],
 
       // damn arra warning in draw
-      "prefer-destructuring": ["error", {"object": true, "array": false}]
+      "prefer-destructuring": ["error", {"object": true, "array": false}],
+      "import/extensions": ['error', 'always', {ignorePackages: true} ]
   },
 
 }

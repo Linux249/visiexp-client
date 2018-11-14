@@ -24,6 +24,9 @@
                     <div class="btn" :class="{ active: sizeRanked }" @click="toggleSizeRanked">
                         sizeRanked
                     </div>
+                    <div class="btn" :class="{ active: clusterMode }" @click="toggleClusterMode">
+                        sizeRanked
+                    </div>
                 </div>
             </div>
             <div class="row">
@@ -411,6 +414,7 @@ export default {
         height: 0,
         activeNode: {},
         cluster: 5, // default - set on mount from CanvasStore class
+        clusterMode: false,
         imgSize: 0, // default - set on mount from CanvasStore class
         activeImgWidth: 0, // default - set on mount from CanvasStore class
         borderWidth: 0, // default - set on mount from CanvasStore class
@@ -683,6 +687,11 @@ export default {
         toggleBoarderRanked() {
             this.boarderRanked = !this.boarderRanked;
             this.store.draw2();
+        },
+
+        toggleClusterMode() {
+            this.clusterMode = !this.clusterMode;
+            this.store.triggerDraw();
         },
 
         /* toggleToggle() {
