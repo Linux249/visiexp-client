@@ -26,13 +26,13 @@ export default {
 </script>
 
 <style scoped>
-    /*.hash-icon{
+/*.hash-icon{
         border: 1px solid transparent;
     }*/
-    /*.hash-icon:hover{*/
-    /*border: 1px solid grey;*/
-    /*}*/
-    /*.hash-icon.active{*/
-    /*border: 1px solid grey;*/
-    /*}*/
+/*.hash-icon:hover{*/
+/*border: 1px solid grey;*/
+/*}*/
+/*.hash-icon.active{*/
+/*border: 1px solid grey;*/
+/*}*/
 </style>

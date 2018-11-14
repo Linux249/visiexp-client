@@ -95,8 +95,12 @@ export default {
             this.loading = true;
 
             // save nodes
-            this.positives.forEach(n => this.positivesAll.indexOf(n) === -1 && this.positivesAll.push(n));
-            this.negatives.forEach(n => this.negativesAll.indexOf(n) === -1 && this.negativesAll.push(n));
+            this.positives.forEach(
+                n => this.positivesAll.indexOf(n) === -1 && this.positivesAll.push(n),
+            );
+            this.negatives.forEach(
+                n => this.negativesAll.indexOf(n) === -1 && this.negativesAll.push(n),
+            );
 
             const body = JSON.stringify({
                 p: this.positivesAll.map(node => node.index),
@@ -107,10 +111,12 @@ export default {
                 method: 'POST',
                 headers: { 'Content-type': 'application/json' },
                 body,
-            }).then(res => res.json()).catch((e) => {
-                this.loading = false;
-                console.error(e);
-            });
+            })
+                .then(res => res.json())
+                .catch((e) => {
+                    this.loading = false;
+                    console.error(e);
+                });
 
             console.log(data);
             this.count += 1;
@@ -119,19 +125,37 @@ export default {
             data.p.forEach((i) => {
                 const node = this.getNode(i);
                 if (node) this.positives.push(node);
-                else console.log(new Error('der zurückgegebene Index in trainSvm ist nicht als Knoten vorhanden'));
+                else {
+                    console.log(
+                        new Error(
+                            'der zurückgegebene Index in trainSvm ist nicht als Knoten vorhanden',
+                        ),
+                    );
+                }
             });
             this.negatives = []; // reset
             data.n.forEach((i) => {
                 const node = this.getNode(i);
                 if (node) this.negatives.push(node);
-                else console.log(new Error('der zurückgegebene Index in trainSvm ist nicht als Knoten vorhanden'));
+                else {
+                    console.log(
+                        new Error(
+                            'der zurückgegebene Index in trainSvm ist nicht als Knoten vorhanden',
+                        ),
+                    );
+                }
             });
             this.topScored = []; // reset
             data.t.forEach((i) => {
                 const node = this.getNode(i);
                 if (node) this.topScored.push(node);
-                else console.log(new Error('der zurückgegebene Index in trainSvm ist nicht als Knoten vorhanden'));
+                else {
+                    console.log(
+                        new Error(
+                            'der zurückgegebene Index in trainSvm ist nicht als Knoten vorhanden',
+                        ),
+                    );
+                }
             });
             this.loading = false;
             console.log('done');
@@ -143,10 +167,11 @@ export default {
             const { group } = await fetch('/api/v1/svm/stop', {
                 method: 'POST',
                 headers: { 'Content-type': 'application/json' },
-            }).then(res => res.json()).catch(e => console.error(e));
+            })
+                .then(res => res.json())
+                .catch(e => console.error(e));
 
             this.groupNodesByIds(group);
-
 
             this.loading = false;
             // this.triggerDraw();
@@ -165,67 +190,66 @@ export default {
             this.changeActiveNode(n);
         },
     },
-
 };
 </script>
 
 <style scoped>
-    .areas {
-        position: relative;
-        padding: 0.1rem;
+.areas {
+    position: relative;
+    padding: 0.1rem;
+}
+
+.loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.loading-wheel {
+    width: 10px;
+    height: 10px;
+    margin-top: -20px;
+    margin-left: -20px;
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    border-width: 20px;
+    border-radius: 50%;
+    -webkit-animation: spin 1s linear infinite;
+
+    border-style: double;
+    border-color: #ccc transparent;
+}
+/*http://jsfiddle.net/8k2NV/2/*/
+
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0);
     }
-
-    .loading {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.1);
+    100% {
+        -webkit-transform: rotate(-360deg);
     }
+}
 
-    .loading-wheel {
-        width: 10px;
-        height: 10px;
-        margin-top: -20px;
-        margin-left: -20px;
+.imgArea {
+    min-height: 4rem;
+    max-height: 15rem;
+    box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    flex-flow: wrap;
+    flex-direction: row;
+    margin-bottom: 1rem;
 
-        position: absolute;
-        top: 50%;
-        left: 50%;
+    overflow: auto;
+}
 
-        border-width: 20px;
-        border-radius: 50%;
-        -webkit-animation: spin 1s linear infinite;
-
-        border-style: double;
-        border-color: #ccc transparent;
-    }
-    /*http://jsfiddle.net/8k2NV/2/*/
-
-    @-webkit-keyframes spin {
-        0% {
-            -webkit-transform: rotate(0);
-        }
-        100% {
-            -webkit-transform: rotate(-360deg);
-        }
-    }
-
-    .imgArea {
-        min-height: 4rem;
-        max-height: 15rem;
-        box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08);
-        display: flex;
-        align-items: center;
-        flex-flow: wrap;
-        flex-direction: row;
-        margin-bottom: 1rem;
-
-        overflow: auto;
-    }
-
-    /*.activePositiv {
+/*.activePositiv {
         box-shadow: 0 7px 14px rgba(10, 255, 0, 0.2), 0 3px 6px rgba(0,0,0,.2);
     }
 
@@ -233,18 +257,18 @@ export default {
         box-shadow: 0 7px 14px rgba(255, 0, 66, 0.2), 0 3px 6px rgba(0,0,0,.2);
     }*/
 
-    img {
-        height: 100%;
-        width: 100%;
-        object-fit: scale-down;
-    }
+img {
+    height: 100%;
+    width: 100%;
+    object-fit: scale-down;
+}
 
-    .image {
-        width: 3.5rem;
-        height: 3.5rem;
-        display: flex;
-        justify-content: center;
-        align-content: center;
-        padding: 0.1rem;
-    }
+.image {
+    width: 3.5rem;
+    height: 3.5rem;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    padding: 0.1rem;
+}
 </style>

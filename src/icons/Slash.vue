@@ -24,13 +24,13 @@ export default {
 </script>
 
 <style scoped>
-    /*.slash-icon{
+/*.slash-icon{
         border: 1px solid transparent;
     }*/
-    /*.slash-icon:hover{*/
-    /*border: 1px solid grey;*/
-    /*}*/
-    /*.slash-icon.active{*/
-    /*border: 1px solid grey;*/
-    /*}*/
+/*.slash-icon:hover{*/
+/*border: 1px solid grey;*/
+/*}*/
+/*.slash-icon.active{*/
+/*border: 1px solid grey;*/
+/*}*/
 </style>

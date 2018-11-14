@@ -1,4 +1,3 @@
-
 /* eslint no-underscore-dangle: ["error", { "allowAfterThis": true }] */
 export default class Node {
     constructor(data, ctx, hitCtx) {
@@ -43,7 +42,6 @@ export default class Node {
             // this.icon = new Image();
             // this.icon.src = data.buffer;
 
-
             // TODO das kann sicherlich optimiert werden
             // const canvas = document.createElement('canvas');
             // const context = canvas.getContext('2d');
@@ -77,7 +75,6 @@ export default class Node {
             console.log(this);
             console.log(data);
         }
-
 
         this._isActive = false; // handle clicked node
         this.isActiveNeighbour = false; // is this a neighbour of a active node?
@@ -163,7 +160,6 @@ export default class Node {
         this._y += y;
     }
 
-
     // ctx is the canvas context
     // scale change through zooming and is used for positioning the images
     draw(scale, scale2, imgWidth) {
@@ -182,9 +178,8 @@ export default class Node {
             // old architecture
             const w = (imgData.width * imgWidth) / 100 / scale2;
             const h = (imgData.height * imgWidth) / 100 / scale2;
-            const x = this._x - (w / 2);
-            const y = this._y - (h / 2);
-
+            const x = this._x - w / 2;
+            const y = this._y - h / 2;
 
             // new archetecture 1
             // const w = imgData.width;
@@ -199,7 +194,6 @@ export default class Node {
             // const x = Math.floor((this._x * scale) - (w / 2)); // TODO PERFORMANCE ??? Rounde faster than not?
             // const y = Math.floor((this._y * scale) - (h / 2));
 
-
             // const data = await createImageBitmap(imgData, 0, 0, w, h)
             // createImageBitmap(imgData,0, 0, 2, 2, {resizeHeight: h, resizeWidth: w}).then(data => {
             //     console.log(data)
@@ -207,7 +201,6 @@ export default class Node {
             // })
             // console.log({ x, y, h, w });
             this.ctx.drawImage(imgData, x, y, w, h); // TODO Performance drawImage - putImageData
-
 
             // this.hitCtx.fillStyle = this.colorKey;
             // this.hitCtx.fillRect(x, y, w, h);
@@ -236,11 +229,10 @@ export default class Node {
 
         /* const w = activeImgWidth / 10;
         const h = activeImgWidth / 10; */
-        const w = imgData.width * activeImgWidth / 1000; // TODO if image returns check if this width should be still used
-        const h = imgData.height * activeImgWidth / 1000;
-        const x = this._x - (w / 2);
-        const y = this._y - (h / 2);
-
+        const w = (imgData.width * activeImgWidth) / 1000; // TODO if image returns check if this width should be still used
+        const h = (imgData.height * activeImgWidth) / 1000;
+        const x = this._x - w / 2;
+        const y = this._y - h / 2;
 
         this.ctx.putImageData(imgData, x, y, w, h);
 
@@ -261,11 +253,10 @@ export default class Node {
 
         /* const w = (activeImgWidth / 10) * this.value;
         const h = (activeImgWidth / 10) * this.value; */
-        const w = imgData.width * activeImgWidth * strength / 1000; //* this.value; // TODO if image returns check if this width should be still used
-        const h = imgData.height * activeImgWidth * strength / 1000; //* this.value;
-        const x = this._x - (w / 2);
-        const y = this._y - (h / 2);
-
+        const w = (imgData.width * activeImgWidth * strength) / 1000; //* this.value; // TODO if image returns check if this width should be still used
+        const h = (imgData.height * activeImgWidth * strength) / 1000; //* this.value;
+        const x = this._x - w / 2;
+        const y = this._y - h / 2;
 
         this.ctx.drawImage(imgData, x, y, w, h);
 
@@ -274,7 +265,6 @@ export default class Node {
         this.hitCtx.fillRect(x, y, w, h);
     }
 
-
     drawBorder(scale, imgWidth, activeImgWidth, cluster, borderWidth, labelColor) {
         /* const x = this.x;
         const y = this.y;
@@ -282,30 +272,29 @@ export default class Node {
         const h = this.height; // scale;
         */
 
-        const w = this.icon.width * (
-            this.isActive
-                ? activeImgWidth
-                : this.isActiveNeighbour
-                    ? activeImgWidth * this.value
-                    : imgWidth
-        ) / 1000;
-        const h = this.icon.height * (
-            this.isActive
-                ? activeImgWidth
-                : this.isActiveNeighbour
-                    ? activeImgWidth * this.value
-                    : imgWidth
-        ) / 1000;
+        const w = (this.icon.width
+                * (this.isActive
+                    ? activeImgWidth
+                    : this.isActiveNeighbour
+                        ? activeImgWidth * this.value
+                        : imgWidth))
+            / 1000;
+        const h = (this.icon.height
+                * (this.isActive
+                    ? activeImgWidth
+                    : this.isActiveNeighbour
+                        ? activeImgWidth * this.value
+                        : imgWidth))
+            / 1000;
 
-        const x = this._x - (w / 2);
-        const y = this._y - (h / 2);
+        const x = this._x - w / 2;
+        const y = this._y - h / 2;
 
         const lineWidth = borderWidth / 10 / scale;
         this.ctx.strokeStyle = labelColor || this.color;
         this.ctx.lineWidth = lineWidth;
 
-
-        if ((this.cluster < cluster) || this.isActive || this.isActiveNeighbour) {
+        if (this.cluster < cluster || this.isActive || this.isActiveNeighbour) {
             // cluster represent
             if (lineWidth) this.ctx.strokeRect(x, y, w, h);
         } else {

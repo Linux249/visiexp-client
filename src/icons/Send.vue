@@ -24,7 +24,7 @@ export default {
 </script>
 
 <style scoped>
-    /*.send-icon:hover{
+/*.send-icon:hover{
         border: 1px solid grey;
     }
     .send-icon:hover{

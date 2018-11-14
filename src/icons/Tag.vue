@@ -24,7 +24,7 @@ export default {
 </script>
 
 <style scoped>
-    /*.tag-icon:hover{
+/*.tag-icon:hover{
         border: 1px solid transparent;
     }
     .tag-icon:hover{

@@ -25,13 +25,13 @@ export default {
 </script>
 
 <style scoped>
-    /*.target-icon{
+/*.target-icon{
         border: 1px solid transparent;
     }*/
-    /*.target-icon:hover{*/
-    /*border: 1px solid grey;*/
-    /*}*/
-    /*.target-icon.active{*/
-    /*border: 1px solid grey;*/
-    /*}*/
+/*.target-icon:hover{*/
+/*border: 1px solid grey;*/
+/*}*/
+/*.target-icon.active{*/
+/*border: 1px solid grey;*/
+/*}*/
 </style>

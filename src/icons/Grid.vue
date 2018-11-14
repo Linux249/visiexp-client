@@ -26,13 +26,13 @@ export default {
 </script>
 
 <style scoped>
-    /*.grid-icon{
+/*.grid-icon{
         border: 1px solid transparent;
     }*/
-    /*.grid-icon:hover{*/
-    /*border: 1px solid grey;*/
-    /*}*/
-    /*.grid-icon.active{*/
-    /*border: 1px solid grey;*/
-    /*}*/
+/*.grid-icon:hover{*/
+/*border: 1px solid grey;*/
+/*}*/
+/*.grid-icon.active{*/
+/*border: 1px solid grey;*/
+/*}*/
 </style>

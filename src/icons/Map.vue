@@ -25,13 +25,13 @@ export default {
 </script>
 
 <style scoped>
-    /*.map-icon{
+/*.map-icon{
         border: 1px solid transparent;
     }*/
-    /*.map-icon:hover{*/
-        /*border: 1px solid grey;*/
-    /*}*/
-    /*.map-icon.active{*/
-        /*border: 1px solid grey;*/
-    /*}*/
+/*.map-icon:hover{*/
+/*border: 1px solid grey;*/
+/*}*/
+/*.map-icon.active{*/
+/*border: 1px solid grey;*/
+/*}*/
 </style>

@@ -32,7 +32,6 @@
 </template>
 
 <script>
-
 /*
     user clicks on area and can then add items
     TODO: if the user click somewhere else toogle all to false
@@ -69,74 +68,71 @@ export default {
 </script>
 
 <style scoped>
+.triblet-area {
+    /*width: 100%;*/
+    height: 10rem;
 
-    .triblet-area{
-        /*width: 100%;*/
-        height: 10rem;
+    display: flex;
+    background-color: white;
 
-        display: flex;
-        background-color: white;
+    padding: 5px;
+}
 
-        padding: 5px;
-    }
+.node {
+    /*width: 5rem;*/
+    margin: 0 5px;
+    flex: 1;
 
-    .node {
-        /*width: 5rem;*/
-        margin: 0 5px;
-        flex: 1;
+    border: 1px solid rgba(146, 144, 142, 0.5);
+    border-radius: 15px;
+    background-color: rgba(91, 88, 82, 0.1);
+}
 
-        border: 1px solid rgba(146, 144, 142, 0.5);
-        border-radius: 15px;
-        background-color: rgba(91, 88, 82, 0.1);
-    }
+img {
+    height: 100%;
+    width: 100%;
 
-    img {
-        height: 100%;
-        width: 100%;
+    object-fit: scale-down;
+}
 
-        object-fit: scale-down;
-    }
-
-    /*.redActive, .greenActive {
+/*.redActive, .greenActive {
         //border-width: 3px !important;
         //margin: 0 !important;
     }*/
-    .areas {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-flow: wrap;
-        flex-direction: row;
-        flex: 5;
-        /*margin: 2px;*/
-    }
+.areas {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: wrap;
+    flex-direction: row;
+    flex: 5;
+    /*margin: 2px;*/
+}
 
-    .positives {
-        border: 1px solid rgba(0, 255, 10, 0.5);
-        border-radius: 15px;
-        background-color: rgba(0, 255, 10, 0.1);
-    }
+.positives {
+    border: 1px solid rgba(0, 255, 10, 0.5);
+    border-radius: 15px;
+    background-color: rgba(0, 255, 10, 0.1);
+}
 
-    .negatives {
-        border: 1px solid rgba(255, 59, 20, 0.5);
-        border-radius: 15px;
-        background-color: rgba(255, 59, 20, 0.1);
-    }
+.negatives {
+    border: 1px solid rgba(255, 59, 20, 0.5);
+    border-radius: 15px;
+    background-color: rgba(255, 59, 20, 0.1);
+}
 
-    .image {
-        width: 4rem;
-        height: 4rem;
-        display: flex;
-        justify-content: center;
-        align-content: center;
-        /*border: 1px solid red;*/
+.image {
+    width: 4rem;
+    height: 4rem;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    /*border: 1px solid red;*/
 
-        padding: 0.1rem;
-    }
+    padding: 0.1rem;
+}
 
-    .image :hover {
-        /*//width: 7rem;*/
-    }
-
-
+.image :hover {
+    /*//width: 7rem;*/
+}
 </style>

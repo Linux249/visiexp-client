@@ -350,10 +350,7 @@ function toHex(n) {
     n = parseInt(n, 10);
     if (isNaN(n)) return '00';
     n = Math.max(0, Math.min(n, 255));
-    return (
-        '0123456789ABCDEF'.charAt((n - (n % 16)) / 16)
-        + '0123456789ABCDEF'.charAt(n % 16)
-    );
+    return '0123456789ABCDEF'.charAt((n - (n % 16)) / 16) + '0123456789ABCDEF'.charAt(n % 16);
 }
 
 function cutHex(h) {
@@ -456,13 +453,22 @@ export default {
         colors: {
             hex: '#194d33',
             hsl: {
-                h: 150, s: 0.5, l: 0.2, a: 1,
+                h: 150,
+                s: 0.5,
+                l: 0.2,
+                a: 1,
             },
             hsv: {
-                h: 150, s: 0.66, v: 0.3, a: 1,
+                h: 150,
+                s: 0.66,
+                v: 0.3,
+                a: 1,
             },
             rgba: {
-                r: 25, g: 77, b: 51, a: 1,
+                r: 25,
+                g: 77,
+                b: 51,
+                a: 1,
             },
             a: 1,
         },
@@ -558,9 +564,7 @@ export default {
             console.time('drawNavMap');
             const ctx = this.navMap.getContext('2d');
 
-
             const w = this.navMap.width;
-
 
             const h = this.navMap.height;
 
@@ -571,13 +575,11 @@ export default {
 
             for (const i in this.store.nodes) {
                 const node = this.store.nodes[i];
-                const x = (node.x * 5) + (w / 2); // 5 = initscale (20) / 4 (25%)
-                const y = (node.y * 5) + (h / 2);
+                const x = node.x * 5 + w / 2; // 5 = initscale (20) / 4 (25%)
+                const y = node.y * 5 + h / 2;
 
                 const c = this.gradient[node.rank * 10];
-                const color = this.boarderRanked
-                    ? `rgb(${c[0]},${c[1]},${c[2]})`
-                    : 'grey';
+                const color = this.boarderRanked ? `rgb(${c[0]},${c[1]},${c[2]})` : 'grey';
                 ctx.fillStyle = color;
                 ctx.strokeStyle = color;
                 ctx.beginPath();
@@ -649,12 +651,7 @@ export default {
             // const y = ty + h/2;
             const y = h / 2 - ty * scale;
 
-            ctx.clearRect(
-                0,
-                0,
-                this.navHeatmapRect.width,
-                this.navHeatmapRect.height,
-            );
+            ctx.clearRect(0, 0, this.navHeatmapRect.width, this.navHeatmapRect.height);
             ctx.strokeRect(x, y, w * scale, h * scale);
             requestAnimationFrame(() => console.timeEnd('drawNavHeatmapRect'));
         },
@@ -668,7 +665,9 @@ export default {
         toggleShowNavHeatmap() {
             this.showNavHeatmap = !this.showNavHeatmap;
             if (this.showNavHeatmap) requestAnimationFrame(this.drawNavHeatmap);
-            if (this.showNavHeatmap) { requestAnimationFrame(this.drawNavHeatmapRect); }
+            if (this.showNavHeatmap) {
+                requestAnimationFrame(this.drawNavHeatmapRect);
+            }
         },
 
         toggleShowHeatmap() {
@@ -776,16 +775,13 @@ export default {
             console.log(this.showKLabels);
         }, */
         toogleShowLabel(i) {
-            this.labels[this.selectedCategory].labels[i].show = !this.labels[
-                this.selectedCategory
-            ].labels[i].show;
+            this.labels[this.selectedCategory].labels[i].show = !this.labels[this.selectedCategory]
+                .labels[i].show;
             this.store.triggerDraw();
         },
         toogleShowCategory(i) {
             this.labels[i].show = !this.labels[i].show;
-            this.labels[i].labels.forEach(
-                label => (label.show = this.labels[i].show),
-            );
+            this.labels[i].labels.forEach(label => (label.show = this.labels[i].show));
             this.store.triggerDraw();
         },
         toogleCategory(cat) {
@@ -803,15 +799,9 @@ export default {
         changeLabelColor(i, e) {
             console.log('changeLabelColor');
             // e.stopPropagation()
-            this.labels[this.selectedCategory].labels[i].color[0] = hexToR(
-                e.target.value,
-            );
-            this.labels[this.selectedCategory].labels[i].color[1] = hexToG(
-                e.target.value,
-            );
-            this.labels[this.selectedCategory].labels[i].color[2] = hexToB(
-                e.target.value,
-            );
+            this.labels[this.selectedCategory].labels[i].color[0] = hexToR(e.target.value);
+            this.labels[this.selectedCategory].labels[i].color[1] = hexToG(e.target.value);
+            this.labels[this.selectedCategory].labels[i].color[2] = hexToB(e.target.value);
             this.store.triggerDraw();
         },
         addLabeledToGroup(label) {
@@ -850,11 +840,7 @@ export default {
             console.log(color);
             const { rgba } = color;
             console.log(rgba);
-            this.gradient.splice(this.selectedGradient, 1, [
-                rgba.r,
-                rgba.g,
-                rgba.b,
-            ]);
+            this.gradient.splice(this.selectedGradient, 1, [rgba.r, rgba.g, rgba.b]);
         },
 
         async toggleUpdateEmbedding() {
@@ -904,22 +890,13 @@ export default {
     },
     computed: {
         selectedNode() {
-            return (
-                this.store && this.store.selection && this.store.selection.name
-            );
+            return this.store && this.store.selection && this.store.selection.name;
         },
         selectedNodeNeighboursCount() {
-            return (
-                this.activeNode.links
-                && Object.keys(this.activeNode.links).length
-            );
+            return this.activeNode.links && Object.keys(this.activeNode.links).length;
         },
         imageScale() {
-            return (
-                this.store
-                && this.store.selection
-                && this.store.selection.imageScale
-            );
+            return this.store && this.store.selection && this.store.selection.imageScale;
         },
     },
     mounted() {
@@ -934,9 +911,7 @@ export default {
         };
         */
 
-        const socketIp = process.env.NODE_ENV === 'production'
-            ? '129.206.117.172'
-            : 'localhost';
+        const socketIp = process.env.NODE_ENV === 'production' ? '129.206.117.172' : 'localhost';
 
         const socket = io.connect(
             `http://${socketIp}:3000`,
@@ -1015,9 +990,7 @@ export default {
             this.socketId = socket.id;
             // if there is allready data then this is just a reconnect
             const nodes = this.store.getNodes();
-            console.log(
-                'nodes in store while connect (its maybe just a reconnect)',
-            );
+            console.log('nodes in store while connect (its maybe just a reconnect)');
             console.log(nodes);
             if (!Object.keys(nodes).length && !this.loadingNodes) {
                 socket.emit('getNodes', { nodes: {} });
@@ -1276,5 +1249,4 @@ export default {
 .activeColor {
     border: 1px solid black;
 }
-
 </style>

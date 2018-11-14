@@ -23,7 +23,7 @@ export default {
 </script>
 
 <style scoped>
-    /*.stop-icon:hover{
+/*.stop-icon:hover{
         border: 1px solid transparent;
     }
     .stop-icon:hover{

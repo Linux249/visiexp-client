@@ -1,11 +1,13 @@
 import io from 'socket.io-client';
 
-const socket = io.connect('http://localhost:3000', {
-    transports: ['websocket'],
-    reconnectionDelay: 100,
-    reconnectionDelayMax: 1000,
-});
-
+const socket = io.connect(
+    'http://localhost:3000',
+    {
+        transports: ['websocket'],
+        reconnectionDelay: 100,
+        reconnectionDelayMax: 1000,
+    },
+);
 
 // STATE
 
@@ -13,8 +15,6 @@ const state = {
     dataset: '', // save the name of the actual dataset
     count: 0, // count of all nodes
     nodes: [], // TODO is there a way to initial the array bedder
-
-
 };
 
 // AKTIONS
@@ -34,7 +34,6 @@ const GET_IMAGES = 0;
         - names
     3. get
 */
-
 
 // actionHandler is used for the messages and also can be handlet from other functions
 const actionHandler = (action = { type: undefined, payload: undefined }) => {
@@ -60,7 +59,6 @@ const actionHandler = (action = { type: undefined, payload: undefined }) => {
     default:
         return null;
     }
-
 
     return null;
 };

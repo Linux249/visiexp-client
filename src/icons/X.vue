@@ -24,13 +24,13 @@ export default {
 </script>
 
 <style scoped>
-    /*.x-icon{
+/*.x-icon{
         border: 1px solid transparent;
     }*/
-    /*.x-icon:hover{*/
-    /*border: 1px solid grey;*/
-    /*}*/
-    /*.x-icon.active{*/
-    /*border: 1px solid grey;*/
-    /*}*/
+/*.x-icon:hover{*/
+/*border: 1px solid grey;*/
+/*}*/
+/*.x-icon.active{*/
+/*border: 1px solid grey;*/
+/*}*/
 </style>

@@ -51,7 +51,6 @@
 import Hash from '../icons/Hash';
 import X from '../icons/X';
 
-
 export default {
     name: 'classifier',
     props: ['nodes', 'node', 'labels', 'triggerDraw', 'getStore'],
@@ -67,7 +66,6 @@ export default {
         selectedCategory: '0',
         showAddCategory: false,
         category: '',
-
     }),
     watch: {
         node(n) {
@@ -135,11 +133,13 @@ export default {
                 method: 'POST',
                 headers: { 'Content-type': 'application/json' },
                 body,
-            }).then(res => res.text()).catch((e) => {
-                // TODO Errorhandling after loading is implemented
-                // this.loading = false;
-                console.error(e);
-            });
+            })
+                .then(res => res.text())
+                .catch((e) => {
+                    // TODO Errorhandling after loading is implemented
+                    // this.loading = false;
+                    console.error(e);
+                });
 
             console.log(data);
         },
@@ -156,64 +156,63 @@ export default {
 </script>
 
 <style scoped>
-    .classifier {
-        width: 100%;
-    }
+.classifier {
+    width: 100%;
+}
 
-    .row {
-        display: flex;
-        position: relative;
-    }
+.row {
+    display: flex;
+    position: relative;
+}
 
-    .imgArea {
-        min-height: 4rem;
-        max-height: 15rem;
-        overflow: auto;
+.imgArea {
+    min-height: 4rem;
+    max-height: 15rem;
+    overflow: auto;
 
-        box-shadow: 0 7px 14px rgba(50,50,93,.1), 0 3px 6px rgba(0,0,0,.08);
-        display: flex;
-        /*justify-content: center;*/
-        align-items: center;
-        flex-flow: wrap;
-        flex-direction: row;
-    }
+    box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+    display: flex;
+    /*justify-content: center;*/
+    align-items: center;
+    flex-flow: wrap;
+    flex-direction: row;
+}
 
-    img {
-        height: 100%;
-        width: 100%;
-        object-fit: scale-down;
-    }
+img {
+    height: 100%;
+    width: 100%;
+    object-fit: scale-down;
+}
 
-    .image {
-        width: 3.5rem;
-        height: 3.5rem;
-        display: flex;
-        justify-content: center;
-        align-content: center;
-        padding: 0.1rem;
-    }
+.image {
+    width: 3.5rem;
+    height: 3.5rem;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    padding: 0.1rem;
+}
 
-    .dropdown {
-        display: block;
-        position: absolute;
-        left: 0;
-        width: auto;
+.dropdown {
+    display: block;
+    position: absolute;
+    left: 0;
+    width: auto;
 
-        background-color: #fff;
-        border: 1px solid #c6c6c6;
-        border-radius: 3px;
+    background-color: #fff;
+    border: 1px solid #c6c6c6;
+    border-radius: 3px;
 
-        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-        top: 100%;
-        z-index: 1;
-    }
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    top: 100%;
+    z-index: 1;
+}
 
-    .item {
-        padding: 3px;
-    }
+.item {
+    padding: 3px;
+}
 
-    .item:hover {
-        background-color: #5cb9ff;
-    }
-
+.item:hover {
+    background-color: #5cb9ff;
+}
 </style>

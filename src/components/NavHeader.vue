@@ -22,40 +22,40 @@ export default {
 </script>
 
 <style scoped>
-    .header {
-        display: flex;
-        justify-content: space-between;
-        /*height: 50px;*/
-        box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
-    }
+.header {
+    display: flex;
+    justify-content: space-between;
+    /*height: 50px;*/
+    box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+}
 
-    .left-header, .right-header {
-        display: flex;
-        align-items: center;
-    }
+.left-header,
+.right-header {
+    display: flex;
+    align-items: center;
+}
 
-    a {
-        text-decoration: none;
+a {
+    text-decoration: none;
 
-        display: flex;
-        align-items: center;
-        height: 40px;
+    display: flex;
+    align-items: center;
+    height: 40px;
 
-        font-weight: bold;
-        padding: 0 1em;
-        margin-bottom: 5px;
-        color: #767676;
-    }
+    font-weight: bold;
+    padding: 0 1em;
+    margin-bottom: 5px;
+    color: #767676;
+}
 
-    a:hover {
-         color: #484848;
-     }
+a:hover {
+    color: #484848;
+}
 
-    .router-link-exact-active {
-         /*//background-color: paleturquoise;*/
-         border-bottom: 5px solid paleturquoise;
-         color: #484848;
-         margin-bottom: 0;
-     }
-
+.router-link-exact-active {
+    /*//background-color: paleturquoise;*/
+    border-bottom: 5px solid paleturquoise;
+    color: #484848;
+    margin-bottom: 0;
+}
 </style>

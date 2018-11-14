@@ -1,4 +1,3 @@
-
 // https://github.com/mourner/kdbush/tree/master/src
 
 function range(ids, coords, minX, minY, maxX, maxY, nodeSize) {
@@ -15,7 +14,7 @@ function range(ids, coords, minX, minY, maxX, maxY, nodeSize) {
         if (right - left <= nodeSize) {
             for (let i = left; i <= right; i++) {
                 x = coords[2 * i];
-                y = coords[(2 * i) + 1];
+                y = coords[2 * i + 1];
                 if (x >= minX && x <= maxX && y >= minY && y <= maxY) result.push(ids[i]);
             }
             continue;
@@ -24,7 +23,7 @@ function range(ids, coords, minX, minY, maxX, maxY, nodeSize) {
         const m = Math.floor((left + right) / 2);
 
         x = coords[2 * m];
-        y = coords[(2 * m) + 1];
+        y = coords[2 * m + 1];
 
         if (x >= minX && x <= maxX && y >= minY && y <= maxY) result.push(ids[m]);
 

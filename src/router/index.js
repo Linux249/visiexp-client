@@ -18,25 +18,30 @@ export default new Router({
             path: '/',
             name: 'Welcome',
             component: Welcome,
-        }, {
+        },
+        {
             path: `/${CLASSIFIER}`,
             name: CLASSIFIER,
             component: Classifier,
             props: true,
-        }, {
+        },
+        {
             path: `/${SVM}`,
             name: SVM,
             component: Svm,
             props: true,
-        }, {
+        },
+        {
             path: `/${NEIGHBOURS}`,
             name: NEIGHBOURS,
             component: Neighbours,
-        }, {
+        },
+        {
             path: `/${DATASET}`,
             name: DATASET,
             component: Dataset,
-        }, {
+        },
+        {
             path: `/${LABELS}`,
             name: LABELS,
             component: Labels,

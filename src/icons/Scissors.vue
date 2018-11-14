@@ -27,7 +27,7 @@ export default {
 </script>
 
 <style scoped>
-    /*.scissors-icon{
+/*.scissors-icon{
         border: 1px solid transparent;
     }
     .scissors-icon:hover{

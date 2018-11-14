@@ -276,9 +276,7 @@ export default class CanvasState {
     }
 
     groupNodesByGroupId(groupId) {
-        Object.values(this.nodes).forEach(
-            node => (node.group = (node.groupId === groupId)),
-        );
+        Object.values(this.nodes).forEach(node => (node.group = node.groupId === groupId));
         this.triggerDraw();
     }
 
@@ -292,9 +290,7 @@ export default class CanvasState {
     // return the id's of all nodes with group flag
     getGroupeIds() {
         const ids = [];
-        Object.values(this.nodes).forEach(
-            node => (node.group ? ids.push(node.index) : null),
-        );
+        Object.values(this.nodes).forEach(node => (node.group ? ids.push(node.index) : null));
         return ids;
     }
 
@@ -325,9 +321,7 @@ export default class CanvasState {
         // TODO wie initaliseren ? https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Array/fill
 
         this.nodes[node.index] = node;
-        this.colorHash[
-            `rgb(${node.colorKey[0]},${node.colorKey[1]},${node.colorKey[2]})`
-        ] = node.index;
+        this.colorHash[`rgb(${node.colorKey[0]},${node.colorKey[1]},${node.colorKey[2]})`] = node.index;
         this.triggerDraw(); // for redrawing
     }
 
@@ -365,9 +359,7 @@ export default class CanvasState {
         // TODO check perfomance: what is faster?
         // return Object.values(this.nodes).map(({ index, x, y }) => ({ id: index, x, y }));
         const nodes = {};
-        Object.values(this.nodes).forEach(
-            ({ index, x, y }) => (nodes[index] = { index, x, y }),
-        );
+        Object.values(this.nodes).forEach(({ index, x, y }) => (nodes[index] = { index, x, y }));
         return nodes;
     }
 
@@ -531,26 +523,20 @@ export default class CanvasState {
 
         const canvasW = this.width;
 
-
         const canvasH = this.height;
-
 
         const tx = this.translateX;
         // verschiebung des Nullpunktes im Raum
 
         const ty = this.translateY;
 
-
         const { zoomStage, scale } = this;
-
 
         const canvasPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
         // console.log({ canvasW, canvasH, tx, ty, scale });
 
         const rankSize = this.ui.sizeRanked;
-        const nodes = this.sorted
-            ? this.sortedNodes
-            : Object.values(this.nodes);
+        const nodes = this.sorted ? this.sortedNodes : Object.values(this.nodes);
 
         const neighbourMode = this.ui.$route.name === LABELS;
 
@@ -559,9 +545,7 @@ export default class CanvasState {
             const nodeX = Math.floor(node.x * scale + tx);
             const nodeY = Math.floor(node.y * scale + ty);
 
-            let imgSize = rankSize
-                ? zoomStage + Math.floor(node.rank * this.sizeRange)
-                : zoomStage;
+            let imgSize = rankSize ? zoomStage + Math.floor(node.rank * this.sizeRange) : zoomStage;
             imgSize += this.imgSize; // add imgSize from user input
             if (imgSize < 0) imgSize = 0;
             if (imgSize > 14) imgSize = 14;
@@ -570,10 +554,7 @@ export default class CanvasState {
             // console.log(img)
             const imgW = img.width;
             const imgH = img.height;
-            const inside = nodeX > 0
-                && nodeY > 0
-                && nodeX < canvasW - imgW
-                && nodeY < canvasH - imgH;
+            const inside = nodeX > 0 && nodeY > 0 && nodeX < canvasW - imgW && nodeY < canvasH - imgH;
 
             // check if the image is allowed to draw in certain rules
             let show = true;
@@ -658,16 +639,19 @@ export default class CanvasState {
         console.time('draw2');
 
         const {
-            zoomStage, scale, width: canvasW, height: canvasH, translateX: tx, translateY: ty,
+            zoomStage,
+            scale,
+            width: canvasW,
+            height: canvasH,
+            translateX: tx,
+            translateY: ty,
         } = this;
         const canvasPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
         // console.log({ canvasW, canvasH, tx, ty, scale });
 
         const { boarderRanked: drawBoarder, sizeRanked: rankSize, gradient } = this.ui;
         const borderW = 1;
-        const nodes = this.sorted
-            ? this.sortedNodes
-            : Object.values(this.nodes);
+        const nodes = this.sorted ? this.sortedNodes : Object.values(this.nodes);
 
         // check if it is NEIGHBOUR mode
         const neighbourMode = this.ui.$route.name === LABELS;
@@ -679,9 +663,7 @@ export default class CanvasState {
             const canvasX = Math.floor(node.x * scale + tx);
             const canvasY = Math.floor(node.y * scale + ty);
 
-            let imgSize = rankSize
-                ? zoomStage + Math.floor(node.rank * this.sizeRange)
-                : zoomStage;
+            let imgSize = rankSize ? zoomStage + Math.floor(node.rank * this.sizeRange) : zoomStage;
             imgSize += this.imgSize; // add imgSize from user input
             if (imgSize < 0) imgSize = 0;
             if (imgSize > 14) imgSize = 14;
@@ -720,7 +702,6 @@ export default class CanvasState {
                 if (!neighbour || neighbour > this.ui.groupNeighboursThreshold) show = false;
             }
 
-
             // cluster
             if (node.cluster < this.cluster) {
                 const imgData = img.data;
@@ -740,8 +721,8 @@ export default class CanvasState {
                             canvasPixel[c + 1] = imgData[p + 1]; // G
                             canvasPixel[c + 2] = imgData[p + 2]; // B
                             canvasPixel[c + 3] = canvasPixel[c + 3]
-                                ? (canvasPixel[c + 3] + 10 * node.cliqueLen)
-                                : (50 + (zoomStage * 50));
+                                ? canvasPixel[c + 3] + 10 * node.cliqueLen
+                                : 50 + zoomStage * 50;
                         }
                     }
                 }
@@ -750,11 +731,11 @@ export default class CanvasState {
                     const color = gradient[node.cliqueLen];
                     // draw boarder
                     for (let row = -2; row <= ih + 1; row += 1) {
-                        const canvasRow = (((canvasY + row) * canvasW) + canvasX) * 4;
+                        const canvasRow = ((canvasY + row) * canvasW + canvasX) * 4;
                         if (row === -2 || row === ih + 1) {
                             // draw top line r
                             for (let col = 0; col < iw; col += 1) {
-                                const c = canvasRow + (col * 4);
+                                const c = canvasRow + col * 4;
                                 canvasPixel[c] = color[0]; // R
                                 canvasPixel[c + 1] = color[1]; // G
                                 canvasPixel[c + 2] = color[2]; // B
@@ -769,7 +750,7 @@ export default class CanvasState {
                             canvasPixel[l + 3] = 200;
 
                             // draw left boarder
-                            const r = canvasRow + ((iw + 1) * 4);
+                            const r = canvasRow + (iw + 1) * 4;
                             canvasPixel[r] = color[0]; // R
                             canvasPixel[r + 1] = color[1]; // G
                             canvasPixel[r + 2] = color[2]; // B
@@ -778,7 +759,8 @@ export default class CanvasState {
                     }
                 }
 
-                const labelBorder = this.selectedCategory && this.selectedLabel
+                const labelBorder = this.selectedCategory
+                    && this.selectedLabel
                     && this.selectedLabel === node.labels[this.selectedCategory];
                 if (labelBorder) {
                     const { color } = this.ui.labels[this.selectedCategory].labels.find(
@@ -815,22 +797,22 @@ export default class CanvasState {
                 }
             } else {
                 // drawcluster
-                let c = ((canvasY * canvasW) + canvasX) * 4;
+                let c = (canvasY * canvasW + canvasX) * 4;
                 canvasPixel[c] = 210;
                 canvasPixel[c + 1] = 210;
                 canvasPixel[c + 2] = 210;
                 canvasPixel[c + 3] = 255;
-                c = ((canvasY * canvasW) + canvasX + 1) * 4;
+                c = (canvasY * canvasW + canvasX + 1) * 4;
                 canvasPixel[c] = 210;
                 canvasPixel[c + 1] = 210;
                 canvasPixel[c + 2] = 210;
                 canvasPixel[c + 3] = 255;
-                c = ((canvasY * canvasW) + canvasW + canvasX) * 4;
+                c = (canvasY * canvasW + canvasW + canvasX) * 4;
                 canvasPixel[c] = 210;
                 canvasPixel[c + 1] = 210;
                 canvasPixel[c + 2] = 210;
                 canvasPixel[c + 3] = 255;
-                c = ((canvasY * canvasW) + canvasW + canvasX + 1) * 4;
+                c = (canvasY * canvasW + canvasW + canvasX + 1) * 4;
                 canvasPixel[c] = 210;
                 canvasPixel[c + 1] = 210;
                 canvasPixel[c + 2] = 210;
@@ -856,11 +838,9 @@ export default class CanvasState {
 
             const lineColor = neighbour ? neighbourColor : groupColor;
 
-            const canvasX = Math.floor((node.x * scale) + tx);
-            const canvasY = Math.floor((node.y * scale) + ty);
-            let imgSize = rankSize
-                ? zoomStage + Math.floor(node.rank * this.sizeRange)
-                : zoomStage;
+            const canvasX = Math.floor(node.x * scale + tx);
+            const canvasY = Math.floor(node.y * scale + ty);
+            let imgSize = rankSize ? zoomStage + Math.floor(node.rank * this.sizeRange) : zoomStage;
             imgSize += this.imgSize;
             if (imgSize < 0) imgSize = 0;
             if (imgSize > 14) imgSize = 14;
@@ -877,11 +857,11 @@ export default class CanvasState {
                 const w = Math.ceil(iw / 10);
                 // wir gehen durch alle reihen des bildes
                 for (let row = 0; row < h; row += 1) {
-                    const canvasRow = (((canvasY + ih + h + row) * canvasW) + canvasX - w) * 4;
+                    const canvasRow = ((canvasY + ih + h + row) * canvasW + canvasX - w) * 4;
                     // copy row to pixel
                     // wir laufen durch alle spalten des bildes und betrachten dann 4 werte im array
-                    for (let col = 0; col < iw + (2 * w); col += 1) {
-                        const c = canvasRow + (col * 4);
+                    for (let col = 0; col < iw + 2 * w; col += 1) {
+                        const c = canvasRow + col * 4;
                         // if(c > canvasW * canvasH * 4) console.error("CRY")
                         canvasPixel[c] = lineColor[0]; // R
                         canvasPixel[c + 1] = lineColor[1]; // G
@@ -895,12 +875,8 @@ export default class CanvasState {
         });
 
         if (this.drawScissors) {
-            const canvasX = this.scissorsStartX < this.scissorsEndX
-                ? this.scissorsStartX
-                : this.scissorsEndX;
-            const canvasY = this.scissorsStartY < this.scissorsEndY
-                ? this.scissorsStartY
-                : this.scissorsEndY;
+            const canvasX = this.scissorsStartX < this.scissorsEndX ? this.scissorsStartX : this.scissorsEndX;
+            const canvasY = this.scissorsStartY < this.scissorsEndY ? this.scissorsStartY : this.scissorsEndY;
 
             const w = Math.abs(this.scissorsEndX - this.scissorsStartX);
             const h = Math.abs(this.scissorsEndY - this.scissorsStartY);
@@ -1136,18 +1112,13 @@ export default class CanvasState {
 
                 // drag neighbours in freeze mode
                 if (this.selection && this.selection === this.draggNode) {
-                    Object.entries(this.selection.links).forEach(
-                        ([i, strength]) => {
-                            const neighbour = this.nodes[i];
-                            // todo error handling if the neighbour is not existing for katja
-                            if (neighbour) {
-                                neighbour.move(
-                                    nodeX * strength,
-                                    nodeY * strength,
-                                );
-                            }
-                        },
-                    );
+                    Object.entries(this.selection.links).forEach(([i, strength]) => {
+                        const neighbour = this.nodes[i];
+                        // todo error handling if the neighbour is not existing for katja
+                        if (neighbour) {
+                            neighbour.move(nodeX * strength, nodeY * strength);
+                        }
+                    });
                 }
             }
             this.triggerDraw();
@@ -1201,16 +1172,14 @@ export default class CanvasState {
                         console.log(this.selection);
                     } */
                 if (this.groupNeighbours[nodeUnderMouse.index]) {
-                    this.removedGroupNeighbours[
+                    this.removedGroupNeighbours[nodeUnderMouse.index] = this.groupNeighbours[
                         nodeUnderMouse.index
-                    ] = this.groupNeighbours[nodeUnderMouse.index];
+                    ];
                     this.groupNeighbours[nodeUnderMouse.index] = undefined;
                 }
                 break;
             default:
-                console.log(
-                    'no mode selected - what to do with a node click now?',
-                );
+                console.log('no mode selected - what to do with a node click now?');
             }
         }
 
@@ -1230,14 +1199,8 @@ export default class CanvasState {
             Object.values(this.nodes).forEach((node) => {
                 // console.log(node)
                 // check for all nodes if they are inside the rectangle
-                if (
-                    (node.x > startX && node.x < endX)
-                    || (node.x < startX && node.x > endX)
-                ) {
-                    if (
-                        (node.y < startY && node.y > endY)
-                        || (node.y > startY && node.y < endY)
-                    ) {
+                if ((node.x > startX && node.x < endX) || (node.x < startX && node.x > endX)) {
+                    if ((node.y < startY && node.y > endY) || (node.y > startY && node.y < endY)) {
                         this.ui.cuttedNodes.push(node);
                         node.group = true;
                         node.grouId = this.ui.activeGroupe;

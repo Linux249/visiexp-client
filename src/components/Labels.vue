@@ -95,11 +95,13 @@ export default {
                     method: 'POST',
                     headers: { 'Content-type': 'application/json' },
                     body: JSON.stringify(body),
-                }).then(res => res.json()).catch((e) => {
-                    // TODO Errorhandling after loading is implemented
-                    // this.loading = false;
-                    console.error(e);
-                });
+                })
+                    .then(res => res.json())
+                    .catch((e) => {
+                        // TODO Errorhandling after loading is implemented
+                        // this.loading = false;
+                        console.error(e);
+                    });
                 const { neighbours, group } = data;
                 store.updateGroupNeighbours(neighbours);
                 store.groupNodesByIds(group);
@@ -123,5 +125,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>
