@@ -4,12 +4,13 @@
         <div v-if="this.savedGroups.length"
              class="group-list">
 
-            <div class="group-item row"
+            <div class="group-item row-between area"
                  v-for="(group, i) in savedGroups"
                  :key="i"
+                 @click="loadGroup(i)"
             >
-                <div class="btn" @click="loadGroup(i)">{{`${group.name } (${group.ids.length})`}}</div>
-                <div class="btn" @click="loadGroup(i)">get N.</div>
+                <div class="btn" :class="{active: group.groupId === activeGroupe}">{{`${group.name } (${group.ids.length})`}}</div>
+                <router-link class="btn" :to="{ name: 'labels', query: { groupId: group.groupId }}">get N.</router-link>
                 <div class="btn" @click="deleteGroup(i)">X</div>
             </div>
         </div>
@@ -24,7 +25,7 @@
 <script>
 export default {
     name: 'Groups',
-    props: ['groupNodesByIds', 'getGroupeIds'],
+    props: ['groupNodesByGroupId', 'getGroupeIds', 'activeGroupe', 'selectGroupe'],
     data: () => ({
         savedGroups: [],
         groupName: '',
@@ -32,13 +33,15 @@ export default {
     methods: {
         saveGroup() {
             // save the actually group
+            const groupId = this.savedGroups.length + 1;
 
             // get the name
-            const name = this.groupName || `Group ${this.savedGroups.length}`;
+            const name = this.groupName || `Group ${groupId}`;
             // get the ids of the grouped nodes
             const ids = this.getGroupeIds();
 
             this.savedGroups.push({
+                groupId,
                 ids,
                 name,
             });
@@ -46,8 +49,9 @@ export default {
             console.log(this.savedGroups);
         },
         loadGroup(i) {
-            const { ids } = this.savedGroups[i] || [];
-            this.groupNodesByIds(ids);
+            const { groupId } = this.savedGroups[i] || [];
+            this.groupNodesByGroupId(groupId);
+            this.selectGroupe(i + 1);
         },
         deleteGroup(i) {
             this.savedGroups.splice(i, 1);

@@ -62,7 +62,10 @@ module.exports = {
     "code": 120,
 
     // allow underscore in class setter/getter/constructor
-    "no-underscore-dangle": ["error", { "allowAfterThis": true }]
+    "no-underscore-dangle": ["error", { "allowAfterThis": true }],
+
+      // damn arra warning in draw
+      "prefer-destructuring": ["error", {"object": true, "array": false}]
   },
 
 }

@@ -15,6 +15,7 @@ export default class Node {
         this.hitCtx = hitCtx;
 
         this.group = false;
+        this.groupId = 0;
         this.clique = data.clique;
         this.cliqueLen = data.clique.length;
 
@@ -314,4 +315,3 @@ export default class Node {
         }
     }
 }
-

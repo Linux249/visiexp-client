@@ -286,8 +286,9 @@
                 </div>
 
                 <groups v-if="this.showGroups"
-                    :groupNodesByIds="groupNodesByIds"
                     :getGroupeIds="getGroupeIds"
+                    :selectGroupe="selectGroupe"
+                    :activeGroupe="activeGroupe"
                 />
 
                 <router-view
@@ -297,7 +298,8 @@
                     :getNode="getNode"
                     :triggerDraw="triggerDraw"
                     :changeActiveNode="changeActiveNode"
-                    :groupNodesByIds="groupNodesByIds"
+                    :groupNodesByGroupId="groupNodesByGroupId"
+
                     :getGroupeIds="getGroupeIds"
                     :getStore="getStore"
                     :dataset="dataset"
@@ -470,6 +472,7 @@ export default {
         rgbToHex,
         dataset: '001', // defualt value is 001
         groupNeighboursThreshold: 0.2,
+        activeGroupe: 0,
     }),
     methods: {
         getNode(i) {
@@ -494,12 +497,17 @@ export default {
             return null;
         },
 
-        groupNodesByIds(ids) {
-            this.store.groupNodesByIds(ids);
+        groupNodesByGroupId(id) {
+            this.store.groupNodesByGroupId(id);
         },
-
         getGroupeIds(ids) {
             return this.store.getGroupeIds(ids);
+        },
+        clearGroup() {
+            this.store.clearGroup();
+        },
+        selectGroupe(id) {
+            this.activeGroupe = this.activeGroupe === id ? 0 : id;
         },
 
         changeNeighboursThreshold({ target }) {
@@ -678,16 +686,17 @@ export default {
             this.store.draw2();
         },
 
-        toggleToggle() {
+        /* toggleToggle() {
             this.toggle = !this.toggle;
             this.store.draw2();
-        },
+        }, */
 
         changeImgSize(v) {
             this.store.imgSize += v; // update canvasState
             this.imgSize = this.store.imgSize; // update ui
         },
 
+        /*
         activeImgWidthMore() {
             this.store.activeImgScale += 1; // update canvasState
             this.activeImgWidth = this.store.activeImgScale; // update ui
@@ -712,7 +721,7 @@ export default {
             this.nodesRecived *= 2;
         },
 
-        /*
+
         addNodeToClassify(node) {
             console.log('addNodeToClassify');
             console.log(node);
@@ -722,14 +731,14 @@ export default {
         toggleShowOptions() {
             this.showOptions = !this.showOptions;
         },
-        changeScrollGrowth(v) {
+        /* changeScrollGrowth(v) {
             this.store.scrollGrowth = Math.round((this.store.scrollGrowth + v) * 100) / 100;
             this.scrollGrowth = this.store.scrollGrowth;
         },
         changeScrollImgGrowth(v) {
             this.store.scrollImgGrowth = Math.round((this.store.scrollImgGrowth + v) * 100) / 100;
             this.scrollImgGrowth = this.store.scrollImgGrowth;
-        },
+        }, */
         changeClusterGrowth(v) {
             this.store.clusterGrowth = Math.round((this.store.clusterGrowth + v) * 100) / 100;
             // this.clusterGrowth = this.store.clusterGrowth;
@@ -760,12 +769,12 @@ export default {
             this.navMapAlpha += v;
             this.drawNavMap();
         },
-        toggleShowKLabels() {
+        /* toggleShowKLabels() {
             this.showKLabels = !this.showKLabels;
             this.store.showKLabels = this.showKLabels;
             this.store.valid = false;
             console.log(this.showKLabels);
-        },
+        }, */
         toogleShowLabel(i) {
             this.labels[this.selectedCategory].labels[i].show = !this.labels[
                 this.selectedCategory
@@ -816,9 +825,6 @@ export default {
             console.log('selectScissors');
             this.scissors = !this.scissors;
             this.store.scissors = this.scissors;
-        },
-        clearGroup() {
-            this.store.clearGroup();
         },
         reset() {
             this.loadingNodes = true;

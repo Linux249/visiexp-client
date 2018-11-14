@@ -5,4 +5,3 @@ export const CLASSIFIER = 'classifier';
 export const SVM = 'svm';
 export const DATASET = 'dataset';
 export const LABELS = 'labels';
-

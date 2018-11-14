@@ -6,7 +6,9 @@ import Classifier from '../components/Classifier';
 import Dataset from '../components/Dataset';
 import Neighbours from '../components/Neighbours';
 import Labels from '../components/Labels';
-import { TRIPLETS, TSNE, SVM, CLASSIFIER, NEIGHBOURS, DATASET, LABELS } from '../util/modes';
+import {
+    SVM, CLASSIFIER, NEIGHBOURS, DATASET, LABELS,
+} from '../util/modes';
 
 Vue.use(Router);
 

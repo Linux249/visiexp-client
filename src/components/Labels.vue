@@ -12,7 +12,7 @@
             </div>
         </div>
 
-        <div class="area">
+       <!-- <div class="area">
             <div class="title">Select a Label or add a new one</div>
             <div
                 class="btn between "
@@ -32,7 +32,7 @@
                 <input class="input" type="text" v-model="label2"/>
                 <div @click="addLabel" class="btn">new label</div>
             </div>
-        </div>
+        </div>-->
     </div>
 
 </template>
@@ -42,7 +42,7 @@ import RangeSlider from './RangeSlider';
 
 export default {
     name: 'Labels',
-    props: ['labels', 'getStore', 'groupNeighboursThreshold', 'changeNeighboursThreshold'],
+    props: ['getStore', 'groupNeighboursThreshold', 'changeNeighboursThreshold'],
     components: {
         RangeSlider,
     },
@@ -60,10 +60,10 @@ export default {
         },
     },
     mounted() {
-        this.getGroupNeighbours()
+        this.$nextTick(this.getGroupNeighbours);
     },
     methods: {
-        addLabel() {
+        /* addLabel() {
             console.log('addLabel clicked');
             console.log(this.label2);
             this.labels2.push(this.label2);
@@ -73,7 +73,7 @@ export default {
             console.log('selectLabel');
             console.log(id);
             this.selectedLabel = id === this.selectedLabel ? null : id;
-        },
+        }, */
         async getGroupNeighbours() {
             try {
                 this.loading = true;

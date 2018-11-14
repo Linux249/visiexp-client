@@ -1,4 +1,4 @@
-import range from './range';
+// import range from './range';
 import { SVM, LABELS, NEIGHBOURS } from './modes';
 
 export default class CanvasState {
@@ -266,15 +266,19 @@ export default class CanvasState {
     }
 
     clearGroup() {
-        Object.values(this.nodes).forEach(
-            node => (node.group ? (node.group = false) : null),
-        );
+        Object.values(this.nodes).forEach((node) => {
+            if (node.group) {
+                node.group = false;
+                node.groupId = 0;
+            }
+        });
         this.triggerDraw();
     }
 
-    groupNodesByIds(ids = []) {
-        this.clearGroup();
-        ids.forEach(id => (this.nodes[id].group = true));
+    groupNodesByGroupId(groupId) {
+        Object.values(this.nodes).forEach(
+            node => (node.group = (node.groupId === groupId)),
+        );
         this.triggerDraw();
     }
 
@@ -537,10 +541,9 @@ export default class CanvasState {
         const ty = this.translateY;
 
 
-        const zoomStage = this.zoomStage;
+        const { zoomStage, scale } = this;
 
 
-        const scale = this.scale; // skalierung der x,y Koordinaten
         const canvasPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
         // console.log({ canvasW, canvasH, tx, ty, scale });
 
@@ -588,7 +591,6 @@ export default class CanvasState {
                 // the node should not be in the neighbours list
                 const neighbour = this.groupNeighbours[node.index];
                 if (!neighbour || neighbour > this.ui.groupNeighboursThreshold) show = false;
-                // show = !(!this.groupNeighbours[node.index] || neighbour > this.ui.groupNeighboursThreshold);
             }
 
             // test if image obj exists
@@ -598,10 +600,11 @@ export default class CanvasState {
                     // wir gehen durch alle reihen des bildes
                     for (let row = 0; row < imgH; row += 1) {
                         const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
-                        // wir laufen durch alle spalten des bildes und betrachten dann 4 werte im array
+                        // wir laufen durch alle spalten des bildes
+                        // und betrachten dann 4 werte im array
                         for (let col = 0; col < imgW; col += 1) {
                             const c = canvasRow + col * 4;
-                            const p = (row * imgW + col) * 4;
+                            // const p = (row * imgW + col) * 4;
                             canvasPixel[c] = node.colorKey[0]; // R
                             canvasPixel[c + 1] = node.colorKey[1]; // G
                             canvasPixel[c + 2] = node.colorKey[2]; // B
@@ -654,19 +657,14 @@ export default class CanvasState {
     draw2() {
         console.time('draw2');
 
-        const canvasW = this.width;
-        const canvasH = this.height;
-        const tx = this.translateX;
-        // wird auf die node x,y aufaddiert
-        const ty = this.translateY;
-        const { zoomStage, scale } = this;
+        const {
+            zoomStage, scale, width: canvasW, height: canvasH, translateX: tx, translateY: ty,
+        } = this;
         const canvasPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
         // console.log({ canvasW, canvasH, tx, ty, scale });
 
-        const drawBoarder = this.ui.boarderRanked;
-        const rankSize = this.ui.sizeRanked;
+        const { boarderRanked: drawBoarder, sizeRanked: rankSize, gradient } = this.ui;
         const borderW = 1;
-        const gradient = this.ui.gradient;
         const nodes = this.sorted
             ? this.sortedNodes
             : Object.values(this.nodes);
@@ -741,9 +739,9 @@ export default class CanvasState {
                             canvasPixel[c] = imgData[p]; // R
                             canvasPixel[c + 1] = imgData[p + 1]; // G
                             canvasPixel[c + 2] = imgData[p + 2]; // B
-                            // const alpha = canvasPixel[c + 3] ? (canvasPixel[c + 3] + 10 * node.cliqueLen) : (50 + (zoomStage * 50));
-                            // if (node.group) alpha = 255;
-                            canvasPixel[c + 3] = canvasPixel[c + 3] ? (canvasPixel[c + 3] + 10 * node.cliqueLen) : (50 + (zoomStage * 50));
+                            canvasPixel[c + 3] = canvasPixel[c + 3]
+                                ? (canvasPixel[c + 3] + 10 * node.cliqueLen)
+                                : (50 + (zoomStage * 50));
                         }
                     }
                 }
@@ -760,7 +758,7 @@ export default class CanvasState {
                                 canvasPixel[c] = color[0]; // R
                                 canvasPixel[c + 1] = color[1]; // G
                                 canvasPixel[c + 2] = color[2]; // B
-                                canvasPixel[c + 3] = 200; // ? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                                canvasPixel[c + 3] = 200;
                             }
                         } else {
                             // draw left boarder
@@ -768,14 +766,14 @@ export default class CanvasState {
                             canvasPixel[l] = color[0]; // R
                             canvasPixel[l + 1] = color[1]; // G
                             canvasPixel[l + 2] = color[2]; // B
-                            canvasPixel[l + 3] = 200; // ? canvasPixel[l + 3] += 10 : canvasPixel[l + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                            canvasPixel[l + 3] = 200;
 
                             // draw left boarder
                             const r = canvasRow + ((iw + 1) * 4);
                             canvasPixel[r] = color[0]; // R
                             canvasPixel[r + 1] = color[1]; // G
                             canvasPixel[r + 2] = color[2]; // B
-                            canvasPixel[r + 3] = 200; // ? canvasPixel[r + 3] += 10 : canvasPixel[r + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                            canvasPixel[r + 3] = 200;
                         }
                     }
                 }
@@ -783,9 +781,9 @@ export default class CanvasState {
                 const labelBorder = this.selectedCategory && this.selectedLabel
                     && this.selectedLabel === node.labels[this.selectedCategory];
                 if (labelBorder) {
-                    const color = this.ui.labels[
-                        this.selectedCategory
-                    ].labels.find(e => e.name === this.selectedLabel).color;
+                    const { color } = this.ui.labels[this.selectedCategory].labels.find(
+                        e => e.name === this.selectedLabel,
+                    );
                     // draw boarder
                     for (let row = -2; row <= ih + 1; row += 1) {
                         const canvasRow = ((canvasY + row) * canvasW + canvasX) * 4;
@@ -796,7 +794,7 @@ export default class CanvasState {
                                 canvasPixel[c] = color[0]; // R
                                 canvasPixel[c + 1] = color[1]; // G
                                 canvasPixel[c + 2] = color[2]; // B
-                                canvasPixel[c + 3] = 200; // ? canvasPixel[c + 3] += 10 : canvasPixel[c + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                                canvasPixel[c + 3] = 200;
                             }
                         } else {
                             // draw left boarder
@@ -804,14 +802,14 @@ export default class CanvasState {
                             canvasPixel[l] = color[0]; // R
                             canvasPixel[l + 1] = color[1]; // G
                             canvasPixel[l + 2] = color[2]; // B
-                            canvasPixel[l + 3] = 200; // ? canvasPixel[l + 3] += 10 : canvasPixel[l + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                            canvasPixel[l + 3] = 200;
 
                             // draw left boarder
                             const r = canvasRow + (iw + 1) * 4;
                             canvasPixel[r] = color[0]; // R
                             canvasPixel[r + 1] = color[1]; // G
                             canvasPixel[r + 2] = color[2]; // B
-                            canvasPixel[r + 3] = 200; // ? canvasPixel[r + 3] += 10 : canvasPixel[r + 3] = 50 + zoomStage * 50;// imgData[p + 3]; // A
+                            canvasPixel[r + 3] = 200;
                         }
                     }
                 }
@@ -847,16 +845,16 @@ export default class CanvasState {
         const neighbourColor = [250, 208, 44]; // yellow
         const groupColor = [40, 33, 32]; // black
         // const groupColor = [195,230,203];  // bootstrap green
-        const label2Color = [153, 0, 51];
+        // const label2Color = [153, 0, 51];
 
         nodes.forEach((node) => {
             const neighbour = this.groupNeighbours[node.index];
             // TODO Perfomance is maybe bedder without another loop
 
             // draw only if group, label2 or neighbour
-            if (!node.group && !node.label2 && (!neighbour || neighbour > this.ui.groupNeighboursThreshold)) return;
+            if (!node.group && (!neighbour || neighbour > this.ui.groupNeighboursThreshold)) return;
 
-            const lineColor = node.label2 ? label2Color : neighbour ? neighbourColor : groupColor;
+            const lineColor = neighbour ? neighbourColor : groupColor;
 
             const canvasX = Math.floor((node.x * scale) + tx);
             const canvasY = Math.floor((node.y * scale) + ty);
@@ -965,13 +963,13 @@ export default class CanvasState {
         wheelEvent.preventDefault();
         wheelEvent.stopPropagation();
         // console.log(wheelEvent)
-        const nodeUnderMouse = this.nodeUnderMouse;
+        const { nodeUnderMouse } = this;
 
         // if there is a selection and the mouse is over a link
         // TODO test if this.selection.links[nodeUnderMouse.index] exists for cleaner statment
         if (this.selection && this.selection.links[nodeUnderMouse.index]) {
-            const i = nodeUnderMouse.index;
-            const links = this.selection.links;
+            const { index: i } = nodeUnderMouse;
+            const { links } = this.selection;
             if (wheelEvent.deltaY < 0) {
                 console.log('zoom in - image smaller');
                 links[i] -= 0.1;
@@ -999,7 +997,8 @@ export default class CanvasState {
             if (wheelEvent.deltaY < 0) {
                 console.log('zoom in');
                 // this.scale2 += 1;
-                this.scale += 20; // *= 2; // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
+                // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
+                this.scale += 20;
                 this.zoomStage += 1;
                 this.cluster *= this.clusterGrowth;
             }
@@ -1008,7 +1007,8 @@ export default class CanvasState {
             if (wheelEvent.deltaY > 0) {
                 console.log('zoom out');
                 // this.scale2 -= 1;
-                this.scale -= 20; // /= 2; // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
+                // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
+                this.scale -= 20;
                 this.zoomStage -= 1;
                 this.cluster /= this.clusterGrowth;
             }
@@ -1050,7 +1050,7 @@ export default class CanvasState {
         // console.log(this.ctx.width);
 
         // saving for checking if node was clicked in handleMouseUp
-        const nodeUnderMouse = this.nodeUnderMouse;
+        const { nodeUnderMouse } = this;
         this.nodeOnMouseDown = nodeUnderMouse;
 
         // save start position
@@ -1158,7 +1158,7 @@ export default class CanvasState {
 
     handleMouseUp(e) {
         console.log('mouseup');
-        const nodeUnderMouse = this.nodeUnderMouse;
+        const { nodeUnderMouse } = this;
         const ctrlKeyPressed = e.ctrlKey;
         // const shiftKeyPressed = e.shiftKey;
         // const altKeyPressed = e.altKey;
@@ -1168,16 +1168,24 @@ export default class CanvasState {
             console.log(nodeUnderMouse);
 
             // marke node as group in every case
-            if (ctrlKeyPressed) nodeUnderMouse.group = !nodeUnderMouse.group;
+            if (ctrlKeyPressed) {
+                if (nodeUnderMouse.group) {
+                    nodeUnderMouse.group = false;
+                    nodeUnderMouse.groupId = 0;
+                } else {
+                    nodeUnderMouse.group = true;
+                    nodeUnderMouse.groupId = this.ui.activeGroupe;
+                }
+            }
             // used for components for adding nodes to special cases
             this.ui.clickedNode = nodeUnderMouse;
             switch (this.ui.$route.name) {
             case SVM:
                 break;
-            case LABELS:
-                nodeUnderMouse.label2 = !nodeUnderMouse.label2 ? 'test' : null;
-                break;
             case NEIGHBOURS:
+                // nodeUnderMouse.label2 = !nodeUnderMouse.label2 ? 'test' : null;
+                break;
+            case LABELS:
                 /* if (this.selection && this.selection !== this.nodeUnderMouse && ctrlKeyPressed) {
                         console.log('Add or remove link');
                         const links = Object.keys(this.selection.links);
@@ -1232,6 +1240,7 @@ export default class CanvasState {
                     ) {
                         this.ui.cuttedNodes.push(node);
                         node.group = true;
+                        node.grouId = this.ui.activeGroupe;
                     }
                 }
             });
@@ -1255,7 +1264,6 @@ export default class CanvasState {
             const y = (e.offsetY - this.translateY) / this.scale;
             this.moveGroupToPosition(x, y);
         }
-
         this.triggerDraw();
     }
 }

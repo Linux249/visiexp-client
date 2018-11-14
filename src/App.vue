@@ -43,6 +43,12 @@ export default {
         align-items: flex-start;
     }
 
+    .row-between {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
     .wrap {
         flex-wrap: wrap;
     }
