@@ -66,7 +66,7 @@ module.exports = {
 
       // damn arra warning in draw
       "prefer-destructuring": ["error", {"object": true, "array": false}],
-      "import/extensions": ['error', 'always', {ignorePackages: true} ]
+      "import/extensions": ['error', 'never', {ignorePackages: true} ]
   },
 
 }

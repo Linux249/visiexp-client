@@ -1,15 +1,18 @@
 <template>
     <div class="">
         <div class="area">
-            <div class="btn" @click="getGroupNeighbours">Update Neighbours</div>
+            <div class="title">Neighbours</div>
             <div class="btn between">
                 {{groupNeighboursThreshold}}
                 <range-slider :value="groupNeighboursThreshold" :change="changeNeighboursThreshold"></range-slider>
             </div>
             <div class="row">
-                <div class="btn" @click="resetGroup">reset group</div>
-                <div class="btn" @click="resetNeighbours">reset Neighbours</div>
+                <div class="btn" @click="getGroupNeighbours">Update</div>
+                <div class="btn" @click="resetNeighbours">Reset</div>
             </div>
+            <!-- <div class="row">
+                <div class="btn" @click="resetGroup">reset group</div>
+            </div>-->
         </div>
 
        <!-- <div class="area">

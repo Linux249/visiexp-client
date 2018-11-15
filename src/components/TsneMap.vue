@@ -25,7 +25,7 @@
                         sizeRanked
                     </div>
                     <div class="btn" :class="{ active: clusterMode }" @click="toggleClusterMode">
-                        sizeRanked
+                        cluster
                     </div>
                 </div>
             </div>
@@ -169,14 +169,17 @@
             </div>
 
             <div class="details">
-                <div v-if="showOptions" class="options info-box">
+                <div v-if="showOptions" class="area">
+                    <div class="title">Options</div>
                     <div class="">
                         <div>Cluster: {{Math.round(cluster)}}</div>
                         <div class="row">
+                            <div @click="changeCluster(-10)" class="btn">-10</div>
                             <div @click="changeCluster(-100)" class="btn">-100</div>
                             <div @click="changeCluster(-1000)" class="btn">-1000</div>
-                            <div @click="changeCluster(100)" class="btn">+100</div>
                             <div @click="changeCluster(1000)" class="btn">+1000</div>
+                            <div @click="changeCluster(100)" class="btn">+100</div>
+                            <div @click="changeCluster(10)" class="btn">+10</div>
                         </div>
                     </div>
                     <div class="row-btn">
@@ -319,6 +322,7 @@
                     <div>Labels: {{activeNode.labels}}</div>
                     <div>Links #: {{selectedNodeNeighboursCount}}</div>
                 </div>
+                <logs :getStore="getStore"/>
             </div>
         </div>
         <triplets :node="activeNode"/>
@@ -331,7 +335,6 @@ import simpleheat from 'simpleheat';
 import { Slider } from 'vue-color';
 import Node from '../util/Node';
 import CanvasState from '../util/CanvasState';
-import RangeSlider from './RangeSlider';
 import Triplets from './Triplets';
 import Classifier from './Classifier';
 import Groups from './Groups';
@@ -344,16 +347,18 @@ import Send from '../icons/Send';
 import Navmap from '../icons/Map';
 import Target from '../icons/Target';
 import Grid from '../icons/Grid';
+import Logs from './Logs';
 // import TestWorker from '../worker/test.worker';
 
-function rgbToHex(R, G, B) {
-    return `#${toHex(R)}${toHex(G)}${toHex(B)}`;
-}
 function toHex(n) {
     n = parseInt(n, 10);
     if (isNaN(n)) return '00';
     n = Math.max(0, Math.min(n, 255));
     return '0123456789ABCDEF'.charAt((n - (n % 16)) / 16) + '0123456789ABCDEF'.charAt(n % 16);
+}
+
+function rgbToHex(R, G, B) {
+    return `#${toHex(R)}${toHex(G)}${toHex(B)}`;
 }
 
 function cutHex(h) {
@@ -382,10 +387,10 @@ export default {
         Target,
         Grid,
         Slash,
-        RangeSlider,
         Triplets,
         Classifier,
         Groups,
+        Logs,
         'slider-picker': Slider,
     },
     data: () => ({
@@ -532,7 +537,6 @@ export default {
             this.store.cluster += v; // update canvasState
             this.cluster = this.store.cluster; // update ui
         },
-
         triggerDraw() {
             this.store.triggerDraw();
         },
@@ -1019,7 +1023,8 @@ export default {
                 console.log(`receive node ${data.index}`);
                 console.log(data);
             }
-            if (!this.nodesRecived) console.time('loadAllNodes');
+            // start time measure
+            if (this.nodesRecived === 0) console.time('loadAllNodes');
             this.nodesRecived += 1;
             s.addNode(new Node(data, s.ctx, s.hitCtx));
             s.triggerDraw();

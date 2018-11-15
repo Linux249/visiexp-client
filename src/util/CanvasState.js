@@ -94,6 +94,15 @@ export default class CanvasState {
         // array of node index's
         this.groupNeighbours = {};
         this.removedGroupNeighbours = {};
+
+        // performance messure
+        this.maxDrawTime = 0;
+        this.maxHitMapTime = 0;
+        this.perfLogs = {
+            draw: [],
+            hitmap: [],
+        };
+        this.scaleTest = false;
     }
 
     set sizeRange(v) {
@@ -520,6 +529,7 @@ export default class CanvasState {
 
     drawHitmap() {
         console.time('drawHitmap');
+        const startTime = window.performance.now();
 
         const canvasW = this.width;
 
@@ -633,10 +643,28 @@ export default class CanvasState {
 
         // console.log({ w, h, tx, ty, pixel });
         console.timeEnd('drawHitmap');
+        const endTime = window.performance.now();
+        const time = endTime - startTime;
+        this.perfLogs.hitmap.push(time);
+        if (time > this.maxHitMapTime) {
+            this.maxHitMapTime = time;
+            console.warn('new max hit map time');
+            console.warn(this.maxHitMapTime);
+        }
     }
 
     draw2() {
         console.time('draw2');
+        const startTime = window.performance.now();
+
+        // TODO Performance tests
+
+        // TODO kd tree
+        // TODO 1. kdtree-range test for generating node id's
+        // TODO 2. update kdtree test (after D&D)
+
+        // TODO kmeans perfomance test
+        // TODO 1. calc 50 k-means wirh kdtree results
 
         const {
             zoomStage,
@@ -932,6 +960,14 @@ export default class CanvasState {
 
         // console.log({ w, h, tx, ty, pixel });
         console.timeEnd('draw2');
+        const endTime = window.performance.now();
+        const time = endTime - startTime;
+        this.perfLogs.draw.push(time);
+        if (time > this.maxDrawTime) {
+            this.maxDrawTime = time;
+            console.warn('new max draw time');
+            console.warn(this.maxDrawTime);
+        }
         requestAnimationFrame(() => this.drawHitmap());
         this.valid = true;
         if (this.ui.showHeatmap) requestAnimationFrame(this.ui.drawHeatmap);
