@@ -13,6 +13,7 @@
                     <div class="btn">{{translateY}}</div> &ndash;&gt;
                     --><!--<div class="btn" @click="draw2">draw2</div>
                     <div class="btn" @click="doubleNodes">doubleNodes</div>-->
+                    <div class="btn" :class="{ active: sorted }" @click="superCluster">super</div>
                     <div class="btn" :class="{ active: sorted }" @click="sortNodes">sort</div>
                     <div
                         class="btn"
@@ -34,9 +35,9 @@
                 <div @click="toggleShowHeatmap" :class="{ active: showHeatmap }" class="btn">
                     <navmap></navmap>
                 </div>
-                <div @click="toggleShowNavMap" :class="{ active: showNavMap }" class="btn">
+               <!-- <div @click="toggleShowNavMap" :class="{ active: showNavMap }" class="btn">
                     <navmap></navmap>
-                </div>
+                </div>-->
                 <div @click="toggleShowNavHeatmap" :class="{ active: showNavHeatmap }" class="btn">
                     <navmap></navmap>
                 </div>
@@ -157,10 +158,10 @@
                         :class="{ hide: !showHeatmap }"
                         tabindex="0"
                     ></canvas>
-                    <div class="navMap" :class="{ hide: !showNavMap }">
+                   <!-- <div class="navMap" :class="{ hide: !showNavMap }">
                         <canvas id="navMap" class="canvas" tabindex="0" ></canvas>
                         <canvas id="navMapRect" tabindex="0" ></canvas>
-                    </div>
+                    </div>-->
                     <div class="navMap" :class="{ hide: !showNavHeatmap }">
                         <canvas id="navHeatmap" class="canvas" tabindex="0" ></canvas>
                         <canvas id="navHeatmapRect" tabindex="0" ></canvas>
@@ -302,7 +303,6 @@
                     :labels="labels"
                     :node="clickedNode"
                     :getNode="getNode"
-                    :triggerDraw="triggerDraw"
                     :changeActiveNode="changeActiveNode"
                     :groupNodesByGroupId="groupNodesByGroupId"
 
@@ -320,7 +320,7 @@
                     <div>Name: {{activeNode.name}}</div>
                     <div>Label: {{activeNode.label}}</div>
                     <div>Labels: {{activeNode.labels}}</div>
-                    <div>Links #: {{selectedNodeNeighboursCount}}</div>
+                    <div>Links #: {{activeNode && Object.keys(activeNode.links).length}}</div>
                 </div>
                 <logs :getStore="getStore"/>
             </div>
@@ -436,7 +436,7 @@ export default {
         heatmapRadius: 1,
         heatmapBlur: 5,
         // heatmapMinOpacity: 0.05,
-        showNavMap: false,
+        // showNavMap: false,
         navMapAlpha: 0.1,
         showNavHeatmap: false,
         boarderRanked: false,
@@ -537,9 +537,6 @@ export default {
             this.store.cluster += v; // update canvasState
             this.cluster = this.store.cluster; // update ui
         },
-        triggerDraw() {
-            this.store.triggerDraw();
-        },
 
         sortNodes() {
             this.store.sortNodes();
@@ -566,58 +563,6 @@ export default {
             // draw heatmap
             heatmap.draw(/* this.heatmapMinOpacity */);
             requestAnimationFrame(() => console.timeEnd('drawHeatmap'));
-        },
-
-        drawNavMap() {
-            console.time('drawNavMap');
-            const ctx = this.navMap.getContext('2d');
-
-            const w = this.navMap.width;
-
-            const h = this.navMap.height;
-
-            // clean the canvas first
-            ctx.clearRect(0, 0, w, h);
-
-            ctx.lineWidth = 0.05;
-
-            for (const i in this.store.nodes) {
-                const node = this.store.nodes[i];
-                const x = node.x * 5 + w / 2; // 5 = initscale (20) / 4 (25%)
-                const y = node.y * 5 + h / 2;
-
-                const c = this.gradient[node.rank * 10];
-                const color = this.boarderRanked ? `rgb(${c[0]},${c[1]},${c[2]})` : 'grey';
-                ctx.fillStyle = color;
-                ctx.strokeStyle = color;
-                ctx.beginPath();
-                ctx.arc(x, y, 3, 0, 2 * Math.PI);
-                ctx.globalAlpha = this.navMapAlpha;
-                ctx.fill();
-                ctx.globalAlpha = 1;
-                ctx.stroke();
-            }
-            requestAnimationFrame(() => console.timeEnd('drawNavMap'));
-        },
-
-        drawNavMapRect() {
-            console.time('drawNavMapRect');
-            const ctx = this.navMapRect.getContext('2d');
-            const scale = 20 / this.store.scale;
-            const tx = this.store.translateX / 4;
-            const ty = this.store.translateY / 4;
-
-            const w = this.navMapRect.width;
-            const h = this.navMapRect.height;
-
-            // const x = tx + w/2 ;
-            const x = w / 2 - tx * scale;
-            // const y = ty + h/2;
-            const y = h / 2 - ty * scale;
-
-            ctx.clearRect(0, 0, this.navMapRect.width, this.navMapRect.height);
-            ctx.strokeRect(x, y, w * scale, h * scale);
-            requestAnimationFrame(() => console.timeEnd('drawNavMapRect'));
         },
 
         drawNavHeatmap() {
@@ -651,8 +596,8 @@ export default {
             const tx = this.store.translateX / 4;
             const ty = this.store.translateY / 4;
 
-            const w = this.navMapRect.width;
-            const h = this.navMapRect.height;
+            const w = this.navHeatmapRect.width;
+            const h = this.navHeatmapRect.height;
 
             // const x = tx + w/2 ;
             const x = w / 2 - tx * scale;
@@ -662,12 +607,6 @@ export default {
             ctx.clearRect(0, 0, this.navHeatmapRect.width, this.navHeatmapRect.height);
             ctx.strokeRect(x, y, w * scale, h * scale);
             requestAnimationFrame(() => console.timeEnd('drawNavHeatmapRect'));
-        },
-
-        toggleShowNavMap() {
-            this.showNavMap = !this.showNavMap;
-            if (this.showNavMap) requestAnimationFrame(this.drawNavMap);
-            if (this.showNavMap) requestAnimationFrame(this.drawNavMapRect);
         },
 
         toggleShowNavHeatmap() {
@@ -698,59 +637,15 @@ export default {
             this.store.triggerDraw();
         },
 
-        /* toggleToggle() {
-            this.toggle = !this.toggle;
-            this.store.draw2();
-        }, */
-
         changeImgSize(v) {
-            this.store.imgSize += v; // update canvasState
-            this.imgSize = this.store.imgSize; // update ui
+            // this.store.imgSize // update canvasState
+            this.imgSize = this.store.imgSize += v; // update ui
         },
 
-        /*
-        activeImgWidthMore() {
-            this.store.activeImgScale += 1; // update canvasState
-            this.activeImgWidth = this.store.activeImgScale; // update ui
-        },
-        activeImgWidthLess() {
-            this.store.activeImgScale -= 1; // update canvasState
-            this.activeImgWidth = this.store.activeImgScale; // update ui
-        },
-
-        borderWidthMore() {
-            this.store.borderWidth += 1; // update canvasState
-            this.borderWidth = this.store.borderWidth; // update ui
-        },
-        borderWidthLess() {
-            this.store.borderWidth -= 1; // update canvasState
-            this.borderWidth = this.store.borderWidth; // update ui
-        },
-        doubleNodes() {
-            this.store.doubleNodes();
-            // Update count nodes in UI
-            this.nodesTotal *= 2;
-            this.nodesRecived *= 2;
-        },
-
-
-        addNodeToClassify(node) {
-            console.log('addNodeToClassify');
-            console.log(node);
-            if (this.cuttedNodes.indexOf(node) === -1) this.cuttedNodes.push(node);
-        },
-        */
         toggleShowOptions() {
             this.showOptions = !this.showOptions;
         },
-        /* changeScrollGrowth(v) {
-            this.store.scrollGrowth = Math.round((this.store.scrollGrowth + v) * 100) / 100;
-            this.scrollGrowth = this.store.scrollGrowth;
-        },
-        changeScrollImgGrowth(v) {
-            this.store.scrollImgGrowth = Math.round((this.store.scrollImgGrowth + v) * 100) / 100;
-            this.scrollImgGrowth = this.store.scrollImgGrowth;
-        }, */
+
         changeClusterGrowth(v) {
             this.store.clusterGrowth = Math.round((this.store.clusterGrowth + v) * 100) / 100;
             // this.clusterGrowth = this.store.clusterGrowth;
@@ -769,10 +664,7 @@ export default {
             this.drawHeatmap();
             this.drawNavHeatmap();
         },
-        /* changeHeatmapMinOpacity(v) {
-            this.heatmapMinOpacity += v;
-            this.drawHeatmap()
-        }, */
+
         changeSizeRange(v) {
             this.store.sizeRange += v;
             this.sizeRange = this.store.sizeRange;
@@ -781,12 +673,7 @@ export default {
             this.navMapAlpha += v;
             this.drawNavMap();
         },
-        /* toggleShowKLabels() {
-            this.showKLabels = !this.showKLabels;
-            this.store.showKLabels = this.showKLabels;
-            this.store.valid = false;
-            console.log(this.showKLabels);
-        }, */
+
         toogleShowLabel(i) {
             this.labels[this.selectedCategory].labels[i].show = !this.labels[this.selectedCategory]
                 .labels[i].show;
@@ -834,6 +721,7 @@ export default {
             this.nodesRecived = 0;
             this.nodesTotal = 0;
         },
+
         changeGradientColor(i) {
             console.log('changeGradientColor');
             // console.log(this.gradient);
@@ -848,6 +736,7 @@ export default {
             this.colors.rgba.b = this.gradient[i][2];
             console.log(this.colors.rgba);
         },
+
         changeColor(color) {
             console.log('changeColor');
             console.log(color);
@@ -885,6 +774,131 @@ export default {
             this.dataset = dataset;
             // TODO trigger reload of datas
         },
+
+        superCluster() {
+            this.store.superCluster()
+        }
+
+        /* drawNavMap() {
+            console.time('drawNavMap');
+            const ctx = this.navMap.getContext('2d');
+
+            const w = this.navMap.width;
+
+            const h = this.navMap.height;
+
+            // clean the canvas first
+            ctx.clearRect(0, 0, w, h);
+
+            ctx.lineWidth = 0.05;
+
+            for (const i in this.store.nodes) {
+                const node = this.store.nodes[i];
+                const x = node.x * 5 + w / 2; // 5 = initscale (20) / 4 (25%)
+                const y = node.y * 5 + h / 2;
+
+                const c = this.gradient[node.rank * 10];
+                const color = this.boarderRanked ? `rgb(${c[0]},${c[1]},${c[2]})` : 'grey';
+                ctx.fillStyle = color;
+                ctx.strokeStyle = color;
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, 2 * Math.PI);
+                ctx.globalAlpha = this.navMapAlpha;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+                ctx.stroke();
+            }
+            requestAnimationFrame(() => console.timeEnd('drawNavMap'));
+        }, */
+
+        /* drawNavMapRect() {
+            console.time('drawNavMapRect');
+            const ctx = this.navMapRect.getContext('2d');
+            const scale = 20 / this.store.scale;
+            const tx = this.store.translateX / 4;
+            const ty = this.store.translateY / 4;
+
+            const w = this.navMapRect.width;
+            const h = this.navMapRect.height;
+
+            // const x = tx + w/2 ;
+            const x = w / 2 - tx * scale;
+            // const y = ty + h/2;
+            const y = h / 2 - ty * scale;
+
+            ctx.clearRect(0, 0, this.navMapRect.width, this.navMapRect.height);
+            ctx.strokeRect(x, y, w * scale, h * scale);
+            requestAnimationFrame(() => console.timeEnd('drawNavMapRect'));
+        }, */
+
+        /* toggleShowNavMap() {
+            this.showNavMap = !this.showNavMap;
+            if (this.showNavMap) requestAnimationFrame(this.drawNavMap);
+            if (this.showNavMap) requestAnimationFrame(this.drawNavMapRect);
+        }, */
+
+
+        /* toggleToggle() {
+            this.toggle = !this.toggle;
+            this.store.draw2();
+        }, */
+
+        /*
+        activeImgWidthMore() {
+            this.store.activeImgScale += 1; // update canvasState
+            this.activeImgWidth = this.store.activeImgScale; // update ui
+        },
+        activeImgWidthLess() {
+            this.store.activeImgScale -= 1; // update canvasState
+            this.activeImgWidth = this.store.activeImgScale; // update ui
+        },
+
+        borderWidthMore() {
+            this.store.borderWidth += 1; // update canvasState
+            this.borderWidth = this.store.borderWidth; // update ui
+        },
+        borderWidthLess() {
+            this.store.borderWidth -= 1; // update canvasState
+            this.borderWidth = this.store.borderWidth; // update ui
+        },
+        doubleNodes() {
+            this.store.doubleNodes();
+            // Update count nodes in UI
+            this.nodesTotal *= 2;
+            this.nodesRecived *= 2;
+        },
+
+
+        addNodeToClassify(node) {
+            console.log('addNodeToClassify');
+            console.log(node);
+            if (this.cuttedNodes.indexOf(node) === -1) this.cuttedNodes.push(node);
+        },
+        */
+
+        /* changeScrollGrowth(v) {
+            this.store.scrollGrowth = Math.round((this.store.scrollGrowth + v) * 100) / 100;
+            this.scrollGrowth = this.store.scrollGrowth;
+        },
+        changeScrollImgGrowth(v) {
+            this.store.scrollImgGrowth = Math.round((this.store.scrollImgGrowth + v) * 100) / 100;
+            this.scrollImgGrowth = this.store.scrollImgGrowth;
+        }, */
+
+
+        /* changeHeatmapMinOpacity(v) {
+            this.heatmapMinOpacity += v;
+            this.drawHeatmap();
+        }, */
+
+        /* toggleShowKLabels() {
+            this.showKLabels = !this.showKLabels;
+            this.store.showKLabels = this.showKLabels;
+            this.store.valid = false;
+            console.log(this.showKLabels);
+        }, */
+
+
     },
     watch: {
         cluster(value) {
@@ -898,20 +912,22 @@ export default {
             // const { b, g, r } = this.colors.rgba;
         },
         $route() {
+            // initial draw trigger when switching to neigbhours mode
+            // TODO remove if mode is encapsulated from routes
             this.store.triggerDraw();
         },
     },
-    computed: {
-        selectedNode() {
+    /* computed: {
+        /!* selectedNode() {
             return this.store && this.store.selection && this.store.selection.name;
-        },
+        }, *!/
         selectedNodeNeighboursCount() {
             return this.activeNode.links && Object.keys(this.activeNode.links).length;
         },
-        imageScale() {
+        /!* imageScale() {
             return this.store && this.store.selection && this.store.selection.imageScale;
-        },
-    },
+        }, *!/
+    }, */
     mounted() {
         // const worker = new TestWorker();
 
@@ -952,7 +968,7 @@ export default {
         heatmapCanvas.height = parantHeight / 4;
         this.heatmap = simpleheat(heatmapCanvas);
 
-        const navMap = document.getElementById('navMap');
+        /* const navMap = document.getElementById('navMap');
         navMap.width = parantWidth / 4;
         navMap.height = parantHeight / 4;
         this.navMap = navMap;
@@ -962,7 +978,7 @@ export default {
         navMapRect.height = parantHeight / 4;
         navMapRect.getContext('2d').strokeStyle = '#3882ff';
         navMapRect.getContext('2d').lineWidth = 1.5;
-        this.navMapRect = navMapRect;
+        this.navMapRect = navMapRect; */
 
         const navHeatmapCanvas = document.getElementById('navHeatmap');
         navHeatmapCanvas.width = parantWidth / 4;
@@ -1050,6 +1066,8 @@ export default {
             console.log('allNodesSend');
             this.loadingNodes = false;
             console.timeEnd('loadAllNodes');
+
+            // TODO test super cluster
         });
 
         /* socket.on('nodesCount', (nodesCount) => {
@@ -1117,7 +1135,7 @@ export default {
         // end connection with server socket
         if (this.socket) this.socket.disconnect();
         // clear check-for-drawing interval
-        clearInterval(this.store.timerId);
+        //clearInterval(this.store.timerId);
     },
 };
 </script>

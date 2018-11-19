@@ -53,7 +53,7 @@ import X from '../icons/X';
 
 export default {
     name: 'classifier',
-    props: ['nodes', 'node', 'labels', 'triggerDraw', 'getStore'],
+    props: ['nodes', 'node', 'labels', 'getStore'],
     components: {
         Hash,
         X,
@@ -107,7 +107,7 @@ export default {
             this.label = '';
 
             this.showLabelOptions = false;
-            this.triggerDraw();
+            this.getStore().triggerDraw();
         },
         handleFocus(e) {
             console.log('input focus');
