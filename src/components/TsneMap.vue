@@ -6,14 +6,14 @@
                 <div class="row">
                     <!--<div># {{nodesCount}}</div>-->
                     <!--<div>connected: {{connectedToSocket}}</div>-->
-                    <!--<div class="btn"> {{scale}}</div> -->
+                    <div class="btn"> {{scale}}</div>
                     <!--<div class="btn">{{scale2}}</div>-->
-                    <!--<div class="btn">{{zoomLvl}}</div>
+                    <div class="btn">{{zoomLvl}}</div>
                     <div class="btn">{{translateX}}</div>
-                    <div class="btn">{{translateY}}</div> &ndash;&gt;
-                    --><!--<div class="btn" @click="draw2">draw2</div>
+                    <div class="btn">{{translateY}}</div>
+                    <!--<div class="btn" @click="draw2">draw2</div>
                     <div class="btn" @click="doubleNodes">doubleNodes</div>-->
-                    <div class="btn" :class="{ active: sorted }" @click="superCluster">super</div>
+                    <div class="btn" @click="superCluster">super</div>
                     <div class="btn" :class="{ active: sorted }" @click="sortNodes">sort</div>
                     <div
                         class="btn"
@@ -83,7 +83,10 @@
                                     :key="label.name"
                                 >
                                     {{label.name}}
-                                    <div v-on:click.stop="addLabeledToGroup(label.name)" class="btn">
+                                    <div
+                                        v-on:click.stop="addLabeledToGroup(label.name)"
+                                        class="btn"
+                                    >
                                         <grid></grid>
                                     </div>
                                     <div
@@ -320,12 +323,13 @@
                     <div>Name: {{activeNode.name}}</div>
                     <div>Label: {{activeNode.label}}</div>
                     <div>Labels: {{activeNode.labels}}</div>
-                    <div>Links #: {{activeNode && Object.keys(activeNode.links).length}}</div>
+                    <div>Links #: {{Object.keys(activeNode.links).length}}</div>
                 </div>
                 <logs :getStore="getStore"/>
             </div>
         </div>
-        <triplets :node="activeNode"/>
+
+        <!--<triplets :node="activeNode"/>-->
     </div>
 </template>
 
@@ -395,8 +399,8 @@ export default {
     },
     data: () => ({
         items: [],
-        positives: [],
-        negatives: [],
+        // positives: [],
+        // negatives: [],
         // store: null,
         socket: null,
         connectedToSocket: false,
@@ -417,7 +421,7 @@ export default {
         target: false,
         width: 0,
         height: 0,
-        activeNode: {},
+        activeNode: null,
         cluster: 5, // default - set on mount from CanvasStore class
         clusterMode: false,
         imgSize: 0, // default - set on mount from CanvasStore class
@@ -776,8 +780,8 @@ export default {
         },
 
         superCluster() {
-            this.store.superCluster()
-        }
+            this.store.superCluster();
+        },
 
         /* drawNavMap() {
             console.time('drawNavMap');
@@ -1135,7 +1139,7 @@ export default {
         // end connection with server socket
         if (this.socket) this.socket.disconnect();
         // clear check-for-drawing interval
-        //clearInterval(this.store.timerId);
+        // clearInterval(this.store.timerId);
     },
 };
 </script>

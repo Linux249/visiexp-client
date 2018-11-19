@@ -89,6 +89,8 @@ export default class CanvasState {
         // this.timerId = setInterval(() => this.draw(), this.interval);
         this.sizeRange = 3;
 
+        this.maxZoomLvl = 20;
+
         this.moveGroupToMouse = false;
 
         // array of node index's
@@ -142,10 +144,10 @@ export default class CanvasState {
 
     set zoomStage(value) {
         if (value < 0) this._zoomStage = 0;
-        // else if (value > 9) this._zoomStage = 9;
+        else if (value > this.maxZoomLvl) this._zoomStage = this.maxZoomLvl;
         else this._zoomStage = value;
         this.triggerDraw();
-        this.ui.zoomLvl = this.zoomStage;
+        this.ui.zoomLvl = this._zoomStage;
     }
 
     get zoomStage() {
@@ -411,6 +413,19 @@ export default class CanvasState {
         this.triggerDraw();
     }
 
+    // TODO test automatic draw effects like animation, zoom
+    toggleScaleTest() {
+        this.scaleTest = !this.scaleTest;
+        requestAnimationFrame(this.scaleTestDraw);
+        return this.scaleTest;
+    }
+
+    scaleTestDraw = () => {
+        if (this.scaleTest) {
+            console.log('scaleTestDraw');
+            requestAnimationFrame(this.scaleTestDraw);
+        }
+    };
     /* clear() {
         // move point 0,0 to middle of canvas
         // console.log(this.ctx)
@@ -701,7 +716,6 @@ export default class CanvasState {
             if (imgSize < 0) imgSize = 0;
             if (imgSize > 14) imgSize = 14;
 
-
             const img = node.imageData[imgSize];
             if (!img) {
                 console.error(`no image for node: ${node.id}exists`);
@@ -985,9 +999,9 @@ export default class CanvasState {
         const { nodeUnderMouse } = this;
 
         // if there is a selection and the mouse is over a link
-        // TODO test if this.selection.links[nodeUnderMouse.index] exists for cleaner statment
+        // TODO test if this.selection.links[nodeUnderMouse.index] exists for cleaner statement
         if (this.selection && this.selection.links[nodeUnderMouse.index]) {
-            const { index: i } = nodeUnderMouse;
+            /* const { index: i } = nodeUnderMouse;
             const { links } = this.selection;
             if (wheelEvent.deltaY < 0) {
                 console.log('zoom in - image smaller');
@@ -1001,7 +1015,7 @@ export default class CanvasState {
             }
             if (links[i] < 0.1) links[i] = 0.1;
             if (links[i] > 1) links[i] = 1;
-            this.triggerDraw();
+            this.triggerDraw(); */
         } else {
             const oldScale = this.scale;
             const mouseX = wheelEvent.offsetX;
@@ -1050,7 +1064,7 @@ export default class CanvasState {
         if (nodeId >= 0) {
             return this.nodes[nodeId];
         }
-        return false;
+        return null;
     }
 
     handleMouseDown(e) {
