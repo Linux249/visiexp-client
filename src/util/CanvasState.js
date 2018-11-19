@@ -48,6 +48,8 @@ export default class CanvasState {
         this.scissorsEndY = 0;
 
         this._cluster = 100;
+        this._clusterRadius = 2
+        this.supercluster = supercluster(); // TODO check best init for this var
         // this.updateClusterUI = null;
         this._scale = 20;
         // this._scale2 = 20; // vorher 0
@@ -213,6 +215,15 @@ export default class CanvasState {
         return this._cluster;
     }
 
+    set clusterRadius(value) {
+        if (value < 1) this._clusterRadius = 1;
+        else this._clusterRadius = value;
+    }
+
+    get clusterRadius() {
+        return this._clusterRadius;
+    }
+
     set scrollGrowth(v) {
         if (v <= 1) this._scrollGrowth = 1.01;
         else this._scrollGrowth = v;
@@ -276,7 +287,7 @@ export default class CanvasState {
         console.log(this.nodes);
     }
 
-    superCluster() {
+    createSuperCluster() {
         console.time('create geoPoints');
         const geoPoints = Object.values(this.nodes).map(n => ({
             type: 'Feature',
@@ -295,58 +306,22 @@ export default class CanvasState {
 
         // TODO find the best radius
 
-        console.time('build superClusterIndex');
         // calculated the supercluster
-        const superClusterIndex = supercluster({
-            radius: 2,
-            maxZoom: 20,
+        console.time('build superClusterIndex');
+        this.supercluster = supercluster({
+            radius: this.clusterRadius,
+            maxZoom: 20, // TODO add default zoomstages + check the +/-1 behavior carefully
             log: true,
         });
-        superClusterIndex.load(geoPoints);
+        this.supercluster.load(geoPoints);
         console.timeEnd('build superClusterIndex');
-        console.log(superClusterIndex);
-
-        console.time('get cluster');
-        const {
-            zoomStage,
-            scale,
-            width: canvasW,
-            height: canvasH,
-            translateX: tx,
-            translateY: ty,
-        } = this;
-
-        const rect = [-tx / scale, -ty / scale, (canvasW - ty) / scale, (canvasH - ty) / scale];
-
-        // get clustering for curretn section (viewbox)
-        const cluster = superClusterIndex.getClusters(rect, zoomStage);
-        console.timeEnd('get cluster');
-        console.log(rect);
-        console.log(cluster);
+        // console.log(this.supercluster);
 
 
-        cluster.forEach((e) => {
-            const { index, cluster_id } = e.properties;
-            if (index) {
-                // this is a not clusterd point
-                this.nodes[index].isClusterd = false;
-            } else if (cluster_id) {
-                // this is a cluster
-                const pointsInsideCluster = superClusterIndex.getLeaves(e.id);
-                // TODO find represent
-
-                // represent is first item LOL
-                pointsInsideCluster.forEach((p, i) => {
-                    const { index } = p.properties;
-                    if (i === 0) this.nodes[index].isClusterd = false;
-                    this.nodes[index].isClusterd = true;
-                });
-            }
-        });
 
         // testing
 
-        const notClusterd = [];
+       /* const notClusterd = [];
         const clusterd = [];
         cluster.forEach((e) => {
             if (e.properties.index) {
@@ -363,17 +338,60 @@ export default class CanvasState {
                     console.log(`${c.properties.index} ${notClusterd.includes(c.properties.index)}`);
                 });
                 // test tile: tile never get results...
-                /* console.log("TILE")
+                /!* console.log("TILE")
                 const tile = superClusterIndex.getTile(zoomStage, e.geometry.coordinates[0], e.geometry.coordinates[1])
-                console.log(tile) */
+                console.log(tile) *!/
                 // find represent: test if fist value suits
             }
         });
         console.log('not clustered items count');
         console.log(notClusterd.length);
         console.log('cluster count');
-        console.log(clusterd.length);
+        console.log(clusterd.length);*/
+        this.updateClustering()
         this.triggerDraw();
+    }
+
+    updateClustering() {
+        // TODO remove after right implementation
+        if(!this.supercluster) return
+        console.time('get cluster');
+        const {
+            zoomStage,
+            scale,
+            width: canvasW,
+            height: canvasH,
+            translateX: tx,
+            translateY: ty,
+        } = this;
+
+        const rect = [-tx / scale, -ty / scale, (canvasW - ty) / scale, (canvasH - ty) / scale];
+
+        // get clustering for curretn section (viewbox)
+        const cluster = this.supercluster.getClusters(rect, zoomStage);
+        console.timeEnd('get cluster');
+        // console.log(rect);
+        // console.log(cluster);
+
+        console.time('update cluster on nodes')
+        cluster.forEach((e) => {
+            const { index, cluster_id } = e.properties;
+            if (index) {
+                // this is a not clustered point
+                this.nodes[index].isClusterd = false;
+            } else if (cluster_id) {
+                // this is a cluster
+                const pointsInsideCluster = this.supercluster.getLeaves(e.id);
+                // TODO find represent
+                // represent is first item LOL
+                pointsInsideCluster.forEach((p, i) => {
+                    const { index } = p.properties;
+                    if (i === 0) this.nodes[index].isClusterd = false;
+                    this.nodes[index].isClusterd = true;
+                });
+            }
+        });
+        console.timeEnd('update cluster on nodes')
     }
 
     clearGroup() {
@@ -800,6 +818,8 @@ export default class CanvasState {
 
         // check if it is NEIGHBOUR mode
         const neighbourMode = this.ui.$route.name === LABELS;
+
+        if(clusterMode) this.updateClustering()
 
         nodes.forEach((node) => {
             // start x,y ist x *scale + translateX

@@ -187,6 +187,14 @@
                         </div>
                     </div>
                     <div class="row-btn">
+                        <div>lusterRadius: {{clusterRadius}}</div>
+                        <div class="row">
+                            <div @click="changeClusterRadius(-1)" class="btn">-1</div>
+                            <div @click="changeClusterRadius(1)" class="btn">+1</div>
+                            <div @click="superCluster()" class="btn">update</div>
+                        </div>
+                    </div>
+                    <div class="row-btn">
                         <div>ImageSize: {{imgSize}}</div>
                         <div class="row">
                             <div @click="changeImgSize(-1)" class="btn">-1</div>
@@ -423,6 +431,7 @@ export default {
         height: 0,
         activeNode: null,
         cluster: 5, // default - set on mount from CanvasStore class
+        clusterRadius: 0,  // default
         clusterMode: false,
         imgSize: 0, // default - set on mount from CanvasStore class
         activeImgWidth: 0, // default - set on mount from CanvasStore class
@@ -542,6 +551,10 @@ export default {
             this.cluster = this.store.cluster; // update ui
         },
 
+        changeClusterRadius(v) {
+            this.clusterRadius = this.store.clusterRadius += v;; // update ui
+        },
+
         sortNodes() {
             this.store.sortNodes();
             this.sorted = this.store.sorted;
@@ -638,8 +651,11 @@ export default {
 
         toggleClusterMode() {
             this.clusterMode = !this.clusterMode;
-            this.store.triggerDraw();
+            this.store.createSuperCluster();
+            // this.store.triggerDraw();
+
         },
+
 
         changeImgSize(v) {
             // this.store.imgSize // update canvasState
@@ -780,7 +796,7 @@ export default {
         },
 
         superCluster() {
-            this.store.superCluster();
+            this.store.createSuperCluster();
         },
 
         /* drawNavMap() {
@@ -1006,6 +1022,7 @@ export default {
 
         // set init value in UI
         this.cluster = s.cluster;
+        this.clusterRadius = s.clusterRadius;
         this.activeImgWidth = s.activeImgScale;
         this.borderWidth = s.borderWidth;
         this.scrollGrowth = s.scrollGrowth;
