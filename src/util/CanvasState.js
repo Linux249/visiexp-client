@@ -1,4 +1,4 @@
-// import range from './range';
+import supercluster from 'supercluster';
 import { SVM, LABELS, NEIGHBOURS } from './modes';
 
 export default class CanvasState {
@@ -89,6 +89,8 @@ export default class CanvasState {
         // this.timerId = setInterval(() => this.draw(), this.interval);
         this.sizeRange = 3;
 
+        this.maxZoomLvl = 20;
+
         this.moveGroupToMouse = false;
 
         // array of node index's
@@ -142,10 +144,10 @@ export default class CanvasState {
 
     set zoomStage(value) {
         if (value < 0) this._zoomStage = 0;
-        // else if (value > 9) this._zoomStage = 9;
+        else if (value > this.maxZoomLvl) this._zoomStage = this.maxZoomLvl;
         else this._zoomStage = value;
         this.triggerDraw();
-        this.ui.zoomLvl = this.zoomStage;
+        this.ui.zoomLvl = this._zoomStage;
     }
 
     get zoomStage() {
@@ -272,6 +274,106 @@ export default class CanvasState {
             this.addNode(newNode);
         });
         console.log(this.nodes);
+    }
+
+    superCluster() {
+        console.time('create geoPoints');
+        const geoPoints = Object.values(this.nodes).map(n => ({
+            type: 'Feature',
+            geometry: {
+                // https://tools.ietf.org/html/rfc7946#section-3.1.2
+                type: 'Point',
+                coordinates: [n.x, n.y],
+            },
+            properties: {
+                index: n.index,
+            },
+        }));
+        console.timeEnd('create geoPoints');
+        console.log(geoPoints);
+
+
+        // TODO find the best radius
+
+        console.time('build superClusterIndex');
+        // calculated the supercluster
+        const superClusterIndex = supercluster({
+            radius: 2,
+            maxZoom: 20,
+            log: true,
+        });
+        superClusterIndex.load(geoPoints);
+        console.timeEnd('build superClusterIndex');
+        console.log(superClusterIndex);
+
+        console.time('get cluster');
+        const {
+            zoomStage,
+            scale,
+            width: canvasW,
+            height: canvasH,
+            translateX: tx,
+            translateY: ty,
+        } = this;
+
+        const rect = [-tx / scale, -ty / scale, (canvasW - ty) / scale, (canvasH - ty) / scale];
+
+        // get clustering for curretn section (viewbox)
+        const cluster = superClusterIndex.getClusters(rect, zoomStage);
+        console.timeEnd('get cluster');
+        console.log(rect);
+        console.log(cluster);
+
+
+        cluster.forEach((e) => {
+            const { index, cluster_id } = e.properties;
+            if (index) {
+                // this is a not clusterd point
+                this.nodes[index].isClusterd = false;
+            } else if (cluster_id) {
+                // this is a cluster
+                const pointsInsideCluster = superClusterIndex.getLeaves(e.id);
+                // TODO find represent
+
+                // represent is first item LOL
+                pointsInsideCluster.forEach((p, i) => {
+                    const { index } = p.properties;
+                    if (i === 0) this.nodes[index].isClusterd = false;
+                    this.nodes[index].isClusterd = true;
+                });
+            }
+        });
+
+        // testing
+
+        const notClusterd = [];
+        const clusterd = [];
+        cluster.forEach((e) => {
+            if (e.properties.index) {
+                notClusterd.push(e.properties.index);
+            }
+        });
+        cluster.forEach((e) => {
+            if (e.id) {
+                clusterd.push(e);
+                console.log(e);
+                const geclustert = superClusterIndex.getLeaves(e.id);
+                console.log(geclustert);
+                geclustert.forEach((c, i) => {
+                    console.log(`${c.properties.index} ${notClusterd.includes(c.properties.index)}`);
+                });
+                // test tile: tile never get results...
+                /* console.log("TILE")
+                const tile = superClusterIndex.getTile(zoomStage, e.geometry.coordinates[0], e.geometry.coordinates[1])
+                console.log(tile) */
+                // find represent: test if fist value suits
+            }
+        });
+        console.log('not clustered items count');
+        console.log(notClusterd.length);
+        console.log('cluster count');
+        console.log(clusterd.length);
+        this.triggerDraw();
     }
 
     clearGroup() {
@@ -411,6 +513,19 @@ export default class CanvasState {
         this.triggerDraw();
     }
 
+    // TODO test automatic draw effects like animation, zoom
+    toggleScaleTest() {
+        this.scaleTest = !this.scaleTest;
+        requestAnimationFrame(this.scaleTestDraw);
+        return this.scaleTest;
+    }
+
+    scaleTestDraw = () => {
+        if (this.scaleTest) {
+            console.log('scaleTestDraw');
+            requestAnimationFrame(this.scaleTestDraw);
+        }
+    };
     /* clear() {
         // move point 0,0 to middle of canvas
         // console.log(this.ctx)
@@ -696,11 +811,10 @@ export default class CanvasState {
             let imgSize = rankSize ? zoomStage + Math.floor(node.rank * this.sizeRange) : zoomStage;
             imgSize += this.imgSize; // add imgSize from user input
 
-            if (clusterMode && node.cluster < this.cluster) imgSize += 5;
+            if (clusterMode && !node.isClusterd) imgSize += 5;
 
             if (imgSize < 0) imgSize = 0;
             if (imgSize > 14) imgSize = 14;
-
 
             const img = node.imageData[imgSize];
             if (!img) {
@@ -985,9 +1099,9 @@ export default class CanvasState {
         const { nodeUnderMouse } = this;
 
         // if there is a selection and the mouse is over a link
-        // TODO test if this.selection.links[nodeUnderMouse.index] exists for cleaner statment
+        // TODO test if this.selection.links[nodeUnderMouse.index] exists for cleaner statement
         if (this.selection && this.selection.links[nodeUnderMouse.index]) {
-            const { index: i } = nodeUnderMouse;
+            /* const { index: i } = nodeUnderMouse;
             const { links } = this.selection;
             if (wheelEvent.deltaY < 0) {
                 console.log('zoom in - image smaller');
@@ -1001,7 +1115,7 @@ export default class CanvasState {
             }
             if (links[i] < 0.1) links[i] = 0.1;
             if (links[i] > 1) links[i] = 1;
-            this.triggerDraw();
+            this.triggerDraw(); */
         } else {
             const oldScale = this.scale;
             const mouseX = wheelEvent.offsetX;
@@ -1050,7 +1164,7 @@ export default class CanvasState {
         if (nodeId >= 0) {
             return this.nodes[nodeId];
         }
-        return false;
+        return null;
     }
 
     handleMouseDown(e) {

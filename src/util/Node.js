@@ -19,6 +19,7 @@ export default class Node {
         this.cliqueLen = data.clique.length;
 
         this.cluster = data.cluster;
+        this.isClusterd = true;
         this.positives = data.positives;
         this.negatives = data.negatives;
 

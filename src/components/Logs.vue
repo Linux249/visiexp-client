@@ -7,9 +7,7 @@
             auto-draw
         >
         </trend>
-        <div>
-            {{maxDrawTime()}}
-        </div>
+        {{maxDrawTime()}}
         <trend
             :data="hitMapData"
             :gradient="['#6fa8dc', '#42b983', '#2c3e50']"
@@ -45,8 +43,8 @@ export default {
         },
         maxDrawTime() {
             const store = this.getStore();
-            console.warn('inside compute');
-            console.warn(store);
+            // console.warn('inside compute');
+            // console.warn(store);
             return store ? store.maxDrawTime : 0;
         },
         maxHitMapTime() {
