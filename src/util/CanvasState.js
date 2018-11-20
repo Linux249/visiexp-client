@@ -310,12 +310,12 @@ export default class CanvasState {
         console.time('build superClusterIndex');
         this.supercluster = supercluster({
             radius: this.clusterRadius,
-            maxZoom: 20, // TODO add default zoomstages + check the +/-1 behavior carefully
+            maxZoom: this.maxZoomLvl, // TODO add default zoomstages + check the +/-1 behavior carefully
             log: true,
         });
         this.supercluster.load(geoPoints);
         console.timeEnd('build superClusterIndex');
-        // console.log(this.supercluster);
+        console.log(this.supercluster);
 
 
         // testing
@@ -347,11 +347,14 @@ export default class CanvasState {
         console.log(notClusterd.length);
         console.log('cluster count');
         console.log(clusterd.length); */
-        this.updateClustering();
+        this.updateClustering(true);
         this.triggerDraw();
     }
 
-    updateClustering() {
+    updateClustering(init) {
+        function distance(v1, v2) {
+            return Math.hypot(v2[0] - v1[0], v2[1] - v1[1]);
+        }
         // TODO remove after right implementation
         if (!this.supercluster) return;
         console.time('get cluster');
@@ -373,21 +376,37 @@ export default class CanvasState {
         // console.log(cluster);
 
         console.time('update cluster on nodes');
-        cluster.forEach((e) => {
-            const { index, cluster_id } = e.properties;
+        console.log(cluster);
+        cluster.forEach((c) => {
+            const { index, cluster_id } = c.properties;
             if (index) {
                 // this is a not clustered point
                 this.nodes[index].isClusterd = false;
             } else if (cluster_id) {
                 // this is a cluster
-                const pointsInsideCluster = this.supercluster.getLeaves(e.id);
+                const pointsInsideCluster = this.supercluster.getLeaves(c.id, Infinity);
+                if (init) console.log(c);
+                if (init) console.log(c.geometry.coordinates);
                 // TODO find represent
                 // represent is first item LOL
-                pointsInsideCluster.forEach((p, i) => {
-                    const { index } = p.properties;
-                    if (i === 0) this.nodes[index].isClusterd = false;
-                    this.nodes[index].isClusterd = true;
+                let centroidId = null;
+                let min = Infinity;
+                // set all points in cluster to false + check distance
+                pointsInsideCluster.forEach((p) => {
+                    const node = this.nodes[p.properties.index];
+                    node.isClusterd = true;
+                    if (init)console.log([node.x, node.y]);
+                    if (init)console.log(p.geometry.coordinates);
+                    const dist = distance(p.geometry.coordinates, c.geometry.coordinates);
+                    if (init)console.log(dist);
+                    if (dist < min) {
+                        min = dist;
+                        centroidId = p.properties.index;
+                    }
                 });
+                if (init)console.log({ centroidId, min });
+                // set centroid as represent
+                this.nodes[centroidId].isClusterd = false;
             }
         });
         console.timeEnd('update cluster on nodes');
@@ -660,7 +679,7 @@ export default class CanvasState {
 */
 
     drawHitmap() {
-        console.time('drawHitmap');
+        // console.time('drawHitmap');
         const startTime = window.performance.now();
 
         const canvasW = this.width;
@@ -774,7 +793,7 @@ export default class CanvasState {
         // console.log(canvasPixel);
 
         // console.log({ w, h, tx, ty, pixel });
-        console.timeEnd('drawHitmap');
+        // console.timeEnd('drawHitmap');
         const endTime = window.performance.now();
         const time = endTime - startTime;
         this.perfLogs.hitmap.push(time);
@@ -786,7 +805,7 @@ export default class CanvasState {
     }
 
     draw2() {
-        console.time('draw2');
+        // console.time('draw2');
         const startTime = window.performance.now();
 
         // TODO Performance tests
@@ -1092,7 +1111,7 @@ export default class CanvasState {
         // console.log(canvasPixel);
 
         // console.log({ w, h, tx, ty, pixel });
-        console.timeEnd('draw2');
+        // console.timeEnd('draw2');
         const endTime = window.performance.now();
         const time = endTime - startTime;
         this.perfLogs.draw.push(time);
