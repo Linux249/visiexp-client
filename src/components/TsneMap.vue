@@ -431,7 +431,7 @@ export default {
         height: 0,
         activeNode: null,
         cluster: 5, // default - set on mount from CanvasStore class
-        clusterRadius: 0,  // default
+        clusterRadius: 0, // default
         clusterMode: false,
         imgSize: 0, // default - set on mount from CanvasStore class
         activeImgWidth: 0, // default - set on mount from CanvasStore class
@@ -552,7 +552,7 @@ export default {
         },
 
         changeClusterRadius(v) {
-            this.clusterRadius = this.store.clusterRadius += v;; // update ui
+            this.clusterRadius = this.store.clusterRadius += v; // update ui
         },
 
         sortNodes() {
@@ -653,7 +653,6 @@ export default {
             this.clusterMode = !this.clusterMode;
             this.store.createSuperCluster();
             // this.store.triggerDraw();
-
         },
 
 

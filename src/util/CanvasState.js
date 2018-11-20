@@ -48,7 +48,7 @@ export default class CanvasState {
         this.scissorsEndY = 0;
 
         this._cluster = 100;
-        this._clusterRadius = 2
+        this._clusterRadius = 2;
         this.supercluster = supercluster(); // TODO check best init for this var
         // this.updateClusterUI = null;
         this._scale = 20;
@@ -318,10 +318,9 @@ export default class CanvasState {
         // console.log(this.supercluster);
 
 
-
         // testing
 
-       /* const notClusterd = [];
+        /* const notClusterd = [];
         const clusterd = [];
         cluster.forEach((e) => {
             if (e.properties.index) {
@@ -347,14 +346,14 @@ export default class CanvasState {
         console.log('not clustered items count');
         console.log(notClusterd.length);
         console.log('cluster count');
-        console.log(clusterd.length);*/
-        this.updateClustering()
+        console.log(clusterd.length); */
+        this.updateClustering();
         this.triggerDraw();
     }
 
     updateClustering() {
         // TODO remove after right implementation
-        if(!this.supercluster) return
+        if (!this.supercluster) return;
         console.time('get cluster');
         const {
             zoomStage,
@@ -373,7 +372,7 @@ export default class CanvasState {
         // console.log(rect);
         // console.log(cluster);
 
-        console.time('update cluster on nodes')
+        console.time('update cluster on nodes');
         cluster.forEach((e) => {
             const { index, cluster_id } = e.properties;
             if (index) {
@@ -391,7 +390,7 @@ export default class CanvasState {
                 });
             }
         });
-        console.timeEnd('update cluster on nodes')
+        console.timeEnd('update cluster on nodes');
     }
 
     clearGroup() {
@@ -819,7 +818,7 @@ export default class CanvasState {
         // check if it is NEIGHBOUR mode
         const neighbourMode = this.ui.$route.name === LABELS;
 
-        if(clusterMode) this.updateClustering()
+        if (clusterMode) this.updateClustering();
 
         nodes.forEach((node) => {
             // start x,y ist x *scale + translateX
