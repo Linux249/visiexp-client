@@ -309,7 +309,8 @@ export default class CanvasState {
         console.time('build superClusterIndex');
         this.supercluster = supercluster({
             radius: this.clusterRadius,
-            maxZoom: this.maxZoomLvl, // TODO add default zoomstages + check the +/-1 behavior carefully
+            maxZoom: this.maxZoomLvl,
+            extend: 10,
             log: true,
         });
         this.supercluster.load(geoPoints);
