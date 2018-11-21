@@ -1062,7 +1062,7 @@ export default {
             // start time measure
             if (this.nodesRecived === 0) console.time('loadAllNodes');
             this.nodesRecived += 1;
-            s.addNode(new Node(data, s.ctx, s.hitCtx));
+            s.addNode(new Node(data));
             s.triggerDraw();
         });
 

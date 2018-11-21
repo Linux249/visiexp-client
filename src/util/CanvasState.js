@@ -677,7 +677,7 @@ export default class CanvasState {
     }
 */
 
-    /*drawHitmap() {
+    /* drawHitmap() {
         // TODO merge draw hitmap to draw2
         const startTime = window.performance.now();
 
@@ -773,7 +773,7 @@ export default class CanvasState {
             console.warn('new max hit map time');
             console.warn(this.maxHitMapTime);
         }
-    }*/
+    } */
 
     draw2() {
         // console.time('draw2');
@@ -856,104 +856,104 @@ export default class CanvasState {
 
             // cluster
             // if (node.cluster < this.cluster) {
-            //if (true) {
-                const imgData = img.data;
-                // wir gehen durch alle reihen des bildes
-                // TODO shift left/top
+            // if (true) {
+            const imgData = img.data;
+            // wir gehen durch alle reihen des bildes
+            // TODO shift left/top
 
-                if (show) {
-                    // loop through rows in img
-                    for (let row = 0; row < ih; row += 1) {
-                        const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
-                        // loop through column in img
+            if (show) {
+                // loop through rows in img
+                for (let row = 0; row < ih; row += 1) {
+                    const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
+                    // loop through column in img
+                    for (let col = 0; col < iw; col += 1) {
+                        const c = canvasRow + col * 4;
+                        const p = (row * iw + col) * 4;
+                        canvasPixel[c] = imgData[p]; // R
+                        canvasPixel[c + 1] = imgData[p + 1]; // G
+                        canvasPixel[c + 2] = imgData[p + 2]; // B
+                        canvasPixel[c + 3] = canvasPixel[c + 3]
+                            ? canvasPixel[c + 3] + 10 * node.cliqueLen
+                            : 50 + zoomStage * 50;
+
+                        // draw hitmap
+                        hitmapPixel[c] = node.colorKey[0]; // R
+                        hitmapPixel[c + 1] = node.colorKey[1]; // G
+                        hitmapPixel[c + 2] = node.colorKey[2]; // B
+                        hitmapPixel[c + 3] = 255; //
+                    }
+                }
+            }
+
+            if (drawBoarder) {
+                const color = gradient[node.cliqueLen];
+                // draw boarder
+                for (let row = -2; row <= ih + 1; row += 1) {
+                    const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
+                    if (row === -2 || row === ih + 1) {
+                        // draw top line r
                         for (let col = 0; col < iw; col += 1) {
                             const c = canvasRow + col * 4;
-                            const p = (row * iw + col) * 4;
-                            canvasPixel[c] = imgData[p]; // R
-                            canvasPixel[c + 1] = imgData[p + 1]; // G
-                            canvasPixel[c + 2] = imgData[p + 2]; // B
-                            canvasPixel[c + 3] = canvasPixel[c + 3]
-                                ? canvasPixel[c + 3] + 10 * node.cliqueLen
-                                : 50 + zoomStage * 50;
-
-                            // draw hitmap
-                            hitmapPixel[c] = node.colorKey[0]; // R
-                            hitmapPixel[c + 1] = node.colorKey[1]; // G
-                            hitmapPixel[c + 2] = node.colorKey[2]; // B
-                            hitmapPixel[c + 3] = 255; //
+                            canvasPixel[c] = color[0]; // R
+                            canvasPixel[c + 1] = color[1]; // G
+                            canvasPixel[c + 2] = color[2]; // B
+                            canvasPixel[c + 3] = 200;
                         }
+                    } else {
+                        // draw left boarder
+                        const l = canvasRow - 8;
+                        canvasPixel[l] = color[0]; // R
+                        canvasPixel[l + 1] = color[1]; // G
+                        canvasPixel[l + 2] = color[2]; // B
+                        canvasPixel[l + 3] = 200;
+
+                        // draw left boarder
+                        const r = canvasRow + (iw + 1) * 4;
+                        canvasPixel[r] = color[0]; // R
+                        canvasPixel[r + 1] = color[1]; // G
+                        canvasPixel[r + 2] = color[2]; // B
+                        canvasPixel[r + 3] = 200;
                     }
                 }
+            }
 
-                if (drawBoarder) {
-                    const color = gradient[node.cliqueLen];
-                    // draw boarder
-                    for (let row = -2; row <= ih + 1; row += 1) {
-                        const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
-                        if (row === -2 || row === ih + 1) {
-                            // draw top line r
-                            for (let col = 0; col < iw; col += 1) {
-                                const c = canvasRow + col * 4;
-                                canvasPixel[c] = color[0]; // R
-                                canvasPixel[c + 1] = color[1]; // G
-                                canvasPixel[c + 2] = color[2]; // B
-                                canvasPixel[c + 3] = 200;
-                            }
-                        } else {
-                            // draw left boarder
-                            const l = canvasRow - 8;
-                            canvasPixel[l] = color[0]; // R
-                            canvasPixel[l + 1] = color[1]; // G
-                            canvasPixel[l + 2] = color[2]; // B
-                            canvasPixel[l + 3] = 200;
-
-                            // draw left boarder
-                            const r = canvasRow + (iw + 1) * 4;
-                            canvasPixel[r] = color[0]; // R
-                            canvasPixel[r + 1] = color[1]; // G
-                            canvasPixel[r + 2] = color[2]; // B
-                            canvasPixel[r + 3] = 200;
+            const labelBorder = this.selectedCategory
+                && this.selectedLabel
+                && this.selectedLabel === node.labels[this.selectedCategory];
+            if (labelBorder) {
+                const { color } = this.ui.labels[this.selectedCategory].labels.find(
+                    e => e.name === this.selectedLabel,
+                );
+                // draw boarder
+                for (let row = -2; row <= ih + 1; row += 1) {
+                    const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
+                    if (row === -2 || row === ih + 1) {
+                        // draw top line r
+                        for (let col = 0; col < iw; col += 1) {
+                            const c = canvasRow + col * 4;
+                            canvasPixel[c] = color[0]; // R
+                            canvasPixel[c + 1] = color[1]; // G
+                            canvasPixel[c + 2] = color[2]; // B
+                            canvasPixel[c + 3] = 200;
                         }
+                    } else {
+                        // draw left boarder
+                        const l = canvasRow - 8;
+                        canvasPixel[l] = color[0]; // R
+                        canvasPixel[l + 1] = color[1]; // G
+                        canvasPixel[l + 2] = color[2]; // B
+                        canvasPixel[l + 3] = 200;
+
+                        // draw left boarder
+                        const r = canvasRow + (iw + 1) * 4;
+                        canvasPixel[r] = color[0]; // R
+                        canvasPixel[r + 1] = color[1]; // G
+                        canvasPixel[r + 2] = color[2]; // B
+                        canvasPixel[r + 3] = 200;
                     }
                 }
-
-                const labelBorder = this.selectedCategory
-                    && this.selectedLabel
-                    && this.selectedLabel === node.labels[this.selectedCategory];
-                if (labelBorder) {
-                    const { color } = this.ui.labels[this.selectedCategory].labels.find(
-                        e => e.name === this.selectedLabel,
-                    );
-                    // draw boarder
-                    for (let row = -2; row <= ih + 1; row += 1) {
-                        const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
-                        if (row === -2 || row === ih + 1) {
-                            // draw top line r
-                            for (let col = 0; col < iw; col += 1) {
-                                const c = canvasRow + col * 4;
-                                canvasPixel[c] = color[0]; // R
-                                canvasPixel[c + 1] = color[1]; // G
-                                canvasPixel[c + 2] = color[2]; // B
-                                canvasPixel[c + 3] = 200;
-                            }
-                        } else {
-                            // draw left boarder
-                            const l = canvasRow - 8;
-                            canvasPixel[l] = color[0]; // R
-                            canvasPixel[l + 1] = color[1]; // G
-                            canvasPixel[l + 2] = color[2]; // B
-                            canvasPixel[l + 3] = 200;
-
-                            // draw left boarder
-                            const r = canvasRow + (iw + 1) * 4;
-                            canvasPixel[r] = color[0]; // R
-                            canvasPixel[r + 1] = color[1]; // G
-                            canvasPixel[r + 2] = color[2]; // B
-                            canvasPixel[r + 3] = 200;
-                        }
-                    }
-                }
-            /*} else {
+            }
+            /* } else {
                 // drawcluster
                 let c = (nodeY * canvasW + nodeX) * 4;
                 canvasPixel[c] = 210;
@@ -975,7 +975,7 @@ export default class CanvasState {
                 canvasPixel[c + 1] = 210;
                 canvasPixel[c + 2] = 210;
                 canvasPixel[c + 3] = 255;
-            }*/
+            } */
         });
 
         // DRAW UNDLINE FOR GROUPED NODES
@@ -1117,9 +1117,9 @@ export default class CanvasState {
 
         // if there is a selection and the mouse is over a link
         // TODO test if this.selection.links[nodeUnderMouse.index] exists for cleaner statement
-        //if (this.selection && this.selection.links[nodeUnderMouse.index]) {
+        // if (this.selection && this.selection.links[nodeUnderMouse.index]) {
         // if (false) {
-            /* const { index: i } = nodeUnderMouse;
+        /* const { index: i } = nodeUnderMouse;
             const { links } = this.selection;
             if (wheelEvent.deltaY < 0) {
                 console.log('zoom in - image smaller');
@@ -1134,42 +1134,42 @@ export default class CanvasState {
             if (links[i] < 0.1) links[i] = 0.1;
             if (links[i] > 1) links[i] = 1;
             this.triggerDraw(); */
-        //} else {
-            const oldScale = this.scale;
-            const mouseX = wheelEvent.offsetX;
-            const mouseY = wheelEvent.offsetY;
-            // console.log({ mouseX, mouseY });
-            // get mouse movement based on the last triggered event
-            const offsetX = (mouseX - this.translateX) / oldScale; // +80 means move 80px to right
-            const offsetY = (mouseY - this.translateY) / oldScale; // -50 means move 50 to top
-            // console.log({ offsetX, offsetY });
+        // } else {
+        const oldScale = this.scale;
+        const mouseX = wheelEvent.offsetX;
+        const mouseY = wheelEvent.offsetY;
+        // console.log({ mouseX, mouseY });
+        // get mouse movement based on the last triggered event
+        const offsetX = (mouseX - this.translateX) / oldScale; // +80 means move 80px to right
+        const offsetY = (mouseY - this.translateY) / oldScale; // -50 means move 50 to top
+        // console.log({ offsetX, offsetY });
 
-            // Zoom in = increase = wheel up = negativ delta Y
-            if (wheelEvent.deltaY < 0) {
-                console.log('zoom in');
-                // this.scale2 += 1;
-                // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
-                this.scale += 20;
-                this.zoomStage += 1;
-                this.cluster *= this.clusterGrowth;
-            }
+        // Zoom in = increase = wheel up = negativ delta Y
+        if (wheelEvent.deltaY < 0) {
+            console.log('zoom in');
+            // this.scale2 += 1;
+            // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
+            this.zoomStage += 1;
+            this.scale += 20 * this.zoomStage;
+            this.cluster *= this.clusterGrowth;
+        }
 
-            // Zoom out = decrease = wheel down = positiv delta Y
-            if (wheelEvent.deltaY > 0) {
-                console.log('zoom out');
-                // this.scale2 -= 1;
-                // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
-                this.scale -= 20;
-                this.zoomStage -= 1;
-                this.cluster /= this.clusterGrowth;
-            }
+        // Zoom out = decrease = wheel down = positiv delta Y
+        if (wheelEvent.deltaY > 0) {
+            console.log('zoom out');
+            // this.scale2 -= 1;
+            // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
+            this.scale -= 20 * this.zoomStage;
+            this.zoomStage -= 1;
+            this.cluster /= this.clusterGrowth;
+        }
 
-            const scaleChange = this.scale - oldScale;
-            this.translateX -= offsetX * scaleChange;
-            this.translateY -= offsetY * scaleChange;
+        const scaleChange = this.scale - oldScale;
+        this.translateX -= offsetX * scaleChange;
+        this.translateY -= offsetY * scaleChange;
 
-            this.triggerDraw();
-        //}
+        this.triggerDraw();
+        // }
         return false;
     }
 
@@ -1285,7 +1285,7 @@ export default class CanvasState {
                 }
 
                 // drag neighbours in freeze mode
-                /*if (this.selection && this.selection === this.draggNode) {
+                /* if (this.selection && this.selection === this.draggNode) {
                     Object.entries(this.selection.links).forEach(([i, strength]) => {
                         const neighbour = this.nodes[i];
                         // todo error handling if the neighbour is not existing for katja
@@ -1293,7 +1293,7 @@ export default class CanvasState {
                             neighbour.move(nodeX * strength, nodeY * strength);
                         }
                     });
-                }*/
+                } */
             }
             this.triggerDraw();
         }
@@ -1393,14 +1393,14 @@ export default class CanvasState {
 
     handleDoubleClick(e) {
         console.log('Double click');
-        /*if (this.nodeUnderMouse && this.nodeUnderMouse !== this.selection) {
+        /* if (this.nodeUnderMouse && this.nodeUnderMouse !== this.selection) {
             this.selection = this.nodeUnderMouse;
-        } else this.selection = null;
-        if (this.moveGroupToMouse) {*/
+        } else this.selection = null; */
+        if (this.moveGroupToMouse) {
             const x = (e.offsetX - this.translateX) / this.scale;
             const y = (e.offsetY - this.translateY) / this.scale;
             this.moveGroupToPosition(x, y);
         }
-        this.triggerDraw();
+        // this.triggerDraw();
     }
 }

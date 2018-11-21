@@ -1,17 +1,17 @@
 /* eslint no-underscore-dangle: ["error", { "allowAfterThis": true }] */
 export default class Node {
-    constructor(data, ctx, hitCtx) {
+    constructor(data) {
         this.name = data.name;
         this.links = data.links;
         this.index = data.index;
-        this._x = data.x;
-        this._y = data.y;
-        this._width = 1; // 40;
-        this._height = 1; // 40;
+        this.x = data.x;
+        this.y = data.y;
+        //this.width = 1; // 40;
+        //this.height = 1; // 40;
         this.colorKey = data.colorKey;
-        this.color = data.color;
-        this.ctx = ctx;
-        this.hitCtx = hitCtx;
+        //this.color = data.color;
+        //his.ctx = ctx;
+        //this.hitCtx = hitCtx;
 
         this.group = false;
         this.groupId = 0;
@@ -20,11 +20,11 @@ export default class Node {
 
         this.cluster = data.cluster;
         this.isClusterd = true;
-        this.positives = data.positives;
-        this.negatives = data.negatives;
+        //this.positives = data.positives;
+        //this.negatives = data.negatives;
 
-        this.label = data.label;
-        this.label2 = data.label2 || null;
+        // this.label = data.label;
+        // this.label2 = data.label2 // || null;
         this.labels = data.labels;
         // x,y for reseting
         // this.initX = data.x;
@@ -35,6 +35,9 @@ export default class Node {
         // this.icon.src = data.buffer;
 
         this.rank = data.rank;
+
+        this.hasImage = false; // is there detailed image?
+        this.image = new Image(); // rest is set throuh socket-receiveImage
 
         // this.pics = {};
         this.imageData = {};
@@ -61,7 +64,7 @@ export default class Node {
                 //     context.drawImage(img, 0, 0);
                 //     this.imageData[i] = context.getImageData(0, 0, img.width, img.height);
                 // };
-                if (i === 9) {
+                /* if (i === 9) {
                     const canvas = document.createElement('canvas');
                     const img = this.imageData[i];
                     canvas.width = img.width; // or 'width' if you want a special/scaled size
@@ -69,7 +72,7 @@ export default class Node {
 
                     canvas.getContext('2d').putImageData(img, 0, 0);
                     this.icon = canvas.toDataURL('image/png');
-                }
+                } */
             });
         } catch (e) {
             console.error(e);
@@ -77,23 +80,21 @@ export default class Node {
             console.log(data);
         }
 
-        this._isActive = false; // handle clicked node
-        this.isActiveNeighbour = false; // is this a neighbour of a active node?
-        this.hasImage = false; // is there detailed image?
+        //this._isActive = false; // handle clicked node
+        //this.isActiveNeighbour = false; // is this a neighbour of a active node?
 
-        this.image = new Image(); // rest is set throuh socket-receiveImage
         // this.image.src = `data:image/jpeg;base64,${data.buffer}`;
 
-        this.imgScale = null; // used for scaling img width
+        //this.imgScale = null; // used for scaling img width
         //
         // this.timerId = 0;
 
-        this._value = null; // value will be set by the active nodes neighbour-values, default is 5
+        //this._value = null; // value will be set by the active nodes neighbour-values, default is 5
 
         // this.imgData = makeImgageData(this.icon)
     }
 
-    get width() {
+    /* get width() {
         return this._width;
     }
 
@@ -131,10 +132,8 @@ export default class Node {
     // scale x to real/current 2d-coords
     // subtract half width for moving left, width scaled with ImageScale
     // scale back to Node x/y
-    /*
-        TODO the last point is because of the context ...
-        TODO ... is scaling it again - maybe we could get rid of this?
-    */
+    /!*
+    *!/
 
     get x() {
         // return this._x - (this.width / 2 / this.scale);
@@ -192,7 +191,7 @@ export default class Node {
             // const h = imgData.height;
             // const x = (this._x - (w / 2)) * scale;
             // const y = (this._y - (h / 2)) * scale;
-            // const x = Math.floor((this._x * scale) - (w / 2)); // TODO PERFORMANCE ??? Rounde faster than not?
+            // const x = Math.floor((this._x * scale) - (w / 2));
             // const y = Math.floor((this._y * scale) - (h / 2));
 
             // const data = await createImageBitmap(imgData, 0, 0, w, h)
@@ -201,7 +200,7 @@ export default class Node {
             //     this.ctx.drawImage(data, x, y)
             // })
             // console.log({ x, y, h, w });
-            this.ctx.drawImage(imgData, x, y, w, h); // TODO Performance drawImage - putImageData
+            this.ctx.drawImage(imgData, x, y, w, h);
 
             // this.hitCtx.fillStyle = this.colorKey;
             // this.hitCtx.fillRect(x, y, w, h);
@@ -223,14 +222,14 @@ export default class Node {
 
         const imgData = this.icon; // this.hasImage ? this.image : this.icon;
 
-        /* const x = this.x;
+        /!* const x = this.x;
         const y = this.y;
         const w = this.width; // scale / 2;
-        const h = this.height; // scale / 2 ; */
+        const h = this.height; // scale / 2 ; *!/
 
-        /* const w = activeImgWidth / 10;
-        const h = activeImgWidth / 10; */
-        const w = (imgData.width * activeImgWidth) / 1000; // TODO if image returns check if this width should be still used
+        /!* const w = activeImgWidth / 10;
+        const h = activeImgWidth / 10; *!/
+        const w = (imgData.width * activeImgWidth) / 1000;
         const h = (imgData.height * activeImgWidth) / 1000;
         const x = this._x - w / 2;
         const y = this._y - h / 2;
@@ -247,15 +246,15 @@ export default class Node {
 
         const imgData = this.icon; // this.hasImage ? this.image : this.icon;
 
-        /* const x = this.x;
+        /!* const x = this.x;
         const y = this.y;
         const w = this.width; // scale / 2;
-        const h = this.height; // scale / 2 ; */
+        const h = this.height; // scale / 2 ; *!/
 
-        /* const w = (activeImgWidth / 10) * this.value;
-        const h = (activeImgWidth / 10) * this.value; */
-        const w = (imgData.width * activeImgWidth * strength) / 1000; //* this.value; // TODO if image returns check if this width should be still used
-        const h = (imgData.height * activeImgWidth * strength) / 1000; //* this.value;
+        /!* const w = (activeImgWidth / 10) * this.value;
+        const h = (activeImgWidth / 10) * this.value; *!/
+        const w = (imgData.width * activeImgWidth * strength) / 1000; //!* this.value;
+        const h = (imgData.height * activeImgWidth * strength) / 1000; //!* this.value;
         const x = this._x - w / 2;
         const y = this._y - h / 2;
 
@@ -267,11 +266,11 @@ export default class Node {
     }
 
     drawBorder(scale, imgWidth, activeImgWidth, cluster, borderWidth, labelColor) {
-        /* const x = this.x;
+        /!* const x = this.x;
         const y = this.y;
         const w = this.width; // scale;
         const h = this.height; // scale;
-        */
+        *!/
 
         const w = (this.icon.width
                 * (this.isActive
@@ -303,5 +302,5 @@ export default class Node {
             this.hitCtx.fillStyle = this.colorKey;
             this.hitCtx.fillRect(x, y, w / scale, h / scale);
         }
-    }
+    } */
 }
