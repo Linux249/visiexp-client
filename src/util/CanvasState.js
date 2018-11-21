@@ -22,12 +22,12 @@ export default class CanvasState {
         this._valid = true;
         this.nodes = {}; // hash for all nodes
         this.colorHash = {}; // find nodes by color
-        this.dragging = false; // Keep track of when we are dragging
+        this.panning = false; // Keep track of when we are dragging
         this.draggNode = false; // save the node for dragging
 
         // the current selected object.
         // TODO  In the future we could turn this into an array for multiple selection
-        this.selection = null; // pointer to the activated node
+        // this.selection = null; // pointer to the activated node
         this.nodeOnMouseDown = false; // save node on mouseDown for check in mouseUp
 
         // K labels for development
@@ -1106,7 +1106,8 @@ export default class CanvasState {
 
         // if there is a selection and the mouse is over a link
         // TODO test if this.selection.links[nodeUnderMouse.index] exists for cleaner statement
-        if (this.selection && this.selection.links[nodeUnderMouse.index]) {
+        //if (this.selection && this.selection.links[nodeUnderMouse.index]) {
+        // if (false) {
             /* const { index: i } = nodeUnderMouse;
             const { links } = this.selection;
             if (wheelEvent.deltaY < 0) {
@@ -1122,7 +1123,7 @@ export default class CanvasState {
             if (links[i] < 0.1) links[i] = 0.1;
             if (links[i] > 1) links[i] = 1;
             this.triggerDraw(); */
-        } else {
+        //} else {
             const oldScale = this.scale;
             const mouseX = wheelEvent.offsetX;
             const mouseY = wheelEvent.offsetY;
@@ -1157,7 +1158,7 @@ export default class CanvasState {
             this.translateY -= offsetY * scaleChange;
 
             this.triggerDraw();
-        }
+        //}
         return false;
     }
 
@@ -1208,7 +1209,7 @@ export default class CanvasState {
             this.triggerDraw();
         } else {
             // if nothing is clicked
-            this.dragging = true;
+            this.panning = true;
         }
     }
 
@@ -1225,15 +1226,14 @@ export default class CanvasState {
         if (this.scissors) {
             this.scissorsEndX = mouseX;
             this.scissorsEndY = mouseY;
-            this.triggerDraw();
+            return this.triggerDraw();
         }
 
-        // there is a freeze and not freeze mode -
         // different interaction based ob if a node is active or node
         const nodeUnderMouse = this.findNodeByMousePosition(mouseX, mouseY);
         this.nodeUnderMouse = nodeUnderMouse;
         this.ui.activeNode = nodeUnderMouse;
-        // load high resoultion image
+        // trigger load high resolution img
         if (nodeUnderMouse && !nodeUnderMouse.hasImage) {
             this.socket.emit('requestImage', {
                 name: nodeUnderMouse.name,
@@ -1242,7 +1242,7 @@ export default class CanvasState {
         }
 
         // DRAG AND DROP
-        if (this.draggNode || this.dragging) {
+        if (this.draggNode || this.panning) {
             // get mouse movement based on the last triggered event
             const moveX = mouseX - this.startX; // +80 means move 80px to right
             const moveY = mouseY - this.startY; // -50 means move 50 to top
@@ -1252,7 +1252,7 @@ export default class CanvasState {
             this.startX = mouseX;
             this.startY = mouseY;
 
-            if (this.dragging) {
+            if (this.panning) {
                 // console.log("dragging")
                 // move the x/y
                 this.translateX += moveX;
@@ -1274,7 +1274,7 @@ export default class CanvasState {
                 }
 
                 // drag neighbours in freeze mode
-                if (this.selection && this.selection === this.draggNode) {
+                /*if (this.selection && this.selection === this.draggNode) {
                     Object.entries(this.selection.links).forEach(([i, strength]) => {
                         const neighbour = this.nodes[i];
                         // todo error handling if the neighbour is not existing for katja
@@ -1282,7 +1282,7 @@ export default class CanvasState {
                             neighbour.move(nodeX * strength, nodeY * strength);
                         }
                     });
-                }
+                }*/
             }
             this.triggerDraw();
         }
@@ -1348,7 +1348,7 @@ export default class CanvasState {
 
         // there is a selection and this is not the activeNode
 
-        this.dragging = false;
+        this.panning = false;
         this.draggNode = false;
 
         if (this.scissors) {
@@ -1382,10 +1382,10 @@ export default class CanvasState {
 
     handleDoubleClick(e) {
         console.log('Double click');
-        if (this.nodeUnderMouse && this.nodeUnderMouse !== this.selection) {
+        /*if (this.nodeUnderMouse && this.nodeUnderMouse !== this.selection) {
             this.selection = this.nodeUnderMouse;
         } else this.selection = null;
-        if (this.moveGroupToMouse) {
+        if (this.moveGroupToMouse) {*/
             const x = (e.offsetX - this.translateX) / this.scale;
             const y = (e.offsetY - this.translateY) / this.scale;
             this.moveGroupToPosition(x, y);
