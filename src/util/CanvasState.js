@@ -543,7 +543,7 @@ export default class CanvasState {
 */
 
     drawHitmap() {
-        console.time('drawHitmap');
+        // TODO merge draw hitmap to draw2
         const startTime = window.performance.now();
 
         const canvasW = this.width;
@@ -558,27 +558,27 @@ export default class CanvasState {
         const { zoomStage, scale } = this;
 
         const canvasPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
-        // console.log({ canvasW, canvasH, tx, ty, scale });
 
-        const rankSize = this.ui.sizeRanked;
+        const { sizeRanked: rankSize, clusterMode } = this.ui;
         const nodes = this.sorted ? this.sortedNodes : Object.values(this.nodes);
 
         const neighbourMode = this.ui.$route.name === LABELS;
 
         nodes.forEach((node) => {
             // start x,y ist x *scale + translateX
-            const nodeX = Math.floor(node.x * scale + tx);
-            const nodeY = Math.floor(node.y * scale + ty);
 
             let imgSize = rankSize ? zoomStage + Math.floor(node.rank * this.sizeRange) : zoomStage;
             imgSize += this.imgSize; // add imgSize from user input
             if (imgSize < 0) imgSize = 0;
             if (imgSize > 14) imgSize = 14;
+            if (clusterMode && !node.isClusterd) imgSize += 5;
 
             const img = node.imageData[imgSize];
-            // console.log(img)
+            if (!img) return console.error(`no image for node: ${node.id}exists`);
             const imgW = img.width;
             const imgH = img.height;
+            const nodeX = Math.floor(node.x * scale + tx - imgW / 2);
+            const nodeY = Math.floor(node.y * scale + ty - imgH / 2);
             const inside = nodeX > 0 && nodeY > 0 && nodeX < canvasW - imgW && nodeY < canvasH - imgH;
 
             // check if the image is allowed to draw in certain rules
@@ -600,50 +600,22 @@ export default class CanvasState {
             }
 
             // test if image obj exists
-            if (img && inside) {
+            if (show && inside) {
                 // cluster
-                if (node.cluster < this.cluster && show) {
-                    // wir gehen durch alle reihen des bildes
-                    for (let row = 0; row < imgH; row += 1) {
-                        const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
-                        // wir laufen durch alle spalten des bildes
-                        // und betrachten dann 4 werte im array
-                        for (let col = 0; col < imgW; col += 1) {
-                            const c = canvasRow + col * 4;
-                            // const p = (row * imgW + col) * 4;
-                            canvasPixel[c] = node.colorKey[0]; // R
-                            canvasPixel[c + 1] = node.colorKey[1]; // G
-                            canvasPixel[c + 2] = node.colorKey[2]; // B
-                            canvasPixel[c + 3] = 255; //
-                        }
+                // wir gehen durch alle reihen des bildes
+                for (let row = 0; row < imgH; row += 1) {
+                    const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
+                    // wir laufen durch alle spalten des bildes
+                    // und betrachten dann 4 werte im array
+                    for (let col = 0; col < imgW; col += 1) {
+                        const c = canvasRow + col * 4;
+                        // const p = (row * imgW + col) * 4;
+                        canvasPixel[c] = node.colorKey[0]; // R
+                        canvasPixel[c + 1] = node.colorKey[1]; // G
+                        canvasPixel[c + 2] = node.colorKey[2]; // B
+                        canvasPixel[c + 3] = 255; //
                     }
-                } else {
-                    // drawcluster
-                    let c = (nodeY * canvasW + nodeX) * 4;
-                    canvasPixel[c] = node.colorKey[0];
-                    canvasPixel[c + 1] = node.colorKey[1];
-                    canvasPixel[c + 2] = node.colorKey[2];
-                    canvasPixel[c + 3] = 255;
-                    c = (nodeY * canvasW + nodeX + 1) * 4;
-                    canvasPixel[c] = node.colorKey[0];
-                    canvasPixel[c + 1] = node.colorKey[1];
-                    canvasPixel[c + 2] = node.colorKey[2];
-                    canvasPixel[c + 3] = 255;
-                    c = (nodeY * canvasW + canvasW + nodeX) * 4;
-                    canvasPixel[c] = node.colorKey[0];
-                    canvasPixel[c + 1] = node.colorKey[1];
-                    canvasPixel[c + 2] = node.colorKey[2];
-                    canvasPixel[c + 3] = 255;
-                    c = (nodeY * canvasW + canvasW + nodeX + 1) * 4;
-                    canvasPixel[c] = node.colorKey[0];
-                    canvasPixel[c + 1] = node.colorKey[1];
-                    canvasPixel[c + 2] = node.colorKey[2];
-                    canvasPixel[c + 3] = 255;
                 }
-            } else if (inside) {
-                console.error('Bild scheint nicht fertig geladen');
-                console.log(node);
-                console.log(zoomStage);
             }
         });
 
@@ -657,7 +629,7 @@ export default class CanvasState {
         // console.log(canvasPixel);
 
         // console.log({ w, h, tx, ty, pixel });
-        console.timeEnd('drawHitmap');
+        // console.timeEnd('drawHitmap');
         const endTime = window.performance.now();
         const time = endTime - startTime;
         this.perfLogs.hitmap.push(time);
@@ -669,7 +641,7 @@ export default class CanvasState {
     }
 
     draw2() {
-        console.time('draw2');
+        // console.time('draw2');
         const startTime = window.performance.now();
 
         // TODO Performance tests
@@ -702,12 +674,6 @@ export default class CanvasState {
         const neighbourMode = this.ui.$route.name === LABELS;
 
         nodes.forEach((node) => {
-            // start x,y ist x *scale + translateX
-            // console.log(node)
-            // console.log(zoomStage)
-            const canvasX = Math.floor(node.x * scale + tx);
-            const canvasY = Math.floor(node.y * scale + ty);
-
             let imgSize = rankSize ? zoomStage + Math.floor(node.rank * this.sizeRange) : zoomStage;
             imgSize += this.imgSize; // add imgSize from user input
 
@@ -717,18 +683,19 @@ export default class CanvasState {
             if (imgSize > 14) imgSize = 14;
 
             const img = node.imageData[imgSize];
-            if (!img) {
-                console.error(`no image for node: ${node.id}exists`);
-                return;
-            }
+            if (!img) return console.error(`no image for node: ${node.id}exists`);
 
             const iw = img.width;
             const ih = img.height;
+
+            const nodeX = Math.floor(node.x * scale + tx - iw / 2);
+            const nodeY = Math.floor(node.y * scale + ty - ih / 2);
+
             // nothing to do if the image is outside the canvas
-            const inside = canvasX > borderW
-                && canvasY > borderW
-                && canvasX < canvasW - iw - borderW
-                && canvasY < canvasH - ih - borderW;
+            const inside = nodeX > borderW
+                && nodeY > borderW
+                && nodeX < canvasW - iw - borderW
+                && nodeY < canvasH - ih - borderW;
             if (!inside) return;
 
             // check if the image is allowed to draw in certain rules
@@ -755,17 +722,16 @@ export default class CanvasState {
             if (true) {
                 const imgData = img.data;
                 // wir gehen durch alle reihen des bildes
+                // TODO shift left/top
 
                 if (show) {
+                    // loop through rows in img
                     for (let row = 0; row < ih; row += 1) {
-                        const canvasRow = ((canvasY + row) * canvasW + canvasX) * 4;
-                        // copy row to pixel
-                        // wir laufen durch alle spalten des bildes
-                        // und betrachten dann 4 werte im array
+                        const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
+                        // loop through column in img
                         for (let col = 0; col < iw; col += 1) {
                             const c = canvasRow + col * 4;
                             const p = (row * iw + col) * 4;
-                            // if(c > canvasW * canvasH * 4) console.error("CRY")
                             canvasPixel[c] = imgData[p]; // R
                             canvasPixel[c + 1] = imgData[p + 1]; // G
                             canvasPixel[c + 2] = imgData[p + 2]; // B
@@ -780,7 +746,7 @@ export default class CanvasState {
                     const color = gradient[node.cliqueLen];
                     // draw boarder
                     for (let row = -2; row <= ih + 1; row += 1) {
-                        const canvasRow = ((canvasY + row) * canvasW + canvasX) * 4;
+                        const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
                         if (row === -2 || row === ih + 1) {
                             // draw top line r
                             for (let col = 0; col < iw; col += 1) {
@@ -817,7 +783,7 @@ export default class CanvasState {
                     );
                     // draw boarder
                     for (let row = -2; row <= ih + 1; row += 1) {
-                        const canvasRow = ((canvasY + row) * canvasW + canvasX) * 4;
+                        const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
                         if (row === -2 || row === ih + 1) {
                             // draw top line r
                             for (let col = 0; col < iw; col += 1) {
@@ -846,22 +812,22 @@ export default class CanvasState {
                 }
             } else {
                 // drawcluster
-                let c = (canvasY * canvasW + canvasX) * 4;
+                let c = (nodeY * canvasW + nodeX) * 4;
                 canvasPixel[c] = 210;
                 canvasPixel[c + 1] = 210;
                 canvasPixel[c + 2] = 210;
                 canvasPixel[c + 3] = 255;
-                c = (canvasY * canvasW + canvasX + 1) * 4;
+                c = (nodeY * canvasW + nodeX + 1) * 4;
                 canvasPixel[c] = 210;
                 canvasPixel[c + 1] = 210;
                 canvasPixel[c + 2] = 210;
                 canvasPixel[c + 3] = 255;
-                c = (canvasY * canvasW + canvasW + canvasX) * 4;
+                c = (nodeY * canvasW + canvasW + nodeX) * 4;
                 canvasPixel[c] = 210;
                 canvasPixel[c + 1] = 210;
                 canvasPixel[c + 2] = 210;
                 canvasPixel[c + 3] = 255;
-                c = (canvasY * canvasW + canvasW + canvasX + 1) * 4;
+                c = (nodeY * canvasW + canvasW + nodeX + 1) * 4;
                 canvasPixel[c] = 210;
                 canvasPixel[c + 1] = 210;
                 canvasPixel[c + 2] = 210;
@@ -887,26 +853,30 @@ export default class CanvasState {
 
             const lineColor = neighbour ? neighbourColor : groupColor;
 
-            const canvasX = Math.floor(node.x * scale + tx);
-            const canvasY = Math.floor(node.y * scale + ty);
             let imgSize = rankSize ? zoomStage + Math.floor(node.rank * this.sizeRange) : zoomStage;
             imgSize += this.imgSize;
             if (imgSize < 0) imgSize = 0;
             if (imgSize > 14) imgSize = 14;
+            if (clusterMode && node.cluster < this.cluster) imgSize += 5;
+
             const img = node.imageData[imgSize];
+            if (!img) return console.error(`no image for node: ${node.id}exists`);
             const iw = img.width;
             const ih = img.height;
-            const inside = canvasX > borderW
-                && canvasY > borderW
-                && canvasX < canvasW - iw - borderW
-                && canvasY < canvasH - ih - borderW;
 
-            if (img && inside) {
+            const nodeX = Math.floor(node.x * scale + tx - iw / 2);
+            const nodeY = Math.floor(node.y * scale + ty - ih / 2);
+            const inside = nodeX > borderW
+                && nodeY > borderW
+                && nodeX < canvasW - iw - borderW
+                && nodeY < canvasH - ih - borderW;
+
+            if (inside) {
                 const h = Math.ceil(ih / 10);
                 const w = Math.ceil(iw / 10);
                 // wir gehen durch alle reihen des bildes
                 for (let row = 0; row < h; row += 1) {
-                    const canvasRow = ((canvasY + ih + h + row) * canvasW + canvasX - w) * 4;
+                    const canvasRow = ((nodeY + ih + h + row) * canvasW + nodeX - w) * 4;
                     // copy row to pixel
                     // wir laufen durch alle spalten des bildes und betrachten dann 4 werte im array
                     for (let col = 0; col < iw + 2 * w; col += 1) {
@@ -973,7 +943,7 @@ export default class CanvasState {
         // console.log(canvasPixel);
 
         // console.log({ w, h, tx, ty, pixel });
-        console.timeEnd('draw2');
+        // console.timeEnd('draw2');
         const endTime = window.performance.now();
         const time = endTime - startTime;
         this.perfLogs.draw.push(time);
