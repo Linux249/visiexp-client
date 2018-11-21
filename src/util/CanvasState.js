@@ -677,7 +677,7 @@ export default class CanvasState {
     }
 */
 
-    drawHitmap() {
+    /*drawHitmap() {
         // TODO merge draw hitmap to draw2
         const startTime = window.performance.now();
 
@@ -692,7 +692,7 @@ export default class CanvasState {
 
         const { zoomStage, scale } = this;
 
-        const canvasPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
+        const hitmapPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
 
         const { sizeRanked: rankSize, clusterMode } = this.ui;
         const nodes = this.sorted ? this.sortedNodes : Object.values(this.nodes);
@@ -745,16 +745,16 @@ export default class CanvasState {
                     for (let col = 0; col < imgW; col += 1) {
                         const c = canvasRow + col * 4;
                         // const p = (row * imgW + col) * 4;
-                        canvasPixel[c] = node.colorKey[0]; // R
-                        canvasPixel[c + 1] = node.colorKey[1]; // G
-                        canvasPixel[c + 2] = node.colorKey[2]; // B
-                        canvasPixel[c + 3] = 255; //
+                        hitmapPixel[c] = node.colorKey[0]; // R
+                        hitmapPixel[c + 1] = node.colorKey[1]; // G
+                        hitmapPixel[c + 2] = node.colorKey[2]; // B
+                        hitmapPixel[c + 3] = 255; //
                     }
                 }
             }
         });
 
-        const pic = new ImageData(canvasPixel, canvasW, canvasH);
+        const pic = new ImageData(hitmapPixel, canvasW, canvasH);
         const ctx = this.ui.toggle ? this.ctx : this.hitCtx;
         ctx.resetTransform();
         ctx.clearRect(0, 0, this.width, this.height);
@@ -773,7 +773,7 @@ export default class CanvasState {
             console.warn('new max hit map time');
             console.warn(this.maxHitMapTime);
         }
-    }
+    }*/
 
     draw2() {
         // console.time('draw2');
@@ -797,6 +797,7 @@ export default class CanvasState {
             translateY: ty,
         } = this;
         const canvasPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
+        const hitmapPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
         // console.log({ canvasW, canvasH, tx, ty, scale });
 
         const {
@@ -855,7 +856,7 @@ export default class CanvasState {
 
             // cluster
             // if (node.cluster < this.cluster) {
-            if (true) {
+            //if (true) {
                 const imgData = img.data;
                 // wir gehen durch alle reihen des bildes
                 // TODO shift left/top
@@ -874,6 +875,12 @@ export default class CanvasState {
                             canvasPixel[c + 3] = canvasPixel[c + 3]
                                 ? canvasPixel[c + 3] + 10 * node.cliqueLen
                                 : 50 + zoomStage * 50;
+
+                            // draw hitmap
+                            hitmapPixel[c] = node.colorKey[0]; // R
+                            hitmapPixel[c + 1] = node.colorKey[1]; // G
+                            hitmapPixel[c + 2] = node.colorKey[2]; // B
+                            hitmapPixel[c + 3] = 255; //
                         }
                     }
                 }
@@ -946,7 +953,7 @@ export default class CanvasState {
                         }
                     }
                 }
-            } else {
+            /*} else {
                 // drawcluster
                 let c = (nodeY * canvasW + nodeX) * 4;
                 canvasPixel[c] = 210;
@@ -968,7 +975,7 @@ export default class CanvasState {
                 canvasPixel[c + 1] = 210;
                 canvasPixel[c + 2] = 210;
                 canvasPixel[c + 3] = 255;
-            }
+            }*/
         });
 
         // DRAW UNDLINE FOR GROUPED NODES
@@ -1071,10 +1078,14 @@ export default class CanvasState {
         }
 
         const pic = new ImageData(canvasPixel, canvasW, canvasH);
+        const hitmap = new ImageData(hitmapPixel, canvasW, canvasH);
+        const hitmapCtx = this.ui.toggle ? this.ctx : this.hitCtx;
         this.ctx.resetTransform();
         this.ctx.clearRect(0, 0, this.width, this.height);
         this.ctx.putImageData(pic, 0, 0);
-
+        hitmapCtx.resetTransform();
+        hitmapCtx.clearRect(0, 0, this.width, this.height);
+        hitmapCtx.putImageData(hitmap, 0, 0);
         // console.log(pic);
         // console.log(canvasPixel);
 
@@ -1088,10 +1099,10 @@ export default class CanvasState {
             console.warn('new max draw time');
             console.warn(this.maxDrawTime);
         }
-        requestAnimationFrame(() => this.drawHitmap());
+        // requestAnimationFrame(() => this.drawHitmap());
         this.valid = true;
         if (this.ui.showHeatmap) requestAnimationFrame(this.ui.drawHeatmap);
-        if (this.ui.showNavMap) requestAnimationFrame(this.ui.drawNavMapRect);
+        // if (this.ui.showNavMap) requestAnimationFrame(this.ui.drawNavMapRect);
         if (this.ui.showNavHeatmap) {
             requestAnimationFrame(this.ui.drawNavHeatmapRect);
         }
