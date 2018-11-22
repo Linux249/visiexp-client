@@ -858,7 +858,6 @@ export default class CanvasState {
             // if (node.cluster < this.cluster) {
             // if (true) {
             const imgData = img.data;
-            // wir gehen durch alle reihen des bildes
             // TODO shift left/top
 
             if (show) {
