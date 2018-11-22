@@ -858,7 +858,6 @@ export default class CanvasState {
             // if (node.cluster < this.cluster) {
             // if (true) {
             const imgData = img.data;
-            // TODO shift left/top
 
             if (show) {
                 // loop through rows in img
