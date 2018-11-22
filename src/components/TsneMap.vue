@@ -1,148 +1,65 @@
 <template>
     <div class="body">
         <div class="mode-header">
-            <div
-                class="btn-header"
-                :class="{ active: sizeRankedMode }"
-                @click="toggleSizeRankedMode"
-            >
-                sizeRanked
-            </div>
-            <div
-                class="btn-header"
-                :class="{ active: clusterMode }"
-                @click="toggleClusterMode"
-            >
-                cluster
-            </div>
-            <div
-                class="btn-header"
-                :class="{ active: oldClusterMode }"
-                @click="toggleOldClusterMode"
-            >
-                old cluster
-            </div>
-            <div
-                class="btn-header"
-                :class="{ active: neighbourMode }"
-                @click="toggleNeighbourMode"
-            >
-                neighbour
-            </div>
-            <div
-                class="btn-header"
-                :class="{ active: boarderRankedMode }"
-                @click="toggleBoarderRankedMode"
-            >
-                boarderRanked
-            </div>
-        </div>
-        <div class="sub-header">
-            <div class="btn" :if="nodesTotal">{{nodesRecived + "/" + nodesTotal}}</div>
-            <div>
-                <div class="row">
-                    <!--<div># {{nodesCount}}</div>-->
-                    <!--<div>connected: {{connectedToSocket}}</div>-->
-                    <!--<div class="btn">{{scale}}</div>-->
-                    <!--<div class="btn">{{scale2}}</div>-->
-                    <!--<div class="btn">{{zoomStage}}</div>-->
-                    <!--<div class="btn">{{translateX}}</div>
-                    <div class="btn">{{translateY}}</div>-->
-                    <!--<div class="btn" @click="draw2">draw2</div>
-                    <div class="btn" @click="doubleNodes">doubleNodes</div>-->
-                    <!--<div class="btn" :class="{ active: sorted }" @click="sortNodes">sort</div>-->
+            <div class="row">
+                <div
+                    class="btn"
+                    :class="{ active: clusterMode }"
+                    @click="toggleClusterMode"
+                >
+                    cluster
+                </div>
+                <div
+                    class="btn"
+                    :class="{ active: oldClusterMode }"
+                    @click="toggleOldClusterMode"
+                >
+                    old cluster
+                </div>
+                <div
+                    class="btn"
+                    :class="{ active: sizeRankedMode }"
+                    @click="toggleSizeRankedMode"
+                >
+                    size Ranked
+                </div>
+                <div
+                    class="btn"
+                    :class="{ active: boarderRankedMode }"
+                    @click="toggleBoarderRankedMode"
+                >
+                    boarder Ranked
+                </div>
+                <div
+                    class="btn"
+                    :class="{ active: neighbourMode }"
+                    @click="toggleNeighbourMode"
+                >
+                    neighbour
                 </div>
             </div>
             <div class="row">
-                <div class="dropdownArea"></div>
+                <!--<div># {{nodesCount}}</div>-->
+                <!--<div>connected: {{connectedToSocket}}</div>-->
+                <!--<div class="btn">{{scale}}</div>-->
+                <!--<div class="btn">{{scale2}}</div>-->
+                <!--<div class="btn">{{zoomStage}}</div>-->
+                <!--<div class="btn">{{translateX}}</div>
+                <div class="btn">{{translateY}}</div>-->
+                <!--<div class="btn" @click="draw2">draw2</div>
+                <div class="btn" @click="doubleNodes">doubleNodes</div>-->
+                <!--<div class="btn" :class="{ active: sorted }" @click="sortNodes">sort</div>-->
+                <!--<div class="dropdownArea"></div>-->
+                <div class="btn" :if="nodesTotal">{{nodesRecived + "/" + nodesTotal}}</div>
                 <div @click="toggleShowHeatmap" :class="{ active: showHeatmap }" class="btn">
                     <navmap></navmap>
                 </div>
-               <!-- <div @click="toggleShowNavMap" :class="{ active: showNavMap }" class="btn">
-                    <navmap></navmap>
-                </div>-->
+                <!-- <div @click="toggleShowNavMap" :class="{ active: showNavMap }" class="btn">
+                     <navmap></navmap>
+                 </div>-->
                 <div @click="toggleShowNavHeatmap" :class="{ active: showNavHeatmap }" class="btn">
                     <navmap></navmap>
                 </div>
-                <!--<div class="btn" :class="{ active: showHeatmap }
-                " @click="toggleShowHeatmap"></div>
-                <div class="btn" :class="{ active: showNavMap }"
-                @click="toggleShowNavMap">NavMap</div>
-                <div class="btn" :class="{ active: showNavHeatmap }"
-                @click="toggleShowNavHeatmap">NavHeatmap</div>-->
-
-
-                <!--<div
-                    class="categoriesArea"
-                    @mouseenter="showLabels = true"
-                    @mouseleave="showLabels = false"
-                >
-                    <div class="btn">categories</div>
-                    <div class="categories" v-if="showLabels">
-                        <div
-                            v-for="(category, i) in labels"
-                            :key="i"
-                        >
-                            <div
-                                class="btn"
-                                :class="{ active: selectedCategory === i }"
-                                @click="toogleCategory(i)"
-                            >
-                                {{ category.name }}
-                                <div
-                                    v-on:click.stop="toogleShowCategory(i)"
-                                    class="btn"
-                                    :class="{ active: !category.show }"
-                                >
-                                    <slash></slash>
-                                </div>
-                            </div>
-                            <div  v-if="selectedCategory === i">
-                                <div
-                                    class="btn"
-                                    v-for="(label, i) in category.labels"
-                                    :class="{ active: selectedLabel === label.name }"
-                                    @click="toogleLabel(label.name)"
-                                    :key="label.name"
-                                >
-                                    {{label.name}}
-                                    <div
-                                        v-on:click.stop="addLabeledToGroup(label.name)"
-                                        class="btn"
-                                    >
-                                        <grid></grid>
-                                    </div>
-                                    <div
-                                        v-on:click.stop="toogleShowLabel(i)"
-                                        class="btn"
-                                        :class="{ active: !label.show }"
-                                    >
-                                        <slash></slash>
-                                    </div>
-                                    <div
-                                        class="btn"
-                                    >
-                                        <input
-                                            class="color-box"
-                                            type="color"
-                                            v-on:change.prevent="changeLabelColor(i, $event)"
-                                            :value="rgbToHex(label.color[0], label.color[1], label.color[2])"
-                                            :style="{backgroundColor: `rgb(${label.color[0]},${label.color[1]},${label.color[2]})`}"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        &lt;!&ndash;<div
-                            class="btn"
-                            :class="{ active: showKLabels }"
-                            @click="toggleShowKLabels"
-                        >
-                            K-Label
-                        </div>&ndash;&gt;
-                    </div>
-                </div>-->
-
                 <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">
                     Options
                 </div>
@@ -419,7 +336,6 @@ import Navmap from '../icons/Map';
 import Target from '../icons/Target';
 import Logs from './Logs';
 // import TestWorker from '../worker/test.worker';
-
 
 export default {
     store: null,
@@ -1245,13 +1161,13 @@ export default {
     display: none;
 }
 
-.sub-header {
+/*.sub-header {
     display: flex;
     justify-content: space-between;
-    /*align-items: center;*/
+    !*align-items: center;*!
     height: 2.5rem;
     padding: 5px;
-}
+}*/
 
 .body {
     /*width: 100%;*/
@@ -1264,7 +1180,7 @@ export default {
 .details {
     width: 25rem;
     height: 100%;
-    padding: 0.5rem;
+    margin: 0.5rem;
     background-color: white;
 }
 
@@ -1301,16 +1217,16 @@ export default {
     }
 }
 
-.categoriesArea {
+/*.categoriesArea {
     position: relative;
     z-index: 1;
 }
 
 .categories {
-    /*position: absolute;*/
+    !*position: absolute;*!
     top: 25px;
     width: 100%;
-}
+}*/
 
 .option-title {
     color: #6772e5;
@@ -1334,6 +1250,7 @@ export default {
 
 .mode-header {
     display: flex;
+    justify-content: space-between;
     box-shadow: 0px 5px 8px -3px rgba(32, 33, 36, 0.28);
 }
 
