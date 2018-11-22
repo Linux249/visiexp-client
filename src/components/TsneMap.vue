@@ -1,33 +1,57 @@
 <template>
     <div class="body">
+        <div class="mode-header">
+            <div
+                class="btn-header"
+                :class="{ active: sizeRankedMode }"
+                @click="toggleSizeRankedMode"
+            >
+                sizeRanked
+            </div>
+            <div
+                class="btn-header"
+                :class="{ active: clusterMode }"
+                @click="toggleClusterMode"
+            >
+                cluster
+            </div>
+            <div
+                class="btn-header"
+                :class="{ active: oldClusterMode }"
+                @click="toggleOldClusterMode"
+            >
+                old cluster
+            </div>
+            <div
+                class="btn-header"
+                :class="{ active: neighbourMode }"
+                @click="toggleNeighbourMode"
+            >
+                neighbour
+            </div>
+            <div
+                class="btn-header"
+                :class="{ active: boarderRankedMode }"
+                @click="toggleBoarderRankedMode"
+            >
+                boarderRanked
+            </div>
+        </div>
         <div class="sub-header">
             <div class="btn" :if="nodesTotal">{{nodesRecived + "/" + nodesTotal}}</div>
             <div>
                 <div class="row">
                     <!--<div># {{nodesCount}}</div>-->
                     <!--<div>connected: {{connectedToSocket}}</div>-->
-                    <div class="btn"> {{scale}}</div>
+                    <div class="btn">{{scale}}</div>
                     <!--<div class="btn">{{scale2}}</div>-->
                     <div class="btn">{{zoomLvl}}</div>
-                    <div class="btn">{{translateX}}</div>
-                    <div class="btn">{{translateY}}</div>
+                    <!--<div class="btn">{{translateX}}</div>
+                    <div class="btn">{{translateY}}</div>-->
                     <!--<div class="btn" @click="draw2">draw2</div>
                     <div class="btn" @click="doubleNodes">doubleNodes</div>-->
-                    <div class="btn" @click="superCluster">super</div>
                     <div class="btn" :class="{ active: sorted }" @click="sortNodes">sort</div>
-                    <div
-                        class="btn"
-                        :class="{ active: boarderRanked }"
-                        @click="toggleBoarderRanked"
-                    >
-                        boarderRanked
-                    </div>
-                    <div class="btn" :class="{ active: sizeRanked }" @click="toggleSizeRanked">
-                        sizeRanked
-                    </div>
-                    <div class="btn" :class="{ active: clusterMode }" @click="toggleClusterMode">
-                        cluster
-                    </div>
+
                 </div>
             </div>
             <div class="row">
@@ -184,6 +208,14 @@
                             <div @click="changeCluster(1000)" class="btn">+1000</div>
                             <div @click="changeCluster(100)" class="btn">+100</div>
                             <div @click="changeCluster(10)" class="btn">+10</div>
+                        </div>
+                    </div>
+                    <div class="row-btn">
+                        <div>clusterRadius: {{clusterRadius}}</div>
+                        <div class="row">
+                            <div @click="changeClusterRadius(-1)" class="btn">-1</div>
+                            <div @click="changeClusterRadius(1)" class="btn">+1</div>
+                            <div @click="superCluster()" class="btn">update</div>
                         </div>
                     </div>
                     <div class="row-btn">
@@ -423,7 +455,7 @@ export default {
         height: 0,
         activeNode: null,
         cluster: 5, // default - set on mount from CanvasStore class
-        clusterMode: false,
+        clusterRadius: 0, // default
         imgSize: 0, // default - set on mount from CanvasStore class
         activeImgWidth: 0, // default - set on mount from CanvasStore class
         borderWidth: 0, // default - set on mount from CanvasStore class
@@ -443,8 +475,11 @@ export default {
         // showNavMap: false,
         navMapAlpha: 0.1,
         showNavHeatmap: false,
-        boarderRanked: false,
-        sizeRanked: false,
+        sizeRankedMode: false,
+        boarderRankedMode: false,
+        clusterMode: false,
+        oldClusterMode: false,
+        neighbourMode: false,
         gradient: [
             [50, 250, 0], // 9
             [100, 250, 0], // 8
@@ -542,6 +577,10 @@ export default {
             this.cluster = this.store.cluster; // update ui
         },
 
+        changeClusterRadius(v) {
+            this.clusterRadius = this.store.clusterRadius += v; // update ui
+        },
+
         sortNodes() {
             this.store.sortNodes();
             this.sorted = this.store.sorted;
@@ -626,19 +665,30 @@ export default {
             if (this.showHeatmap) requestAnimationFrame(this.drawHeatmap);
         },
 
-        toggleSizeRanked() {
-            this.sizeRanked = !this.sizeRanked;
-            this.store.draw2();
+        toggleSizeRankedMode() {
+            this.sizeRankedMode = !this.sizeRankedMode;
+            this.store.triggerDraw();
         },
 
-        toggleBoarderRanked() {
-            this.boarderRanked = !this.boarderRanked;
-            this.store.draw2();
+        toggleBoarderRankedMode() {
+            this.boarderRankedMode = !this.boarderRankedMode;
+            this.store.triggerDraw();
         },
 
         toggleClusterMode() {
             this.clusterMode = !this.clusterMode;
+            this.store.createSuperCluster();
+        },
+
+        toggleOldClusterMode() {
+            this.oldClusterMode = !this.oldClusterMode;
             this.store.triggerDraw();
+        },
+
+        toggleNeighbourMode() {
+            this.neighbourMode = !this.neighbourMode;
+            this.store.createSuperCluster();
+            // this.store.triggerDraw();
         },
 
         changeImgSize(v) {
@@ -780,7 +830,7 @@ export default {
         },
 
         superCluster() {
-            this.store.superCluster();
+            this.store.createSuperCluster();
         },
 
         /* drawNavMap() {
@@ -841,7 +891,6 @@ export default {
             if (this.showNavMap) requestAnimationFrame(this.drawNavMapRect);
         }, */
 
-
         /* toggleToggle() {
             this.toggle = !this.toggle;
             this.store.draw2();
@@ -889,7 +938,6 @@ export default {
             this.scrollImgGrowth = this.store.scrollImgGrowth;
         }, */
 
-
         /* changeHeatmapMinOpacity(v) {
             this.heatmapMinOpacity += v;
             this.drawHeatmap();
@@ -901,8 +949,6 @@ export default {
             this.store.valid = false;
             console.log(this.showKLabels);
         }, */
-
-
     },
     watch: {
         cluster(value) {
@@ -1006,6 +1052,7 @@ export default {
 
         // set init value in UI
         this.cluster = s.cluster;
+        this.clusterRadius = s.clusterRadius;
         this.activeImgWidth = s.activeImgScale;
         this.borderWidth = s.borderWidth;
         this.scrollGrowth = s.scrollGrowth;
@@ -1046,7 +1093,7 @@ export default {
             // start time measure
             if (this.nodesRecived === 0) console.time('loadAllNodes');
             this.nodesRecived += 1;
-            s.addNode(new Node(data, s.ctx, s.hitCtx));
+            s.addNode(new Node(data));
             s.triggerDraw();
         });
 
@@ -1284,5 +1331,36 @@ export default {
 
 .activeColor {
     border: 1px solid black;
+}
+
+.mode-header {
+    display: flex;
+    box-shadow: 0px 5px 8px -3px rgba(32, 33, 36, 0.28);
+}
+
+.btn-header {
+    text-decoration: none;
+
+    display: flex;
+    align-items: center;
+    height: 2rem;
+
+    font-weight: 500;
+    font-size: 1rem;
+
+    padding: 0 1em;
+    margin-bottom: 3px;
+    color: #767676;
+}
+
+.btn-header:hover {
+    color: #484848;
+}
+
+.btn-header + .active {
+    /*//background-color: paleturquoise;*/
+    border-bottom: 3px solid paleturquoise;
+    color: #484848;
+    margin-bottom: 0;
 }
 </style>

@@ -10,7 +10,7 @@
         </div>
         <div class="right-header">
             <router-link to="/Dataset">Dataset</router-link>
-            <router-link to="/Dataset">Dataset</router-link>
+            <router-link to="/modes">modes</router-link>
         </div>
     </div>
 </template>
