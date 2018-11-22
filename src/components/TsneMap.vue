@@ -1,5 +1,42 @@
 <template>
     <div class="body">
+        <div class="mode-header">
+            <div
+                class="btn-header"
+                :class="{ active: sizeRankedMode }"
+                @click="toggleSizeRankedMode"
+            >
+                sizeRanked
+            </div>
+            <div
+                class="btn-header"
+                :class="{ active: clusterMode }"
+                @click="toggleClusterMode"
+            >
+                cluster
+            </div>
+            <div
+                class="btn-header"
+                :class="{ active: oldClusterMode }"
+                @click="toggleOldClusterMode"
+            >
+                old cluster
+            </div>
+            <div
+                class="btn-header"
+                :class="{ active: neighbourMode }"
+                @click="toggleNeighbourMode"
+            >
+                neighbour
+            </div>
+            <div
+                class="btn-header"
+                :class="{ active: boarderRankedMode }"
+                @click="toggleBoarderRankedMode"
+            >
+                boarderRanked
+            </div>
+        </div>
         <div class="sub-header">
             <div class="btn" :if="nodesTotal">{{nodesRecived + "/" + nodesTotal}}</div>
             <div>
@@ -9,25 +46,12 @@
                     <div class="btn"> {{scale}}</div>
                     <!--<div class="btn">{{scale2}}</div>-->
                     <div class="btn">{{zoomLvl}}</div>
-                    <div class="btn">{{translateX}}</div>
-                    <div class="btn">{{translateY}}</div>
+                    <!--<div class="btn">{{translateX}}</div>
+                    <div class="btn">{{translateY}}</div>-->
                     <!--<div class="btn" @click="draw2">draw2</div>
                     <div class="btn" @click="doubleNodes">doubleNodes</div>-->
-                    <div class="btn" @click="superCluster">super</div>
                     <div class="btn" :class="{ active: sorted }" @click="sortNodes">sort</div>
-                    <div
-                        class="btn"
-                        :class="{ active: boarderRanked }"
-                        @click="toggleBoarderRanked"
-                    >
-                        boarderRanked
-                    </div>
-                    <div class="btn" :class="{ active: sizeRanked }" @click="toggleSizeRanked">
-                        sizeRanked
-                    </div>
-                    <div class="btn" :class="{ active: clusterMode }" @click="toggleClusterMode">
-                        cluster
-                    </div>
+
                 </div>
             </div>
             <div class="row">
@@ -432,7 +456,6 @@ export default {
         activeNode: null,
         cluster: 5, // default - set on mount from CanvasStore class
         clusterRadius: 0, // default
-        clusterMode: false,
         imgSize: 0, // default - set on mount from CanvasStore class
         activeImgWidth: 0, // default - set on mount from CanvasStore class
         borderWidth: 0, // default - set on mount from CanvasStore class
@@ -452,8 +475,11 @@ export default {
         // showNavMap: false,
         navMapAlpha: 0.1,
         showNavHeatmap: false,
-        boarderRanked: false,
-        sizeRanked: false,
+        sizeRankedMode: false,
+        boarderRankedMode: false,
+        clusterMode: false,
+        oldClusterMode: false,
+        neighbourMode: false,
         gradient: [
             [50, 250, 0], // 9
             [100, 250, 0], // 8
@@ -639,22 +665,31 @@ export default {
             if (this.showHeatmap) requestAnimationFrame(this.drawHeatmap);
         },
 
-        toggleSizeRanked() {
-            this.sizeRanked = !this.sizeRanked;
-            this.store.draw2();
+        toggleSizeRankedMode() {
+            this.sizeRankedMode = !this.sizeRankedMode;
+            this.store.triggerDraw();
         },
 
-        toggleBoarderRanked() {
-            this.boarderRanked = !this.boarderRanked;
-            this.store.draw2();
+        toggleBoarderRankedMode() {
+            this.boarderRankedMode = !this.boarderRankedMode;
+            this.store.triggerDraw();
         },
 
         toggleClusterMode() {
             this.clusterMode = !this.clusterMode;
             this.store.createSuperCluster();
-            // this.store.triggerDraw();
         },
 
+        toggleOldClusterMode() {
+            this.oldClusterMode = !this.oldClusterMode;
+            this.store.triggerDraw();
+        },
+
+        toggleNeighbourMode() {
+            this.neighbourMode = !this.neighbourMode;
+            this.store.createSuperCluster();
+            // this.store.triggerDraw();
+        },
 
         changeImgSize(v) {
             // this.store.imgSize // update canvasState
@@ -856,7 +891,6 @@ export default {
             if (this.showNavMap) requestAnimationFrame(this.drawNavMapRect);
         }, */
 
-
         /* toggleToggle() {
             this.toggle = !this.toggle;
             this.store.draw2();
@@ -904,7 +938,6 @@ export default {
             this.scrollImgGrowth = this.store.scrollImgGrowth;
         }, */
 
-
         /* changeHeatmapMinOpacity(v) {
             this.heatmapMinOpacity += v;
             this.drawHeatmap();
@@ -916,8 +949,6 @@ export default {
             this.store.valid = false;
             console.log(this.showKLabels);
         }, */
-
-
     },
     watch: {
         cluster(value) {
@@ -1300,5 +1331,36 @@ export default {
 
 .activeColor {
     border: 1px solid black;
+}
+
+.mode-header {
+    display: flex;
+    box-shadow: 0px 5px 8px -3px rgba(32, 33, 36, 0.28);
+}
+
+.btn-header {
+    text-decoration: none;
+
+    display: flex;
+    align-items: center;
+    height: 2rem;
+
+    font-weight: 500;
+    font-size: 1rem;
+
+    padding: 0 1em;
+    margin-bottom: 3px;
+    color: #767676;
+}
+
+.btn-header:hover {
+    color: #484848;
+}
+
+.btn-header + .active {
+    /*//background-color: paleturquoise;*/
+    border-bottom: 3px solid paleturquoise;
+    color: #484848;
+    margin-bottom: 0;
 }
 </style>

@@ -801,20 +801,29 @@ export default class CanvasState {
         // console.log({ canvasW, canvasH, tx, ty, scale });
 
         const {
-            boarderRanked: drawBoarder, sizeRanked: rankSize, gradient, clusterMode,
+            boarderRankedMode,
+            sizeRankedMode,
+            gradient,
+            clusterMode,
+            oldClusterMode,
+            neighbourMode,
         } = this.ui;
         const borderW = 1;
         const nodes = this.sorted ? this.sortedNodes : Object.values(this.nodes);
 
         // check if it is NEIGHBOUR mode
-        const neighbourMode = this.ui.$route.name === LABELS;
+        // const neighbourMode = this.ui.$route.name === LABELS;
 
         if (clusterMode) this.updateClustering();
 
         nodes.forEach((node) => {
-            let imgSize = rankSize ? zoomStage + Math.floor(node.rank * this.sizeRange) : zoomStage;
+            let imgSize = sizeRankedMode
+                ? zoomStage + Math.floor(node.rank * this.sizeRange)
+                : zoomStage;
             imgSize += this.imgSize; // add imgSize from user input
-            if (clusterMode && !node.isClusterd) imgSize += 5;
+            if ((clusterMode && !node.isClusterd)
+                || (oldClusterMode && node.cluster < this.cluster)
+            ) imgSize += 5;
             // TODO min, max size should be be configurable via class props
             if (imgSize < 0) imgSize = 0;
             if (imgSize > 14) imgSize = 14;
@@ -882,7 +891,7 @@ export default class CanvasState {
                 }
             }
 
-            if (drawBoarder) {
+            if (boarderRankedMode) {
                 const color = gradient[node.cliqueLen];
                 // draw boarder
                 for (let row = -2; row <= ih + 1; row += 1) {
@@ -993,7 +1002,9 @@ export default class CanvasState {
 
             const lineColor = neighbour ? neighbourColor : groupColor;
 
-            let imgSize = rankSize ? zoomStage + Math.floor(node.rank * this.sizeRange) : zoomStage;
+            let imgSize = sizeRankedMode
+                ? zoomStage + Math.floor(node.rank * this.sizeRange)
+                : zoomStage;
             imgSize += this.imgSize;
             if (imgSize < 0) imgSize = 0;
             if (imgSize > 14) imgSize = 14;
@@ -1274,11 +1285,15 @@ export default class CanvasState {
                 // drag hole group
                 if (this.draggNode.group) {
                     Object.values(this.nodes).forEach((node) => {
-                        if (node.group) node.move(nodeX, nodeY);
+                        if (node.group) {
+                            node.x += nodeX;
+                            node.y += nodeY;
+                        }
                     });
                 } else {
                     // drag only one node
-                    this.draggNode.move(nodeX, nodeY);
+                    this.draggNode.x += nodeX;
+                    this.draggNode.y += nodeY;
                 }
 
                 // drag neighbours in freeze mode
