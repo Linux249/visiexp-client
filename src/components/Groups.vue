@@ -11,7 +11,7 @@
             >
                 <div class="btn" :class="{active: group.groupId === activeGroupe}">{{`${group.name } (${group.ids.length})`}}</div>
                 <router-link class="btn" :to="{ name: 'labels', query: { groupId: group.groupId }}">get N.</router-link>
-                <div class="btn" @click="deleteGroup(i)">X</div>
+                <div class="btn" @click="deleteGroup(i)"><trash></trash></div>
             </div>
         </div>
         <div class="row v-center">
@@ -23,9 +23,14 @@
 </template>
 
 <script>
+import Trash from '../icons/Trash';
+
 export default {
     name: 'Groups',
     props: ['groupNodesByGroupId', 'getGroupeIds', 'activeGroupe', 'selectGroupe'],
+    components: {
+        Trash,
+    },
     data: () => ({
         savedGroups: [],
         groupName: '',
