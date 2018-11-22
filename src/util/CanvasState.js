@@ -57,7 +57,8 @@ export default class CanvasState {
         // this.updateScaleUI = null;
         // this.updateScale2UI = null;
         this._imgSize = 0; // for adding higher img size as standart
-        this._activeImgScale = 10;
+        // this._activeImgScale = 10;
+        this.representImgSize = 5;
         this._borderWidth = 5;
 
         this._scrollGrowth = 100; // vorher 20
@@ -183,7 +184,7 @@ export default class CanvasState {
         return this._translateY;
     }
 
-    set activeImgScale(value) {
+    /* set activeImgScale(value) {
         if (value < 1) this._activeImgScale = 1;
         else this._activeImgScale = value;
         this.triggerDraw();
@@ -191,7 +192,7 @@ export default class CanvasState {
 
     get activeImgScale() {
         return this._activeImgScale;
-    }
+    } */
 
     set borderWidth(value) {
         if (value < 0) this._borderWidth = 0;
@@ -678,7 +679,6 @@ export default class CanvasState {
 */
 
     /* drawHitmap() {
-        // TODO merge draw hitmap to draw2
         const startTime = window.performance.now();
 
         const canvasW = this.width;
@@ -795,6 +795,7 @@ export default class CanvasState {
             height: canvasH,
             translateX: tx,
             translateY: ty,
+            representImgSize,
         } = this;
         const canvasPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
         const hitmapPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
@@ -807,6 +808,7 @@ export default class CanvasState {
             clusterMode,
             oldClusterMode,
             neighbourMode,
+            representWithAlpha,
         } = this.ui;
         const borderW = 1;
         const nodes = this.sorted ? this.sortedNodes : Object.values(this.nodes);
@@ -821,9 +823,9 @@ export default class CanvasState {
                 ? zoomStage + Math.floor(node.rank * this.sizeRange)
                 : zoomStage;
             imgSize += this.imgSize; // add imgSize from user input
-            if ((clusterMode && !node.isClusterd)
-                || (oldClusterMode && node.cluster < this.cluster)
-            ) imgSize += 5;
+            const isRepresent = (clusterMode && !node.isClusterd)
+                || (oldClusterMode && node.cluster < this.cluster);
+            if (isRepresent) imgSize += representImgSize;
             // TODO min, max size should be be configurable via class props
             if (imgSize < 0) imgSize = 0;
             if (imgSize > 14) imgSize = 14;
@@ -878,7 +880,7 @@ export default class CanvasState {
                         canvasPixel[c] = imgData[p]; // R
                         canvasPixel[c + 1] = imgData[p + 1]; // G
                         canvasPixel[c + 2] = imgData[p + 2]; // B
-                        canvasPixel[c + 3] = canvasPixel[c + 3]
+                        canvasPixel[c + 3] = representWithAlpha && isRepresent ? 200 : canvasPixel[c + 3]
                             ? canvasPixel[c + 3] + 10 * node.cliqueLen
                             : 50 + zoomStage * 50;
 
@@ -1008,7 +1010,10 @@ export default class CanvasState {
             imgSize += this.imgSize;
             if (imgSize < 0) imgSize = 0;
             if (imgSize > 14) imgSize = 14;
-            if (clusterMode && !node.isClusterd) imgSize += 5;
+            if (
+                (clusterMode && !node.isClusterd)
+                || (oldClusterMode && node.cluster < this.cluster)
+            ) imgSize += representImgSize;
 
             const img = node.imageData[imgSize];
             if (!img) return console.error(`no image for node: ${node.id}exists`);

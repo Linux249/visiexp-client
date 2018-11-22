@@ -204,8 +204,6 @@
                         <div class="row">
                             <div @click="changeCluster(-10)" class="btn">-10</div>
                             <div @click="changeCluster(-100)" class="btn">-100</div>
-                            <div @click="changeCluster(-1000)" class="btn">-1000</div>
-                            <div @click="changeCluster(1000)" class="btn">+1000</div>
                             <div @click="changeCluster(100)" class="btn">+100</div>
                             <div @click="changeCluster(10)" class="btn">+10</div>
                         </div>
@@ -225,21 +223,26 @@
                             <div @click="changeImgSize(1)" class="btn">+1</div>
                         </div>
                     </div>
+
+                    <div class="row-btn">
+                        <div>Represents alpha</div>
+                            <div
+
+                                @click="toggleRepresentWithAlpha"
+                                class="btn"
+                                :class="{active: representWithAlpha}"
+                            >
+                                {{representWithAlpha ? "On" : "Off"}}
+                            </div>
+                    </div>
+                    <div class="row-btn">
+                        <div>Represent Size: {{representImgSize}}</div>
+                        <div class="row">
+                            <div @click="changeRepresentImgSize(-1)" class="btn">-1</div>
+                            <div @click="changeRepresentImgSize(1)" class="btn">+1</div>
+                        </div>
+                    </div>
                     <!--
-                    <div class="row-btn">
-                        <div>ImageWidth(active): {{activeImgWidth}}</div>
-                        <div class="row">
-                            <div @click="activeImgWidthLess" class="btn">-1</div>
-                            <div @click="activeImgWidthMore" class="btn">+1</div>
-                        </div>
-                    </div>
-                    <div class="row-btn">
-                        <div>BorderWidth: {{borderWidth}}</div>
-                        <div class="row">
-                            <div @click="borderWidthLess" class="btn">-1</div>
-                            <div @click="borderWidthMore" class="btn">+1</div>
-                        </div>
-                    </div>
                     <div class="row-btn">
                         <div>ScrollGrowth: {{scrollGrowth}}</div>
                         <div class="row">
@@ -457,7 +460,7 @@ export default {
         cluster: 5, // default - set on mount from CanvasStore class
         clusterRadius: 0, // default
         imgSize: 0, // default - set on mount from CanvasStore class
-        activeImgWidth: 0, // default - set on mount from CanvasStore class
+        representImgSize: 0, // default - set on mount from CanvasStore class
         borderWidth: 0, // default - set on mount from CanvasStore class
         range: 0,
         cuttedNodes: [], // selected nodes through scissor
@@ -527,6 +530,7 @@ export default {
         dataset: '001', // defualt value is 001
         groupNeighboursThreshold: 0.2,
         activeGroupe: 0,
+        representWithAlpha: false,
     }),
     methods: {
         getNode(i) {
@@ -776,6 +780,11 @@ export default {
             this.nodesTotal = 0;
         },
 
+        toggleRepresentWithAlpha() {
+            this.representWithAlpha = !this.representWithAlpha;
+            this.store.triggerDraw();
+        },
+
         changeGradientColor(i) {
             console.log('changeGradientColor');
             // console.log(this.gradient);
@@ -831,6 +840,11 @@ export default {
 
         superCluster() {
             this.store.createSuperCluster();
+        },
+
+        changeRepresentImgSize(v) {
+            this.representImgSize = this.store.representImgSize += v;
+            this.store.triggerDraw();
         },
 
         /* drawNavMap() {
@@ -1053,7 +1067,7 @@ export default {
         // set init value in UI
         this.cluster = s.cluster;
         this.clusterRadius = s.clusterRadius;
-        this.activeImgWidth = s.activeImgScale;
+        this.representImgSize = s.representImgSize;
         this.borderWidth = s.borderWidth;
         this.scrollGrowth = s.scrollGrowth;
         this.scrollImgGrowth = s.scrollImgGrowth;
