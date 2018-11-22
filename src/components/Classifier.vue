@@ -1,5 +1,46 @@
 <template>
     <div class="classifier">
+        <div class="btn">categories</div>
+        <div
+            v-for="(category, i) in labels"
+            :key="i"
+        >
+            <div class="option-title">{{ category.name }}</div>
+            <div class="row" v-for="(label, i) in category.labels">
+                <div
+                    class="btn"
+                    :class="{ active: selectedLabel === label.name }"
+                    @click="toogleLabel(label.name)"
+                    :key="label.name"
+                >
+                    {{label.name}}
+                </div>
+                <div
+                    v-on:click.stop="addLabeledToGroup(label.name)"
+                    class="btn"
+                >
+                    <grid></grid>
+                </div>
+                <div
+                    v-on:click.stop="toogleShowLabel(i)"
+                    class="btn"
+                    :class="{ active: !label.show }"
+                >
+                    <slash></slash>
+                </div>
+                <div
+                    class="btn"
+                >
+                    <input
+                        class="color-box"
+                        type="color"
+                        v-on:change.prevent="changeLabelColor(i, $event)"
+                        :value="rgbToHex(label.color[0], label.color[1], label.color[2])"
+                        :style="{backgroundColor: `rgb(${label.color[0]},${label.color[1]},${label.color[2]})`}"
+                    />
+                </div>
+            </div>
+    </div>
         <div class="row wrap">
             <div
                 class="btn"
@@ -50,6 +91,32 @@
 <script>
 import Hash from '../icons/Hash';
 import X from '../icons/X';
+import Slash from '../icons/Slash';
+import Grid from '../icons/Grid';
+
+function toHex(n) {
+    n = parseInt(n, 10);
+    if (isNaN(n)) return '00';
+    n = Math.max(0, Math.min(n, 255));
+    return '0123456789ABCDEF'.charAt((n - (n % 16)) / 16) + '0123456789ABCDEF'.charAt(n % 16);
+}
+
+function rgbToHex(R, G, B) {
+    return `#${toHex(R)}${toHex(G)}${toHex(B)}`;
+}
+
+function cutHex(h) {
+    return h.charAt(0) === '#' ? h.substring(1, 7) : h;
+}
+function hexToR(h) {
+    return parseInt(cutHex(h).substring(0, 2), 16);
+}
+function hexToG(h) {
+    return parseInt(cutHex(h).substring(2, 4), 16);
+}
+function hexToB(h) {
+    return parseInt(cutHex(h).substring(4, 6), 16);
+}
 
 export default {
     name: 'classifier',
@@ -57,6 +124,8 @@ export default {
     components: {
         Hash,
         X,
+        Slash,
+        Grid,
     },
     data: () => ({
         label: '',
@@ -64,8 +133,10 @@ export default {
         selectedNodes: [],
         mouseOver: false,
         selectedCategory: '0',
+        selectedLabel: '0',
         showAddCategory: false,
         category: '',
+        rgbToHex,
     }),
     watch: {
         node(n) {
@@ -145,6 +216,42 @@ export default {
         },
         clear() {
             this.selectedNodes = [];
+        },
+
+        changeLabelColor(i, e) {
+            console.log('changeLabelColor');
+            // e.stopPropagation()
+            this.labels[this.selectedCategory].labels[i].color[0] = hexToR(e.target.value);
+            this.labels[this.selectedCategory].labels[i].color[1] = hexToG(e.target.value);
+            this.labels[this.selectedCategory].labels[i].color[2] = hexToB(e.target.value);
+            this.store.triggerDraw();
+        },
+        toogleShowCategory(i) {
+            this.labels[i].show = !this.labels[i].show;
+            this.labels[i].labels.forEach(label => (label.show = this.labels[i].show));
+            this.store.triggerDraw();
+        },
+        toogleCategory(cat) {
+            if (this.selectedCategory === cat) this.selectedCategory = null;
+            else this.selectedCategory = cat;
+            this.store.selectedCategory = this.selectedCategory;
+            this.store.triggerDraw();
+        },
+
+        toogleLabel(label) {
+            if (this.selectedLabel === label) this.selectedLabel = null;
+            else this.selectedLabel = label;
+            this.store.selectedLabel = this.selectedLabel;
+            this.store.triggerDraw();
+        },
+        addLabeledToGroup(label) {
+            this.store.addLabeledToGroup(label);
+        },
+
+        toogleShowLabel(i) {
+            this.labels[this.selectedCategory].labels[i].show = !this.labels[this.selectedCategory]
+                .labels[i].show;
+            this.store.triggerDraw();
         },
     },
     computed: {

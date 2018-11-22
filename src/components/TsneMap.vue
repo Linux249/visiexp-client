@@ -72,7 +72,7 @@
                 @click="toggleShowNavHeatmap">NavHeatmap</div>-->
 
 
-                <div
+                <!--<div
                     class="categoriesArea"
                     @mouseenter="showLabels = true"
                     @mouseleave="showLabels = false"
@@ -133,15 +133,15 @@
                                 </div>
                             </div>
                         </div>
-                        <!--<div
+                        &lt;!&ndash;<div
                             class="btn"
                             :class="{ active: showKLabels }"
                             @click="toggleShowKLabels"
                         >
                             K-Label
-                        </div>-->
+                        </div>&ndash;&gt;
                     </div>
-                </div>
+                </div>-->
 
                 <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">
                     Options
@@ -388,7 +388,7 @@
 
 
                 <div class="info-box"  v-if="activeNode">
-                    <img class="img" v-if="activeNode.hasImage" :src="activeNode.image.src" />
+                    <img class="active-img" v-if="activeNode.hasImage" :src="activeNode.image.src" />
                     <div>Name: {{activeNode.name}}</div>
                     <div>Label: {{activeNode.label}}</div>
                     <div>Labels: {{activeNode.labels}}</div>
@@ -403,53 +403,26 @@
 </template>
 
 <script>
-import io from "socket.io-client";
-import simpleheat from "simpleheat";
-import { Slider } from "vue-color";
-import Node from "../util/Node";
-import CanvasState from "../util/CanvasState";
-import Triplets from "./Triplets";
-import Classifier from "./Classifier";
-import Groups from "./Groups";
-import Scissors from "../icons/Scissors";
-import X from "../icons/X";
-import Play from "../icons/Play";
-import Stop from "../icons/Stop";
-import Slash from "../icons/Slash";
-import Send from "../icons/Send";
-import Navmap from "../icons/Map";
-import Target from "../icons/Target";
-import Grid from "../icons/Grid";
-import Logs from "./Logs";
+import io from 'socket.io-client';
+import simpleheat from 'simpleheat';
+import { Slider } from 'vue-color';
+import Node from '../util/Node';
+import CanvasState from '../util/CanvasState';
+import Groups from './Groups';
+import Scissors from '../icons/Scissors';
+import X from '../icons/X';
+import Play from '../icons/Play';
+import Stop from '../icons/Stop';
+import Send from '../icons/Send';
+import Navmap from '../icons/Map';
+import Target from '../icons/Target';
+import Logs from './Logs';
 // import TestWorker from '../worker/test.worker';
 
-function toHex(n) {
-    n = parseInt(n, 10);
-    if (isNaN(n)) return "00";
-    n = Math.max(0, Math.min(n, 255));
-    return "0123456789ABCDEF".charAt((n - (n % 16)) / 16) + "0123456789ABCDEF".charAt(n % 16);
-}
-
-function rgbToHex(R, G, B) {
-    return `#${toHex(R)}${toHex(G)}${toHex(B)}`;
-}
-
-function cutHex(h) {
-    return h.charAt(0) === "#" ? h.substring(1, 7) : h;
-}
-function hexToR(h) {
-    return parseInt(cutHex(h).substring(0, 2), 16);
-}
-function hexToG(h) {
-    return parseInt(cutHex(h).substring(2, 4), 16);
-}
-function hexToB(h) {
-    return parseInt(cutHex(h).substring(4, 6), 16);
-}
 
 export default {
     store: null,
-    name: "TsneMap",
+    name: 'TsneMap',
     components: {
         Scissors,
         X,
@@ -458,13 +431,9 @@ export default {
         Send,
         Navmap,
         Target,
-        Grid,
-        Slash,
-        Triplets,
-        Classifier,
         Groups,
         Logs,
-        "slider-picker": Slider
+        'slider-picker': Slider,
     },
     data: () => ({
         items: [],
@@ -483,7 +452,7 @@ export default {
         selectedCategory: null,
         showLabels: false, // show the labels in a dropdown
         clickedNode: null,
-        labelColor: "#6057ff",
+        labelColor: '#6057ff',
         showKLabels: false,
         scissors: false,
         target: false,
@@ -527,7 +496,7 @@ export default {
             [255, 150, 0], // 3
             [255, 100, 0], // 2
             [255, 50, 0], // 1
-            [255, 0, 0] // 0
+            [255, 0, 0], // 0
         ],
         toggle: false,
         zoomStage: 0,
@@ -536,35 +505,34 @@ export default {
         sizeRange: 0,
         showColorPicker: false,
         colors: {
-            hex: "#194d33",
+            hex: '#194d33',
             hsl: {
                 h: 150,
                 s: 0.5,
                 l: 0.2,
-                a: 1
+                a: 1,
             },
             hsv: {
                 h: 150,
                 s: 0.66,
                 v: 0.3,
-                a: 1
+                a: 1,
             },
             rgba: {
                 r: 25,
                 g: 77,
                 b: 51,
-                a: 1
+                a: 1,
             },
-            a: 1
+            a: 1,
         },
         selectedGradient: 0, // default is the first
         autoUpdateEmbedding: false,
-        socketId: "",
-        rgbToHex,
-        dataset: "001", // defualt value is 001
+        socketId: '',
+        dataset: '001', // defualt value is 001
         groupNeighboursThreshold: 0.2,
         activeGroupe: 0,
-        representWithAlpha: false
+        representWithAlpha: false,
     }),
     methods: {
         getNode(i) {
@@ -574,13 +542,13 @@ export default {
             return this.store;
         },
         sendData() {
-            console.log("send data clicked");
+            console.log('send data clicked');
             console.log(this.store.nodes);
             const nodes = this.store.getNodes();
             console.log(nodes);
             // this.store.resetStore();
             this.loadingNodes = true;
-            this.socket.emit("updateNodes", { nodes });
+            this.socket.emit('updateNodes', { nodes });
             // this.reset();
         },
 
@@ -603,7 +571,7 @@ export default {
         },
 
         changeNeighboursThreshold({ target }) {
-            console.log("changeNeighboursThreshold");
+            console.log('changeNeighboursThreshold');
             console.log(target.v);
             this.groupNeighboursThreshold = target.value;
             this.store.triggerDraw();
@@ -628,11 +596,11 @@ export default {
         },
 
         drawHeatmap() {
-            console.time("drawHeatmap");
+            console.time('drawHeatmap');
             const heatmap = this.heatmap;
 
             // data in form of [[x,y,v], [x,y,v], ...]
-            const data = Object.values(this.store.getNodes()).map(node => {
+            const data = Object.values(this.store.getNodes()).map((node) => {
                 const x = (node.x * this.store.scale + this.store.translateX) / 4;
                 const y = (node.y * this.store.scale + this.store.translateY) / 4;
                 return [x, y, 1];
@@ -646,17 +614,17 @@ export default {
 
             // draw heatmap
             heatmap.draw(/* this.heatmapMinOpacity */);
-            requestAnimationFrame(() => console.timeEnd("drawHeatmap"));
+            requestAnimationFrame(() => console.timeEnd('drawHeatmap'));
         },
 
         drawNavHeatmap() {
-            console.time("drawNavHeatmap");
+            console.time('drawNavHeatmap');
             const navHeatmap = this.navHeatmap;
             const w = this.navHeatmapRect.width;
             const h = this.navHeatmapRect.height;
 
             // data in form of [[x,y,v], [x,y,v], ...]
-            const data = Object.values(this.store.getNodes()).map(node => {
+            const data = Object.values(this.store.getNodes()).map((node) => {
                 const x = node.x * 5 + w / 2;
                 const y = node.y * 5 + h / 2;
                 return [x, y, 1];
@@ -670,12 +638,12 @@ export default {
 
             // draw heatmap
             navHeatmap.draw(/* this.heatmapMinOpacity */);
-            requestAnimationFrame(() => console.timeEnd("drawNavHeatmap"));
+            requestAnimationFrame(() => console.timeEnd('drawNavHeatmap'));
         },
 
         drawNavHeatmapRect() {
-            console.time("drawNavHeatmapRect");
-            const ctx = this.navHeatmapRect.getContext("2d");
+            console.time('drawNavHeatmapRect');
+            const ctx = this.navHeatmapRect.getContext('2d');
             const scale = 20 / this.store.scale;
             const tx = this.store.translateX / 4;
             const ty = this.store.translateY / 4;
@@ -690,7 +658,7 @@ export default {
 
             ctx.clearRect(0, 0, this.navHeatmapRect.width, this.navHeatmapRect.height);
             ctx.strokeRect(x, y, w * scale, h * scale);
-            requestAnimationFrame(() => console.timeEnd("drawNavHeatmapRect"));
+            requestAnimationFrame(() => console.timeEnd('drawNavHeatmapRect'));
         },
 
         toggleShowNavHeatmap() {
@@ -783,45 +751,12 @@ export default {
             this.drawNavMap();
         }, */
 
-        toogleShowLabel(i) {
-            this.labels[this.selectedCategory].labels[i].show = !this.labels[this.selectedCategory]
-                .labels[i].show;
-            this.store.triggerDraw();
-        },
-        toogleShowCategory(i) {
-            this.labels[i].show = !this.labels[i].show;
-            this.labels[i].labels.forEach(label => (label.show = this.labels[i].show));
-            this.store.triggerDraw();
-        },
-        toogleCategory(cat) {
-            if (this.selectedCategory === cat) this.selectedCategory = null;
-            else this.selectedCategory = cat;
-            this.store.selectedCategory = this.selectedCategory;
-            this.store.triggerDraw();
-        },
-        toogleLabel(label) {
-            if (this.selectedLabel === label) this.selectedLabel = null;
-            else this.selectedLabel = label;
-            this.store.selectedLabel = this.selectedLabel;
-            this.store.triggerDraw();
-        },
-        changeLabelColor(i, e) {
-            console.log("changeLabelColor");
-            // e.stopPropagation()
-            this.labels[this.selectedCategory].labels[i].color[0] = hexToR(e.target.value);
-            this.labels[this.selectedCategory].labels[i].color[1] = hexToG(e.target.value);
-            this.labels[this.selectedCategory].labels[i].color[2] = hexToB(e.target.value);
-            this.store.triggerDraw();
-        },
-        addLabeledToGroup(label) {
-            this.store.addLabeledToGroup(label);
-        },
         selectTarget() {
             this.target = !this.target;
             this.store.moveGroupToMouse = this.target;
         },
         selectScissors() {
-            console.log("selectScissors");
+            console.log('selectScissors');
             this.scissors = !this.scissors;
             this.store.scissors = this.scissors;
         },
@@ -837,7 +772,7 @@ export default {
         },
 
         changeGradientColor(i) {
-            console.log("changeGradientColor");
+            console.log('changeGradientColor');
             // console.log(this.gradient);
             // console.log(i);
             // console.log(this.gradient[i]);
@@ -852,7 +787,7 @@ export default {
         },
 
         changeColor(color) {
-            console.log("changeColor");
+            console.log('changeColor');
             console.log(color);
             const { rgba } = color;
             console.log(rgba);
@@ -862,24 +797,24 @@ export default {
         async toggleUpdateEmbedding() {
             this.autoUpdateEmbedding = !this.autoUpdateEmbedding;
             if (this.autoUpdateEmbedding) {
-                console.log("startUpdateEmbedding");
+                console.log('startUpdateEmbedding');
                 console.log(this.socketId);
 
                 try {
                     const body = JSON.stringify({
                         nodes: this.store.getNodesSimple(),
-                        socketId: this.socketId
+                        socketId: this.socketId,
                     });
-                    await fetch("/api/v1/startUpdateEmbedding", {
-                        method: "POST",
-                        headers: { "Content-type": "application/json" },
-                        body
+                    await fetch('/api/v1/startUpdateEmbedding', {
+                        method: 'POST',
+                        headers: { 'Content-type': 'application/json' },
+                        body,
                     }).then(res => res.text());
                 } catch (e) {
                     console.error(e);
                 }
             } else {
-                console.log("stopUpdateEmbedding");
+                console.log('stopUpdateEmbedding');
                 // console.log()
             }
         },
@@ -896,7 +831,7 @@ export default {
         changeRepresentImgSize(v) {
             this.representImgSize = this.store.representImgSize += v;
             this.store.triggerDraw();
-        }
+        },
 
         /* drawNavMap() {
             console.time('drawNavMap');
@@ -1021,7 +956,7 @@ export default {
             this.store.cluster = value;
         },
         colors(value) {
-            console.log("watch color");
+            console.log('watch color');
             console.log(value);
             console.log(this.colors);
             // const { b, g, r } = this.colors.rgba;
@@ -1030,7 +965,7 @@ export default {
             // initial draw trigger when switching to neigbhours mode
             // TODO remove if mode is encapsulated from routes
             this.store.triggerDraw();
-        }
+        },
     },
     /* computed: {
         /!* selectedNode() {
@@ -1055,17 +990,17 @@ export default {
         };
         */
 
-        const socketIp = process.env.NODE_ENV === "production" ? "129.206.117.172" : "localhost";
+        const socketIp = process.env.NODE_ENV === 'production' ? '129.206.117.172' : 'localhost';
 
         const socket = io.connect(
             `http://${socketIp}:3000`,
             {
-                transports: ["websocket"],
+                transports: ['websocket'],
                 reconnectionDelay: 100,
-                reconnectionDelayMax: 1000
-            }
+                reconnectionDelayMax: 1000,
+            },
         );
-        const canvas = document.getElementById("canvas");
+        const canvas = document.getElementById('canvas');
         const parantWidth = canvas.parentNode.clientWidth; //* 0.8;
         const parantHeight = canvas.parentNode.clientHeight; // 700; // canvas.parentNode.clientHeight //* 0.8
         canvas.width = parantWidth;
@@ -1074,11 +1009,11 @@ export default {
         // this.width = parantWidth;
         // this.height = parantHeight;
 
-        const hitCanvas = document.createElement("canvas");
+        const hitCanvas = document.createElement('canvas');
         hitCanvas.width = parantWidth;
         hitCanvas.height = parantHeight;
 
-        const heatmapCanvas = document.getElementById("heatmap");
+        const heatmapCanvas = document.getElementById('heatmap');
         heatmapCanvas.width = parantWidth / 4;
         heatmapCanvas.height = parantHeight / 4;
         this.heatmap = simpleheat(heatmapCanvas);
@@ -1095,16 +1030,16 @@ export default {
         navMapRect.getContext('2d').lineWidth = 1.5;
         this.navMapRect = navMapRect; */
 
-        const navHeatmapCanvas = document.getElementById("navHeatmap");
+        const navHeatmapCanvas = document.getElementById('navHeatmap');
         navHeatmapCanvas.width = parantWidth / 4;
         navHeatmapCanvas.height = parantHeight / 4;
         this.navHeatmap = simpleheat(navHeatmapCanvas);
 
-        const navHeatmapRect = document.getElementById("navHeatmapRect");
+        const navHeatmapRect = document.getElementById('navHeatmapRect');
         navHeatmapRect.width = parantWidth / 4;
         navHeatmapRect.height = parantHeight / 4;
-        navHeatmapRect.getContext("2d").strokeStyle = "#3882ff";
-        navHeatmapRect.getContext("2d").lineWidth = 1.5;
+        navHeatmapRect.getContext('2d').strokeStyle = '#3882ff';
+        navHeatmapRect.getContext('2d').lineWidth = 1.5;
         this.navHeatmapRect = navHeatmapRect;
 
         // const ctx = canvas.getContext('2d');
@@ -1126,46 +1061,46 @@ export default {
         // this.scrollGrowth = s.scrollGrowth;
         // this.scrollImgGrowth = s.scrollImgGrowth;
 
-        console.log("Save store");
+        console.log('Save store');
         console.log(this.store);
         this.socket = socket;
 
-        socket.on("connect", () => {
+        socket.on('connect', () => {
             this.connectedToSocket = true;
-            console.log("conected"); // das wirft immer unde
+            console.log('conected'); // das wirft immer unde
             console.log(`Socket id: ${socket.id}`); // das wirft immer unde
             console.log(socket);
             this.socketId = socket.id;
             // if there is allready data then this is just a reconnect
             const nodes = this.store.getNodes();
-            console.log("nodes in store while connect (its maybe just a reconnect)");
+            console.log('nodes in store while connect (its maybe just a reconnect)');
             console.log(nodes);
             if (!Object.keys(nodes).length && !this.loadingNodes) {
-                socket.emit("getNodes", { nodes: {} });
+                socket.emit('getNodes', { nodes: {} });
                 this.reset();
             }
             // s.clear() // maybe there is something inside?
         });
-        socket.on("disconnect", reason => {
+        socket.on('disconnect', (reason) => {
             this.connectedToSocket = false;
             console.log(`disconnect: ${reason}`); // das wirft immer unde
             console.log(socket);
             // s.clear() // maybe there is something inside?
         });
 
-        socket.on("node", data => {
+        socket.on('node', (data) => {
             if (data.index % 100 === 0) {
                 console.log(`receive node ${data.index}`);
                 console.log(data);
             }
             // start time measure
-            if (this.nodesRecived === 0) console.time("loadAllNodes");
+            if (this.nodesRecived === 0) console.time('loadAllNodes');
             this.nodesRecived += 1;
             s.addNode(new Node(data));
             s.triggerDraw();
         });
 
-        socket.on("receiveImage", data => {
+        socket.on('receiveImage', (data) => {
             // console.log('receive image data');
             // console.log(data);
             const node = s.nodes[data.index];
@@ -1175,16 +1110,16 @@ export default {
             s.valid = false;
         });
 
-        socket.on("totalNodesCount", data => {
-            console.log("totalNodesCount");
+        socket.on('totalNodesCount', (data) => {
+            console.log('totalNodesCount');
             console.log(data);
             this.nodesTotal = data;
         });
 
-        socket.on("allNodesSend", () => {
-            console.log("allNodesSend");
+        socket.on('allNodesSend', () => {
+            console.log('allNodesSend');
             this.loadingNodes = false;
-            console.timeEnd("loadAllNodes");
+            console.timeEnd('loadAllNodes');
 
             // TODO test super cluster
         });
@@ -1194,21 +1129,21 @@ export default {
             this.nodesCount = nodesCount;
         }); */
 
-        socket.on("updateLabels", data => {
-            console.log("updateLabels");
+        socket.on('updateLabels', (data) => {
+            console.log('updateLabels');
             console.log(data);
             this.labels = data;
         });
 
-        socket.on("updateKdtree", kdtree => {
-            console.log("updateKdtree");
+        socket.on('updateKdtree', (kdtree) => {
+            console.log('updateKdtree');
             console.log(kdtree);
             s.kdtree = kdtree;
             // console.log(s.range(-5 ,-5 ,5 ,5))
         });
 
-        socket.on("updateEmbedding", (data, cb) => {
-            console.log("updateEmbedding");
+        socket.on('updateEmbedding', (data, cb) => {
+            console.log('updateEmbedding');
             console.log(data);
             console.log(this.loadingNodes);
             this.loadingNodes = false;
@@ -1218,36 +1153,36 @@ export default {
         });
         // this.updateCanvas();
 
-        socket.on("connect_error", () => {
-            console.log("connect_error");
+        socket.on('connect_error', () => {
+            console.log('connect_error');
         });
 
-        socket.on("connect_timeout", () => {
-            console.log("connect_timeout");
+        socket.on('connect_timeout', () => {
+            console.log('connect_timeout');
         });
 
-        socket.on("reconnect", () => {
-            console.log("reconnect");
+        socket.on('reconnect', () => {
+            console.log('reconnect');
         });
 
-        socket.on("connecting", () => {
-            console.log("connecting");
+        socket.on('connecting', () => {
+            console.log('connecting');
         });
 
-        socket.on("reconnecting", () => {
-            console.log("reconnecting");
+        socket.on('reconnecting', () => {
+            console.log('reconnecting');
         });
 
-        socket.on("connect_failed", () => {
-            console.log("connect_failed");
+        socket.on('connect_failed', () => {
+            console.log('connect_failed');
         });
 
-        socket.on("reconnect_failed", () => {
-            console.log("reconnect_failed");
+        socket.on('reconnect_failed', () => {
+            console.log('reconnect_failed');
         });
 
-        socket.on("close", () => {
-            console.log("close");
+        socket.on('close', () => {
+            console.log('close');
         });
     },
     beforeDestroy() {
@@ -1255,11 +1190,11 @@ export default {
         if (this.socket) this.socket.disconnect();
         // clear check-for-drawing interval
         // clearInterval(this.store.timerId);
-    }
+    },
 };
 </script>
 
-<style scoped>
+<style>
 .stack {
     display: flex;
     position: relative;
@@ -1347,7 +1282,7 @@ export default {
     /*padding: 0.5rem;*/
 }
 
-.img {
+.active-img {
     max-width: 100%;
     max-height: 20rem;
 }
