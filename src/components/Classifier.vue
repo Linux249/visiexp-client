@@ -1,6 +1,6 @@
 <template>
-    <div class="classifier">
-        <div class="btn">categories</div>
+    <div class="area">
+        <div class="title">categories</div>
         <div
             v-for="(category, i) in labels"
             :key="i"

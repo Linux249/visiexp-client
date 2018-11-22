@@ -160,17 +160,6 @@
                     <play v-if="!autoUpdateEmbedding"></play>
                     <stop v-if="autoUpdateEmbedding"></stop>
                 </div>
-                <div class="tool-box row">
-                    <div @click="selectTarget" :class="{ active: target }" class="btn">
-                        <target></target>
-                    </div>
-                    <div @click="selectScissors" :class="{ active: scissors }" class="btn">
-                        <scissors></scissors>
-                    </div>
-                    <div @click="clearGroup" class="btn">
-                        <x></x>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -178,12 +167,24 @@
             <div class="stack">
                 <canvas ref="canvas" id="canvas" class="canvas" tabindex="0" ></canvas>
                 <div class="maps">
-                    <canvas
-                        id="heatmap"
-                        class="canvas"
-                        :class="{ hide: !showHeatmap }"
-                        tabindex="0"
-                    ></canvas>
+                    <div class="row">
+                        <div @click="selectTarget" :class="{ active: target }" class="btn">
+                            <target></target>
+                        </div>
+                        <div @click="selectScissors" :class="{ active: scissors }" class="btn">
+                            <scissors></scissors>
+                        </div>
+                        <div @click="clearGroup" class="btn">
+                            <x></x>
+                        </div>
+                    </div>
+                    <div :class="{ hide: !showHeatmap }">
+                        <canvas
+                            id="heatmap"
+                            class="canvas"
+                            tabindex="0"
+                        ></canvas>
+                    </div>
                    <!-- <div class="navMap" :class="{ hide: !showNavMap }">
                         <canvas id="navMap" class="canvas" tabindex="0" ></canvas>
                         <canvas id="navMapRect" tabindex="0" ></canvas>
@@ -1216,6 +1217,7 @@ export default {
     right: 0;
     display: flex;
     flex-direction: column;
+    justify-content: flex-end;
     margin: 0.5rem;
 }
 
@@ -1223,11 +1225,6 @@ export default {
     position: relative;
 }
 
-#heatmap {
-    z-index: 10;
-}
-
-#navMap,
 #navHeatmap {
     position: absolute;
     top: 0;
@@ -1235,13 +1232,12 @@ export default {
     z-index: 10;
 }
 
-#navMapRect,
 #navHeatmapRect {
     position: absolute;
     top: 0;
     right: 0;
     z-index: 20;
-    margin: 0.5rem;
+    /*margin: 0.5rem;*/
     outline: none;
 }
 
