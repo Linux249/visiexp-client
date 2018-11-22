@@ -856,7 +856,6 @@ export default class CanvasState {
 
             // cluster
             // if (node.cluster < this.cluster) {
-            // if (true) {
             const imgData = img.data;
             // wir gehen durch alle reihen des bildes
 
