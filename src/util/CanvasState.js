@@ -857,7 +857,6 @@ export default class CanvasState {
             // cluster
             // if (node.cluster < this.cluster) {
             const imgData = img.data;
-            // wir gehen durch alle reihen des bildes
 
             if (show) {
                 // loop through rows in img
@@ -870,7 +869,7 @@ export default class CanvasState {
                         canvasPixel[c] = imgData[p]; // R
                         canvasPixel[c + 1] = imgData[p + 1]; // G
                         canvasPixel[c + 2] = imgData[p + 2]; // B
-                        canvasPixel[c + 3] = (clusterMode && !node.isClusterd) ? 255 : canvasPixel[c + 3]
+                        canvasPixel[c + 3] = canvasPixel[c + 3]
                             ? canvasPixel[c + 3] + 10 * node.cliqueLen
                             : 50 + zoomStage * 50;
 
