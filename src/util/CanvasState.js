@@ -16,9 +16,9 @@ export default class CanvasState {
         this.hitCtx = hitCanvas.getContext('2d');
 
         // **** Keep track of state! ****
-        this.kdtree = {};
+        // this.kdtree = {};
 
-        this.valid = true; // when set to false, the canvas will redraw everything
+        // this.valid = true; // when set to false, the canvas will redraw everything
         this._valid = true;
         this.nodes = {}; // hash for all nodes
         this.colorHash = {}; // find nodes by color
@@ -39,31 +39,35 @@ export default class CanvasState {
         this.activeMode = false; // freeze for handling selection
         this.nodeUnderMouse = false; // is set (only!) on mouse move
 
+        // Scissor todo why 2 states?
         this.scissors = false;
         this.drawScissors = false;
         this.scissorsStartX = 0;
         this.scissorsStartY = 0;
-
         this.scissorsEndX = 0;
         this.scissorsEndY = 0;
 
         this._cluster = 100;
-        this._clusterRadius = 2;
+        this._clusterRadius = 5;
+        this._clusterTile = 10;
         this.supercluster = supercluster(); // TODO check best init for this var
         // this.updateClusterUI = null;
+
         this._scale = 20;
-        // this._scale2 = 20; // vorher 0
+        this._scaleFaktor = 0;
         this._zoomStage = 0; // default zoom stage, 0 is the smalest pic
+        // this._scale2 = 20; // vorher 0
         // this.updateScaleUI = null;
         // this.updateScale2UI = null;
-        this._imgSize = 0; // for adding higher img size as standart
         // this._activeImgScale = 10;
-        this.representImgSize = 5;
-        this._borderWidth = 5;
 
-        this._scrollGrowth = 100; // vorher 20
-        this.scaleStage = [20, 50, 100, 200, 400, 800, 1600, 3200];
-        this._scrollImgGrowth = 1.1;
+        this.imgSize = 0; // for adding higher img size as standart
+        this.representImgSize = 5;
+
+        // this._borderWidth = 5;
+        // this._scrollGrowth = 100; // vorher 20
+        // this.scaleStage = [20, 50, 100, 200, 400, 800, 1600, 3200];
+        // this._scrollImgGrowth = 1.1;
         this._clusterGrowth = 1.2;
 
         // this.interval = 100;
@@ -130,40 +134,25 @@ export default class CanvasState {
     get scale() {
         return this._scale;
     }
-    /*
-
-    set scale2(value) {
-        if (value < 0) this._scale2 = 0;
-        else if (value > 9) this._scale2 = 9;
-        else this._scale2 = value;
-        this.triggerDraw();
-        this.ui.scale2 = this.scale2;
-    }
-
-    get scale2() {
-        return this._scale2;
-    }
-    */
 
     set zoomStage(value) {
         if (value < 0) this._zoomStage = 0;
         else if (value > this.maxZoomLvl) this._zoomStage = this.maxZoomLvl;
         else this._zoomStage = value;
-        this.triggerDraw();
-        this.ui.zoomLvl = this._zoomStage;
+        this.ui.zoomStage = this._zoomStage;
     }
 
     get zoomStage() {
         return this._zoomStage;
     }
 
-    set imgSize(value) {
-        if (!(value < 0)) this._imgSize = value;
-        this.triggerDraw();
+    set scaleFaktor(value) {
+        if (value < 0) this._scaleFaktor = 0;
+        else this._scaleFaktor = value;
     }
 
-    get imgSize() {
-        return this._imgSize;
+    get scaleFaktor() {
+        return this._scaleFaktor;
     }
 
     set translateX(value) {
@@ -182,26 +171,6 @@ export default class CanvasState {
 
     get translateY() {
         return this._translateY;
-    }
-
-    /* set activeImgScale(value) {
-        if (value < 1) this._activeImgScale = 1;
-        else this._activeImgScale = value;
-        this.triggerDraw();
-    }
-
-    get activeImgScale() {
-        return this._activeImgScale;
-    } */
-
-    set borderWidth(value) {
-        if (value < 0) this._borderWidth = 0;
-        else this._borderWidth = value;
-        this.triggerDraw();
-    }
-
-    get borderWidth() {
-        return this._borderWidth;
     }
 
     set cluster(value) {
@@ -225,23 +194,66 @@ export default class CanvasState {
         return this._clusterRadius;
     }
 
-    set scrollGrowth(v) {
+    set clusterTile(value) {
+        if (value < 1) this._clusterTile = 1;
+        else this._clusterTile = value;
+    }
+
+    get clusterTile() {
+        return this._clusterTile;
+    }
+
+    /*
+    set scale2(value) {
+        if (value < 0) this._scale2 = 0;
+        else if (value > 9) this._scale2 = 9;
+        else this._scale2 = value;
+        this.triggerDraw();
+        this.ui.scale2 = this.scale2;
+    }
+
+    get scale2() {
+        return this._scale2;
+    }
+    */
+
+    /* set activeImgScale(value) {
+        if (value < 1) this._activeImgScale = 1;
+        else this._activeImgScale = value;
+        this.triggerDraw();
+    }
+
+    get activeImgScale() {
+        return this._activeImgScale;
+    } */
+
+    /* set borderWidth(value) {
+        if (value < 0) this._borderWidth = 0;
+        else this._borderWidth = value;
+        this.triggerDraw();
+    }
+
+    get borderWidth() {
+        return this._borderWidth;
+    } */
+
+    /* set scrollGrowth(v) {
         if (v <= 1) this._scrollGrowth = 1.01;
         else this._scrollGrowth = v;
     }
 
     get scrollGrowth() {
         return this._scrollGrowth;
-    }
+    } */
 
-    set scrollImgGrowth(v) {
+    /* set scrollImgGrowth(v) {
         if (v <= 1) this._scrollImgGrowth = 1.01;
         else this._scrollImgGrowth = v;
     }
 
     get scrollImgGrowth() {
         return this._scrollImgGrowth;
-    }
+    } */
 
     get clusterGrowth() {
         return this._clusterGrowth;
@@ -311,7 +323,7 @@ export default class CanvasState {
         this.supercluster = supercluster({
             radius: this.clusterRadius,
             maxZoom: this.maxZoomLvl,
-            extend: 10,
+            extend: this.clusterTile,
             log: true,
         });
         this.supercluster.load(geoPoints);
@@ -547,6 +559,16 @@ export default class CanvasState {
             console.timeEnd('sortNodes');
         }
         this.triggerDraw();
+    }
+
+    changeScaleUp() {
+        this.scaleFaktor += 1;
+        this.scale += 20 * this.scaleFaktor;
+    }
+
+    changeScaleDown() {
+        this.zoomStage -= 1;
+        this.scaleFaktor -= 1;
     }
 
     // TODO test automatic draw effects like animation, zoom
@@ -880,9 +902,11 @@ export default class CanvasState {
                         canvasPixel[c] = imgData[p]; // R
                         canvasPixel[c + 1] = imgData[p + 1]; // G
                         canvasPixel[c + 2] = imgData[p + 2]; // B
-                        canvasPixel[c + 3] = representWithAlpha && isRepresent ? 200 : canvasPixel[c + 3]
-                            ? canvasPixel[c + 3] + 10 * node.cliqueLen
-                            : 50 + zoomStage * 50;
+                        canvasPixel[c + 3] = representWithAlpha && isRepresent
+                            ? 200
+                            : canvasPixel[c + 3]
+                                ? canvasPixel[c + 3] + 10 * node.cliqueLen
+                                : 50 + zoomStage * 50;
 
                         // draw hitmap
                         hitmapPixel[c] = node.colorKey[0]; // R
@@ -1126,7 +1150,7 @@ export default class CanvasState {
         wheelEvent.preventDefault();
         wheelEvent.stopPropagation();
         // console.log(wheelEvent)
-        const { nodeUnderMouse } = this;
+        // const { nodeUnderMouse } = this;
 
         // if there is a selection and the mouse is over a link
         // TODO test if this.selection.links[nodeUnderMouse.index] exists for cleaner statement
@@ -1163,7 +1187,7 @@ export default class CanvasState {
             // this.scale2 += 1;
             // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
             this.zoomStage += 1;
-            this.scale += 20 * this.zoomStage;
+            this.changeScaleUp();
             this.cluster *= this.clusterGrowth;
         }
 
@@ -1172,8 +1196,8 @@ export default class CanvasState {
             console.log('zoom out');
             // this.scale2 -= 1;
             // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
-            this.scale -= 20 * this.zoomStage;
-            this.zoomStage -= 1;
+            this.scale -= 20 * this.scaleFaktor;
+            this.changeScaleDown();
             this.cluster /= this.clusterGrowth;
         }
 
@@ -1314,8 +1338,6 @@ export default class CanvasState {
             }
             this.triggerDraw();
         }
-
-        // mouse over empty area
     }
 
     handleMouseUp(e) {

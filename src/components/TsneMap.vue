@@ -45,7 +45,7 @@
                     <!--<div>connected: {{connectedToSocket}}</div>-->
                     <div class="btn">{{scale}}</div>
                     <!--<div class="btn">{{scale2}}</div>-->
-                    <div class="btn">{{zoomLvl}}</div>
+                    <div class="btn">{{zoomStage}}</div>
                     <!--<div class="btn">{{translateX}}</div>
                     <div class="btn">{{translateY}}</div>-->
                     <!--<div class="btn" @click="draw2">draw2</div>
@@ -199,7 +199,28 @@
             <div class="details">
                 <div v-if="showOptions" class="area">
                     <div class="title">Options</div>
-                    <div class="">
+
+
+                    <div class="option-title">Cluster</div>
+                    <div class="row-btn">
+                        <div>Cluster: radius: {{clusterRadius}}</div>
+                        <div class="row">
+                            <div @click="changeClusterRadius(-1)" class="btn">-1</div>
+                            <div @click="changeClusterRadius(1)" class="btn">+1</div>
+                            <div @click="superCluster()" class="btn">update</div>
+                        </div>
+                    </div>
+                    <div class="row-btn">
+                        <div>Cluster: tile: {{clusterTile}}</div>
+                        <div class="row">
+                            <div @click="changeClusterTile(-1)" class="btn">-1</div>
+                            <div @click="changeClusterTile(1)" class="btn">+1</div>
+                        </div>
+                    </div>
+
+
+                    <div class="option-title">Old cluster</div>
+                    <div class="row-btn">
                         <div>Cluster: {{Math.round(cluster)}}</div>
                         <div class="row">
                             <div @click="changeCluster(-10)" class="btn">-10</div>
@@ -209,23 +230,24 @@
                         </div>
                     </div>
                     <div class="row-btn">
-                        <div>clusterRadius: {{clusterRadius}}</div>
+                        <div>Cluster: growth: {{clusterGrowth}}</div>
                         <div class="row">
-                            <div @click="changeClusterRadius(-1)" class="btn">-1</div>
-                            <div @click="changeClusterRadius(1)" class="btn">+1</div>
-                            <div @click="superCluster()" class="btn">update</div>
+                            <div @click="changeClusterGrowth(-0.01)" class="btn">-0.1</div>
+                            <div @click="changeClusterGrowth(0.01)" class="btn">+0.1</div>
                         </div>
                     </div>
+
+
+                    <div class="option-title">Image</div>
                     <div class="row-btn">
-                        <div>ImageSize: {{imgSize}}</div>
+                        <div>Image: size: {{imgSize}}</div>
                         <div class="row">
                             <div @click="changeImgSize(-1)" class="btn">-1</div>
                             <div @click="changeImgSize(1)" class="btn">+1</div>
                         </div>
                     </div>
-
                     <div class="row-btn">
-                        <div>Represents alpha</div>
+                        <div>Represent: alpha</div>
                             <div
 
                                 @click="toggleRepresentWithAlpha"
@@ -236,10 +258,26 @@
                             </div>
                     </div>
                     <div class="row-btn">
-                        <div>Represent Size: {{representImgSize}}</div>
+                        <div>Represent: size: {{representImgSize}}</div>
                         <div class="row">
                             <div @click="changeRepresentImgSize(-1)" class="btn">-1</div>
                             <div @click="changeRepresentImgSize(1)" class="btn">+1</div>
+                        </div>
+                    </div>
+
+                    <div class="option-title">Other</div>
+                    <div class="row-btn">
+                        <div>zoomStage: {{zoomStage}}</div>
+                        <div class="row">
+                            <div @click="changeZoomStage(-1)" class="btn">-1</div>
+                            <div @click="changeZoomStage(1)" class="btn">+1</div>
+                        </div>
+                    </div>
+                    <div class="row-btn">
+                        <div>zoomStage: {{scale}}</div>
+                        <div class="row">
+                            <div @click="changeScaleDown()" class="btn">-</div>
+                            <div @click="changeScaleUp()" class="btn">+</div>
                         </div>
                     </div>
                     <!--
@@ -257,20 +295,48 @@
                             <div @click="changeScrollImgGrowth(0.01)" class="btn">+0.1</div>
                         </div>
                     </div> -->
-                    <div class="row-btn">
-                        <div>zoomStage: {{zoomStage}}</div>
+
+                    <!--<div class="row-btn">
+                        <div>MinOpacity: {{heatmapMinOpacity}}</div>
                         <div class="row">
-                            <div @click="changeZoomStage(-1)" class="btn">-1</div>
-                            <div @click="changeZoomStage(1)" class="btn">+1</div>
+                            <div @click="changeHeatmapMinOpacity(-0.01)" class="btn">-0.01</div>
+                            <div @click="changeHeatmapMinOpacity(0.01)" class="btn">+0.01</div>
+                        </div>
+                    </div>-->
+                    <!--<div class="row-btn">
+                        <div>NavMapAlpha: {{navMapAlpha}}</div>
+                        <div class="row">
+                            <div @click="changeNavMapAlpha(-0.1)" class="btn">-0.1</div>
+                            <div @click="changeNavMapAlpha(0.1)" class="btn">+0.1</div>
+                        </div>
+                    </div>-->
+                    <div class="option-title">Ranked</div>
+                    <div class="row-btn">
+                        <div>sizeRange: {{sizeRange}}</div>
+                        <div class="row">
+                            <div @click="changeSizeRange(-1)" class="btn">-1</div>
+                            <div @click="changeSizeRange(1)" class="btn">+1</div>
                         </div>
                     </div>
                     <div class="row-btn">
-                        <div>ClusterGrowth: {{clusterGrowth}}</div>
-                        <div class="row">
-                            <div @click="changeClusterGrowth(-0.01)" class="btn">-0.1</div>
-                            <div @click="changeClusterGrowth(0.01)" class="btn">+0.1</div>
+                        <div
+                            class="color"
+                            :class="{activeColor: selectedGradient === i}"
+                            v-for="(color, i) in gradient"
+                            :key="i"
+                            v-bind:style="{ backgroundColor: `rgb(${color[0]},${color[1]},${color[2]})`}"
+                            @click="changeGradientColor(i)"
+                        >
+                            {{i}}
                         </div>
                     </div>
+                    <slider-picker v-model="colors" @input="changeColor"/>
+
+                    <!--<div class="row-btn">
+                        <div>{{range}}}</div>
+                        <range-slider v-model="cluster" type="range" min="0" max="800" step="10" />
+                    </div>-->
+
                     <div class="option-title">Heatmap</div>
                     <div class="row-btn">
                         <div>Radius: {{heatmapRadius}}</div>
@@ -286,48 +352,7 @@
                             <div @click="changeHeatmapBlur(1)" class="btn">+1</div>
                         </div>
                     </div>
-                    <div class="row-btn">
-                        <div>sizeRange: {{sizeRange}}</div>
-                        <div class="row">
-                            <div @click="changeSizeRange(-1)" class="btn">-1</div>
-                            <div @click="changeSizeRange(1)" class="btn">+1</div>
-                        </div>
-                    </div>
-<!--                    <div class="row-btn">
-                        <div>MinOpacity: {{heatmapMinOpacity}}</div>
-                        <div class="row">
-                            <div @click="changeHeatmapMinOpacity(-0.01)" class="btn">-0.01</div>
-                            <div @click="changeHeatmapMinOpacity(0.01)" class="btn">+0.01</div>
-                        </div>
-                    </div>-->
-                    <div class="option-title">Navmap</div>
-                    <div class="row-btn">
-                        <div>NavMapAlpha: {{navMapAlpha}}</div>
-                        <div class="row">
-                            <div @click="changeNavMapAlpha(-0.1)" class="btn">-0.1</div>
-                            <div @click="changeNavMapAlpha(0.1)" class="btn">+0.1</div>
-                        </div>
-                    </div>
-                    <div class="row-btn">
-                        <div
-                            class="color"
-                            :class="{activeColor: selectedGradient === i}"
-                            v-for="(color, i) in gradient"
-                            :key="i"
-                            v-bind:style="{ backgroundColor: `rgb(${color[0]},${color[1]},${color[2]})`}"
-                            @click="changeGradientColor(i)"
-                        >
-                            {{i}}
-                        </div>
-                    </div>
 
-
-                    <slider-picker v-model="colors" @input="changeColor"/>
-
-                    <!--<div class="row-btn">
-                        <div>{{range}}}</div>
-                        <range-slider v-model="cluster" type="range" min="0" max="800" step="10" />
-                    </div>-->
                 </div>
 
                 <groups v-if="this.showGroups"
@@ -444,7 +469,6 @@ export default {
         nodesRecived: 0,
         scale: 0,
         // scale2: 0,
-        zoomLvl: 0,
         labels: [],
         selectedLabel: null, // save the selected label
         selectedCategory: null,
@@ -458,15 +482,16 @@ export default {
         height: 0,
         activeNode: null,
         cluster: 5, // default - set on mount from CanvasStore class
-        clusterRadius: 0, // default
+        clusterRadius: 0, // default - set on mount from CanvasStore class
+        clusterTile: 0, // default - set on mount from CanvasStore class
         imgSize: 0, // default - set on mount from CanvasStore class
         representImgSize: 0, // default - set on mount from CanvasStore class
-        borderWidth: 0, // default - set on mount from CanvasStore class
+        // borderWidth: 0, // default - set on mount from CanvasStore class
         range: 0,
         cuttedNodes: [], // selected nodes through scissor
         showOptions: false, // show options menu
-        scrollGrowth: 0,
-        scrollImgGrowth: 0,
+        // scrollGrowth: 0,
+        // scrollImgGrowth: 0,
         clusterGrowth: 0,
         translateX: 0,
         translateY: 0,
@@ -476,7 +501,7 @@ export default {
         heatmapBlur: 5,
         // heatmapMinOpacity: 0.05,
         // showNavMap: false,
-        navMapAlpha: 0.1,
+        // navMapAlpha: 0.1,
         showNavHeatmap: false,
         sizeRankedMode: false,
         boarderRankedMode: false,
@@ -499,7 +524,7 @@ export default {
         zoomStage: 0,
         showGroups: true,
         sorted: false,
-        sizeRange: 5,
+        sizeRange: 0,
         showColorPicker: false,
         colors: {
             hex: '#194d33',
@@ -583,6 +608,9 @@ export default {
 
         changeClusterRadius(v) {
             this.clusterRadius = this.store.clusterRadius += v; // update ui
+        },
+        changeClusterTile(v) {
+            this.clusterTile = this.store.clusterTile += v; // update ui
         },
 
         sortNodes() {
@@ -696,8 +724,9 @@ export default {
         },
 
         changeImgSize(v) {
-            // this.store.imgSize // update canvasState
-            this.imgSize = this.store.imgSize += v; // update ui
+            this.store.imgSize += v;
+            this.imgSize = this.store.imgSize;
+            this.store.triggerDraw();
         },
 
         toggleShowOptions() {
@@ -711,7 +740,19 @@ export default {
         changeZoomStage(v) {
             this.store.zoomStage += v;
             this.zoomStage = this.store.zoomStage;
+            this.store.triggerDraw();
         },
+
+        changeScaleUp() {
+            this.store.changeScaleUp();
+            this.store.triggerDraw();
+        },
+
+        changeScaleDown() {
+            this.store.changeScaleDown();
+            this.store.triggerDraw();
+        },
+
         changeHeatmapRadius(v) {
             this.heatmapRadius += v;
             this.drawHeatmap();
@@ -726,11 +767,12 @@ export default {
         changeSizeRange(v) {
             this.store.sizeRange += v;
             this.sizeRange = this.store.sizeRange;
+            this.store.triggerDraw();
         },
-        changeNavMapAlpha(v) {
+        /* changeNavMapAlpha(v) {
             this.navMapAlpha += v;
             this.drawNavMap();
-        },
+        }, */
 
         toogleShowLabel(i) {
             this.labels[this.selectedCategory].labels[i].show = !this.labels[this.selectedCategory]
@@ -1067,10 +1109,13 @@ export default {
         // set init value in UI
         this.cluster = s.cluster;
         this.clusterRadius = s.clusterRadius;
+        this.clusterTile = s.clusterTile;
         this.representImgSize = s.representImgSize;
-        this.borderWidth = s.borderWidth;
-        this.scrollGrowth = s.scrollGrowth;
-        this.scrollImgGrowth = s.scrollImgGrowth;
+        this.zoomStage = s.zoomStage;
+        this.sizeRange = s.sizeRange;
+        // this.borderWidth = s.borderWidth;
+        // this.scrollGrowth = s.scrollGrowth;
+        // this.scrollImgGrowth = s.scrollImgGrowth;
 
         console.log('Save store');
         console.log(this.store);
