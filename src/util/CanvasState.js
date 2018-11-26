@@ -23,7 +23,7 @@ export default class CanvasState {
         this.nodes = {}; // hash for all nodes
         this.colorHash = {}; // find nodes by color
         this.panning = false; // Keep track of when we are dragging
-        this.draggNode = false; // save the node for dragging
+        this.draggNode = null; // save the node for dragging
 
         // the current selected object.
         // TODO  In the future we could turn this into an array for multiple selection
@@ -821,6 +821,7 @@ export default class CanvasState {
     } */
 
     draw2() {
+        // console.log('start draw')
         // console.time('draw2');
         const startTime = window.performance.now();
 
@@ -1346,6 +1347,13 @@ export default class CanvasState {
                     // drag only one node
                     this.draggNode.x += nodeX;
                     this.draggNode.y += nodeY;
+                    /*if (this.ui.clusterMode) {
+                        console.time('nodesInRange');
+                        const tree = this.supercluster.trees[this.supercluster.trees.length - 1];
+                        const nodes = tree.within(this.draggNode.x, this.draggNode.y, 10);
+                        console.warn(nodes)
+                        console.timeEnd('nodesInRange');
+                    }*/
                 }
 
                 // drag neighbours in freeze mode
@@ -1359,7 +1367,7 @@ export default class CanvasState {
                     });
                 } */
             }
-            this.triggerDraw();
+            return this.triggerDraw();
         }
     }
 

@@ -1027,7 +1027,6 @@ export default {
             // console.log(node);
             node.image.src = `data:image/jpeg;base64,${data.buffer}`;
             node.hasImage = true;
-            s.valid = false;
         });
 
         socket.on('totalNodesCount', (data) => {
