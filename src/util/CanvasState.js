@@ -458,7 +458,7 @@ export default class CanvasState {
     }
 
     // return the id's of all nodes with group flag
-    getGroupIds() {
+    getGroupedNodeIds() {
         const ids = [];
         Object.values(this.nodes).forEach(node => (node.group ? ids.push(node.index) : null));
         return ids;
@@ -468,6 +468,13 @@ export default class CanvasState {
         Object.keys(this.nodes).forEach(
             i => (this.nodes[i].group ? (this.nodes[i].groupId = groupId) : null),
         );
+    }
+
+    addNodesToActiveGroup(ids) {
+        ids.forEach((id) => {
+            this.nodes[id].group = true;
+            this.nodes[id].groupId = this.ui.activeGroup;
+        });
     }
 
     moveGroupToPosition(x, y) {
@@ -769,7 +776,7 @@ export default class CanvasState {
             if (neighbourMode && !node.group) {
                 // the node should not be in the neighbours list
                 const neighbour = this.groupNeighbours[node.index];
-                if (!neighbour || neighbour > this.ui.groupNeighboursThreshold) show = false;
+                if (!neighbour || neighbour > this.ui.neighboursThreshold) show = false;
             }
 
             // test if image obj exists
@@ -900,7 +907,7 @@ export default class CanvasState {
             if (neighbourMode && !node.group) {
                 // the node should not be in the neighbours list
                 const neighbour = this.groupNeighbours[node.index];
-                if (!neighbour || neighbour > this.ui.groupNeighboursThreshold) show = false;
+                if (!neighbour || neighbour > this.ui.neighboursThreshold) show = false;
             }
 
             // cluster
@@ -1040,7 +1047,7 @@ export default class CanvasState {
             // TODO Perfomance is maybe bedder without another loop
 
             // draw only if group, label2 or neighbour
-            if (!node.group && (!neighbour || neighbour > this.ui.groupNeighboursThreshold)) return;
+            if (!node.group && (!neighbour || neighbour > this.ui.neighboursThreshold)) return;
 
             const lineColor = neighbour ? neighbourColor : groupColor;
 
@@ -1379,14 +1386,23 @@ export default class CanvasState {
             }
             // used for components for adding nodes to special cases
             this.ui.clickedNode = nodeUnderMouse;
-            switch (this.ui.$route.name) {
+
+            if (this.ui.neighbourMode) {
+                if (this.groupNeighbours[nodeUnderMouse.index]) {
+                    this.removedGroupNeighbours[nodeUnderMouse.index] = this.groupNeighbours[
+                        nodeUnderMouse.index
+                    ];
+                    this.groupNeighbours[nodeUnderMouse.index] = undefined;
+                }
+            }
+            /* switch (this.ui.$route.name) {
             case SVM:
                 break;
             case NEIGHBOURS:
                 // nodeUnderMouse.label2 = !nodeUnderMouse.label2 ? 'test' : null;
                 break;
             case LABELS:
-                /* if (this.selection && this.selection !== this.nodeUnderMouse && ctrlKeyPressed) {
+                /!* if (this.selection && this.selection !== this.nodeUnderMouse && ctrlKeyPressed) {
                         console.log('Add or remove link');
                         const links = Object.keys(this.selection.links);
                         const i = this.nodeUnderMouse.index;
@@ -1399,17 +1415,11 @@ export default class CanvasState {
                             this.selection.links[i] = 0.5;
                         }
                         console.log(this.selection);
-                    } */
-                if (this.groupNeighbours[nodeUnderMouse.index]) {
-                    this.removedGroupNeighbours[nodeUnderMouse.index] = this.groupNeighbours[
-                        nodeUnderMouse.index
-                    ];
-                    this.groupNeighbours[nodeUnderMouse.index] = undefined;
-                }
+                    } *!/
                 break;
             default:
                 console.log('no mode selected - what to do with a node click now?');
-            }
+            } */
         }
 
         // there is a selection and this is not the activeNode

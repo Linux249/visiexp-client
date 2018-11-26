@@ -3,8 +3,8 @@
         <div class="area">
             <div class="title">Neighbours</div>
             <div class="btn between">
-                {{groupNeighboursThreshold}}
-                <range-slider :value="groupNeighboursThreshold" :change="changeNeighboursThreshold"></range-slider>
+                {{neighboursThreshold}}
+                <range-slider :value="neighboursThreshold" :change="changeNeighboursThreshold"></range-slider>
             </div>
             <div class="row">
                 <div class="btn" @click="getGroupNeighbours">Update</div>
@@ -45,7 +45,7 @@ import RangeSlider from './RangeSlider';
 
 export default {
     name: 'Labels',
-    props: ['getStore', 'groupNeighboursThreshold', 'changeNeighboursThreshold'],
+    props: ['getStore', 'neighboursThreshold', 'changeNeighboursThreshold'],
     components: {
         RangeSlider,
     },
@@ -82,8 +82,8 @@ export default {
                 this.loading = true;
                 const store = this.getStore();
                 const body = {
-                    group: store.getGroupIds(),
-                    threshold: this.groupNeighboursThreshold,
+                    group: store.getGroupedNodeIds(),
+                    threshold: this.neighboursThreshold,
                 };
                 const { groupNeighbours, removedGroupNeighbours } = store;
                 // add neighbours to body depending on existing neighbours to show init getNeighbours or update
@@ -119,10 +119,6 @@ export default {
 
         resetNeighbours() {
             this.getStore().resetGroupNeighbours();
-        },
-
-        resetGroup() {
-            this.getStore().clearGroup();
         },
     },
 };

@@ -1,12 +1,17 @@
 <template>
-    <div>
-        <div class="btn" @click="getGroupNeighbours">Update Neighbours</div>
-        {{groupNeighboursThreshold}}<range-slider :value="groupNeighboursThreshold" :change="changeNeighboursThreshold"></range-slider>
-        <div class="row">
-            <div class="btn" @click="resetGroup">reset group</div>
-            <div class="btn" @click="resetNeighbours">reset Neighbours</div>
+    <div class="area">
+        <div class="title">Neighbours</div>
+        <div class="btn between">
+            {{neighboursThreshold}}
+            <range-slider
+                :value="neighboursThreshold"
+                :change="changeNeighboursThreshold"
+            ></range-slider>
         </div>
-
+        <div class="row">
+            <div class="btn" @click="getGroupNeighbours">Update</div>
+            <div class="btn" @click="resetNeighbours">Reset</div>
+        </div>
     </div>
 </template>
 
@@ -15,7 +20,7 @@ import RangeSlider from './RangeSlider';
 
 export default {
     name: 'Neighbours',
-    props: ['getStore', 'groupNeighboursThreshold', 'changeNeighboursThreshold'],
+    props: ['getStore', 'neighboursThreshold', 'changeNeighboursThreshold'],
     components: {
         RangeSlider,
     },
@@ -24,8 +29,10 @@ export default {
         neighbours: [],
     }),
     mounted() {
-        // TODO store is not set while mount...
-        // this.getStore().triggerDraw();
+        this.$nextTick(this.getGroupNeighbours);
+    },
+    beforeDestroy() {
+        this.resetNeighbours();
     },
     methods: {
         async getGroupNeighbours() {
@@ -33,11 +40,12 @@ export default {
                 this.loading = true;
                 const store = this.getStore();
                 const body = {
-                    group: store.getGroupIds(),
-                    threshold: this.groupNeighboursThreshold,
+                    group: store.getGroupedNodeIds(),
+                    threshold: this.neighboursThreshold,
                 };
                 const { groupNeighbours, removedGroupNeighbours } = store;
-                // add neighbours to body depending on existing neighbours to show init getNeighbours or update
+                // add neighbours to body depending on existing
+                // neighbours to show init getNeighbours or update
                 if (Object.keys(groupNeighbours).length) {
                     body.neighbours = groupNeighbours;
                     if (Object.keys(removedGroupNeighbours).length) {
@@ -58,7 +66,7 @@ export default {
                     });
                 const { neighbours, group } = data;
                 store.updateGroupNeighbours(neighbours);
-                store.groupNodesByIds(group);
+                store.addNodesToActiveGroup(group);
                 console.log({ neighbours, group });
                 this.loading = false;
             } catch (e) {
@@ -69,10 +77,6 @@ export default {
 
         resetNeighbours() {
             this.getStore().resetGroupNeighbours();
-        },
-
-        resetGroup() {
-            this.getStore().clearGroup();
         },
     },
 };

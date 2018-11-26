@@ -282,12 +282,19 @@
 
                 </div>
 
-                <groups v-if="this.showGroups"
+                <groups v-if="showGroups"
                     :setActiveGroup="setActiveGroup"
                     :activeGroup="activeGroup"
                     :getStore="getStore"
                     :toggleNeighbourMode="toggleNeighbourMode"
                     :neighbourMode="neighbourMode"
+                />
+
+                <neighbours
+                    v-if="neighbourMode"
+                    :getStore="getStore"
+                    :changeNeighboursThreshold="changeNeighboursThreshold"
+                    :neighboursThreshold="neighboursThreshold"
                 />
 
                 <router-view
@@ -296,12 +303,9 @@
                     :node="clickedNode"
                     :getNode="getNode"
                     :changeActiveNode="changeActiveNode"
-
                     :getStore="getStore"
                     :dataset="dataset"
                     :handleChangeDataset="handleChangeDataset"
-                    :groupNeighboursThreshold="groupNeighboursThreshold"
-                    :changeNeighboursThreshold="changeNeighboursThreshold"
                 />
 
 
@@ -327,6 +331,7 @@ import { Slider } from 'vue-color';
 import Node from '../util/Node';
 import CanvasState from '../util/CanvasState';
 import Groups from './Groups';
+import Neighbours from './Neighbours';
 import Scissors from '../icons/Scissors';
 import X from '../icons/X';
 import Play from '../icons/Play';
@@ -349,6 +354,7 @@ export default {
         Navmap,
         Target,
         Groups,
+        Neighbours,
         Logs,
         'slider-picker': Slider,
     },
@@ -447,7 +453,7 @@ export default {
         autoUpdateEmbedding: false,
         socketId: '',
         dataset: '001', // defualt value is 001
-        groupNeighboursThreshold: 0.2,
+        neighboursThreshold: 0.2,
         activeGroup: 0,
         representWithAlpha: false,
     }),
@@ -474,14 +480,6 @@ export default {
             return null;
         },
 
-        /*
-        groupNodesByGroupId(id) {
-            this.store.groupNodesByGroupId(id);
-        },
-        getGroupIds(ids) {
-            return this.store.getGroupIds(ids);
-        },
-        */
         clearGroup() {
             this.store.clearGroup();
             this.activeGroup = null;
@@ -495,7 +493,7 @@ export default {
         changeNeighboursThreshold({ target }) {
             console.log('changeNeighboursThreshold');
             console.log(target.v);
-            this.groupNeighboursThreshold = target.value;
+            this.neighboursThreshold = target.value;
             this.store.triggerDraw();
         },
 

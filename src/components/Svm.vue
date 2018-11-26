@@ -42,7 +42,7 @@
 <script>
 export default {
     name: 'Svm',
-    props: ['node', 'nodes', 'getNode', 'changeActiveNode', 'groupNodesByIds'],
+    props: ['node', 'nodes', 'getNode', 'changeActiveNode'],
 
     data: () => ({
         positives: [],
@@ -171,7 +171,7 @@ export default {
                 .then(res => res.json())
                 .catch(e => console.error(e));
 
-            this.groupNodesByIds(group);
+            // this.groupNodesByIds(group);
 
             this.loading = false;
             // this.triggerDraw();
@@ -184,7 +184,7 @@ export default {
             this.positivesAll = []; // reset
             this.negatives = []; // reset
             this.negativesAll = []; // reset
-            this.groupNodesByIds([]);
+            // this.groupNodesByIds([]);
         },
         handleMouseOver(n) {
             this.changeActiveNode(n);
