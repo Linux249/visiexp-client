@@ -1,4 +1,5 @@
 import supercluster from 'supercluster';
+import pointer from '../icons/Pointer.svg';
 // import { SVM, LABELS, NEIGHBOURS } from './modes';
 
 export default class CanvasState {
@@ -23,7 +24,7 @@ export default class CanvasState {
         this.nodes = {}; // hash for all nodes
         this.colorHash = {}; // find nodes by color
         this.panning = false; // Keep track of when we are dragging
-        this.draggNode = null; // save the node for dragging
+        this._draggNode = null; // save the node for dragging
 
         // the current selected object.
         // TODO  In the future we could turn this into an array for multiple selection
@@ -36,11 +37,11 @@ export default class CanvasState {
         this.selectedCategory = null; // the choosen Category
         // this.labelColor = null; // updatet throud ui
 
-        this.activeMode = false; // freeze for handling selection
-        this.nodeUnderMouse = false; // is set (only!) on mouse move
+        // this.activeMode = false; // freeze for handling selection
+        this._nodeUnderMouse = false; // is set (only!) on mouse move
 
         // Scissor todo why 2 states?
-        this.scissors = false;
+        this._scissors = false;
         this.drawScissors = false;
         this.scissorsStartX = 0;
         this.scissorsStartY = 0;
@@ -98,7 +99,7 @@ export default class CanvasState {
 
         this.maxZoomLvl = 20;
 
-        this.moveGroupToMouse = false;
+        this._moveGroupToMouse = false;
 
         // array of node index's
         this.groupNeighbours = {};
@@ -201,6 +202,45 @@ export default class CanvasState {
 
     get clusterTile() {
         return this._clusterTile;
+    }
+
+    set scissors(value) {
+        this._scissors = value;
+        this.canvas.style.cursor = value ? 'crosshair' : 'default';
+    }
+
+    get scissors() {
+        return this._scissors;
+    }
+
+    set nodeUnderMouse(value) {
+        this._nodeUnderMouse = value;
+        this.canvas.style.cursor = value ? 'grab' : 'default';
+    }
+
+    get nodeUnderMouse() {
+        return this._nodeUnderMouse;
+    }
+
+    set draggNode(value) {
+        this._draggNode = value;
+        this.canvas.style.cursor = value ? 'grabbing' : this.nodeOnMouseDown ? 'grab' : 'default';
+    }
+
+    get draggNode() {
+        return this._draggNode;
+    }
+
+    set moveGroupToMouse(value) {
+        this._moveGroupToMouse = value;
+        // const curser = `url('${pointer}')`;
+        // console.log({curser, value});
+        // TODO check why this is not working
+        // this.canvas.style.cursor = value ? curser : 'default';
+    }
+
+    get moveGroupToMouse() {
+        return this._moveGroupToMouse;
     }
 
     /*
@@ -1301,18 +1341,6 @@ export default class CanvasState {
             return this.triggerDraw();
         }
 
-        // different interaction based ob if a node is active or node
-        const nodeUnderMouse = this.findNodeByMousePosition(mouseX, mouseY);
-        this.nodeUnderMouse = nodeUnderMouse;
-        this.ui.activeNode = nodeUnderMouse;
-        // trigger load high resolution img
-        if (nodeUnderMouse && !nodeUnderMouse.hasImage) {
-            this.socket.emit('requestImage', {
-                name: nodeUnderMouse.name,
-                index: nodeUnderMouse.index,
-            });
-        }
-
         // DRAG AND DROP
         if (this.draggNode || this.panning) {
             // get mouse movement based on the last triggered event
@@ -1347,27 +1375,27 @@ export default class CanvasState {
                     // drag only one node
                     this.draggNode.x += nodeX;
                     this.draggNode.y += nodeY;
-                    /*if (this.ui.clusterMode) {
+                    /* if (this.ui.clusterMode) {
                         console.time('nodesInRange');
                         const tree = this.supercluster.trees[this.supercluster.trees.length - 1];
                         const nodes = tree.within(this.draggNode.x, this.draggNode.y, 10);
                         console.warn(nodes)
                         console.timeEnd('nodesInRange');
-                    }*/
+                    } */
                 }
-
-                // drag neighbours in freeze mode
-                /* if (this.selection && this.selection === this.draggNode) {
-                    Object.entries(this.selection.links).forEach(([i, strength]) => {
-                        const neighbour = this.nodes[i];
-                        // todo error handling if the neighbour is not existing for katja
-                        if (neighbour) {
-                            neighbour.move(nodeX * strength, nodeY * strength);
-                        }
-                    });
-                } */
             }
             return this.triggerDraw();
+        }
+        // different interaction based ob if a node is active or node
+        const nodeUnderMouse = this.findNodeByMousePosition(mouseX, mouseY);
+        this.nodeUnderMouse = nodeUnderMouse;
+        this.ui.activeNode = nodeUnderMouse;
+        // trigger load high resolution img
+        if (nodeUnderMouse && !nodeUnderMouse.hasImage) {
+            this.socket.emit('requestImage', {
+                name: nodeUnderMouse.name,
+                index: nodeUnderMouse.index,
+            });
         }
     }
 
