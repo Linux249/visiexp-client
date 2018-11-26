@@ -484,6 +484,8 @@ export default {
         */
         clearGroup() {
             this.store.clearGroup();
+            this.activeGroup = null;
+            this.neighbourMode = false;
         },
 
         setActiveGroup(id) {
