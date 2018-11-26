@@ -89,12 +89,11 @@ export default class Node {
         //
         // this.timerId = 0;
 
-        // this._value = null; // value will be set by the active nodes neighbour-values, default is 5
-
         // this.imgData = makeImgageData(this.icon)
     }
 
-    /* get width() {
+    /*
+    get width() {
         return this._width;
     }
 
@@ -195,7 +194,8 @@ export default class Node {
             // const y = Math.floor((this._y * scale) - (h / 2));
 
             // const data = await createImageBitmap(imgData, 0, 0, w, h)
-            // createImageBitmap(imgData,0, 0, 2, 2, {resizeHeight: h, resizeWidth: w}).then(data => {
+            // createImageBitmap(imgData,0, 0, 2, 2, {resizeHeight: h, resizeWidth: w})
+            .then(data => {
             //     console.log(data)
             //     this.ctx.drawImage(data, x, y)
             // })
@@ -302,5 +302,6 @@ export default class Node {
             this.hitCtx.fillStyle = this.colorKey;
             this.hitCtx.fillRect(x, y, w / scale, h / scale);
         }
-    } */
+    }
+    */
 }

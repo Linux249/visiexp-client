@@ -2,7 +2,12 @@
     <div class="areas">
         <div v-if="loading" class="loading"><div class="loading-wheel"></div></div>
         <div class="imgArea" :class="{activePositiv: selectPositives}" @click="toggleActive(true)">
-            <div class="image" v-for="(node, i) in positives" :key="i" @mouseover="handleMouseOver(node)">
+            <div
+                class="image"
+                v-for="(node, i) in positives"
+                :key="i"
+                @mouseover="handleMouseOver(node)"
+            >
                 <img
                     :src="node.icon"
                     alt=""
@@ -11,8 +16,17 @@
                 >
             </div>
         </div>
-        <div class="imgArea" :class="{activeNegativ: !selectPositives}" @click="toggleActive(false)">
-            <div class="image" v-for="(node, i) in negatives" :key="i" @mouseover="handleMouseOver(node)">
+        <div
+            class="imgArea"
+            :class="{activeNegativ: !selectPositives}"
+            @click="toggleActive(false)"
+        >
+            <div
+                class="image"
+                v-for="(node, i) in negatives"
+                :key="i"
+                @mouseover="handleMouseOver(node)"
+            >
                 <img
                     :src="node.icon"
                     alt=""
@@ -164,7 +178,7 @@ export default {
             console.log('stopSvm clicked');
             this.loading = true;
 
-            const { group } = await fetch('/api/v1/svm/stop', {
+            await fetch('/api/v1/svm/stop', {
                 method: 'POST',
                 headers: { 'Content-type': 'application/json' },
             })

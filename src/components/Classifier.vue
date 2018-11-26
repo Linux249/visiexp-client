@@ -6,12 +6,11 @@
             :key="i"
         >
             <div class="option-title">{{ category.name }}</div>
-            <div class="row" v-for="(label, i) in category.labels">
+            <div class="row" v-for="(label, i) in category.labels" :key="label.name">
                 <div
                     class="btn"
                     :class="{ active: selectedLabel === label.name }"
                     @click="toogleLabel(label.name)"
-                    :key="label.name"
                 >
                     {{label.name}}
                 </div>
@@ -36,7 +35,8 @@
                         type="color"
                         v-on:change.prevent="changeLabelColor(i, $event)"
                         :value="rgbToHex(label.color[0], label.color[1], label.color[2])"
-                        :style="{backgroundColor: `rgb(${label.color[0]},${label.color[1]},${label.color[2]})`}"
+                        :style="{ backgroundColor:
+                            `rgb(${label.color[0]},${label.color[1]},${label.color[2]})`}"
                     />
                 </div>
             </div>
@@ -73,7 +73,12 @@
 
         <div class="row">
             <input type="text" v-model="label" @focus="handleFocus" @blur="handleBlur"/>
-            <div v-if="showLabelOptions" class="dropdown" @mouseenter="mouseOver = true" @mouseleave="mouseOver = false">
+            <div
+                v-if="showLabelOptions"
+                class="dropdown"
+                @mouseenter="mouseOver = true"
+                @mouseleave="mouseOver = false"
+            >
                 <div
                     class="item"
                     v-for="label in labelsFiltered"
@@ -167,7 +172,9 @@ export default {
             console.log(this.label);
 
             // check if label is in list of labels allready?
-            if (!this.labels[this.selectedCategory].labels.some(e => e.name === this.label)) this.labels[this.selectedCategory].labels.push({ name: this.label, show: true });
+            if (!this.labels[this.selectedCategory].labels.some(e => e.name === this.label)) {
+                this.labels[this.selectedCategory].labels.push({ name: this.label, show: true });
+            }
 
             // ad label to nodes after checking that is npot allready used at node
             this.selectedNodes.forEach((node) => {
@@ -180,11 +187,11 @@ export default {
             this.showLabelOptions = false;
             this.getStore().triggerDraw();
         },
-        handleFocus(e) {
+        handleFocus() {
             console.log('input focus');
             this.showLabelOptions = true;
         },
-        handleBlur(e) {
+        handleBlur() {
             console.log('input blur');
             if (!this.mouseOver) this.showLabelOptions = false;
         },
@@ -226,6 +233,7 @@ export default {
             this.labels[this.selectedCategory].labels[i].color[2] = hexToB(e.target.value);
             this.store.triggerDraw();
         },
+        /*
         toogleShowCategory(i) {
             this.labels[i].show = !this.labels[i].show;
             this.labels[i].labels.forEach(label => (label.show = this.labels[i].show));
@@ -237,6 +245,7 @@ export default {
             this.store.selectedCategory = this.selectedCategory;
             this.store.triggerDraw();
         },
+        */
 
         toogleLabel(label) {
             if (this.selectedLabel === label) this.selectedLabel = null;

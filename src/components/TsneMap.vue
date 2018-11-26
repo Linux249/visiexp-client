@@ -251,7 +251,8 @@
                             :class="{activeColor: selectedGradient === i}"
                             v-for="(color, i) in gradient"
                             :key="i"
-                            v-bind:style="{ backgroundColor: `rgb(${color[0]},${color[1]},${color[2]})`}"
+                            v-bind:style="{ backgroundColor:
+                                 `rgb(${color[0]},${color[1]},${color[2]})`}"
                             @click="changeGradientColor(i)"
                         >
                             {{i}}
@@ -310,7 +311,11 @@
 
 
                 <div class="info-box"  v-if="activeNode">
-                    <img class="active-img" v-if="activeNode.hasImage" :src="activeNode.image.src" />
+                    <img
+                        class="active-img"
+                        v-if="activeNode.hasImage"
+                        :src="activeNode.image.src"
+                    />
                     <div>Name: {{activeNode.name}}</div>
                     <div>Label: {{activeNode.label}}</div>
                     <div>Labels: {{activeNode.labels}}</div>
@@ -504,10 +509,12 @@ export default {
         },
 
         changeClusterRadius(v) {
-            this.clusterRadius = this.store.clusterRadius += v; // update ui
+            this.store.clusterRadius += v; // update ui
+            this.clusterRadius = this.store.clusterRadius;
         },
         changeClusterTile(v) {
-            this.clusterTile = this.store.clusterTile += v; // update ui
+            this.store.clusterTile += v; // update ui
+            this.clusterTile = this.store.clusterTile;
         },
 
         sortNodes() {
@@ -517,7 +524,7 @@ export default {
 
         drawHeatmap() {
             console.time('drawHeatmap');
-            const heatmap = this.heatmap;
+            const { heatmap } = this;
 
             // data in form of [[x,y,v], [x,y,v], ...]
             const data = Object.values(this.store.getNodes()).map((node) => {
@@ -539,7 +546,7 @@ export default {
 
         drawNavHeatmap() {
             console.time('drawNavHeatmap');
-            const navHeatmap = this.navHeatmap;
+            const { navHeatmap } = this;
             const w = this.navHeatmapRect.width;
             const h = this.navHeatmapRect.height;
 
@@ -749,7 +756,8 @@ export default {
         },
 
         changeRepresentImgSize(v) {
-            this.representImgSize = this.store.representImgSize += v;
+            this.store.representImgSize += v;
+            this.representImgSize = this.store.representImgSize;
             this.store.triggerDraw();
         },
 
@@ -922,7 +930,7 @@ export default {
         );
         const canvas = document.getElementById('canvas');
         const parantWidth = canvas.parentNode.clientWidth; //* 0.8;
-        const parantHeight = canvas.parentNode.clientHeight; // 700; // canvas.parentNode.clientHeight //* 0.8
+        const parantHeight = canvas.parentNode.clientHeight; // 700; //
         canvas.width = parantWidth;
         canvas.height = parantHeight;
 

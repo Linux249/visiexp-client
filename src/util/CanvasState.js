@@ -1,5 +1,5 @@
 import supercluster from 'supercluster';
-import pointer from '../icons/Pointer.svg';
+// import pointer from '../icons/Pointer.svg';
 // import { SVM, LABELS, NEIGHBOURS } from './modes';
 
 export default class CanvasState {
@@ -224,7 +224,8 @@ export default class CanvasState {
 
     set draggNode(value) {
         this._draggNode = value;
-        this.canvas.style.cursor = value ? 'grabbing' : this.nodeOnMouseDown ? 'grab' : 'default';
+        // this.canvas.style.cursor = value ?
+        // 'grabbing' : this.nodeOnMouseDown ? 'grab' : 'default';
     }
 
     get draggNode() {
@@ -386,11 +387,13 @@ export default class CanvasState {
                 const geclustert = superClusterIndex.getLeaves(e.id);
                 console.log(geclustert);
                 geclustert.forEach((c, i) => {
-                    console.log(`${c.properties.index} ${notClusterd.includes(c.properties.index)}`);
+                    console.log(`${c.properties.index}
+                    ${notClusterd.includes(c.properties.index)}`);
                 });
                 // test tile: tile never get results...
                 /!* console.log("TILE")
-                const tile = superClusterIndex.getTile(zoomStage, e.geometry.coordinates[0], e.geometry.coordinates[1])
+                const tile = superClusterIndex.getTile(
+                zoomStage, e.geometry.coordinates[0], e.geometry.coordinates[1])
                 console.log(tile) *!/
                 // find represent: test if fist value suits
             }
@@ -492,7 +495,7 @@ export default class CanvasState {
 
     addLabeledToGroup(label) {
         Object.values(this.nodes).forEach(
-            node => (node.labels.includes(label) ? (node.group = true) : null),
+            node => node.labels.includes(label) && (node.group = true),
         );
         this.triggerDraw();
     }
@@ -763,7 +766,8 @@ export default class CanvasState {
     }
 */
 
-    /* drawHitmap() {
+    /*
+    drawHitmap() {
         const startTime = window.performance.now();
 
         const canvasW = this.width;
@@ -787,7 +791,8 @@ export default class CanvasState {
         nodes.forEach((node) => {
             // start x,y ist x *scale + translateX
 
-            let imgSize = rankSize ? zoomStage + Math.floor(node.rank * this.sizeRange) : zoomStage;
+            let imgSize = rankSize ? zoomStage + Math.floor(node.rank * this.sizeRange)
+            : zoomStage;
             imgSize += this.imgSize; // add imgSize from user input
             if (imgSize < 0) imgSize = 0;
             if (imgSize > 14) imgSize = 14;
@@ -799,7 +804,8 @@ export default class CanvasState {
             const imgH = img.height;
             const nodeX = Math.floor(node.x * scale + tx - imgW / 2);
             const nodeY = Math.floor(node.y * scale + ty - imgH / 2);
-            const inside = nodeX > 0 && nodeY > 0 && nodeX < canvasW - imgW && nodeY < canvasH - imgH;
+            const inside = nodeX > 0 && nodeY > 0 &&
+            nodeX < canvasW - imgW && nodeY < canvasH - imgH;
 
             // check if the image is allowed to draw in certain rules
             let show = true;
@@ -1431,14 +1437,16 @@ export default class CanvasState {
                     this.groupNeighbours[nodeUnderMouse.index] = undefined;
                 }
             }
-            /* switch (this.ui.$route.name) {
+            /*
+            switch (this.ui.$route.name) {
             case SVM:
                 break;
             case NEIGHBOURS:
                 // nodeUnderMouse.label2 = !nodeUnderMouse.label2 ? 'test' : null;
                 break;
             case LABELS:
-                /!* if (this.selection && this.selection !== this.nodeUnderMouse && ctrlKeyPressed) {
+                /!* if (this.selection && this.selection
+                !== this.nodeUnderMouse && ctrlKeyPressed) {
                         console.log('Add or remove link');
                         const links = Object.keys(this.selection.links);
                         const i = this.nodeUnderMouse.index;
