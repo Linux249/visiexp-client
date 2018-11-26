@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import RangeSlider from './RangeSlider';
+import RangeSlider from '../components/RangeSlider';
 
 export default {
     name: 'Labels',

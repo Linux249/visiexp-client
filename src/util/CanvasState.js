@@ -1,5 +1,5 @@
 import supercluster from 'supercluster';
-import { SVM, LABELS, NEIGHBOURS } from './modes';
+// import { SVM, LABELS, NEIGHBOURS } from './modes';
 
 export default class CanvasState {
     constructor(canvas, hitCanvas, socket, ui) {

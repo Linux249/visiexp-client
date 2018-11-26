@@ -3,11 +3,12 @@ import Router from 'vue-router';
 import Welcome from '@/components/Welcome';
 import Svm from '@/components/Svm';
 import Classifier from '../components/Classifier';
-import Dataset from '../components/Dataset';
-import Neighbours from '../components/Neighbours';
-import Labels from '../components/Labels';
+// import Dataset from '../components/Dataset';
+// import Neighbours from '../components/Neighbours';
+// import Labels from '../components/Labels';
 import {
-    SVM, CLASSIFIER, NEIGHBOURS, DATASET, LABELS,
+    SVM, CLASSIFIER,
+    // NEIGHBOURS, DATASET, LABELS,
 } from '../util/modes';
 
 Vue.use(Router);
@@ -31,20 +32,20 @@ export default new Router({
             component: Svm,
             props: true,
         },
-        {
-            path: `/${NEIGHBOURS}`,
-            name: NEIGHBOURS,
-            component: Neighbours,
-        },
-        {
-            path: `/${DATASET}`,
-            name: DATASET,
-            component: Dataset,
-        },
-        {
-            path: `/${LABELS}`,
-            name: LABELS,
-            component: Labels,
-        },
+        // {
+        //     path: `/${NEIGHBOURS}`,
+        //     name: NEIGHBOURS,
+        //     component: Neighbours,
+        // },
+        // {
+        //     path: `/${DATASET}`,
+        //     name: DATASET,
+        //     component: Dataset,
+        // },
+        // {
+        //     path: `/${LABELS}`,
+        //     name: LABELS,
+        //     component: Labels,
+        // },
     ],
 });
