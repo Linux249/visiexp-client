@@ -4,12 +4,17 @@
         <div v-if="this.savedGroups.length"
              class="group-list">
 
-            <div class="group-item row-between area"
+            <div class="group-item row-between btn"
                  v-for="(group, i) in savedGroups"
                  :key="i"
-                 @click="loadGroup(i)"
             >
-                <div class="btn" :class="{active: group.groupId === activeGroupe}">{{`${group.name } (${group.ids.length})`}}</div>
+                <div
+                    class="btn"
+                    :class="{active: group.groupId === activeGroup}"
+                    @click="loadGroup(i)"
+                >
+                    {{`${group.name }`}}
+                </div>
                 <router-link class="btn" :to="{ name: 'labels', query: { groupId: group.groupId }}">get N.</router-link>
                 <div class="btn" @click="deleteGroup(i)"><trash></trash></div>
             </div>
@@ -27,7 +32,7 @@ import Trash from '../icons/Trash';
 
 export default {
     name: 'Groups',
-    props: ['groupNodesByGroupId', 'getGroupeIds', 'activeGroupe', 'selectGroupe'],
+    props: ['activeGroup', 'selectGroup', 'getStore'],
     components: {
         Trash,
     },
@@ -42,24 +47,25 @@ export default {
 
             // get the name
             const name = this.groupName || `Group ${groupId}`;
-            // get the ids of the grouped nodes
-            const ids = this.getGroupeIds();
+            // get the ids of the groupd nodes
 
             this.savedGroups.push({
                 groupId,
-                ids,
                 name,
             });
+            this.getStore().saveGroup(groupId);
             console.log('saved groups');
             console.log(this.savedGroups);
         },
         loadGroup(i) {
-            const { groupId } = this.savedGroups[i] || [];
-            this.groupNodesByGroupId(groupId);
-            this.selectGroupe(i + 1);
+            const { groupId } = this.savedGroups[i];
+            this.getStore().loadGroupByGroupId(groupId);
+            this.selectGroup(groupId);
         },
         deleteGroup(i) {
+            const { groupId } = this.savedGroups[i];
             this.savedGroups.splice(i, 1);
+            this.getStore().deleteGroup(groupId);
         },
     },
 };

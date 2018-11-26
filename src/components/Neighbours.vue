@@ -33,7 +33,7 @@ export default {
                 this.loading = true;
                 const store = this.getStore();
                 const body = {
-                    group: store.getGroupeIds(),
+                    group: store.getGroupIds(),
                     threshold: this.groupNeighboursThreshold,
                 };
                 const { groupNeighbours, removedGroupNeighbours } = store;

@@ -428,14 +428,25 @@ export default class CanvasState {
         Object.values(this.nodes).forEach((node) => {
             if (node.group) {
                 node.group = false;
-                node.groupId = 0;
             }
         });
         this.triggerDraw();
     }
 
-    groupNodesByGroupId(groupId) {
-        Object.values(this.nodes).forEach(node => (node.group = node.groupId === groupId));
+    deleteGroup(groupId) {
+        Object.values(this.nodes).forEach((node) => {
+            if (node.groupId === groupId) {
+                node.group = false;
+                node.groupId = null;
+            }
+        });
+        this.triggerDraw();
+    }
+
+    loadGroupByGroupId(groupId) {
+        Object.values(this.nodes).forEach((node) => {
+            node.group = node.groupId === groupId ? groupId : null;
+        });
         this.triggerDraw();
     }
 
@@ -447,10 +458,16 @@ export default class CanvasState {
     }
 
     // return the id's of all nodes with group flag
-    getGroupeIds() {
+    getGroupIds() {
         const ids = [];
         Object.values(this.nodes).forEach(node => (node.group ? ids.push(node.index) : null));
         return ids;
+    }
+
+    saveGroup(groupId) {
+        Object.keys(this.nodes).forEach(
+            i => (this.nodes[i].group ? (this.nodes[i].groupId = groupId) : null),
+        );
     }
 
     moveGroupToPosition(x, y) {
@@ -527,7 +544,6 @@ export default class CanvasState {
     }
 
     /* range(minX, minY, maxX, maxY) {
-        // TODO min x, max should be automatic
         const result = range(
             this.kdtree.ids,
             this.kdtree.coords,
@@ -749,7 +765,7 @@ export default class CanvasState {
                 }
             });
 
-            // 2. if neighbours mode:  check if node is not grouped
+            // 2. if neighbours mode:  check if node is not groupd
             if (neighbourMode && !node.group) {
                 // the node should not be in the neighbours list
                 const neighbour = this.groupNeighbours[node.index];
@@ -880,7 +896,7 @@ export default class CanvasState {
                 }
             });
 
-            // 2. if neighbours mode:  check if node is not grouped
+            // 2. if neighbours mode:  check if node is not groupd
             if (neighbourMode && !node.group) {
                 // the node should not be in the neighbours list
                 const neighbour = this.groupNeighbours[node.index];
@@ -1358,7 +1374,7 @@ export default class CanvasState {
                     nodeUnderMouse.groupId = 0;
                 } else {
                     nodeUnderMouse.group = true;
-                    nodeUnderMouse.groupId = this.ui.activeGroupe;
+                    nodeUnderMouse.groupId = this.ui.activeGroup;
                 }
             }
             // used for components for adding nodes to special cases
@@ -1416,7 +1432,7 @@ export default class CanvasState {
                     if ((node.y < startY && node.y > endY) || (node.y > startY && node.y < endY)) {
                         this.ui.cuttedNodes.push(node);
                         node.group = true;
-                        node.grouId = this.ui.activeGroupe;
+                        node.groupId = this.ui.activeGroup;
                     }
                 }
             });

@@ -283,9 +283,9 @@
                 </div>
 
                 <groups v-if="this.showGroups"
-                    :getGroupeIds="getGroupeIds"
-                    :selectGroupe="selectGroupe"
-                    :activeGroupe="activeGroupe"
+                    :selectGroup="selectGroup"
+                    :activeGroup="activeGroup"
+                    :getStore="getStore"
                 />
 
                 <router-view
@@ -294,9 +294,7 @@
                     :node="clickedNode"
                     :getNode="getNode"
                     :changeActiveNode="changeActiveNode"
-                    :groupNodesByGroupId="groupNodesByGroupId"
 
-                    :getGroupeIds="getGroupeIds"
                     :getStore="getStore"
                     :dataset="dataset"
                     :handleChangeDataset="handleChangeDataset"
@@ -448,7 +446,7 @@ export default {
         socketId: '',
         dataset: '001', // defualt value is 001
         groupNeighboursThreshold: 0.2,
-        activeGroupe: 0,
+        activeGroup: 0,
         representWithAlpha: false,
     }),
     methods: {
@@ -474,17 +472,19 @@ export default {
             return null;
         },
 
+        /*
         groupNodesByGroupId(id) {
             this.store.groupNodesByGroupId(id);
         },
-        getGroupeIds(ids) {
-            return this.store.getGroupeIds(ids);
+        getGroupIds(ids) {
+            return this.store.getGroupIds(ids);
         },
+        */
         clearGroup() {
             this.store.clearGroup();
         },
-        selectGroupe(id) {
-            this.activeGroupe = this.activeGroupe === id ? 0 : id;
+        selectGroup(id) {
+            this.activeGroup = this.activeGroup === id ? null : id;
         },
 
         changeNeighboursThreshold({ target }) {

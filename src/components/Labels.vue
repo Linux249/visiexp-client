@@ -82,7 +82,7 @@ export default {
                 this.loading = true;
                 const store = this.getStore();
                 const body = {
-                    group: store.getGroupeIds(),
+                    group: store.getGroupIds(),
                     threshold: this.groupNeighboursThreshold,
                 };
                 const { groupNeighbours, removedGroupNeighbours } = store;
@@ -107,7 +107,8 @@ export default {
                     });
                 const { neighbours, group } = data;
                 store.updateGroupNeighbours(neighbours);
-                store.groupNodesByIds(group);
+                // TODO GROUP update groups
+                // store.groupNodesByIds(group);
                 console.log({ neighbours, group });
                 this.loading = false;
             } catch (e) {

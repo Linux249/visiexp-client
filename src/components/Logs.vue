@@ -30,9 +30,7 @@ export default {
         drawData: [],
         hitMapData: [],
     }),
-    computed: {
-
-    },
+    computed: {},
     methods: {
         calcChartData() {
             const store = this.getStore();

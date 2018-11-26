@@ -6,22 +6,22 @@ export default class Node {
         this.index = data.index;
         this.x = data.x;
         this.y = data.y;
-        //this.width = 1; // 40;
-        //this.height = 1; // 40;
+        // this.width = 1; // 40;
+        // this.height = 1; // 40;
         this.colorKey = data.colorKey;
-        //this.color = data.color;
-        //his.ctx = ctx;
-        //this.hitCtx = hitCtx;
+        // this.color = data.color;
+        // his.ctx = ctx;
+        // this.hitCtx = hitCtx;
 
         this.group = false;
-        this.groupId = 0;
+        this.groupId = null;
         this.clique = data.clique;
         this.cliqueLen = data.clique.length;
 
         this.cluster = data.cluster;
         this.isClusterd = true;
-        //this.positives = data.positives;
-        //this.negatives = data.negatives;
+        // this.positives = data.positives;
+        // this.negatives = data.negatives;
 
         // this.label = data.label;
         // this.label2 = data.label2 // || null;
@@ -80,16 +80,16 @@ export default class Node {
             console.log(data);
         }
 
-        //this._isActive = false; // handle clicked node
-        //this.isActiveNeighbour = false; // is this a neighbour of a active node?
+        // this._isActive = false; // handle clicked node
+        // this.isActiveNeighbour = false; // is this a neighbour of a active node?
 
         // this.image.src = `data:image/jpeg;base64,${data.buffer}`;
 
-        //this.imgScale = null; // used for scaling img width
+        // this.imgScale = null; // used for scaling img width
         //
         // this.timerId = 0;
 
-        //this._value = null; // value will be set by the active nodes neighbour-values, default is 5
+        // this._value = null; // value will be set by the active nodes neighbour-values, default is 5
 
         // this.imgData = makeImgageData(this.icon)
     }
