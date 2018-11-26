@@ -7,7 +7,8 @@ import Classifier from '../components/Classifier';
 // import Neighbours from '../components/Neighbours';
 // import Labels from '../components/Labels';
 import {
-    SVM, CLASSIFIER,
+    SVM,
+    CLASSIFIER,
     // NEIGHBOURS, DATASET, LABELS,
 } from '../util/modes';
 

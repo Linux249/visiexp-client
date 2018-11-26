@@ -1,6 +1,9 @@
 <template>
     <div class="area">
-        <div class="btn" @click="calcChartData">calc</div>
+        <div class="row">
+            <div class="btn" @click="calcChartData">start</div>
+            <div class="btn" @click="resetChartData">reset</div>
+        </div>
         <trend
             :data="drawData"
             :gradient="['#6fa8dc', '#42b983', '#2c3e50']"
@@ -38,6 +41,15 @@ export default {
             // this.maxDrawTime = store.maxDrawTime;
             this.hitMapData = store.perfLogs.hitmap;
             // this.maxHitMapTime = store.maxHitMapTime;
+        },
+        resetChartData() {
+            console.log('reset');
+            const store = this.getStore();
+            store.perfLogs.draw = [];
+            store.maxDrawTime = 0;
+            store.perfLogs.hitmap = [];
+            store.maxHitMapTime = 0;
+            this.calcChartData();
         },
         maxDrawTime() {
             const store = this.getStore();
