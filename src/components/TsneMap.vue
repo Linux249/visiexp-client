@@ -283,9 +283,11 @@
                 </div>
 
                 <groups v-if="this.showGroups"
-                    :selectGroup="selectGroup"
+                    :setActiveGroup="setActiveGroup"
                     :activeGroup="activeGroup"
                     :getStore="getStore"
+                    :toggleNeighbourMode="toggleNeighbourMode"
+                    :neighbourMode="neighbourMode"
                 />
 
                 <router-view
@@ -483,8 +485,9 @@ export default {
         clearGroup() {
             this.store.clearGroup();
         },
-        selectGroup(id) {
-            this.activeGroup = this.activeGroup === id ? null : id;
+
+        setActiveGroup(id) {
+            this.activeGroup = id;
         },
 
         changeNeighboursThreshold({ target }) {
@@ -613,8 +616,8 @@ export default {
 
         toggleNeighbourMode() {
             this.neighbourMode = !this.neighbourMode;
-            this.store.createSuperCluster();
-            // this.store.triggerDraw();
+            // this.store.createSuperCluster();
+            this.store.triggerDraw();
         },
 
         changeImgSize(v) {

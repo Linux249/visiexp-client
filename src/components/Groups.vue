@@ -11,11 +11,17 @@
                 <div
                     class="btn"
                     :class="{active: group.groupId === activeGroup}"
-                    @click="loadGroup(i)"
+                    @click="selectGroup(i)"
                 >
                     {{`${group.name }`}}
                 </div>
-                <router-link class="btn" :to="{ name: 'labels', query: { groupId: group.groupId }}">get N.</router-link>
+                <div
+                    class="btn"
+                    :class="{active: neighbourMode && group.groupId === activeGroup}"
+                    @click="handleNeighbourMode(i)"
+                >
+                    neighbours
+                </div>
                 <div class="btn" @click="deleteGroup(i)"><trash></trash></div>
             </div>
         </div>
@@ -32,7 +38,7 @@ import Trash from '../icons/Trash';
 
 export default {
     name: 'Groups',
-    props: ['activeGroup', 'selectGroup', 'getStore'],
+    props: ['activeGroup', 'setActiveGroup', 'getStore', 'toggleNeighbourMode', 'neighbourMode'],
     components: {
         Trash,
     },
@@ -54,18 +60,37 @@ export default {
                 name,
             });
             this.getStore().saveGroup(groupId);
-            console.log('saved groups');
-            console.log(this.savedGroups);
+            // console.log('saved groups');
+            // console.log(this.savedGroups);
         },
-        loadGroup(i) {
+
+        selectGroup(i) {
             const { groupId } = this.savedGroups[i];
-            this.getStore().loadGroupByGroupId(groupId);
-            this.selectGroup(groupId);
+            if (groupId === this.activeGroup) {
+                console.log('unselect');
+                this.setActiveGroup(null);
+                this.getStore().clearGroup();
+            } else {
+                console.log('select');
+                this.getStore().loadGroupByGroupId(groupId);
+                this.setActiveGroup(groupId);
+            }
         },
+
         deleteGroup(i) {
             const { groupId } = this.savedGroups[i];
             this.savedGroups.splice(i, 1);
             this.getStore().deleteGroup(groupId);
+        },
+
+        handleNeighbourMode(i) {
+            // set groupt to active if not allready set
+            const { groupId } = this.savedGroups[i];
+            if (groupId !== this.activeGroup) this.selectGroup(i);
+
+            // switch to neighbourmode
+            this.toggleNeighbourMode();
+            this.setActiveGroup(groupId);
         },
     },
 };
