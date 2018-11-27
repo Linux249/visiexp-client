@@ -1019,6 +1019,7 @@ export default class CanvasState {
                 }
             }
 
+            // Todo get variables via this.ui
             const labelBorder = this.selectedCategory
                 && this.selectedLabel
                 && this.selectedLabel === node.labels[this.selectedCategory];
