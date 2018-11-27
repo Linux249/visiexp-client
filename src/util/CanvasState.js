@@ -627,6 +627,17 @@ export default class CanvasState {
         this.triggerDraw();
     }
 
+    sortNodesReps(mode) {
+        console.log('sortNodesReps');
+        /*
+            nodes have prop isClustered showing with false => rep
+         */
+        const repsBefore = mode === 1 ? -1 : 1; // isClustered === false first
+        return Object.values(this.nodes).sort(
+            (x, y) => (x.isClusterd === y.isClusterd ? 0 : x.isClusterd ? repsBefore : repsBefore * -1),
+        );
+    }
+
     changeScaleUp() {
         this.scaleFaktor += 1;
         this.scale += 20 * this.scaleFaktor;
@@ -901,14 +912,17 @@ export default class CanvasState {
             oldClusterMode,
             neighbourMode,
             representWithAlpha,
+            repsMode,
         } = this.ui;
         const borderW = 1;
-        const nodes = this.sorted ? this.sortedNodes : Object.values(this.nodes);
-
-        // check if it is NEIGHBOUR mode
-        // const neighbourMode = this.ui.$route.name === LABELS;
 
         if (clusterMode) this.updateClustering();
+
+        const nodes = this.sorted
+            ? this.sortedNodes
+            : clusterMode && repsMode
+                ? this.sortNodesReps(repsMode)
+                : Object.values(this.nodes);
 
         nodes.forEach((node) => {
             let imgSize = sizeRankedMode

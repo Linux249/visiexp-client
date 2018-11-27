@@ -164,21 +164,30 @@
                         </div>
                     </div>
                     <div class="row-btn">
-                        <div>Represent: alpha</div>
-                            <div
-
-                                @click="toggleRepresentWithAlpha"
-                                class="btn"
-                                :class="{active: representWithAlpha}"
-                            >
-                                {{representWithAlpha ? "On" : "Off"}}
-                            </div>
-                    </div>
-                    <div class="row-btn">
                         <div>Represent: size: {{representImgSize}}</div>
                         <div class="row">
                             <div @click="changeRepresentImgSize(-1)" class="btn">-1</div>
                             <div @click="changeRepresentImgSize(1)" class="btn">+1</div>
+                        </div>
+                    </div>
+                    <div class="row-btn">
+                        <div>Represent: alpha</div>
+                        <div
+                            @click="toggleRepresentWithAlpha"
+                            class="btn"
+                            :class="{active: representWithAlpha}"
+                        >
+                            {{representWithAlpha ? "On" : "Off"}}
+                        </div>
+                    </div>
+                    <div class="row-btn">
+                        <div>Represent: sort</div>
+                        <div
+                            @click="toogleRepsMode"
+                            class="btn"
+                            :class="{active: repsMode}"
+                        >
+                            {{repsMode === 0 ? "normal" : repsMode === 1 ? 'before' : 'behind'}}
                         </div>
                     </div>
 
@@ -414,6 +423,7 @@ export default {
         clusterMode: false,
         oldClusterMode: false,
         neighbourMode: false,
+        repsMode: 0,
         gradient: [
             [50, 250, 0], // 9
             [100, 250, 0], // 8
@@ -695,6 +705,11 @@ export default {
 
         toggleRepresentWithAlpha() {
             this.representWithAlpha = !this.representWithAlpha;
+            this.store.triggerDraw();
+        },
+
+        toogleRepsMode() {
+            this.repsMode = (this.repsMode + 1) % 3;
             this.store.triggerDraw();
         },
 

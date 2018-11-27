@@ -51,3 +51,5 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
     ]
   }
 ``` 
+
+- check alpha mit many/less n: Based on "layers" and zoomstage
