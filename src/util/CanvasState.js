@@ -1381,13 +1381,13 @@ export default class CanvasState {
                     // drag only one node
                     this.draggNode.x += nodeX;
                     this.draggNode.y += nodeY;
-                    /* if (this.ui.clusterMode) {
+                     if (this.ui.clusterMode) {
                         console.time('nodesInRange');
                         const tree = this.supercluster.trees[this.supercluster.trees.length - 1];
-                        const nodes = tree.within(this.draggNode.x, this.draggNode.y, 10);
+                        const nodes = tree.within(lngX(this.draggNode.x), latY(this.draggNode.y, 10));
                         console.warn(nodes)
                         console.timeEnd('nodesInRange');
-                    } */
+                    }
                 }
             }
             return this.triggerDraw();
@@ -1512,4 +1512,23 @@ export default class CanvasState {
         }
         // this.triggerDraw();
     }
+}
+
+
+function xLng(x) {
+    return (x - 0.5) * 360;
+}
+
+function yLat(y) {
+    const y2 = (180 - y * 360) * Math.PI / 180;
+    return 360 * Math.atan(Math.exp(y2)) / Math.PI - 90;
+}
+
+function lngX(lng) {
+    return lng / 360 + 0.5;
+}
+function latY(lat) {
+    const sin = Math.sin(lat * Math.PI / 180);
+    const y = (0.5 - 0.25 * Math.log((1 + sin) / (1 - sin)) / Math.PI);
+    return y < 0 ? 0 : y > 1 ? 1 : y;
 }
