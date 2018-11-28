@@ -200,7 +200,7 @@
                         </div>
                     </div>
                     <div class="row-btn">
-                        <div>zoomStage: {{scale}}</div>
+                        <div>Scale: {{scale}}</div>
                         <div class="row">
                             <div @click="changeScaleDown()" class="btn">-</div>
                             <div @click="changeScaleUp()" class="btn">+</div>
@@ -653,7 +653,7 @@ export default {
         },
         changeZoomStage(v) {
             this.store.zoomStage += v;
-            this.zoomStage = this.store.zoomStage;
+            // this.zoomStage = this.store.zoomStage;
             this.store.triggerDraw();
         },
 
@@ -976,7 +976,7 @@ export default {
         const navHeatmapCanvas = document.getElementById('navHeatmap');
         navHeatmapCanvas.width = parantWidth / 4;
         navHeatmapCanvas.height = parantHeight / 4;
-        this.navHeatmap = simpleheat(navHeatmapCanvas);
+        this.navHeatmap = simpleheat(navHeatmapCanvas); // todo why is it grey/unused?
 
         const navHeatmapRect = document.getElementById('navHeatmapRect');
         navHeatmapRect.width = parantWidth / 4;
@@ -1000,6 +1000,7 @@ export default {
         this.representImgSize = s.representImgSize;
         this.zoomStage = s.zoomStage;
         this.sizeRange = s.sizeRange;
+        this.scale = s.scale;
         // this.borderWidth = s.borderWidth;
         // this.scrollGrowth = s.scrollGrowth;
         // this.scrollImgGrowth = s.scrollImgGrowth;

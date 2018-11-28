@@ -641,11 +641,13 @@ export default class CanvasState {
     changeScaleUp() {
         this.scaleFaktor += 1;
         this.scale += 20 * this.scaleFaktor;
+        this.ui.scale = this.scale; // update ui (options)
     }
 
     changeScaleDown() {
-        this.zoomStage -= 1;
+        this.scale -= 20 * this.scaleFaktor;
         this.scaleFaktor -= 1;
+        this.ui.scale = this.scale; // update ui (options)
     }
 
     // TODO test automatic draw effects like animation, zoom
@@ -1280,7 +1282,7 @@ export default class CanvasState {
             console.log('zoom out');
             // this.scale2 -= 1;
             // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
-            this.scale -= 20 * this.scaleFaktor;
+            this.zoomStage -= 1;
             this.changeScaleDown();
             this.cluster /= this.clusterGrowth;
         }
