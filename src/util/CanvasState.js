@@ -64,6 +64,7 @@ export default class CanvasState {
 
         this.imgSize = 0; // for adding higher img size as standart
         this.representImgSize = 5;
+        this.neighbourImgSize = 7;
 
         // this._borderWidth = 5;
         // this._scrollGrowth = 100; // vorher 20
@@ -933,8 +934,15 @@ export default class CanvasState {
             imgSize += this.imgSize; // add imgSize from user input
             const isRepresent = (clusterMode && !node.isClusterd)
                 || (oldClusterMode && node.cluster < this.cluster);
-            if (isRepresent) imgSize += representImgSize;
-            // TODO min, max size should be be configurable via class props
+
+            if (neighbourMode && !node.group) {
+                // the node should not be in the neighbours list
+                const neighbour = this.groupNeighbours[node.index];
+                if (neighbour && neighbour <= this.ui.neighboursThreshold) {
+                    imgSize += this.neighbourImgSize;
+                } else return;
+            } else if (isRepresent) imgSize += representImgSize;
+
             if (imgSize < 0) imgSize = 0;
             if (imgSize > 14) imgSize = 14;
 
@@ -967,11 +975,7 @@ export default class CanvasState {
             });
 
             // 2. if neighbours mode:  check if node is not groupd
-            if (neighbourMode && !node.group) {
-                // the node should not be in the neighbours list
-                const neighbour = this.groupNeighbours[node.index];
-                if (!neighbour || neighbour > this.ui.neighboursThreshold) show = false;
-            }
+
 
             // cluster
             // if (node.cluster < this.cluster) {
@@ -1118,20 +1122,29 @@ export default class CanvasState {
                 ? zoomStage + Math.floor(node.rank * this.sizeRange)
                 : zoomStage;
             imgSize += this.imgSize;
+            const isRepresent = (clusterMode && !node.isClusterd)
+                || (oldClusterMode && node.cluster < this.cluster);
+
+            if (neighbourMode && !node.group) {
+                // the node should not be in the neighbours list
+                const neighbour = this.groupNeighbours[node.index];
+                if (neighbour && neighbour <= this.ui.neighboursThreshold) {
+                    imgSize += this.neighbourImgSize;
+                } else return;
+            } else if (isRepresent) imgSize += representImgSize;
+
             if (imgSize < 0) imgSize = 0;
             if (imgSize > 14) imgSize = 14;
-            if (
-                (clusterMode && !node.isClusterd)
-                || (oldClusterMode && node.cluster < this.cluster)
-            ) imgSize += representImgSize;
 
             const img = node.imageData[imgSize];
             if (!img) return console.error(`no image for node: ${node.id}exists`);
+
             const iw = img.width;
             const ih = img.height;
 
             const nodeX = Math.floor(node.x * scale + tx - iw / 2);
             const nodeY = Math.floor(node.y * scale + ty - ih / 2);
+
             const inside = nodeX > borderW
                 && nodeY > borderW
                 && nodeX < canvasW - iw - borderW

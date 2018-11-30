@@ -190,6 +190,13 @@
                             {{repsMode === 0 ? "normal" : repsMode === 1 ? 'before' : 'behind'}}
                         </div>
                     </div>
+                    <div class="row-btn">
+                        <div>Neighbours: size: {{neighbourImgSize}}</div>
+                        <div class="row">
+                            <div @click="changeNeighbourImgSize(-1)" class="btn">-1</div>
+                            <div @click="changeNeighbourImgSize(1)" class="btn">+1</div>
+                        </div>
+                    </div>
 
                     <div class="option-title">Other</div>
                     <div class="row-btn">
@@ -401,6 +408,7 @@ export default {
         clusterTile: 0, // default - set on mount from CanvasStore class
         imgSize: 0, // default - set on mount from CanvasStore class
         representImgSize: 0, // default - set on mount from CanvasStore class
+        neighbourImgSize: 0, // default - set on mount from CanvasStore class
         // borderWidth: 0, // default - set on mount from CanvasStore class
         range: 0,
         cuttedNodes: [], // selected nodes through scissor
@@ -776,6 +784,12 @@ export default {
             this.store.triggerDraw();
         },
 
+        changeNeighbourImgSize(v) {
+            this.store.neighbourImgSize += v;
+            this.neighbourImgSize = this.store.neighbourImgSize;
+            this.store.triggerDraw();
+        },
+
         /* drawNavMap() {
             console.time('drawNavMap');
             const ctx = this.navMap.getContext('2d');
@@ -998,6 +1012,7 @@ export default {
         this.clusterRadius = s.clusterRadius;
         this.clusterTile = s.clusterTile;
         this.representImgSize = s.representImgSize;
+        this.neighbourImgSize = s.neighbourImgSize;
         this.zoomStage = s.zoomStage;
         this.sizeRange = s.sizeRange;
         this.scale = s.scale;
