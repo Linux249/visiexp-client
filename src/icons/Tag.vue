@@ -1,6 +1,5 @@
 <template>
     <svg
-        class="tag-icon"
         xmlns="http://www.w3.org/2000/svg"
         width="20"
         height="20"
@@ -19,18 +18,8 @@
 <script>
 export default {
     name: 'Tag',
-    // props: ['clickHandler', 'active'],
 };
 </script>
 
 <style scoped>
-/*.tag-icon:hover{
-        border: 1px solid transparent;
-    }
-    .tag-icon:hover{
-        border: 1px solid grey;
-    }
-    .tag-icon.active{
-        border: 1px solid grey;
-    }*/
 </style>

@@ -1,6 +1,5 @@
 <template>
     <svg
-        class="hash-icon"
         xmlns="http://www.w3.org/2000/svg"
         width="20"
         height="20"
@@ -21,18 +20,8 @@
 <script>
 export default {
     name: 'Hash',
-    // props: ['clickHandler', 'active'],
 };
 </script>
 
 <style scoped>
-/*.hash-icon{
-        border: 1px solid transparent;
-    }*/
-/*.hash-icon:hover{*/
-/*border: 1px solid grey;*/
-/*}*/
-/*.hash-icon.active{*/
-/*border: 1px solid grey;*/
-/*}*/
 </style>

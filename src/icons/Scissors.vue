@@ -1,6 +1,5 @@
 <template>
     <svg
-        class="scissors-icon"
         xmlns="http://www.w3.org/2000/svg"
         width="20"
         height="20"
@@ -22,18 +21,8 @@
 <script>
 export default {
     name: 'Scissors',
-    // props: ['clickHandler', 'active'],
 };
 </script>
 
 <style scoped>
-/*.scissors-icon{
-        border: 1px solid transparent;
-    }
-    .scissors-icon:hover{
-        border: 1px solid grey;
-    }
-    .scissors-icon.active{
-        border: 1px solid grey;
-    }*/
 </style>

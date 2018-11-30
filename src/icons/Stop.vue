@@ -1,6 +1,5 @@
 <template>
     <svg
-        class="stop-icon"
         xmlns="http://www.w3.org/2000/svg"
         width="20"
         height="20"
@@ -18,18 +17,8 @@
 <script>
 export default {
     name: 'Stop',
-    // props: ['clickHandler', 'active'],
 };
 </script>
 
 <style scoped>
-/*.stop-icon:hover{
-        border: 1px solid transparent;
-    }
-    .stop-icon:hover{
-        border: 1px solid grey;
-    }
-    .stop-icon.active{
-        border: 1px solid grey;
-    }*/
 </style>

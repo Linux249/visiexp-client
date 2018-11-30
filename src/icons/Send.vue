@@ -1,6 +1,5 @@
 <template>
     <svg
-        class="send-icon"
         xmlns="http://www.w3.org/2000/svg"
         width="20"
         height="20"
@@ -19,18 +18,8 @@
 <script>
 export default {
     name: 'Send',
-    // props: ['clickHandler', 'active'],
 };
 </script>
 
 <style scoped>
-/*.send-icon:hover{
-        border: 1px solid grey;
-    }
-    .send-icon:hover{
-        border: 1px solid transparent;
-    }
-    .send-icon.active{
-        border: 1px solid grey;
-    }*/
 </style>

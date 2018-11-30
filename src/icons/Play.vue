@@ -1,6 +1,5 @@
 <template>
     <svg
-        class="play-icon"
         xmlns="http://www.w3.org/2000/svg"
         width="20"
         height="20"
@@ -18,18 +17,8 @@
 <script>
 export default {
     name: 'Play',
-    // props: ['clickHandler', 'active'],
 };
 </script>
 
 <style scoped>
-/*.play-icon{
-        border: 1px solid transparent;
-    }
-    .play-icon:hover{
-        border: 1px solid grey;
-    }
-    .play-icon.active{
-        border: 1px solid grey;
-    }*/
 </style>

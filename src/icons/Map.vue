@@ -1,6 +1,5 @@
 <template>
     <svg
-        class="map-icon"
         xmlns="http://www.w3.org/2000/svg"
         width="20"
         height="20"
@@ -20,18 +19,8 @@
 <script>
 export default {
     name: 'Map',
-    // props: ['clickHandler', 'active'],
 };
 </script>
 
 <style scoped>
-/*.map-icon{
-        border: 1px solid transparent;
-    }*/
-/*.map-icon:hover{*/
-/*border: 1px solid grey;*/
-/*}*/
-/*.map-icon.active{*/
-/*border: 1px solid grey;*/
-/*}*/
 </style>
