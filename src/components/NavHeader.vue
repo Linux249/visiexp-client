@@ -25,7 +25,7 @@ export default {
 .header {
     display: flex;
     justify-content: space-between;
-    /*height: 50px;*/
+    height: 40px;
     box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
 }
 
@@ -40,7 +40,8 @@ a {
 
     display: flex;
     align-items: center;
-    height: 40px;
+
+    height: 35px;
 
     font-weight: bold;
     padding: 0 1em;

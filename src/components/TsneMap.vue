@@ -1,5 +1,5 @@
 <template>
-    <div class="body">
+    <div class="tsne-map">
         <div class="mode-header">
             <div class="row">
                 <div
@@ -80,8 +80,8 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="stack">
+        <div class="row stack">
+            <div class="explorer">
                 <canvas ref="canvas" id="canvas" class="canvas" tabindex="0" ></canvas>
                 <div class="maps">
                     <div class="row">
@@ -556,7 +556,7 @@ export default {
             const { heatmap } = this;
 
             // data in form of [[x,y,v], [x,y,v], ...]
-            const data = Object.values(this.store.getNodes()).map((node) => {
+            const data = Object.values(this.store.getNodes()).map(node => {
                 const x = (node.x * this.store.scale + this.store.translateX) / 4;
                 const y = (node.y * this.store.scale + this.store.translateY) / 4;
                 return [x, y, 1];
@@ -580,7 +580,7 @@ export default {
             const h = this.navHeatmapRect.height;
 
             // data in form of [[x,y,v], [x,y,v], ...]
-            const data = Object.values(this.store.getNodes()).map((node) => {
+            const data = Object.values(this.store.getNodes()).map(node => {
                 const x = node.x * 5 + w / 2;
                 const y = node.y * 5 + h / 2;
                 return [x, y, 1];
@@ -966,7 +966,7 @@ export default {
                 transports: ['websocket'],
                 reconnectionDelay: 100,
                 reconnectionDelayMax: 1000,
-            },
+            }
         );
         const canvas = document.getElementById('canvas');
         const parantWidth = canvas.parentNode.clientWidth; //* 0.8;
@@ -1051,14 +1051,14 @@ export default {
             }
             // s.clear() // maybe there is something inside?
         });
-        socket.on('disconnect', (reason) => {
+        socket.on('disconnect', reason => {
             this.connectedToSocket = false;
             console.log(`disconnect: ${reason}`); // das wirft immer unde
             console.log(socket);
             // s.clear() // maybe there is something inside?
         });
 
-        socket.on('node', (data) => {
+        socket.on('node', data => {
             if (data.index % 100 === 0) {
                 console.log(`receive node ${data.index}`);
                 console.log(data);
@@ -1070,7 +1070,7 @@ export default {
             s.triggerDraw();
         });
 
-        socket.on('receiveImage', (data) => {
+        socket.on('receiveImage', data => {
             // console.log('receive image data');
             // console.log(data);
             const node = s.nodes[data.index];
@@ -1079,7 +1079,7 @@ export default {
             node.hasImage = true;
         });
 
-        socket.on('totalNodesCount', (data) => {
+        socket.on('totalNodesCount', data => {
             console.log('totalNodesCount');
             console.log(data);
             this.nodesTotal = data;
@@ -1098,13 +1098,13 @@ export default {
             this.nodesCount = nodesCount;
         }); */
 
-        socket.on('updateLabels', (data) => {
+        socket.on('updateLabels', data => {
             console.log('updateLabels');
             console.log(data);
             this.labels = data;
         });
 
-        socket.on('updateKdtree', (kdtree) => {
+        socket.on('updateKdtree', kdtree => {
             console.log('updateKdtree');
             console.log(kdtree);
             s.kdtree = kdtree;
@@ -1164,18 +1164,39 @@ export default {
 </script>
 
 <style>
-.stack {
+.tsne-map {
+    height: calc(100% - 40px);
     display: flex;
+    flex-flow: column;
+    /*background-color: rgb(255, 90, 75);*/
+}
+
+.mode-header {
+    display: flex;
+    justify-content: space-between;
+    box-shadow: 0 5px 8px -3px rgba(32, 33, 36, 0.28);
+}
+
+.stack {
+    height: 100%;
+}
+
+.explorer {
     position: relative;
-    height: 700px;
-    width: calc(100% - 25rem);
     margin: 0.5rem;
+    height: calc(100% - 1rem); /* -double margin */
+    width: calc(100% - 25rem); /* -details width */
+}
+
+.details {
+    width: 25rem;
+    margin: 0.5rem;
+    background-color: white;
 }
 
 .canvas {
     background-color: white;
     box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
-    /*margin: 0.5rem;*/
     outline: none;
 }
 
@@ -1220,21 +1241,6 @@ export default {
     height: 2.5rem;
     padding: 5px;
 }*/
-
-.body {
-    /*width: 100%;*/
-    /*height: 100%;*/
-    /*background-color: rgb(255, 90, 75);*/
-    /*//color: black;*/
-    /*padding: 5px;*/
-}
-
-.details {
-    width: 25rem;
-    height: 100%;
-    margin: 0.5rem;
-    background-color: white;
-}
 
 .row-btn {
     display: flex;
@@ -1298,12 +1304,6 @@ export default {
 
 .activeColor {
     border: 1px solid black;
-}
-
-.mode-header {
-    display: flex;
-    justify-content: space-between;
-    box-shadow: 0px 5px 8px -3px rgba(32, 33, 36, 0.28);
 }
 
 .btn-header {

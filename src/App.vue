@@ -17,10 +17,6 @@ export default {
 </script>
 
 <style>
-body {
-    margin: 0 !important;
-}
-
 input {
     outline: none;
     background-color: transparent !important;
@@ -35,6 +31,8 @@ input {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: #2c3e50;
+    height: 100%;
+    width: 100%;
     margin: 0;
 }
 
