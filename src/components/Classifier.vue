@@ -2,15 +2,15 @@
     <div class="area">
         <div class="title">categories</div>
         <div
-            v-for="(category, i) in labels"
-            :key="i"
+            v-for="(category, ii) in labels"
+            :key="ii"
         >
             <div class="option-title">{{ category.name }}</div>
             <div class="row" v-for="(label, i) in category.labels" :key="label.name">
                 <div
                     class="btn"
                     :class="{ active: selectedLabel === label.name }"
-                    @click="toogleLabel(label.name)"
+                    @click="toogleLabel(label.name, ii)"
                 >
                     {{label.name}}
                 </div>
@@ -247,11 +247,11 @@ export default {
         },
         */
 
-        toogleLabel(label) {
-            if (this.selectedLabel === label) this.selectedLabel = null;
-            else this.selectedLabel = label;
-            this.store.selectedLabel = this.selectedLabel;
-            this.store.triggerDraw();
+        toogleLabel(label, category) {
+            this.selectedLabel = this.selectedLabel === label ? null : label;
+            this.getStore().selectedLabel = this.selectedLabel;
+            this.getStore().selectedCategory = category;
+            this.getStore().triggerDraw();
         },
         addLabeledToGroup(label) {
             this.store.addLabeledToGroup(label);

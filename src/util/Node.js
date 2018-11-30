@@ -20,6 +20,7 @@ export default class Node {
 
         this.cluster = data.cluster;
         this.isClusterd = true;
+        this.isNearly = false;
         // this.positives = data.positives;
         // this.negatives = data.negatives;
 

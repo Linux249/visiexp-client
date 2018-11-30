@@ -1039,6 +1039,7 @@ export default class CanvasState {
                 }
             }
 
+            // Todo get variables via this.ui
             const labelBorder = this.selectedCategory
                 && this.selectedLabel
                 && this.selectedLabel === node.labels[this.selectedCategory];
@@ -1106,6 +1107,7 @@ export default class CanvasState {
         // const neighbourColor = [225, 225, 115];
         const neighbourColor = [250, 208, 44]; // yellow
         const groupColor = [40, 33, 32]; // black
+        const nearColor = [0, 127, 0]; // gren
         // const groupColor = [195,230,203];  // bootstrap green
         // const label2Color = [153, 0, 51];
 
@@ -1114,9 +1116,13 @@ export default class CanvasState {
             // TODO Perfomance is maybe bedder without another loop
 
             // draw only if group, label2 or neighbour
-            if (!node.group && (!neighbour || neighbour > this.ui.neighboursThreshold)) return;
+            if (
+                !node.group
+                && !node.isNearly
+                && (!neighbour || neighbour > this.ui.neighboursThreshold)
+            ) return;
 
-            const lineColor = neighbour ? neighbourColor : groupColor;
+            const lineColor = neighbour ? neighbourColor : node.isNearly ? nearColor : groupColor;
 
             let imgSize = sizeRankedMode
                 ? zoomStage + Math.floor(node.rank * this.sizeRange)
@@ -1410,13 +1416,20 @@ export default class CanvasState {
                     // drag only one node
                     this.draggNode.x += nodeX;
                     this.draggNode.y += nodeY;
-                    /* if (this.ui.clusterMode) {
+                    if (this.ui.clusterMode) {
                         console.time('nodesInRange');
                         const tree = this.supercluster.trees[this.supercluster.trees.length - 1];
-                        const nodes = tree.within(this.draggNode.x, this.draggNode.y, 10);
-                        console.warn(nodes)
+                        const nodes = tree.within(
+                            lngX(this.draggNode.x),
+                            latY(this.draggNode.y),
+                            0.01,
+                        );
+                        console.warn(nodes);
+                        Object.values(this.nodes).forEach((node) => {
+                            node.isNearly = nodes.includes(node.index);
+                        });
                         console.timeEnd('nodesInRange');
-                    } */
+                    }
                 }
             }
             return this.triggerDraw();
@@ -1541,4 +1554,13 @@ export default class CanvasState {
         }
         // this.triggerDraw();
     }
+}
+
+function lngX(lng) {
+    return lng / 360 + 0.5;
+}
+function latY(lat) {
+    const sin = Math.sin((lat * Math.PI) / 180);
+    const y = 0.5 - (0.25 * Math.log((1 + sin) / (1 - sin))) / Math.PI;
+    return y < 0 ? 0 : y > 1 ? 1 : y;
 }

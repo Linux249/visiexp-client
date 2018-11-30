@@ -947,7 +947,7 @@ export default {
         };
         */
 
-        const socketIp = process.env.NODE_ENV === 'production' ? '129.206.117.172' : 'localhost';
+        const socketIp = process.env.NODE_ENV === 'production' ? 'localhost' : 'localhost';
 
         const socket = io.connect(
             `http://${socketIp}:3000`,
