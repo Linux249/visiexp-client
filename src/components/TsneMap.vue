@@ -117,21 +117,20 @@
                 <div v-if="showOptions" class="area">
                     <div class="title">Options</div>
 
-
                     <div class="option-title">Cluster</div>
                     <div class="row-btn">
                         <div>Cluster: radius: {{clusterRadius}}</div>
                         <div class="row">
-                            <div @click="changeClusterRadius(-1)" class="btn">-1</div>
-                            <div @click="changeClusterRadius(1)" class="btn">+1</div>
+                            <div @click="changeClusterRadius(-1)" class="btn"><minus></minus></div>
+                            <div @click="changeClusterRadius(1)" class="btn"><plus></plus></div>
                             <div @click="superCluster()" class="btn">update</div>
                         </div>
                     </div>
                     <div class="row-btn">
                         <div>Cluster: tile: {{clusterTile}}</div>
                         <div class="row">
-                            <div @click="changeClusterTile(-1)" class="btn">-1</div>
-                            <div @click="changeClusterTile(1)" class="btn">+1</div>
+                            <div @click="changeClusterTile(-1)" class="btn"><minus></minus></div>
+                            <div @click="changeClusterTile(1)" class="btn"><plus></plus></div>
                         </div>
                     </div>
 
@@ -159,15 +158,15 @@
                     <div class="row-btn">
                         <div>Image: size: {{imgSize}}</div>
                         <div class="row">
-                            <div @click="changeImgSize(-1)" class="btn">-1</div>
-                            <div @click="changeImgSize(1)" class="btn">+1</div>
+                            <div @click="changeImgSize(-1)" class="btn"><img-size-down></img-size-down></div>
+                            <div @click="changeImgSize(1)" class="btn"><img-size-up></img-size-up></div>
                         </div>
                     </div>
                     <div class="row-btn">
                         <div>Represent: size: {{representImgSize}}</div>
                         <div class="row">
-                            <div @click="changeRepresentImgSize(-1)" class="btn">-1</div>
-                            <div @click="changeRepresentImgSize(1)" class="btn">+1</div>
+                            <div @click="changeRepresentImgSize(-1)" class="btn"><img-size-down></img-size-down></div>
+                            <div @click="changeRepresentImgSize(1)" class="btn"><img-size-up></img-size-up></div>
                         </div>
                     </div>
                     <div class="row-btn">
@@ -193,8 +192,8 @@
                     <div class="row-btn">
                         <div>Neighbours: size: {{neighbourImgSize}}</div>
                         <div class="row">
-                            <div @click="changeNeighbourImgSize(-1)" class="btn">-1</div>
-                            <div @click="changeNeighbourImgSize(1)" class="btn">+1</div>
+                            <div @click="changeNeighbourImgSize(-1)" class="btn"><img-size-down></img-size-down></div>
+                            <div @click="changeNeighbourImgSize(1)" class="btn"><img-size-up></img-size-up></div>
                         </div>
                     </div>
 
@@ -202,15 +201,15 @@
                     <div class="row-btn">
                         <div>zoomStage: {{zoomStage}}</div>
                         <div class="row">
-                            <div @click="changeZoomStage(-1)" class="btn">-1</div>
-                            <div @click="changeZoomStage(1)" class="btn">+1</div>
+                            <div @click="changeZoomStage(-1)" class="btn"><minus></minus></div>
+                            <div @click="changeZoomStage(1)" class="btn"><plus></plus></div>
                         </div>
                     </div>
                     <div class="row-btn">
                         <div>Scale: {{scale}}</div>
                         <div class="row">
-                            <div @click="changeScaleDown()" class="btn">-</div>
-                            <div @click="changeScaleUp()" class="btn">+</div>
+                            <div @click="changeScaleDown()" class="btn"><minimize></minimize></div>
+                            <div @click="changeScaleUp()" class="btn"><maximize></maximize></div>
                         </div>
                     </div>
                     <!--
@@ -247,8 +246,8 @@
                     <div class="row-btn">
                         <div>sizeRange: {{sizeRange}}</div>
                         <div class="row">
-                            <div @click="changeSizeRange(-1)" class="btn">-1</div>
-                            <div @click="changeSizeRange(1)" class="btn">+1</div>
+                            <div @click="changeSizeRange(-1)" class="btn"><minus></minus></div>
+                            <div @click="changeSizeRange(1)" class="btn"><plus></plus></div>
                         </div>
                     </div>
                     <div class="row-btn">
@@ -285,15 +284,15 @@
                     <div class="row-btn">
                         <div>Radius: {{heatmapRadius}}</div>
                         <div class="row">
-                            <div @click="changeHeatmapRadius(-1)" class="btn">+1</div>
-                            <div @click="changeHeatmapRadius(1)" class="btn">+1</div>
+                            <div @click="changeHeatmapRadius(-1)" class="btn"><minus></minus></div>
+                            <div @click="changeHeatmapRadius(1)" class="btn"><plus></plus></div>
                         </div>
                     </div>
                     <div class="row-btn">
                         <div>Blur: {{heatmapBlur}}</div>
                         <div class="row">
-                            <div @click="changeHeatmapBlur(-1)" class="btn">-1</div>
-                            <div @click="changeHeatmapBlur(1)" class="btn">+1</div>
+                            <div @click="changeHeatmapBlur(-1)" class="btn"><minus></minus></div>
+                            <div @click="changeHeatmapBlur(1)" class="btn"><plus></plus></div>
                         </div>
                     </div>
 
@@ -360,6 +359,12 @@ import Stop from '../icons/Stop';
 import Send from '../icons/Send';
 import Navmap from '../icons/Map';
 import Target from '../icons/Target';
+import Maximize from '../icons/Maximize';
+import Minimize from '../icons/Minimize';
+import ImageSizeUp from '../icons/ImageSizeUp';
+import ImageSizeDown from '../icons/ImageSizeDown';
+import Plus from '../icons/Plus';
+import Minus from '../icons/Minus';
 import Logs from './Logs';
 // import TestWorker from '../worker/test.worker';
 
@@ -378,6 +383,12 @@ export default {
         Neighbours,
         Logs,
         'slider-picker': Slider,
+        Maximize,
+        Minimize,
+        'img-size-up': ImageSizeUp,
+        'img-size-down': ImageSizeDown,
+        Plus,
+        Minus,
     },
     data: () => ({
         items: [],
