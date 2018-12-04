@@ -50,7 +50,6 @@
                 <div class="btn" @click="doubleNodes">doubleNodes</div>-->
                 <!--<div class="btn" :class="{ active: sorted }" @click="sortNodes">sort</div>-->
                 <!--<div class="dropdownArea"></div>-->
-                <div class="btn" :if="nodesTotal">{{nodesRecived + "/" + nodesTotal}}</div>
                 <div @click="toggleShowHeatmap" :class="{ active: showHeatmap }" class="btn">
                     <navmap></navmap>
                 </div>
@@ -83,7 +82,7 @@
         <div class="row stack">
             <div class="explorer">
                 <canvas ref="canvas" id="canvas" class="canvas" tabindex="0" ></canvas>
-                <div class="maps">
+                <div class="box top right">
                     <div class="row">
                         <div @click="selectTarget" :class="{ active: target }" class="btn">
                             <target></target>
@@ -102,13 +101,20 @@
                             tabindex="0"
                         ></canvas>
                     </div>
-                   <!-- <div class="navMap" :class="{ hide: !showNavMap }">
-                        <canvas id="navMap" class="canvas" tabindex="0" ></canvas>
-                        <canvas id="navMapRect" tabindex="0" ></canvas>
-                    </div>-->
                     <div class="navMap" :class="{ hide: !showNavHeatmap }">
                         <canvas id="navHeatmap" class="canvas" tabindex="0" ></canvas>
                         <canvas id="navHeatmapRect" tabindex="0" ></canvas>
+                    </div>
+                </div>
+                <div class="box top left"><div class="btn" :if="nodesTotal">{{nodesRecived + "/" + nodesTotal}}</div></div>
+                <div class="box bottom right">
+                    <div class="row">
+                        <div @click="changeScaleDown()" class="btn"><minimize></minimize></div>
+                        <div @click="changeScaleUp()" class="btn"><maximize></maximize></div>
+                    </div>
+                    <div class="row">
+                        <div @click="changeImgSize(-1)" class="btn"><img-size-down></img-size-down></div>
+                        <div @click="changeImgSize(1)" class="btn"><img-size-up></img-size-up></div>
                     </div>
                 </div>
             </div>
@@ -156,13 +162,6 @@
 
                     <div class="option-title">Image</div>
                     <div class="row-btn">
-                        <div>Image: size: {{imgSize}}</div>
-                        <div class="row">
-                            <div @click="changeImgSize(-1)" class="btn"><img-size-down></img-size-down></div>
-                            <div @click="changeImgSize(1)" class="btn"><img-size-up></img-size-up></div>
-                        </div>
-                    </div>
-                    <div class="row-btn">
                         <div>Represent: size: {{representImgSize}}</div>
                         <div class="row">
                             <div @click="changeRepresentImgSize(-1)" class="btn"><img-size-down></img-size-down></div>
@@ -203,13 +202,6 @@
                         <div class="row">
                             <div @click="changeZoomStage(-1)" class="btn"><minus></minus></div>
                             <div @click="changeZoomStage(1)" class="btn"><plus></plus></div>
-                        </div>
-                    </div>
-                    <div class="row-btn">
-                        <div>Scale: {{scale}}</div>
-                        <div class="row">
-                            <div @click="changeScaleDown()" class="btn"><minimize></minimize></div>
-                            <div @click="changeScaleUp()" class="btn"><maximize></maximize></div>
                         </div>
                     </div>
                     <!--
@@ -556,7 +548,7 @@ export default {
             const { heatmap } = this;
 
             // data in form of [[x,y,v], [x,y,v], ...]
-            const data = Object.values(this.store.getNodes()).map(node => {
+            const data = Object.values(this.store.getNodes()).map((node) => {
                 const x = (node.x * this.store.scale + this.store.translateX) / 4;
                 const y = (node.y * this.store.scale + this.store.translateY) / 4;
                 return [x, y, 1];
@@ -580,7 +572,7 @@ export default {
             const h = this.navHeatmapRect.height;
 
             // data in form of [[x,y,v], [x,y,v], ...]
-            const data = Object.values(this.store.getNodes()).map(node => {
+            const data = Object.values(this.store.getNodes()).map((node) => {
                 const x = node.x * 5 + w / 2;
                 const y = node.y * 5 + h / 2;
                 return [x, y, 1];
@@ -966,7 +958,7 @@ export default {
                 transports: ['websocket'],
                 reconnectionDelay: 100,
                 reconnectionDelayMax: 1000,
-            }
+            },
         );
         const canvas = document.getElementById('canvas');
         const parantWidth = canvas.parentNode.clientWidth; //* 0.8;
@@ -1051,14 +1043,14 @@ export default {
             }
             // s.clear() // maybe there is something inside?
         });
-        socket.on('disconnect', reason => {
+        socket.on('disconnect', (reason) => {
             this.connectedToSocket = false;
             console.log(`disconnect: ${reason}`); // das wirft immer unde
             console.log(socket);
             // s.clear() // maybe there is something inside?
         });
 
-        socket.on('node', data => {
+        socket.on('node', (data) => {
             if (data.index % 100 === 0) {
                 console.log(`receive node ${data.index}`);
                 console.log(data);
@@ -1070,7 +1062,7 @@ export default {
             s.triggerDraw();
         });
 
-        socket.on('receiveImage', data => {
+        socket.on('receiveImage', (data) => {
             // console.log('receive image data');
             // console.log(data);
             const node = s.nodes[data.index];
@@ -1079,7 +1071,7 @@ export default {
             node.hasImage = true;
         });
 
-        socket.on('totalNodesCount', data => {
+        socket.on('totalNodesCount', (data) => {
             console.log('totalNodesCount');
             console.log(data);
             this.nodesTotal = data;
@@ -1098,13 +1090,13 @@ export default {
             this.nodesCount = nodesCount;
         }); */
 
-        socket.on('updateLabels', data => {
+        socket.on('updateLabels', (data) => {
             console.log('updateLabels');
             console.log(data);
             this.labels = data;
         });
 
-        socket.on('updateKdtree', kdtree => {
+        socket.on('updateKdtree', (kdtree) => {
             console.log('updateKdtree');
             console.log(kdtree);
             s.kdtree = kdtree;
@@ -1200,6 +1192,29 @@ export default {
     outline: none;
 }
 
+.box {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.top {
+    top: 0;
+}
+
+.bottom {
+    bottom: 0;
+}
+
+.left {
+    left: 0;
+}
+
+.right {
+    right: 0;
+}
+
 .maps {
     position: absolute;
     top: 0;
@@ -1234,14 +1249,6 @@ export default {
     display: none;
 }
 
-/*.sub-header {
-    display: flex;
-    justify-content: space-between;
-    !*align-items: center;*!
-    height: 2.5rem;
-    padding: 5px;
-}*/
-
 .row-btn {
     display: flex;
     justify-content: space-between;
@@ -1274,17 +1281,6 @@ export default {
         transform: rotate(360deg);
     }
 }
-
-/*.categoriesArea {
-    position: relative;
-    z-index: 1;
-}
-
-.categories {
-    !*position: absolute;*!
-    top: 25px;
-    width: 100%;
-}*/
 
 .option-title {
     color: #6772e5;
