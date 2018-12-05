@@ -158,14 +158,26 @@
                             <div @click="changeClusterGrowth(0.01)" class="btn">+0.1</div>
                         </div>
                     </div>
-
-
                     <div class="option-title">Image</div>
                     <div class="row-btn">
                         <div>Represent: size: {{representImgSize}}</div>
                         <div class="row">
                             <div @click="changeRepresentImgSize(-1)" class="btn"><img-size-down></img-size-down></div>
                             <div @click="changeRepresentImgSize(1)" class="btn"><img-size-up></img-size-up></div>
+                        </div>
+                    </div>
+                    <div class="row-btn">
+                        <div>Alpha (base): {{alphaBase}}</div>
+                        <div class="row">
+                            <div @click="changeAlphaBase(-10)" class="btn">-10</div>
+                            <div @click="changeAlphaBase(10)" class="btn">+10</div>
+                        </div>
+                    </div>
+                    <div class="row-btn">
+                        <div>Aplha (increase): {{alphaIncrease}}</div>
+                        <div class="row">
+                            <div @click="changeAlphaIncrease(-10)" class="btn">-10</div>
+                            <div @click="changeAlphaIncrease(10)" class="btn">+10</div>
                         </div>
                     </div>
                     <div class="row-btn">
@@ -413,6 +425,8 @@ export default {
         representImgSize: 0, // default - set on mount from CanvasStore class
         neighbourImgSize: 0, // default - set on mount from CanvasStore class
         // borderWidth: 0, // default - set on mount from CanvasStore class
+        alphaBase: 50,
+        alphaIncrease: 50,
         range: 0,
         cuttedNodes: [], // selected nodes through scissor
         showOptions: false, // show options menu
@@ -716,6 +730,16 @@ export default {
 
         toggleRepresentWithAlpha() {
             this.representWithAlpha = !this.representWithAlpha;
+            this.store.triggerDraw();
+        },
+
+        changeAlphaBase(n) {
+            this.alphaBase += n;
+            this.store.triggerDraw();
+        },
+
+        changeAlphaIncrease(n) {
+            this.alphaIncrease += n;
             this.store.triggerDraw();
         },
 

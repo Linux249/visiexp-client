@@ -895,45 +895,25 @@ export default class CanvasState {
         // TODO 1. calc 50 k-means wirh kdtree results
 
         const {
-            zoomStage,
-            scale,
-            width: canvasW,
-            height: canvasH,
-            translateX: tx,
-            translateY: ty,
-            representImgSize,
+            zoomStage, scale, width: canvasW, height: canvasH, translateX: tx, translateY: ty, representImgSize,
         } = this;
         const canvasPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
         const hitmapPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
         // console.log({ canvasW, canvasH, tx, ty, scale });
 
         const {
-            boarderRankedMode,
-            sizeRankedMode,
-            gradient,
-            clusterMode,
-            oldClusterMode,
-            neighbourMode,
-            representWithAlpha,
-            repsMode,
+            boarderRankedMode, sizeRankedMode, gradient, clusterMode, oldClusterMode, neighbourMode, representWithAlpha, repsMode, alphaBase, alphaIncrease,
         } = this.ui;
         const borderW = 1;
 
         if (clusterMode) this.updateClustering();
 
-        const nodes = this.sorted
-            ? this.sortedNodes
-            : clusterMode && repsMode
-                ? this.sortNodesReps(repsMode)
-                : Object.values(this.nodes);
+        const nodes = this.sorted ? this.sortedNodes : clusterMode && repsMode ? this.sortNodesReps(repsMode) : Object.values(this.nodes);
 
         nodes.forEach((node) => {
-            let imgSize = sizeRankedMode
-                ? zoomStage + Math.floor(node.rank * this.sizeRange)
-                : zoomStage;
+            let imgSize = sizeRankedMode ? zoomStage + Math.floor(node.rank * this.sizeRange) : zoomStage;
             imgSize += this.imgSize; // add imgSize from user input
-            const isRepresent = (clusterMode && !node.isClusterd)
-                || (oldClusterMode && node.cluster < this.cluster);
+            const isRepresent = (clusterMode && !node.isClusterd) || (oldClusterMode && node.cluster < this.cluster);
 
             if (neighbourMode && !node.group) {
                 // the node should not be in the neighbours list
@@ -956,10 +936,7 @@ export default class CanvasState {
             const nodeY = Math.floor(node.y * scale + ty - ih / 2);
 
             // nothing to do if the image is outside the canvas
-            const inside = nodeX > borderW
-                && nodeY > borderW
-                && nodeX < canvasW - iw - borderW
-                && nodeY < canvasH - ih - borderW;
+            const inside = nodeX > borderW && nodeY > borderW && nodeX < canvasW - iw - borderW && nodeY < canvasH - ih - borderW;
             if (!inside) return;
 
             // check if the image is allowed to draw in certain rules
@@ -976,11 +953,17 @@ export default class CanvasState {
 
             // 2. if neighbours mode:  check if node is not groupd
 
-
             // cluster
             // if (node.cluster < this.cluster) {
             const imgData = img.data;
 
+            const neighbourColor = [250, 208, 44]; // yellow
+            const groupColor = [100, 100, 100]; // black
+            const nearColor = [0, 127, 0]; // gren
+
+            /*
+                DRAW IMAGE
+             */
             if (show) {
                 // loop through rows in img
                 for (let row = 0; row < ih; row += 1) {
@@ -992,11 +975,7 @@ export default class CanvasState {
                         canvasPixel[c] = imgData[p]; // R
                         canvasPixel[c + 1] = imgData[p + 1]; // G
                         canvasPixel[c + 2] = imgData[p + 2]; // B
-                        canvasPixel[c + 3] = representWithAlpha && isRepresent
-                            ? 200
-                            : canvasPixel[c + 3]
-                                ? canvasPixel[c + 3] + 10 * node.cliqueLen
-                                : 50 + zoomStage * 50;
+                        canvasPixel[c + 3] = representWithAlpha && isRepresent ? 200 : canvasPixel[c + 3] ? canvasPixel[c + 3] + 10 * node.cliqueLen : alphaBase + zoomStage * alphaIncrease; // special mode for represents // img over other img // white background
 
                         // draw hitmap
                         hitmapPixel[c] = node.colorKey[0]; // R
@@ -1007,6 +986,9 @@ export default class CanvasState {
                 }
             }
 
+            /*
+                DRAW RANK COLOR BORDER
+             */
             if (boarderRankedMode) {
                 const color = gradient[node.cliqueLen];
                 // draw boarder
@@ -1039,14 +1021,13 @@ export default class CanvasState {
                 }
             }
 
+            /*
+                DRAW LABEL BORDER
+             */
             // Todo get variables via this.ui
-            const labelBorder = this.selectedCategory
-                && this.selectedLabel
-                && this.selectedLabel === node.labels[this.selectedCategory];
+            const labelBorder = this.selectedCategory && this.selectedLabel && this.selectedLabel === node.labels[this.selectedCategory];
             if (labelBorder) {
-                const { color } = this.ui.labels[this.selectedCategory].labels.find(
-                    e => e.name === this.selectedLabel,
-                );
+                const { color } = this.ui.labels[this.selectedCategory].labels.find(e => e.name === this.selectedLabel);
                 // draw boarder
                 for (let row = -2; row <= ih + 1; row += 1) {
                     const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
@@ -1076,42 +1057,59 @@ export default class CanvasState {
                     }
                 }
             }
-            /* } else {
-                // drawcluster
-                let c = (nodeY * canvasW + nodeX) * 4;
-                canvasPixel[c] = 210;
-                canvasPixel[c + 1] = 210;
-                canvasPixel[c + 2] = 210;
-                canvasPixel[c + 3] = 255;
-                c = (nodeY * canvasW + nodeX + 1) * 4;
-                canvasPixel[c] = 210;
-                canvasPixel[c + 1] = 210;
-                canvasPixel[c + 2] = 210;
-                canvasPixel[c + 3] = 255;
-                c = (nodeY * canvasW + canvasW + nodeX) * 4;
-                canvasPixel[c] = 210;
-                canvasPixel[c + 1] = 210;
-                canvasPixel[c + 2] = 210;
-                canvasPixel[c + 3] = 255;
-                c = (nodeY * canvasW + canvasW + nodeX + 1) * 4;
-                canvasPixel[c] = 210;
-                canvasPixel[c + 1] = 210;
-                canvasPixel[c + 2] = 210;
-                canvasPixel[c + 3] = 255;
-            } */
+
+            /*
+                DRAW GROUP BORDER
+             */
+            const neighbour = this.groupNeighbours[node.index];
+            // TODO Perfomance is maybe bedder without another loop
+
+            // draw only if group, label2 or neighbour
+            if (!node.group && !node.isNearly && (!neighbour || neighbour > this.ui.neighboursThreshold)) return;
+
+            const lineColor = neighbour ? neighbourColor : node.isNearly ? nearColor : node.group ? groupColor : null;
+            if (lineColor) {
+                for (let row = -2; row <= ih + 1; row += 1) {
+                    const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
+                    if (row === -2 || row === ih + 1) {
+                        // draw top line r
+                        for (let col = 0; col < iw; col += 1) {
+                            const c = canvasRow + col * 4;
+                            canvasPixel[c] = lineColor[0]; // R
+                            canvasPixel[c + 1] = lineColor[1]; // G
+                            canvasPixel[c + 2] = lineColor[2]; // B
+                            canvasPixel[c + 3] = 200;
+                        }
+                    } else {
+                        // draw left boarder
+                        const l = canvasRow - 8;
+                        canvasPixel[l] = lineColor[0]; // R
+                        canvasPixel[l + 1] = lineColor[1]; // G
+                        canvasPixel[l + 2] = lineColor[2]; // B
+                        canvasPixel[l + 3] = 200;
+
+                        // draw left boarder
+                        const r = canvasRow + (iw + 1) * 4;
+                        canvasPixel[r] = lineColor[0]; // R
+                        canvasPixel[r + 1] = lineColor[1]; // G
+                        canvasPixel[r + 2] = lineColor[2]; // B
+                        canvasPixel[r + 3] = 200;
+                    }
+                }
+            }
         });
 
-        // DRAW UNDLINE FOR GROUPED NODES
+        /*
+            DRAW UNDLINE FOR GROUPED NODES
+         */
         // TODO use color user can choose in UI + add choose color in UI
         // const groupColor = [225, 225, 115];
         // const neighbourColor = [225, 225, 115];
-        const neighbourColor = [250, 208, 44]; // yellow
-        const groupColor = [40, 33, 32]; // black
-        const nearColor = [0, 127, 0]; // gren
+
         // const groupColor = [195,230,203];  // bootstrap green
         // const label2Color = [153, 0, 51];
 
-        nodes.forEach((node) => {
+        /* nodes.forEach((node) => {
             const neighbour = this.groupNeighbours[node.index];
             // TODO Perfomance is maybe bedder without another loop
 
@@ -1176,8 +1174,11 @@ export default class CanvasState {
             }
 
             // test if image obj exists
-        });
+        }); */
 
+        /*
+            DRAW SCISSORS
+         */
         if (this.drawScissors) {
             const canvasX = this.scissorsStartX < this.scissorsEndX ? this.scissorsStartX : this.scissorsEndX;
             const canvasY = this.scissorsStartY < this.scissorsEndY ? this.scissorsStartY : this.scissorsEndY;
