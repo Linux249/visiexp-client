@@ -343,6 +343,7 @@ export default class CanvasState {
     }
 
     createSuperCluster() {
+        console.time('build superClusterIndex');
         console.time('create geoPoints');
         const geoPoints = Object.values(this.nodes).map(n => ({
             type: 'Feature',
@@ -356,12 +357,11 @@ export default class CanvasState {
             },
         }));
         console.timeEnd('create geoPoints');
-        console.log(geoPoints);
+        console.log({ geoPoints });
 
         // TODO find the best radius
 
         // calculated the supercluster
-        console.time('build superClusterIndex');
         this.supercluster = supercluster({
             radius: this.clusterRadius,
             maxZoom: this.maxZoomLvl,
@@ -895,25 +895,47 @@ export default class CanvasState {
         // TODO 1. calc 50 k-means wirh kdtree results
 
         const {
-            zoomStage, scale, width: canvasW, height: canvasH, translateX: tx, translateY: ty, representImgSize,
+            zoomStage,
+            scale,
+            width: canvasW,
+            height: canvasH,
+            translateX: tx,
+            translateY: ty,
+            representImgSize,
         } = this;
         const canvasPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
         const hitmapPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
         // console.log({ canvasW, canvasH, tx, ty, scale });
 
         const {
-            boarderRankedMode, sizeRankedMode, gradient, clusterMode, oldClusterMode, neighbourMode, representWithAlpha, repsMode, alphaBase, alphaIncrease,
+            boarderRankedMode,
+            sizeRankedMode,
+            gradient,
+            clusterMode,
+            oldClusterMode,
+            neighbourMode,
+            representWithAlpha,
+            repsMode,
+            alphaBase,
+            alphaIncrease,
         } = this.ui;
         const borderW = 1;
 
         if (clusterMode) this.updateClustering();
 
-        const nodes = this.sorted ? this.sortedNodes : clusterMode && repsMode ? this.sortNodesReps(repsMode) : Object.values(this.nodes);
+        const nodes = this.sorted
+            ? this.sortedNodes
+            : clusterMode && repsMode
+                ? this.sortNodesReps(repsMode)
+                : Object.values(this.nodes);
 
         nodes.forEach((node) => {
-            let imgSize = sizeRankedMode ? zoomStage + Math.floor(node.rank * this.sizeRange) : zoomStage;
+            let imgSize = sizeRankedMode
+                ? zoomStage + Math.floor(node.rank * this.sizeRange)
+                : zoomStage;
             imgSize += this.imgSize; // add imgSize from user input
-            const isRepresent = (clusterMode && !node.isClusterd) || (oldClusterMode && node.cluster < this.cluster);
+            const isRepresent = (clusterMode && !node.isClusterd)
+                || (oldClusterMode && node.cluster < this.cluster);
 
             if (neighbourMode && !node.group) {
                 // the node should not be in the neighbours list
@@ -936,7 +958,10 @@ export default class CanvasState {
             const nodeY = Math.floor(node.y * scale + ty - ih / 2);
 
             // nothing to do if the image is outside the canvas
-            const inside = nodeX > borderW && nodeY > borderW && nodeX < canvasW - iw - borderW && nodeY < canvasH - ih - borderW;
+            const inside = nodeX > borderW
+                && nodeY > borderW
+                && nodeX < canvasW - iw - borderW
+                && nodeY < canvasH - ih - borderW;
             if (!inside) return;
 
             // check if the image is allowed to draw in certain rules
@@ -975,7 +1000,11 @@ export default class CanvasState {
                         canvasPixel[c] = imgData[p]; // R
                         canvasPixel[c + 1] = imgData[p + 1]; // G
                         canvasPixel[c + 2] = imgData[p + 2]; // B
-                        canvasPixel[c + 3] = representWithAlpha && isRepresent ? 200 : canvasPixel[c + 3] ? canvasPixel[c + 3] + 10 * node.cliqueLen : alphaBase + zoomStage * alphaIncrease; // special mode for represents // img over other img // white background
+                        canvasPixel[c + 3] = representWithAlpha && isRepresent
+                            ? 200
+                            : canvasPixel[c + 3]
+                                ? canvasPixel[c + 3] + 10 * node.cliqueLen
+                                : alphaBase + zoomStage * alphaIncrease; // special mode for represents // img over other img // white background
 
                         // draw hitmap
                         hitmapPixel[c] = node.colorKey[0]; // R
@@ -1025,9 +1054,13 @@ export default class CanvasState {
                 DRAW LABEL BORDER
              */
             // Todo get variables via this.ui
-            const labelBorder = this.selectedCategory && this.selectedLabel && this.selectedLabel === node.labels[this.selectedCategory];
+            const labelBorder = this.selectedCategory
+                && this.selectedLabel
+                && this.selectedLabel === node.labels[this.selectedCategory];
             if (labelBorder) {
-                const { color } = this.ui.labels[this.selectedCategory].labels.find(e => e.name === this.selectedLabel);
+                const { color } = this.ui.labels[this.selectedCategory].labels.find(
+                    e => e.name === this.selectedLabel,
+                );
                 // draw boarder
                 for (let row = -2; row <= ih + 1; row += 1) {
                     const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
@@ -1065,9 +1098,19 @@ export default class CanvasState {
             // TODO Perfomance is maybe bedder without another loop
 
             // draw only if group, label2 or neighbour
-            if (!node.group && !node.isNearly && (!neighbour || neighbour > this.ui.neighboursThreshold)) return;
+            if (
+                !node.group
+                && !node.isNearly
+                && (!neighbour || neighbour > this.ui.neighboursThreshold)
+            ) return;
 
-            const lineColor = neighbour ? neighbourColor : node.isNearly ? nearColor : node.group ? groupColor : null;
+            const lineColor = neighbour
+                ? neighbourColor
+                : node.isNearly
+                    ? nearColor
+                    : node.group
+                        ? groupColor
+                        : null;
             if (lineColor) {
                 for (let row = -2; row <= ih + 1; row += 1) {
                     const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
@@ -1507,14 +1550,11 @@ export default class CanvasState {
             default:
                 console.log('no mode selected - what to do with a node click now?');
             } */
-        }
 
-        // there is a selection and this is not the activeNode
-
-        this.panning = false;
-        this.draggNode = false;
-
-        if (this.scissors) {
+            // todo update instead of recreate supercluster here maybe bedder? how?
+            // update cluster cause of new embedding
+            this.createSuperCluster();
+        } else if (this.scissors) {
             this.ui.cuttedNodes = [];
             const startX = (this.scissorsStartX - this.translateX) / this.scale;
             const startY = (this.scissorsStartY - this.translateY) / this.scale;
@@ -1538,8 +1578,10 @@ export default class CanvasState {
             this.scissors = false;
             this.ui.scissors = false;
             this.drawScissors = false;
-            // TODO handle object in scissors rectangle
         }
+
+        this.panning = false;
+        this.draggNode = false;
         this.triggerDraw();
     }
 
