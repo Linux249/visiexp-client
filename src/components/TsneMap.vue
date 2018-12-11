@@ -359,7 +359,6 @@ import Neighbours from './Neighbours';
 import Scissors from '../icons/Scissors';
 import X from '../icons/X';
 import Play from '../icons/Play';
-import Stop from '../icons/Stop';
 import Send from '../icons/Send';
 import Navmap from '../icons/Map';
 import Target from '../icons/Target';
@@ -379,7 +378,6 @@ export default {
         Scissors,
         X,
         Play,
-        Stop,
         Send,
         Navmap,
         Target,

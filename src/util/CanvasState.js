@@ -24,7 +24,7 @@ export default class CanvasState {
         this.nodes = {}; // hash for all nodes
         this.colorHash = {}; // find nodes by color
         this.panning = false; // Keep track of when we are dragging
-        this._draggNode = null; // save the node for dragging
+        this.draggNode = false; // save the node for dragging
 
         // the current selected object.
         // TODO  In the future we could turn this into an array for multiple selection
@@ -119,7 +119,7 @@ export default class CanvasState {
     set sizeRange(v) {
         if (v < 0) this._sizeRange = 0;
         else this._sizeRange = v;
-        this.triggerDraw();
+        // this.triggerDraw();
     }
 
     get sizeRange() {
@@ -129,7 +129,6 @@ export default class CanvasState {
     set scale(value) {
         if (value < 20) this._scale = 20;
         else this._scale = Math.round(value);
-        this.triggerDraw();
         this.ui.scale = this.scale;
     }
 
@@ -223,16 +222,6 @@ export default class CanvasState {
         return this._nodeUnderMouse;
     }
 
-    set draggNode(value) {
-        this._draggNode = value;
-        // this.canvas.style.cursor = value ?
-        // 'grabbing' : this.nodeOnMouseDown ? 'grab' : 'default';
-    }
-
-    get draggNode() {
-        return this._draggNode;
-    }
-
     set moveGroupToMouse(value) {
         this._moveGroupToMouse = value;
         // const curser = `url('${pointer}')`;
@@ -243,6 +232,17 @@ export default class CanvasState {
 
     get moveGroupToMouse() {
         return this._moveGroupToMouse;
+    }
+
+
+    lngX(lng) {
+        return lng / 360 + 0.5;
+    }
+
+    latY(lat) {
+        const sin = Math.sin((lat * Math.PI) / 180);
+        const y = 0.5 - (0.25 * Math.log((1 + sin) / (1 - sin))) / Math.PI;
+        return y < 0 ? 0 : y > 1 ? 1 : y;
     }
 
     /*
@@ -1456,24 +1456,25 @@ export default class CanvasState {
                             node.y += nodeY;
                         }
                     });
+                    // todo remove 'if' if clustermode is default
+                    if (this.ui.clusterMode) {
+                        console.time('nodesInRange');
+                        const tree = this.supercluster.trees[this.supercluster.trees.length - 1];
+                        const r = 0.01 *20 / this.scale
+                        const nodes = tree.within(
+                            this.lngX(this.draggNode.x),
+                            this.latY(this.draggNode.y),
+                            r,
+                        );
+                        Object.values(this.nodes).forEach((node) => {
+                            node.isNearly = !node.group && nodes.includes(node.index);
+                        });
+                        console.timeEnd('nodesInRange');
+                    }
                 } else {
                     // drag only one node
                     this.draggNode.x += nodeX;
                     this.draggNode.y += nodeY;
-                    if (this.ui.clusterMode) {
-                        console.time('nodesInRange');
-                        const tree = this.supercluster.trees[this.supercluster.trees.length - 1];
-                        const nodes = tree.within(
-                            lngX(this.draggNode.x),
-                            latY(this.draggNode.y),
-                            0.01,
-                        );
-                        console.warn(nodes);
-                        Object.values(this.nodes).forEach((node) => {
-                            node.isNearly = nodes.includes(node.index);
-                        });
-                        console.timeEnd('nodesInRange');
-                    }
                 }
             }
             return this.triggerDraw();
@@ -1489,6 +1490,7 @@ export default class CanvasState {
                 index: nodeUnderMouse.index,
             });
         }
+        return null;
     }
 
     handleMouseUp(e) {
@@ -1523,33 +1525,20 @@ export default class CanvasState {
                     this.groupNeighbours[nodeUnderMouse.index] = undefined;
                 }
             }
-            /*
-            switch (this.ui.$route.name) {
-            case SVM:
-                break;
-            case NEIGHBOURS:
-                // nodeUnderMouse.label2 = !nodeUnderMouse.label2 ? 'test' : null;
-                break;
-            case LABELS:
-                /!* if (this.selection && this.selection
-                !== this.nodeUnderMouse && ctrlKeyPressed) {
-                        console.log('Add or remove link');
-                        const links = Object.keys(this.selection.links);
-                        const i = this.nodeUnderMouse.index;
-                        console.log({ i, links });
-                        if (this.selection.links[i]) {
-                            console.log('remove link');
-                            delete this.selection.links[i];
-                        } else {
-                            console.log('Add link');
-                            this.selection.links[i] = 0.5;
+
+            if (this.draggNode) {
+                // merge all "nearby nodes" to group
+                if (this.draggNode.group) {
+                    Object.values(this.nodes).forEach((node) => {
+                        if (node.isNearly) {
+                            node.group = true;
+                            node.groupId = this.draggNode.groupId;
+                            node.isNearly = false; // remove nearly status
                         }
-                        console.log(this.selection);
-                    } *!/
-                break;
-            default:
-                console.log('no mode selected - what to do with a node click now?');
-            } */
+                    });
+                }
+                this.draggNode = false;
+            }
 
             // todo update instead of recreate supercluster here maybe bedder? how?
             // update cluster cause of new embedding
@@ -1579,9 +1568,7 @@ export default class CanvasState {
             this.ui.scissors = false;
             this.drawScissors = false;
         }
-
-        this.panning = false;
-        this.draggNode = false;
+        this.panning = false; // todo if this is necessary here write a comment why
         this.triggerDraw();
     }
 
@@ -1594,16 +1581,8 @@ export default class CanvasState {
             const x = (e.offsetX - this.translateX) / this.scale;
             const y = (e.offsetY - this.translateY) / this.scale;
             this.moveGroupToPosition(x, y);
+            this.createSuperCluster();
         }
         // this.triggerDraw();
     }
-}
-
-function lngX(lng) {
-    return lng / 360 + 0.5;
-}
-function latY(lat) {
-    const sin = Math.sin((lat * Math.PI) / 180);
-    const y = 0.5 - (0.25 * Math.log((1 + sin) / (1 - sin))) / Math.PI;
-    return y < 0 ? 0 : y > 1 ? 1 : y;
 }
