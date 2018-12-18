@@ -45,11 +45,13 @@ export default {
     data: () => ({
         savedGroups: [],
         groupName: '',
+        groupCounter: 0,
     }),
     methods: {
         saveGroup() {
             // save the actually group
-            const groupId = this.savedGroups.length + 1;
+            this.groupCounter += 1
+            const groupId = this.groupCounter;
 
             // get the name
             const name = this.groupName || `Group ${groupId}`;
