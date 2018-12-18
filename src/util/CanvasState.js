@@ -234,7 +234,6 @@ export default class CanvasState {
         return this._moveGroupToMouse;
     }
 
-
     lngX(lng) {
         return lng / 360 + 0.5;
     }
@@ -987,6 +986,39 @@ export default class CanvasState {
             const nearColor = [0, 127, 0]; // gren
 
             /*
+                DRAW not active Groups
+             */
+            if (node.groupId && !node.group) {
+                for (let row = -2; row <= ih + 1; row += 1) {
+                    const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
+                    if (row === -2 || row === ih + 1) {
+                        // draw top line r
+                        for (let col = 0; col < iw; col += 1) {
+                            const c = canvasRow + col * 4;
+                            canvasPixel[c] = groupColor[0]; // R
+                            canvasPixel[c + 1] = groupColor[1]; // G
+                            canvasPixel[c + 2] = groupColor[2]; // B
+                            canvasPixel[c + 3] = 50;
+                        }
+                    } else {
+                        // draw left boarder
+                        const l = canvasRow - 8;
+                        canvasPixel[l] = groupColor[0]; // R
+                        canvasPixel[l + 1] = groupColor[1]; // G
+                        canvasPixel[l + 2] = groupColor[2]; // B
+                        canvasPixel[l + 3] = 50;
+
+                        // draw left boarder
+                        const r = canvasRow + (iw + 1) * 4;
+                        canvasPixel[r] = groupColor[0]; // R
+                        canvasPixel[r + 1] = groupColor[1]; // G
+                        canvasPixel[r + 2] = groupColor[2]; // B
+                        canvasPixel[r + 3] = 50;
+                    }
+                }
+            }
+
+            /*
                 DRAW IMAGE
              */
             if (show) {
@@ -1000,11 +1032,12 @@ export default class CanvasState {
                         canvasPixel[c] = imgData[p]; // R
                         canvasPixel[c + 1] = imgData[p + 1]; // G
                         canvasPixel[c + 2] = imgData[p + 2]; // B
+                        // special mode for represents // img over other img // white background
                         canvasPixel[c + 3] = representWithAlpha && isRepresent
                             ? 200
                             : canvasPixel[c + 3]
                                 ? canvasPixel[c + 3] + 10 * node.cliqueLen
-                                : alphaBase + zoomStage * alphaIncrease; // special mode for represents // img over other img // white background
+                                : alphaBase + zoomStage * alphaIncrease;
 
                         // draw hitmap
                         hitmapPixel[c] = node.colorKey[0]; // R
@@ -1460,7 +1493,7 @@ export default class CanvasState {
                     if (this.ui.clusterMode) {
                         console.time('nodesInRange');
                         const tree = this.supercluster.trees[this.supercluster.trees.length - 1];
-                        const r = 0.01 *20 / this.scale
+                        const r = (0.01 * 20) / this.scale;
                         const nodes = tree.within(
                             this.lngX(this.draggNode.x),
                             this.latY(this.draggNode.y),
