@@ -1056,6 +1056,7 @@ export default {
 
         const socketIp = process.env.NODE_ENV === 'production' ? 'localhost' : 'localhost';
 
+        // init socket connection
         const socket = io.connect(
             `http://${socketIp}:3000`,
             {
@@ -1127,8 +1128,7 @@ export default {
         // this.scrollGrowth = s.scrollGrowth;
         // this.scrollImgGrowth = s.scrollImgGrowth;
 
-        console.log('Save store');
-        console.log(this.store);
+        // save socket to ui
         this.socket = socket;
 
         socket.on('connect', () => {
@@ -1147,6 +1147,7 @@ export default {
             }
             // s.clear() // maybe there is something inside?
         });
+
         socket.on('disconnect', (reason) => {
             this.connectedToSocket = false;
             console.log(`disconnect: ${reason}`); // das wirft immer unde
@@ -1215,6 +1216,7 @@ export default {
             console.log(this.loadingNodes);
             cb({ stopped: this.autoUpdateEmbedding });
             this.store.updateNodes(data.nodes);
+            this.store.createSuperCluster();
         });
         // this.updateCanvas();
 
