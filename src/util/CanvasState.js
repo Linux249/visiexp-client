@@ -507,10 +507,13 @@ export default class CanvasState {
         return ids;
     }
 
+    // set to all als group marked items the group id
+    // the groups are saved in the ui state
     saveGroup(groupId) {
         Object.keys(this.nodes).forEach(
             i => (this.nodes[i].group ? (this.nodes[i].groupId = groupId) : null),
         );
+        this.updateGroupCounter();
     }
 
     addNodesToActiveGroup(ids) {
@@ -663,6 +666,18 @@ export default class CanvasState {
             requestAnimationFrame(this.scaleTestDraw);
         }
     };
+
+    updateGroupCounter() {
+        // build counter
+        const counter = {};
+        this.ui.savedGroups.forEach(group => (counter[group.groupId] = 0));
+        // count group members
+        Object.values(this.nodes).forEach((node) => {
+            if (node.groupId) counter[node.groupId] += 1;
+        });
+        // update groups in ui
+        this.ui.savedGroups.forEach(group => (group.count = counter[group.groupId]));
+    }
     /* clear() {
         // move point 0,0 to middle of canvas
         // console.log(this.ctx)
@@ -1546,6 +1561,7 @@ export default class CanvasState {
                     nodeUnderMouse.group = true;
                     nodeUnderMouse.groupId = this.ui.activeGroup;
                 }
+                this.updateGroupCounter();
             }
             // used for components for adding nodes to special cases
             this.ui.clickedNode = nodeUnderMouse;
@@ -1569,6 +1585,7 @@ export default class CanvasState {
                             node.isNearly = false; // remove nearly status
                         }
                     });
+                    this.updateGroupCounter();
                 }
                 this.draggNode = false;
             }
@@ -1596,6 +1613,7 @@ export default class CanvasState {
                 }
             });
 
+            this.updateGroupCounter();
             // reset
             this.scissors = false;
             this.ui.scissors = false;

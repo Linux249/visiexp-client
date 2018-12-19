@@ -1,3 +1,4 @@
+<!--
 <template>
     <div class="">
         <div class="area">
@@ -10,12 +11,12 @@
                 <div class="btn" @click="getGroupNeighbours">Update</div>
                 <div class="btn" @click="resetNeighbours">Reset</div>
             </div>
-            <!-- <div class="row">
+            &lt;!&ndash; <div class="row">
                 <div class="btn" @click="resetGroup">reset group</div>
-            </div>-->
+            </div>&ndash;&gt;
         </div>
 
-       <!-- <div class="area">
+       &lt;!&ndash; <div class="area">
             <div class="title">Select a Label or add a new one</div>
             <div
                 class="btn between "
@@ -35,7 +36,7 @@
                 <input class="input" type="text" v-model="label2"/>
                 <div @click="addLabel" class="btn">new label</div>
             </div>
-        </div>-->
+        </div>&ndash;&gt;
     </div>
 
 </template>
@@ -126,3 +127,4 @@ export default {
 
 <style scoped>
 </style>
+-->

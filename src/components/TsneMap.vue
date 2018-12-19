@@ -302,13 +302,44 @@
 
                 </div>
 
-                <groups v-if="showGroups"
+                <!--<groups v-if="showGroups"
                     :setActiveGroup="setActiveGroup"
                     :activeGroup="activeGroup"
                     :getStore="getStore"
                     :toggleNeighbourMode="toggleNeighbourMode"
                     :neighbourMode="neighbourMode"
-                />
+                />-->
+                <div class="area">
+                    <div class="title">Save/load groups</div>
+                    <div v-if="this.savedGroups.length"
+                         class="group-list">
+
+                        <div class="group-item row-between btn"
+                             v-for="(group, i) in savedGroups"
+                             :key="i"
+                        >
+                            <div
+                                class="btn"
+                                :class="{active: group.groupId === activeGroup}"
+                                @click="selectGroup(i)"
+                            >
+                                {{`${group.name} (#${group.count})`}}
+                            </div>
+                            <div
+                                class="btn"
+                                :class="{active: neighbourMode && group.groupId === activeGroup}"
+                                @click="handleNeighbourMode(i)"
+                            >
+                                neighbours
+                            </div>
+                            <div class="btn" @click="deleteGroup(i)"><trash></trash></div>
+                        </div>
+                    </div>
+                    <div class="row v-center">
+                        <input class="input" type="text" v-model="groupName"/>
+                        <div @click="saveGroup" class="btn">save group</div>
+                    </div>
+                </div>
 
                 <neighbours
                     v-if="neighbourMode"
@@ -354,7 +385,7 @@ import simpleheat from 'simpleheat';
 import { Slider } from 'vue-color';
 import Node from '../util/Node';
 import CanvasState from '../util/CanvasState';
-import Groups from './Groups';
+// import Groups from './Groups';
 import Neighbours from './Neighbours';
 import Scissors from '../icons/Scissors';
 import X from '../icons/X';
@@ -369,6 +400,7 @@ import ImageSizeDown from '../icons/ImageSizeDown';
 import Plus from '../icons/Plus';
 import Minus from '../icons/Minus';
 import Logs from './Logs';
+import Trash from '../icons/Trash';
 // import TestWorker from '../worker/test.worker';
 
 export default {
@@ -381,7 +413,7 @@ export default {
         Send,
         Navmap,
         Target,
-        Groups,
+        // Groups,
         Neighbours,
         Logs,
         'slider-picker': Slider,
@@ -391,6 +423,7 @@ export default {
         'img-size-down': ImageSizeDown,
         Plus,
         Minus,
+        Trash,
     },
     data: () => ({
         items: [],
@@ -494,6 +527,9 @@ export default {
         neighboursThreshold: 0.2,
         activeGroup: 0,
         representWithAlpha: false,
+        savedGroups: [],
+        groupName: '',
+        groupCounter: 0, // 0 is no group, counter inc for first use
     }),
     methods: {
         getNode(i) {
@@ -526,6 +562,7 @@ export default {
 
         setActiveGroup(id) {
             this.activeGroup = id;
+            this.store.triggerDraw();
         },
 
         changeNeighboursThreshold({ target }) {
@@ -815,6 +852,51 @@ export default {
             this.store.triggerDraw();
         },
 
+        saveGroup() {
+            // save the actually group
+            this.groupCounter += 1;
+            const groupId = this.groupCounter;
+
+            // get the name
+            const name = this.groupName || `Group ${groupId}`;
+            // get the ids of the groupd nodes
+
+            this.savedGroups.push({
+                groupId,
+                name,
+                count: 0,
+            });
+            this.getStore().saveGroup(groupId);
+        },
+
+        selectGroup(i) {
+            const { groupId } = this.savedGroups[i];
+            if (groupId === this.activeGroup) {
+                // console.log('unselect');
+                this.setActiveGroup(null);
+                this.getStore().clearGroup();
+            } else {
+                console.log('select');
+                this.getStore().loadGroupByGroupId(groupId);
+                this.setActiveGroup(groupId);
+            }
+        },
+
+        deleteGroup(i) {
+            const { groupId } = this.savedGroups[i];
+            this.savedGroups.splice(i, 1);
+            this.getStore().deleteGroup(groupId);
+        },
+
+        handleNeighbourMode(i) {
+            // set groupt to active if not allready set
+            const { groupId } = this.savedGroups[i];
+            if (groupId !== this.activeGroup) this.selectGroup(i);
+
+            // switch to neighbourmode
+            this.toggleNeighbourMode();
+            this.setActiveGroup(groupId);
+        },
         /* drawNavMap() {
             console.time('drawNavMap');
             const ctx = this.navMap.getContext('2d');
@@ -1348,5 +1430,9 @@ export default {
     border-bottom: 3px solid paleturquoise;
     color: #484848;
     margin-bottom: 0;
+}
+
+.group-item {
+    display: flex;
 }
 </style>

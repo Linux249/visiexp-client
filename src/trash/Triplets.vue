@@ -1,3 +1,4 @@
+<!--
 <template>
     <div class="triblet-area">
 
@@ -136,3 +137,4 @@ img {
     /*//width: 7rem;*/
 }
 </style>
+-->
