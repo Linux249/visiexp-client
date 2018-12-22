@@ -37,6 +37,13 @@
                 >
                     neighbour
                 </div>
+                <div
+                    class="btn"
+                    :class="{ active: neighbourMode }"
+                    @click="drawWorker"
+                >
+                    draw
+                </div>
             </div>
             <div class="row">
                 <!--<div># {{nodesCount}}</div>-->
@@ -317,7 +324,7 @@
                     :neighboursThreshold="neighboursThreshold"
                 />
 
-                <router-view
+               <!-- <router-view
                     :nodes="cuttedNodes"
                     :labels="labels"
                     :node="clickedNode"
@@ -326,7 +333,7 @@
                     :getStore="getStore"
                     :dataset="dataset"
                     :handleChangeDataset="handleChangeDataset"
-                />
+                />-->
 
 
                 <div class="info-box"  v-if="activeNode">
@@ -817,6 +824,129 @@ export default {
             this.store.triggerDraw();
         },
 
+        async drawWorker() {
+            const clonedNodes = {};
+            Object.values(this.store.nodes).map(
+                ({
+                    index,
+                    x,
+                    y,
+                    rank,
+                    isClusterd,
+                    cluster,
+                    imageData,
+                    labels,
+                    cliqueLen,
+                    colorKey,
+                    isNearly,
+                    group,
+                }) => clonedNodes[index] = {
+                    index,
+                    x,
+                    y,
+                    rank,
+                    isClusterd,
+                    cluster,
+                    imageData,
+                    labels: [...labels],
+                    cliqueLen,
+                    colorKey: [...colorKey],
+                    isNearly,
+                    group,
+                },
+            );
+            const {
+                zoomStage,
+                scale,
+                width: canvasW,
+                height: canvasH,
+                translateX: tx,
+                translateY: ty,
+                representImgSize,
+                imgSize,
+                drawScissors,
+                scissorsStartX,
+                scissorsStartY,
+                scissorsEndX,
+                scissorsEndY,
+                sizeRange,
+                cluster,
+                sorted,
+                neighbourImgSize,
+                groupNeighbours,
+                selectedLabel,
+                selectedCategory,
+            } = this.store;
+
+            // console.log({ canvasW, canvasH, tx, ty, scale });
+
+            const {
+                boarderRankedMode,
+                sizeRankedMode,
+                gradient,
+                clusterMode,
+                oldClusterMode,
+                neighbourMode,
+                representWithAlpha,
+                repsMode,
+                alphaBase,
+                alphaIncrease,
+                neighboursThreshold,
+                labels,
+            } = this;
+            const borderW = 1;
+
+            // if (clusterMode) this.updateClustering();
+
+            // const nodes = sorted
+            //     ? this.sortedNodes
+            //     : clusterMode && repsMode
+            //         ? this.sortNodesReps(repsMode)
+            //         : Object.values(this.nodes);
+
+            const options = {
+                zoomStage,
+                scale,
+                width: canvasW,
+                height: canvasH,
+                translateX: tx,
+                translateY: ty,
+                representImgSize,
+                imgSize,
+                drawScissors,
+                scissorsStartX,
+                scissorsStartY,
+                scissorsEndX,
+                scissorsEndY,
+                sizeRange,
+                cluster,
+                sorted,
+                neighbourImgSize,
+                groupNeighbours,
+                selectedLabel,
+                selectedCategory,
+
+                boarderRankedMode,
+                sizeRankedMode,
+                gradient: JSON.parse(JSON.stringify(gradient)),
+                clusterMode,
+                oldClusterMode,
+                neighbourMode,
+                representWithAlpha,
+                repsMode,
+                alphaBase,
+                alphaIncrease,
+                neighboursThreshold,
+                labels,
+
+                borderW,
+            };
+
+            await this.store.drawer.addOptions(options);
+            await this.store.drawer.addNodes(clonedNodes);
+            this.store.drawWorker();
+        },
+
         /* drawNavMap() {
             console.time('drawNavMap');
             const ctx = this.navMap.getContext('2d');
@@ -1083,7 +1213,7 @@ export default {
             if (this.nodesRecived === 0) console.time('loadAllNodes');
             this.nodesRecived += 1;
             s.addNode(new Node(data));
-            s.triggerDraw();
+            // s.triggerDraw();
         });
 
         socket.on('receiveImage', (data) => {

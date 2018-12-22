@@ -1,9 +1,17 @@
 import supercluster from 'supercluster';
 // import pointer from '../icons/Pointer.svg';
 // import { SVM, LABELS, NEIGHBOURS } from './modes';
+import { proxy } from 'comlinkjs';
+// import Work from '../worker/draw.worker.js';
+// main.js
+const MyClass = proxy(new Worker('../worker/draw.worker.js', { type: 'module' }));
+// `instance` is an instance of `MyClass` that lives in the worker!
 
 export default class CanvasState {
     constructor(canvas, hitCanvas, socket, ui) {
+        this.drawer = null;
+        this.initDrawer();
+
         this.socket = socket;
 
         this.ui = ui;
@@ -114,6 +122,10 @@ export default class CanvasState {
             hitmap: [],
         };
         this.scaleTest = false;
+    }
+
+    async initDrawer() {
+        this.drawer = await new MyClass();
     }
 
     set sizeRange(v) {
@@ -879,6 +891,272 @@ export default class CanvasState {
             console.warn(this.maxHitMapTime);
         }
     } */
+
+    async drawWorker() {
+        console.log('start draw');
+        console.log(this.drawer);
+        // console.time('JSON STRING')
+        // console.log(JSON.stringify(this.nodes).length)
+        // console.timeEnd('JSON STRING')
+        // console.time('draw2');
+        const startTime = window.performance.now();
+
+        // TODO Performance tests
+
+        // TODO kd tree
+        // TODO 1. kdtree-range test for generating node id's
+        // TODO 2. update kdtree test (after D&D)
+
+        // TODO kmeans perfomance test
+        // TODO 1. calc 50 k-means wirh kdtree results
+
+        const {
+            zoomStage,
+            scale,
+            width: canvasW,
+            height: canvasH,
+            translateX: tx,
+            translateY: ty,
+            representImgSize,
+            imgSize,
+            drawScissors,
+            scissorsStartX,
+            scissorsStartY,
+            scissorsEndX,
+            scissorsEndY,
+            sizeRange,
+            cluster,
+            sorted,
+            neighbourImgSize,
+            groupNeighbours,
+            selectedLabel,
+            selectedCategory,
+        } = this;
+
+        // console.log({ canvasW, canvasH, tx, ty, scale });
+
+        const {
+            boarderRankedMode,
+            sizeRankedMode,
+            gradient,
+            clusterMode,
+            oldClusterMode,
+            neighbourMode,
+            representWithAlpha,
+            repsMode,
+            alphaBase,
+            alphaIncrease,
+            neighboursThreshold,
+            labels,
+        } = this.ui;
+        const borderW = 1;
+
+        // if (clusterMode) this.updateClustering();
+
+        // const nodes = sorted
+        //     ? this.sortedNodes
+        //     : clusterMode && repsMode
+        //         ? this.sortNodesReps(repsMode)
+        //         : Object.values(this.nodes);
+
+        const options = {
+            zoomStage,
+            scale,
+            width: canvasW,
+            height: canvasH,
+            translateX: tx,
+            translateY: ty,
+            representImgSize,
+            imgSize,
+            drawScissors,
+            scissorsStartX,
+            scissorsStartY,
+            scissorsEndX,
+            scissorsEndY,
+            sizeRange,
+            cluster,
+            sorted,
+            neighbourImgSize,
+            groupNeighbours,
+            selectedLabel,
+            selectedCategory,
+
+            boarderRankedMode,
+            sizeRankedMode,
+            gradient: JSON.parse(JSON.stringify(gradient)),
+            clusterMode,
+            oldClusterMode,
+            neighbourMode,
+            representWithAlpha,
+            repsMode,
+            alphaBase,
+            alphaIncrease,
+            neighboursThreshold,
+            labels,
+
+            borderW,
+        };
+
+
+        console.time('drawWorkerTime');
+        const canvasPixel = await this.drawer.draw();
+        console.timeEnd('drawWorkerTime');
+
+        const hitmapPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
+        console.log({ canvasPixel, hitmapPixel });
+
+        /*
+            DRAW UNDLINE FOR GROUPED NODES
+         */
+        // TODO use color user can choose in UI + add choose color in UI
+        // const groupColor = [225, 225, 115];
+        // const neighbourColor = [225, 225, 115];
+
+        // const groupColor = [195,230,203];  // bootstrap green
+        // const label2Color = [153, 0, 51];
+
+        /* nodes.forEach((node) => {
+            const neighbour = this.groupNeighbours[node.index];
+            // TODO Perfomance is maybe bedder without another loop
+
+            // draw only if group, label2 or neighbour
+            if (
+                !node.group
+                && !node.isNearly
+                && (!neighbour || neighbour > this.ui.neighboursThreshold)
+            ) return;
+
+            const lineColor = neighbour ? neighbourColor : node.isNearly ? nearColor : groupColor;
+
+            let imgSize = sizeRankedMode
+                ? zoomStage + Math.floor(node.rank * this.sizeRange)
+                : zoomStage;
+            imgSize += this.imgSize;
+            const isRepresent = (clusterMode && !node.isClusterd)
+                || (oldClusterMode && node.cluster < this.cluster);
+
+            if (neighbourMode && !node.group) {
+                // the node should not be in the neighbours list
+                const neighbour = this.groupNeighbours[node.index];
+                if (neighbour && neighbour <= this.ui.neighboursThreshold) {
+                    imgSize += this.neighbourImgSize;
+                } else return;
+            } else if (isRepresent) imgSize += representImgSize;
+
+            if (imgSize < 0) imgSize = 0;
+            if (imgSize > 14) imgSize = 14;
+
+            const img = node.imageData[imgSize];
+            if (!img) return console.error(`no image for node: ${node.id}exists`);
+
+            const iw = img.width;
+            const ih = img.height;
+
+            const nodeX = Math.floor(node.x * scale + tx - iw / 2);
+            const nodeY = Math.floor(node.y * scale + ty - ih / 2);
+
+            const inside = nodeX > borderW
+                && nodeY > borderW
+                && nodeX < canvasW - iw - borderW
+                && nodeY < canvasH - ih - borderW;
+
+            if (inside) {
+                const h = Math.ceil(ih / 10);
+                const w = Math.ceil(iw / 10);
+                // wir gehen durch alle reihen des bildes
+                for (let row = 0; row < h; row += 1) {
+                    const canvasRow = ((nodeY + ih + h + row) * canvasW + nodeX - w) * 4;
+                    // copy row to pixel
+                    // wir laufen durch alle spalten des bildes und betrachten dann 4 werte im array
+                    for (let col = 0; col < iw + 2 * w; col += 1) {
+                        const c = canvasRow + col * 4;
+                        // if(c > canvasW * canvasH * 4) console.error("CRY")
+                        canvasPixel[c] = lineColor[0]; // R
+                        canvasPixel[c + 1] = lineColor[1]; // G
+                        canvasPixel[c + 2] = lineColor[2]; // B
+                        canvasPixel[c + 3] = neighbour ? 200 : 255;
+                    }
+                }
+            }
+
+            // test if image obj exists
+        }); */
+
+        /*
+            DRAW SCISSORS
+         */
+
+        if (drawScissors) {
+            const canvasX = scissorsStartX < scissorsEndX ? scissorsStartX : scissorsEndX;
+            const canvasY = scissorsStartY < scissorsEndY ? scissorsStartY : scissorsEndY;
+
+            const w = Math.abs(scissorsEndX - scissorsStartX);
+            const h = Math.abs(scissorsEndY - scissorsStartY);
+
+            // '#3882ff';
+            const color = [56, 130, 255];
+
+            for (let row = 0; row < h; row += 1) {
+                const canvasRow = ((canvasY + row) * canvasW + canvasX) * 4;
+
+                for (let col = 0; col < w; col += 1) {
+                    const c = canvasRow + col * 4;
+                    if (row === 0 || row === h - 1) {
+                        // draw top line r
+
+                        canvasPixel[c] = color[0]; // R
+                        canvasPixel[c + 1] = color[1]; // G
+                        canvasPixel[c + 2] = color[2]; // B
+                        canvasPixel[c + 3] = 255;
+                    } else if (col === 0 || col === w - 1) {
+                        // draw left boarder
+                        const l = canvasRow;
+                        canvasPixel[l] = color[0]; // R
+                        canvasPixel[l + 1] = color[1]; // G
+                        canvasPixel[l + 2] = color[2]; // B
+                        canvasPixel[l + 3] = 255;
+
+                        // draw left boarder
+                        const r = canvasRow + (w - 1) * 4;
+                        canvasPixel[r] = color[0]; // R
+                        canvasPixel[r + 1] = color[1]; // G
+                        canvasPixel[r + 2] = color[2]; // B
+                        canvasPixel[r + 3] = 255;
+                    }
+                }
+            }
+        }
+
+        const pic = new ImageData(canvasPixel, canvasW, canvasH);
+        const hitmap = new ImageData(hitmapPixel, canvasW, canvasH);
+        const hitmapCtx = this.ui.toggle ? this.ctx : this.hitCtx;
+        this.ctx.resetTransform();
+        this.ctx.clearRect(0, 0, this.width, this.height);
+        this.ctx.putImageData(pic, 0, 0);
+        hitmapCtx.resetTransform();
+        hitmapCtx.clearRect(0, 0, this.width, this.height);
+        hitmapCtx.putImageData(hitmap, 0, 0);
+        // console.log(pic);
+        // console.log(canvasPixel);
+
+        // console.log({ w, h, tx, ty, pixel });
+        // console.timeEnd('draw2');
+        const endTime = window.performance.now();
+        const time = endTime - startTime;
+        this.perfLogs.draw.push(time);
+        if (time > this.maxDrawTime) {
+            this.maxDrawTime = time;
+            console.warn('new max draw time');
+            console.warn(this.maxDrawTime);
+        }
+        // requestAnimationFrame(() => this.drawHitmap());
+        this.valid = true;
+        if (this.ui.showHeatmap) requestAnimationFrame(this.ui.drawHeatmap);
+        // if (this.ui.showNavMap) requestAnimationFrame(this.ui.drawNavMapRect);
+        if (this.ui.showNavHeatmap) {
+            requestAnimationFrame(this.ui.drawNavHeatmapRect);
+        }
+    }
 
     draw2() {
         // console.log('start draw')
