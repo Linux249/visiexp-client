@@ -1071,7 +1071,7 @@ export default class CanvasState {
                 // draw boarder
                 for (let row = -2; row <= ih + 1; row += 1) {
                     const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
-                    if (row === -2 || row === ih + 1) {
+                    if (row === -2  || row === -1 || row === ih + 1 || row === ih) {
                         // draw top line r
                         for (let col = 0; col < iw; col += 1) {
                             const c = canvasRow + col * 4;
@@ -1082,11 +1082,24 @@ export default class CanvasState {
                         }
                     } else {
                         // draw left boarder
-                        const l = canvasRow - 8;
+                        const l = canvasRow - 4;
                         canvasPixel[l] = color[0]; // R
                         canvasPixel[l + 1] = color[1]; // G
                         canvasPixel[l + 2] = color[2]; // B
                         canvasPixel[l + 3] = 200;
+
+                        // draw left boarder
+                        const l2 = canvasRow + (iw) * 4;
+                        canvasPixel[l2] = color[0]; // R
+                        canvasPixel[l2 + 1] = color[1]; // G
+                        canvasPixel[l2 + 2] = color[2]; // B
+                        canvasPixel[l2 + 3] = 200;
+
+                        const r2 = canvasRow - 8;
+                        canvasPixel[r2] = color[0]; // R
+                        canvasPixel[r2 + 1] = color[1]; // G
+                        canvasPixel[r2 + 2] = color[2]; // B
+                        canvasPixel[r2 + 3] = 200;
 
                         // draw left boarder
                         const r = canvasRow + (iw + 1) * 4;
