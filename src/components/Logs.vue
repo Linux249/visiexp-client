@@ -1,6 +1,7 @@
 <template>
     <div class="area">
-        <div class="row">
+        <div class="row center">
+            performance monitor
             <div class="btn" @click="calcChartData">start</div>
             <div class="btn" @click="resetChartData">reset</div>
         </div>
@@ -66,4 +67,7 @@ export default {
 </script>
 
 <style scoped>
+.center {
+    align-items: center;
+}
 </style>
