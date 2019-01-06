@@ -612,7 +612,7 @@ export default {
             const { heatmap } = this;
 
             // data in form of [[x,y,v], [x,y,v], ...]
-            const data = Object.values(this.store.getNodes()).map(node => {
+            const data = Object.values(this.store.getNodes()).map((node) => {
                 const x = (node.x * this.store.scale + this.store.translateX) / 4;
                 const y = (node.y * this.store.scale + this.store.translateY) / 4;
                 return [x, y, 1];
@@ -636,7 +636,7 @@ export default {
             const h = this.navHeatmapRect.height;
 
             // data in form of [[x,y,v], [x,y,v], ...]
-            const data = Object.values(this.store.getNodes()).map(node => {
+            const data = Object.values(this.store.getNodes()).map((node) => {
                 const x = node.x * 5 + w / 2;
                 const y = node.y * 5 + h / 2;
                 return [x, y, 1];
@@ -1088,7 +1088,7 @@ export default {
                 transports: ['websocket'],
                 reconnectionDelay: 100,
                 reconnectionDelayMax: 1000,
-            }
+            },
         );
         const canvas = document.getElementById('canvas');
         const parantWidth = canvas.parentNode.clientWidth; //* 0.8;
@@ -1173,14 +1173,14 @@ export default {
             // s.clear() // maybe there is something inside?
         });
 
-        socket.on('disconnect', reason => {
+        socket.on('disconnect', (reason) => {
             this.connectedToSocket = false;
             console.log(`disconnect: ${reason}`); // das wirft immer unde
             console.log(socket);
             // s.clear() // maybe there is something inside?
         });
 
-        socket.on('node', data => {
+        socket.on('node', (data) => {
             if (data.index % 100 === 0) {
                 console.log(`receive node ${data.index}`);
                 console.log(data);
@@ -1192,7 +1192,7 @@ export default {
             s.triggerDraw();
         });
 
-        socket.on('receiveImage', data => {
+        socket.on('receiveImage', (data) => {
             // console.log('receive image data');
             // console.log(data);
             const node = s.nodes[data.index];
@@ -1201,7 +1201,7 @@ export default {
             node.hasImage = true;
         });
 
-        socket.on('totalNodesCount', data => {
+        socket.on('totalNodesCount', (data) => {
             console.log('totalNodesCount');
             console.log(data);
             this.nodesTotal = data;
@@ -1220,13 +1220,13 @@ export default {
             this.nodesCount = nodesCount;
         }); */
 
-        socket.on('updateLabels', data => {
+        socket.on('updateLabels', (data) => {
             console.log('updateLabels');
             console.log(data);
             this.labels = data;
         });
 
-        socket.on('updateKdtree', kdtree => {
+        socket.on('updateKdtree', (kdtree) => {
             console.log('updateKdtree');
             console.log(kdtree);
             s.kdtree = kdtree;
