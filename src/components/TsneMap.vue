@@ -311,9 +311,7 @@
                 />-->
                 <div class="area">
                     <div class="title">Save/load groups</div>
-                    <div v-if="this.savedGroups.length"
-                         class="group-list">
-
+                    <div v-if="this.savedGroups.length" class="group-list">
                         <div class="group-item row-between btn"
                              v-for="(group, i) in savedGroups"
                              :key="i"
@@ -325,6 +323,21 @@
                             >
                                 {{`${group.name} (#${group.count})`}}
                             </div>
+                            <select
+                                :style="{width: '3rem', backgroundColor: `rgb(${groupColours[group.colorId][0]},${groupColours[group.colorId][1]},${groupColours[group.colorId][2]})`}"
+                                @change="changeGroupColor($event, i)"
+                            >
+                                <option
+                                    v-for="(color, id) in groupColours"
+                                    :selected="group.colorId == id"
+                                    :id="group.colorId"
+                                    :value="id"
+                                    :key="id"
+                                    :style="{backgroundColor: `rgb(${color[0]},${color[1]},${color[2]})`}"
+                                >
+                                    {{group.colorId == id}}
+                                </option>
+                            </select>
                             <div
                                 class="btn"
                                 :class="{active: neighbourMode && group.groupId === activeGroup}"
@@ -385,6 +398,7 @@ import simpleheat from 'simpleheat';
 import { Slider } from 'vue-color';
 import Node from '../util/Node';
 import CanvasState from '../util/CanvasState';
+import groupColors from '../config/groupColors';
 // import Groups from './Groups';
 import Neighbours from './Neighbours';
 import Scissors from '../icons/Scissors';
@@ -530,6 +544,7 @@ export default {
         savedGroups: [],
         groupName: '',
         groupCounter: 0, // 0 is no group, counter inc for first use
+        groupColours: groupColors,
     }),
     methods: {
         getNode(i) {
@@ -597,7 +612,7 @@ export default {
             const { heatmap } = this;
 
             // data in form of [[x,y,v], [x,y,v], ...]
-            const data = Object.values(this.store.getNodes()).map((node) => {
+            const data = Object.values(this.store.getNodes()).map(node => {
                 const x = (node.x * this.store.scale + this.store.translateX) / 4;
                 const y = (node.y * this.store.scale + this.store.translateY) / 4;
                 return [x, y, 1];
@@ -621,7 +636,7 @@ export default {
             const h = this.navHeatmapRect.height;
 
             // data in form of [[x,y,v], [x,y,v], ...]
-            const data = Object.values(this.store.getNodes()).map((node) => {
+            const data = Object.values(this.store.getNodes()).map(node => {
                 const x = node.x * 5 + w / 2;
                 const y = node.y * 5 + h / 2;
                 return [x, y, 1];
@@ -865,8 +880,10 @@ export default {
                 groupId,
                 name,
                 count: 0,
+                colorId: groupId % Object.keys(this.groupColours).length,
             });
             this.getStore().saveGroup(groupId);
+            this.getStore().triggerDraw();
         },
 
         selectGroup(i) {
@@ -880,6 +897,14 @@ export default {
                 this.getStore().loadGroupByGroupId(groupId);
                 this.setActiveGroup(groupId);
             }
+        },
+
+        changeGroupColor(e, i) {
+            console.log('changeGroupColor', e.target.value, i);
+            console.log(this.savedGroups[i]);
+            this.savedGroups[i].colorId = e.target.value;
+            console.log(this.savedGroups[i]);
+            this.getStore().triggerDraw();
         },
 
         deleteGroup(i) {
@@ -1063,7 +1088,7 @@ export default {
                 transports: ['websocket'],
                 reconnectionDelay: 100,
                 reconnectionDelayMax: 1000,
-            },
+            }
         );
         const canvas = document.getElementById('canvas');
         const parantWidth = canvas.parentNode.clientWidth; //* 0.8;
@@ -1148,14 +1173,14 @@ export default {
             // s.clear() // maybe there is something inside?
         });
 
-        socket.on('disconnect', (reason) => {
+        socket.on('disconnect', reason => {
             this.connectedToSocket = false;
             console.log(`disconnect: ${reason}`); // das wirft immer unde
             console.log(socket);
             // s.clear() // maybe there is something inside?
         });
 
-        socket.on('node', (data) => {
+        socket.on('node', data => {
             if (data.index % 100 === 0) {
                 console.log(`receive node ${data.index}`);
                 console.log(data);
@@ -1167,7 +1192,7 @@ export default {
             s.triggerDraw();
         });
 
-        socket.on('receiveImage', (data) => {
+        socket.on('receiveImage', data => {
             // console.log('receive image data');
             // console.log(data);
             const node = s.nodes[data.index];
@@ -1176,7 +1201,7 @@ export default {
             node.hasImage = true;
         });
 
-        socket.on('totalNodesCount', (data) => {
+        socket.on('totalNodesCount', data => {
             console.log('totalNodesCount');
             console.log(data);
             this.nodesTotal = data;
@@ -1195,13 +1220,13 @@ export default {
             this.nodesCount = nodesCount;
         }); */
 
-        socket.on('updateLabels', (data) => {
+        socket.on('updateLabels', data => {
             console.log('updateLabels');
             console.log(data);
             this.labels = data;
         });
 
-        socket.on('updateKdtree', (kdtree) => {
+        socket.on('updateKdtree', kdtree => {
             console.log('updateKdtree');
             console.log(kdtree);
             s.kdtree = kdtree;

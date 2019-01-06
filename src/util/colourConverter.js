@@ -14,23 +14,20 @@ function cutHex(h) {
 }
 
 export function hexToR(h) {
-    return parseInt(cutHex(h)
-        .substring(0, 2), 16);
+    return parseInt(cutHex(h).substring(0, 2), 16);
 }
 
 export function hexToG(h) {
-    return parseInt(cutHex(h)
-        .substring(2, 4), 16);
+    return parseInt(cutHex(h).substring(2, 4), 16);
 }
 
 export function hexToB(h) {
-    return parseInt(cutHex(h)
-        .substring(4, 6), 16);
+    return parseInt(cutHex(h).substring(4, 6), 16);
 }
 
 /*
 
 Die Farben benötigen verschiedene Formate. Das Input gibt die Farbe in Hex(Link zu was Hex ist) form zurück (Specification vom Input Feld).
-Dei "Draw()" Funktion benötigt aber die RGB Farben. DAher
+Dei "Draw()" Funktion benötigt aber die RGB Farben. Daher müssen diese umgeformt werden (womit? woher kommt die Funktion?) wie funktioneirt diese?
 
  */

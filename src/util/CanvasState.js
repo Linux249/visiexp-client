@@ -1,4 +1,5 @@
 import supercluster from 'supercluster';
+import groupColors from '../config/groupColors';
 // import pointer from '../icons/Pointer.svg';
 // import { SVM, LABELS, NEIGHBOURS } from './modes';
 
@@ -105,6 +106,7 @@ export default class CanvasState {
         // array of node index's
         this.groupNeighbours = {};
         this.removedGroupNeighbours = {};
+        this.groupColours = groupColors;
 
         // performance messure
         this.maxDrawTime = 0;
@@ -997,7 +999,10 @@ export default class CanvasState {
             const imgData = img.data;
 
             const neighbourColor = [250, 208, 44]; // yellow
-            const groupColor = [100, 100, 100]; // black
+            // const groupColor = [100, 100, 100]; // black
+            // NOTE bedder perfomance in draw if grouColourId whould be saved in node
+            const group = this.ui.savedGroups.find(e => e.groupId === node.groupId);
+            const groupColor = (group && this.groupColours[group.colorId]) || [100, 100, 100]; // black
             const nearColor = [0, 127, 0]; // gren
 
             /*
@@ -1071,7 +1076,7 @@ export default class CanvasState {
                 // draw boarder
                 for (let row = -2; row <= ih + 1; row += 1) {
                     const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
-                    if (row === -2  || row === -1 || row === ih + 1 || row === ih) {
+                    if (row === -2 || row === -1 || row === ih + 1 || row === ih) {
                         // draw top line r
                         for (let col = 0; col < iw; col += 1) {
                             const c = canvasRow + col * 4;
@@ -1089,7 +1094,7 @@ export default class CanvasState {
                         canvasPixel[l + 3] = 200;
 
                         // draw left boarder
-                        const l2 = canvasRow + (iw) * 4;
+                        const l2 = canvasRow + iw * 4;
                         canvasPixel[l2] = color[0]; // R
                         canvasPixel[l2 + 1] = color[1]; // G
                         canvasPixel[l2 + 2] = color[2]; // B

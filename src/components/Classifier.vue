@@ -98,9 +98,7 @@ import Hash from '../icons/Hash';
 import X from '../icons/X';
 import Slash from '../icons/Slash';
 import Grid from '../icons/Grid';
-import {
-    hexToB, hexToG, hexToR, rgbToHex,
-} from '../util/colourConverter';
+import { hexToB, hexToG, hexToR, rgbToHex } from '../util/colourConverter';
 
 export default {
     name: 'classifier',
@@ -156,7 +154,7 @@ export default {
             }
 
             // ad label to nodes after checking that is npot allready used at node
-            this.selectedNodes.forEach((node) => {
+            this.selectedNodes.forEach(node => {
                 node.labels[this.selectedCategory] = this.label;
             });
 
@@ -192,7 +190,7 @@ export default {
                 body,
             })
                 .then(res => res.text())
-                .catch((e) => {
+                .catch(e => {
                     // TODO Errorhandling after loading is implemented
                     // this.loading = false;
                     console.error(e);
@@ -244,7 +242,9 @@ export default {
     },
     computed: {
         labelsFiltered() {
-            return this.labels[this.selectedCategory].labels.filter(label => label.name.includes(this.label));
+            return this.labels[this.selectedCategory].labels.filter(label =>
+                label.name.includes(this.label)
+            );
         },
     },
 };
