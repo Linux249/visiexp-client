@@ -885,8 +885,8 @@ export default {
                 count: 0,
                 colorId: groupId % Object.keys(this.groupColours).length,
             });
-            this.getStore().saveGroup(groupId);
-            this.getStore().triggerDraw();
+            this.store.saveGroup(groupId);
+            this.store.triggerDraw();
         },
 
         selectGroup(i) {
@@ -894,10 +894,10 @@ export default {
             if (groupId === this.activeGroup) {
                 // console.log('unselect');
                 this.setActiveGroup(null);
-                this.getStore().clearGroup();
+                this.store.clearGroup();
             } else {
                 console.log('select');
-                this.getStore().loadGroupByGroupId(groupId);
+                this.store.loadGroupByGroupId(groupId);
                 this.setActiveGroup(groupId);
             }
         },
@@ -907,13 +907,13 @@ export default {
             console.log(this.savedGroups[i]);
             this.savedGroups[i].colorId = e.target.value;
             console.log(this.savedGroups[i]);
-            this.getStore().triggerDraw();
+            this.store.triggerDraw();
         },
 
         deleteGroup(i) {
             const { groupId } = this.savedGroups[i];
             this.savedGroups.splice(i, 1);
-            this.getStore().deleteGroup(groupId);
+            this.store.deleteGroup(groupId);
         },
 
         handleNeighbourMode(i) {
