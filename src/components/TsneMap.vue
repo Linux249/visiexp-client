@@ -94,19 +94,21 @@
                             <x></x>
                         </div>
                     </div>
-                    <div :class="{ hide: !showHeatmap }">
-                        <canvas
-                            id="heatmap"
-                            class="canvas"
-                            tabindex="0"
-                        ></canvas>
-                    </div>
-                    <div class="navMap" :class="{ hide: !showNavHeatmap }">
-                        <canvas id="navHeatmap" class="canvas" tabindex="0" ></canvas>
-                        <canvas id="navHeatmapRect" tabindex="0" ></canvas>
-                    </div>
                 </div>
                 <div class="box top left"><div class="btn" :if="nodesTotal">{{nodesRecived + "/" + nodesTotal}}</div></div>
+                <div class="box bottom left"><div :class="{ hide: !showHeatmap }">
+                    <canvas
+                        id="heatmap"
+                        class="canvas"
+                        style="margin: 0.5rem; border-radius: 4px"
+                        tabindex="0"
+                    ></canvas>
+                </div>
+                    <div class="navMap" :class="{ hide: !showNavHeatmap }">
+                        <canvas id="navHeatmap" class="canvas" style="margin: 0.5rem; border-radius: 4px" tabindex="0" ></canvas>
+                        <canvas id="navHeatmapRect" style="margin: 0.5rem; border-radius: 4px" tabindex="0" ></canvas>
+                    </div>
+                </div>
                 <div class="box bottom right">
                     <div class="row">
                         <div @click="changeScaleDown()" class="btn"><minimize></minimize></div>
@@ -1377,15 +1379,15 @@ export default {
 
 #navHeatmap {
     position: absolute;
-    top: 0;
-    right: 0;
+    bottom: 0;
+    left: 0;
     z-index: 10;
 }
 
 #navHeatmapRect {
     position: absolute;
-    top: 0;
-    right: 0;
+    bottom: 0;
+    left: 0;
     z-index: 20;
     /*margin: 0.5rem;*/
     outline: none;
