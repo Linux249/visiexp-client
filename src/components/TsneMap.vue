@@ -312,7 +312,7 @@
                 <div class="area">
                     <div class="title">Save/load groups</div>
                     <div v-if="this.savedGroups.length" class="group-list">
-                        <div class="group-item row-between btn"
+                        <div class="group-item row-between"
                              v-for="(group, i) in savedGroups"
                              :key="i"
                         >
@@ -321,9 +321,11 @@
                                 :class="{active: group.groupId === activeGroup}"
                                 @click="selectGroup(i)"
                             >
-                                {{`${group.name} (#${group.count})`}}
+                                {{`${group.name}`}}
                             </div>
+                            <div>{{`#${group.count}`}}</div>
                             <select
+                                class="btn"
                                 :style="{width: '3rem', backgroundColor: `rgb(${groupColours[group.colorId][0]},${groupColours[group.colorId][1]},${groupColours[group.colorId][2]})`}"
                                 @change="changeGroupColor($event, i)"
                             >
@@ -335,7 +337,6 @@
                                     :key="id"
                                     :style="{backgroundColor: `rgb(${color[0]},${color[1]},${color[2]})`}"
                                 >
-                                    {{group.colorId == id}}
                                 </option>
                             </select>
                             <div
@@ -343,7 +344,7 @@
                                 :class="{active: neighbourMode && group.groupId === activeGroup}"
                                 @click="handleNeighbourMode(i)"
                             >
-                                neighbours
+                                <repeat></repeat>
                             </div>
                             <div class="btn" @click="deleteGroup(i)"><trash></trash></div>
                         </div>
@@ -415,12 +416,14 @@ import Plus from '../icons/Plus';
 import Minus from '../icons/Minus';
 import Logs from './Logs';
 import Trash from '../icons/Trash';
+import Repeat from '../icons/Repeat';
 // import TestWorker from '../worker/test.worker';
 
 export default {
     store: null,
     name: 'TsneMap',
     components: {
+        Repeat,
         Scissors,
         X,
         Play,
@@ -1461,5 +1464,23 @@ export default {
 
 .group-item {
     display: flex;
+    align-items: center;
+    /*align-self: center;*/
+    text-decoration: none;
+    /*text-overflow: ;*/
+    margin: 0.5rem;
+    /*height: 20px;*/
+    line-height: 20px;
+    padding: 1px 14px;
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+    background: #fff;
+    color: #6772e5;
+    border-radius: 4px;
+    font-size: 15px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    transition: all 0.15s ease;
+    cursor: pointer;
 }
 </style>
