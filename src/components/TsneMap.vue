@@ -736,13 +736,25 @@ export default {
         },
 
         changeScaleUp() {
-            this.store.changeScaleUp();
-            this.store.triggerDraw();
+            const canvas = document.getElementById('canvas');
+            this.store.zoomStage -= 1; // undoing image resize
+            const event = {
+                deltaY: -1,
+                offsetX: Math.round(canvas.width / 2),
+                offsetY: Math.round(canvas.height / 2),
+            };
+            this.store.zoom(event);
         },
 
         changeScaleDown() {
-            this.store.changeScaleDown();
-            this.store.triggerDraw();
+            const canvas = document.getElementById('canvas');
+            this.store.zoomStage += 1; // undoing image resize
+            const event = {
+                deltaY: 1,
+                offsetX: Math.round(canvas.width / 2),
+                offsetY: Math.round(canvas.height / 2),
+            };
+            this.store.zoom(event);
         },
 
         changeHeatmapRadius(v) {

@@ -1397,8 +1397,9 @@ export default class CanvasState {
 
     zoom(wheelEvent) {
         // console.log('zoom event');
-        wheelEvent.preventDefault();
-        wheelEvent.stopPropagation();
+        // event can be a custom/dummy event
+        if(wheelEvent.hasOwnProperty('preventDefault'))wheelEvent.preventDefault();
+        if(wheelEvent.hasOwnProperty('stopPropagation'))wheelEvent.stopPropagation();
         // console.log(wheelEvent)
         // const { nodeUnderMouse } = this;
 
@@ -1425,7 +1426,7 @@ export default class CanvasState {
         const oldScale = this.scale;
         const mouseX = wheelEvent.offsetX;
         const mouseY = wheelEvent.offsetY;
-        // console.log({ mouseX, mouseY });
+        console.log({ mouseX, mouseY });
         // get mouse movement based on the last triggered event
         const offsetX = (mouseX - this.translateX) / oldScale; // +80 means move 80px to right
         const offsetY = (mouseY - this.translateY) / oldScale; // -50 means move 50 to top
