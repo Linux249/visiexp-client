@@ -832,10 +832,10 @@ export default class CanvasState {
             if (!img) return console.error(`no image for node: ${node.id}exists`);
             const imgW = img.width;
             const imgH = img.height;
-            const nodeX = Math.floor(node.x * scale + tx - imgW / 2);
-            const nodeY = Math.floor(node.y * scale + ty - imgH / 2);
-            const inside = nodeX > 0 && nodeY > 0 &&
-            nodeX < explorerW - imgW && nodeY < explorerH - imgH;
+            const imgX = Math.floor(node.x * scale + tx - imgW / 2);
+            const imgY = Math.floor(node.y * scale + ty - imgH / 2);
+            const inside = imgX > 0 && imgY > 0 &&
+            imgX < explorerW - imgW && imgY < explorerH - imgH;
 
             // check if the image is allowed to draw in certain rules
             let show = true;
@@ -860,7 +860,7 @@ export default class CanvasState {
                 // cluster
                 // wir gehen durch alle reihen des bildes
                 for (let row = 0; row < imgH; row += 1) {
-                    const explorerRow = ((nodeY + row) * explorerW + nodeX) * 4;
+                    const explorerRow = ((imgY + row) * explorerW + imgX) * 4;
                     // wir laufen durch alle spalten des bildes
                     // und betrachten dann 4 werte im array
                     for (let col = 0; col < imgW; col += 1) {
@@ -969,11 +969,11 @@ export default class CanvasState {
             const imgW = img.width;
             const imgH = img.height;
 
-            const nodeX = Math.floor(node.x * scale + tx - imgW / 2);
-            const nodeY = Math.floor(node.y * scale + ty - imgH / 2);
+            const imgX = Math.floor(node.x * scale + tx - imgW / 2);
+            const imgY = Math.floor(node.y * scale + ty - imgH / 2);
 
             // test if the image is outside the explorer
-            if (!(nodeX < explorerW - imgW && nodeY < explorerH - imgH)) return;
+            if (!(imgX < explorerW - imgW && imgY < explorerH - imgH)) return;
 
             // check if the image is allowed to draw in certain rules
             let show = true;
@@ -1006,7 +1006,7 @@ export default class CanvasState {
              */
             if (node.groupId && !node.group) {
                 for (let row = -2; row <= imgH + 1; row += 1) {
-                    const explorerRow = ((nodeY + row) * explorerW + nodeX) * 4;
+                    const explorerRow = ((imgY + row) * explorerW + imgX) * 4;
                     if (row === -2 || row === -1 || row === imgH + 1 || row === imgH) {
                         // draw top line r
                         for (let col = -2; col < imgW + 2; col += 1) {
@@ -1030,7 +1030,7 @@ export default class CanvasState {
                         explorerPixel[l2 + 2] = groupColor[2]; // B
                         explorerPixel[l2 + 3] = 50;
 
-                        // draw left boarder
+                        // draw right boarder
                         const r = explorerRow + (imgW + 1) * 4;
                         explorerPixel[r] = groupColor[0]; // R
                         explorerPixel[r + 1] = groupColor[1]; // G
@@ -1052,7 +1052,7 @@ export default class CanvasState {
             if (show) {
                 // loop through rows in img
                 for (let row = 0; row < imgH; row += 1) {
-                    const explorerRow = ((nodeY + row) * explorerW + nodeX) * 4;
+                    const explorerRow = ((imgY + row) * explorerW + imgX) * 4;
                     // loop through column in img
                     for (let col = 0; col < imgW; col += 1) {
                         const c = explorerRow + col * 4;
@@ -1083,7 +1083,7 @@ export default class CanvasState {
                 const color = gradient[node.cliqueLen];
                 // draw boarder
                 for (let row = -2; row <= imgH + 1; row += 1) {
-                    const explorerRow = ((nodeY + row) * explorerW + nodeX) * 4;
+                    const explorerRow = ((imgY + row) * explorerW + imgX) * 4;
                     if (row === -2 || row === -1 || row === imgH + 1 || row === imgH) {
                         // draw top line r
                         for (let col = -2; col < imgW + 2; col += 1) {
@@ -1136,7 +1136,7 @@ export default class CanvasState {
                 );
                 // draw boarder
                 for (let row = -2; row <= imgH + 1; row += 1) {
-                    const explorerRow = ((nodeY + row) * explorerW + nodeX) * 4;
+                    const explorerRow = ((imgY + row) * explorerW + imgX) * 4;
                     if (row === -2 || row === -1 || row === imgH + 1 || row === imgH) {
                         // draw top line r
                         for (let col = -2; col < imgW + 2; col += 1) {
@@ -1198,7 +1198,7 @@ export default class CanvasState {
                         : null;
             if (lineColor) {
                 for (let row = -2; row <= imgH + 1; row += 1) {
-                    const explorerRow = ((nodeY + row) * explorerW + nodeX) * 4;
+                    const explorerRow = ((imgY + row) * explorerW + imgX) * 4;
                     if (row === -2 || row === -1 || row === imgH + 1 || row === imgH) {
                         // draw top line r
                         for (let col = -2; col < imgW + 2; col += 1) {
@@ -1286,20 +1286,20 @@ export default class CanvasState {
             const iw = img.width;
             const ih = img.height;
 
-            const nodeX = Math.floor(node.x * scale + tx - iw / 2);
-            const nodeY = Math.floor(node.y * scale + ty - ih / 2);
+            const imgX = Math.floor(node.x * scale + tx - iw / 2);
+            const imgY = Math.floor(node.y * scale + ty - ih / 2);
 
-            const inside = nodeX > borderW
-                && nodeY > borderW
-                && nodeX < explorerW - iw - borderW
-                && nodeY < explorerH - ih - borderW;
+            const inside = imgX > borderW
+                && imgY > borderW
+                && imgX < explorerW - iw - borderW
+                && imgY < explorerH - ih - borderW;
 
             if (inside) {
                 const h = Math.ceil(ih / 10);
                 const w = Math.ceil(iw / 10);
                 // wir gehen durch alle reihen des bildes
                 for (let row = 0; row < h; row += 1) {
-                    const explorerRow = ((nodeY + ih + h + row) * explorerW + nodeX - w) * 4;
+                    const explorerRow = ((imgY + ih + h + row) * explorerW + imgX - w) * 4;
                     // copy row to pixel
                     // wir laufen durch alle spalten des bildes und betrachten dann 4 werte im array
                     for (let col = 0; col < iw + 2 * w; col += 1) {
@@ -1543,15 +1543,15 @@ export default class CanvasState {
             } else if (this.draggNode) {
                 // console.log("draggeNode")
                 // scale the X/Y
-                const nodeX = moveX / this.scale;
-                const nodeY = moveY / this.scale;
+                const imgX = moveX / this.scale;
+                const imgY = moveY / this.scale;
 
                 // drag hole group
                 if (this.draggNode.group) {
                     Object.values(this.nodes).forEach((node) => {
                         if (node.group) {
-                            node.x += nodeX;
-                            node.y += nodeY;
+                            node.x += imgX;
+                            node.y += imgY;
                         }
                     });
                     // todo remove 'if' if clustermode is default
@@ -1571,8 +1571,8 @@ export default class CanvasState {
                     }
                 } else {
                     // drag only one node
-                    this.draggNode.x += nodeX;
-                    this.draggNode.y += nodeY;
+                    this.draggNode.x += imgX;
+                    this.draggNode.y += imgY;
                 }
             }
             return this.triggerDraw();
