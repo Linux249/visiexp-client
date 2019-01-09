@@ -9,7 +9,7 @@ export default class CanvasState {
 
         this.ui = ui;
 
-        this.canvas = canvas;
+        this.explorer = canvas;
         this.ctx = canvas.getContext('2d');
         this.width = canvas.width;
         this.height = canvas.height;
@@ -20,7 +20,7 @@ export default class CanvasState {
         // **** Keep track of state! ****
         // this.kdtree = {};
 
-        // this.valid = true; // when set to false, the canvas will redraw everything
+        // this.valid = true; // when set to false, the explorer will redraw everything
         this._valid = true;
         this.nodes = {}; // hash for all nodes
         this.colorHash = {}; // find nodes by color
@@ -87,15 +87,15 @@ export default class CanvasState {
         // this.ctx.scale(this.scale, this.scale);
 
         // add event listener
-        this.canvas.onmousedown = e => this.handleMouseDown(e);
-        this.canvas.onmousemove = e => this.handleMouseMove(e);
-        this.canvas.onmouseup = e => this.handleMouseUp(e);
-        this.canvas.ondblclick = e => this.handleDoubleClick(e);
-        this.canvas.onwheel = e => this.zoom(e);
+        this.explorer.onmousedown = e => this.handleMouseDown(e);
+        this.explorer.onmousemove = e => this.handleMouseMove(e);
+        this.explorer.onmouseup = e => this.handleMouseUp(e);
+        this.explorer.ondblclick = e => this.handleDoubleClick(e);
+        this.explorer.onwheel = e => this.zoom(e);
 
         this.sortedNodes = [];
         this.sorted = false;
-        // this.canvas.onblur = this.blur;
+        // this.explorer.onblur = this.blur;
         // this.timerId = setInterval(() => this.draw(), this.interval);
         this.sizeRange = 3;
 
@@ -208,7 +208,7 @@ export default class CanvasState {
 
     set scissors(value) {
         this._scissors = value;
-        this.canvas.style.cursor = value ? 'crosshair' : 'default';
+        this.explorer.style.cursor = value ? 'crosshair' : 'default';
     }
 
     get scissors() {
@@ -217,7 +217,7 @@ export default class CanvasState {
 
     set nodeUnderMouse(value) {
         this._nodeUnderMouse = value;
-        this.canvas.style.cursor = value ? 'grab' : 'default';
+        this.explorer.style.cursor = value ? 'grab' : 'default';
     }
 
     get nodeUnderMouse() {
@@ -229,7 +229,7 @@ export default class CanvasState {
         // const curser = `url('${pointer}')`;
         // console.log({curser, value});
         // TODO check why this is not working
-        // this.canvas.style.cursor = value ? curser : 'default';
+        // this.explorer.style.cursor = value ? curser : 'default';
     }
 
     get moveGroupToMouse() {
@@ -418,13 +418,13 @@ export default class CanvasState {
         const {
             zoomStage,
             scale,
-            width: canvasW,
-            height: canvasH,
+            width: explorerW,
+            height: explorerH,
             translateX: tx,
             translateY: ty,
         } = this;
 
-        const rect = [-tx / scale, -ty / scale, (canvasW - ty) / scale, (canvasH - ty) / scale];
+        const rect = [-tx / scale, -ty / scale, (explorerW - ty) / scale, (explorerH - ty) / scale];
 
         // get clustering for curretn section (viewbox)
         const cluster = this.supercluster.getClusters(rect, zoomStage);
@@ -681,7 +681,7 @@ export default class CanvasState {
         this.ui.savedGroups.forEach(group => (group.count = counter[group.groupId]));
     }
     /* clear() {
-        // move point 0,0 to middle of canvas
+        // move point 0,0 to middle of explorer
         // console.log(this.ctx)
         this.ctx.resetTransform();
         this.ctx.clearRect(0, 0, this.width, this.height);
@@ -800,9 +800,9 @@ export default class CanvasState {
     drawHitmap() {
         const startTime = window.performance.now();
 
-        const canvasW = this.width;
+        const explorerW = this.width;
 
-        const canvasH = this.height;
+        const explorerH = this.height;
 
         const tx = this.translateX;
         // verschiebung des Nullpunktes im Raum
@@ -811,7 +811,7 @@ export default class CanvasState {
 
         const { zoomStage, scale } = this;
 
-        const hitmapPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
+        const hitmapPixel = new Uint8ClampedArray(explorerW * explorerH * 4);
 
         const { sizeRanked: rankSize, clusterMode } = this.ui;
         const nodes = this.sorted ? this.sortedNodes : Object.values(this.nodes);
@@ -835,7 +835,7 @@ export default class CanvasState {
             const nodeX = Math.floor(node.x * scale + tx - imgW / 2);
             const nodeY = Math.floor(node.y * scale + ty - imgH / 2);
             const inside = nodeX > 0 && nodeY > 0 &&
-            nodeX < canvasW - imgW && nodeY < canvasH - imgH;
+            nodeX < explorerW - imgW && nodeY < explorerH - imgH;
 
             // check if the image is allowed to draw in certain rules
             let show = true;
@@ -860,11 +860,11 @@ export default class CanvasState {
                 // cluster
                 // wir gehen durch alle reihen des bildes
                 for (let row = 0; row < imgH; row += 1) {
-                    const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
+                    const explorerRow = ((nodeY + row) * explorerW + nodeX) * 4;
                     // wir laufen durch alle spalten des bildes
                     // und betrachten dann 4 werte im array
                     for (let col = 0; col < imgW; col += 1) {
-                        const c = canvasRow + col * 4;
+                        const c = explorerRow + col * 4;
                         // const p = (row * imgW + col) * 4;
                         hitmapPixel[c] = node.colorKey[0]; // R
                         hitmapPixel[c + 1] = node.colorKey[1]; // G
@@ -875,14 +875,14 @@ export default class CanvasState {
             }
         });
 
-        const pic = new ImageData(hitmapPixel, canvasW, canvasH);
+        const pic = new ImageData(hitmapPixel, explorerW, explorerH);
         const ctx = this.ui.toggle ? this.ctx : this.hitCtx;
         ctx.resetTransform();
         ctx.clearRect(0, 0, this.width, this.height);
         ctx.putImageData(pic, 0, 0);
 
         // console.log(pic);
-        // console.log(canvasPixel);
+        // console.log(explorerPixel);
 
         // console.log({ w, h, tx, ty, pixel });
         // console.timeEnd('drawHitmap');
@@ -913,15 +913,15 @@ export default class CanvasState {
         const {
             zoomStage,
             scale,
-            width: canvasW,
-            height: canvasH,
+            width: explorerW,
+            height: explorerH,
             translateX: tx,
             translateY: ty,
             representImgSize,
         } = this;
-        const canvasPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
-        const hitmapPixel = new Uint8ClampedArray(canvasW * canvasH * 4);
-        // console.log({ canvasW, canvasH, tx, ty, scale });
+        const explorerPixel = new Uint8ClampedArray(explorerW * explorerH * 4);
+        const hitmapPixel = new Uint8ClampedArray(explorerW * explorerH * 4);
+        // console.log({ explorerW, explorerH, tx, ty, scale });
 
         const {
             boarderRankedMode,
@@ -972,8 +972,8 @@ export default class CanvasState {
             const nodeX = Math.floor(node.x * scale + tx - imgW / 2);
             const nodeY = Math.floor(node.y * scale + ty - imgH / 2);
 
-            // test if the image is outside the canvas
-            if (!(nodeX < canvasW - imgW && nodeY < canvasH - imgH)) return;
+            // test if the image is outside the explorer
+            if (!(nodeX < explorerW - imgW && nodeY < explorerH - imgH)) return;
 
             // check if the image is allowed to draw in certain rules
             let show = true;
@@ -1006,42 +1006,42 @@ export default class CanvasState {
              */
             if (node.groupId && !node.group) {
                 for (let row = -2; row <= imgH + 1; row += 1) {
-                    const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
+                    const explorerRow = ((nodeY + row) * explorerW + nodeX) * 4;
                     if (row === -2 || row === -1 || row === imgH + 1 || row === imgH) {
                         // draw top line r
                         for (let col = -2; col < imgW + 2; col += 1) {
-                            const c = canvasRow + col * 4;
-                            canvasPixel[c] = groupColor[0]; // R
-                            canvasPixel[c + 1] = groupColor[1]; // G
-                            canvasPixel[c + 2] = groupColor[2]; // B
-                            canvasPixel[c + 3] = 50;
+                            const c = explorerRow + col * 4;
+                            explorerPixel[c] = groupColor[0]; // R
+                            explorerPixel[c + 1] = groupColor[1]; // G
+                            explorerPixel[c + 2] = groupColor[2]; // B
+                            explorerPixel[c + 3] = 50;
                         }
                     } else {
                         // draw left boarder
-                        const l = canvasRow - 8;
-                        canvasPixel[l] = groupColor[0]; // R
-                        canvasPixel[l + 1] = groupColor[1]; // G
-                        canvasPixel[l + 2] = groupColor[2]; // B
-                        canvasPixel[l + 3] = 50;
+                        const l = explorerRow - 8;
+                        explorerPixel[l] = groupColor[0]; // R
+                        explorerPixel[l + 1] = groupColor[1]; // G
+                        explorerPixel[l + 2] = groupColor[2]; // B
+                        explorerPixel[l + 3] = 50;
 
-                        const l2 = canvasRow - 4;
-                        canvasPixel[l2] = groupColor[0]; // R
-                        canvasPixel[l2 + 1] = groupColor[1]; // G
-                        canvasPixel[l2 + 2] = groupColor[2]; // B
-                        canvasPixel[l2 + 3] = 50;
+                        const l2 = explorerRow - 4;
+                        explorerPixel[l2] = groupColor[0]; // R
+                        explorerPixel[l2 + 1] = groupColor[1]; // G
+                        explorerPixel[l2 + 2] = groupColor[2]; // B
+                        explorerPixel[l2 + 3] = 50;
 
                         // draw left boarder
-                        const r = canvasRow + (imgW + 1) * 4;
-                        canvasPixel[r] = groupColor[0]; // R
-                        canvasPixel[r + 1] = groupColor[1]; // G
-                        canvasPixel[r + 2] = groupColor[2]; // B
-                        canvasPixel[r + 3] = 50;
+                        const r = explorerRow + (imgW + 1) * 4;
+                        explorerPixel[r] = groupColor[0]; // R
+                        explorerPixel[r + 1] = groupColor[1]; // G
+                        explorerPixel[r + 2] = groupColor[2]; // B
+                        explorerPixel[r + 3] = 50;
 
-                        const r2 = canvasRow + imgW * 4;
-                        canvasPixel[r2] = groupColor[0]; // R
-                        canvasPixel[r2 + 1] = groupColor[1]; // G
-                        canvasPixel[r2 + 2] = groupColor[2]; // B
-                        canvasPixel[r2 + 3] = 50;
+                        const r2 = explorerRow + imgW * 4;
+                        explorerPixel[r2] = groupColor[0]; // R
+                        explorerPixel[r2 + 1] = groupColor[1]; // G
+                        explorerPixel[r2 + 2] = groupColor[2]; // B
+                        explorerPixel[r2 + 3] = 50;
                     }
                 }
             }
@@ -1052,19 +1052,19 @@ export default class CanvasState {
             if (show) {
                 // loop through rows in img
                 for (let row = 0; row < imgH; row += 1) {
-                    const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
+                    const explorerRow = ((nodeY + row) * explorerW + nodeX) * 4;
                     // loop through column in img
                     for (let col = 0; col < imgW; col += 1) {
-                        const c = canvasRow + col * 4;
+                        const c = explorerRow + col * 4;
                         const p = (row * imgW + col) * 4;
-                        canvasPixel[c] = imgData[p]; // R
-                        canvasPixel[c + 1] = imgData[p + 1]; // G
-                        canvasPixel[c + 2] = imgData[p + 2]; // B
+                        explorerPixel[c] = imgData[p]; // R
+                        explorerPixel[c + 1] = imgData[p + 1]; // G
+                        explorerPixel[c + 2] = imgData[p + 2]; // B
                         // special mode for represents // img over other img // white background
-                        canvasPixel[c + 3] = representWithAlpha && isRepresent
+                        explorerPixel[c + 3] = representWithAlpha && isRepresent
                             ? 200
-                            : canvasPixel[c + 3]
-                                ? canvasPixel[c + 3] + 10 * node.cliqueLen
+                            : explorerPixel[c + 3]
+                                ? explorerPixel[c + 3] + 10 * node.cliqueLen
                                 : alphaBase + zoomStage * alphaIncrease;
 
                         // draw hitmap
@@ -1083,42 +1083,42 @@ export default class CanvasState {
                 const color = gradient[node.cliqueLen];
                 // draw boarder
                 for (let row = -2; row <= imgH + 1; row += 1) {
-                    const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
+                    const explorerRow = ((nodeY + row) * explorerW + nodeX) * 4;
                     if (row === -2 || row === -1 || row === imgH + 1 || row === imgH) {
                         // draw top line r
                         for (let col = -2; col < imgW + 2; col += 1) {
-                            const c = canvasRow + col * 4;
-                            canvasPixel[c] = color[0]; // R
-                            canvasPixel[c + 1] = color[1]; // G
-                            canvasPixel[c + 2] = color[2]; // B
-                            canvasPixel[c + 3] = 200;
+                            const c = explorerRow + col * 4;
+                            explorerPixel[c] = color[0]; // R
+                            explorerPixel[c + 1] = color[1]; // G
+                            explorerPixel[c + 2] = color[2]; // B
+                            explorerPixel[c + 3] = 200;
                         }
                     } else {
                         // draw right boarder
-                        const r = canvasRow - 4;
-                        canvasPixel[r] = color[0]; // R
-                        canvasPixel[r + 1] = color[1]; // G
-                        canvasPixel[r + 2] = color[2]; // B
-                        canvasPixel[r + 3] = 200;
+                        const r = explorerRow - 4;
+                        explorerPixel[r] = color[0]; // R
+                        explorerPixel[r + 1] = color[1]; // G
+                        explorerPixel[r + 2] = color[2]; // B
+                        explorerPixel[r + 3] = 200;
 
-                        const r2 = canvasRow - 8;
-                        canvasPixel[r2] = color[0]; // R
-                        canvasPixel[r2 + 1] = color[1]; // G
-                        canvasPixel[r2 + 2] = color[2]; // B
-                        canvasPixel[r2 + 3] = 200;
+                        const r2 = explorerRow - 8;
+                        explorerPixel[r2] = color[0]; // R
+                        explorerPixel[r2 + 1] = color[1]; // G
+                        explorerPixel[r2 + 2] = color[2]; // B
+                        explorerPixel[r2 + 3] = 200;
 
                         // draw left boarder
-                        const l = canvasRow + (imgW + 1) * 4;
-                        canvasPixel[l] = color[0]; // R
-                        canvasPixel[l + 1] = color[1]; // G
-                        canvasPixel[l + 2] = color[2]; // B
-                        canvasPixel[l + 3] = 200;
+                        const l = explorerRow + (imgW + 1) * 4;
+                        explorerPixel[l] = color[0]; // R
+                        explorerPixel[l + 1] = color[1]; // G
+                        explorerPixel[l + 2] = color[2]; // B
+                        explorerPixel[l + 3] = 200;
 
-                        const l2 = canvasRow + imgW * 4;
-                        canvasPixel[l2] = color[0]; // R
-                        canvasPixel[l2 + 1] = color[1]; // G
-                        canvasPixel[l2 + 2] = color[2]; // B
-                        canvasPixel[l2 + 3] = 200;
+                        const l2 = explorerRow + imgW * 4;
+                        explorerPixel[l2] = color[0]; // R
+                        explorerPixel[l2 + 1] = color[1]; // G
+                        explorerPixel[l2 + 2] = color[2]; // B
+                        explorerPixel[l2 + 3] = 200;
                     }
                 }
             }
@@ -1136,42 +1136,42 @@ export default class CanvasState {
                 );
                 // draw boarder
                 for (let row = -2; row <= imgH + 1; row += 1) {
-                    const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
+                    const explorerRow = ((nodeY + row) * explorerW + nodeX) * 4;
                     if (row === -2 || row === -1 || row === imgH + 1 || row === imgH) {
                         // draw top line r
                         for (let col = -2; col < imgW + 2; col += 1) {
-                            const c = canvasRow + col * 4;
-                            canvasPixel[c] = color[0]; // R
-                            canvasPixel[c + 1] = color[1]; // G
-                            canvasPixel[c + 2] = color[2]; // B
-                            canvasPixel[c + 3] = 200;
+                            const c = explorerRow + col * 4;
+                            explorerPixel[c] = color[0]; // R
+                            explorerPixel[c + 1] = color[1]; // G
+                            explorerPixel[c + 2] = color[2]; // B
+                            explorerPixel[c + 3] = 200;
                         }
                     } else {
                         // draw left boarder
-                        const l = canvasRow - 8;
-                        canvasPixel[l] = color[0]; // R
-                        canvasPixel[l + 1] = color[1]; // G
-                        canvasPixel[l + 2] = color[2]; // B
-                        canvasPixel[l + 3] = 200;
+                        const l = explorerRow - 8;
+                        explorerPixel[l] = color[0]; // R
+                        explorerPixel[l + 1] = color[1]; // G
+                        explorerPixel[l + 2] = color[2]; // B
+                        explorerPixel[l + 3] = 200;
 
-                        const l2 = canvasRow - 4;
-                        canvasPixel[l2] = color[0]; // R
-                        canvasPixel[l2 + 1] = color[1]; // G
-                        canvasPixel[l2 + 2] = color[2]; // B
-                        canvasPixel[l2 + 3] = 200;
+                        const l2 = explorerRow - 4;
+                        explorerPixel[l2] = color[0]; // R
+                        explorerPixel[l2 + 1] = color[1]; // G
+                        explorerPixel[l2 + 2] = color[2]; // B
+                        explorerPixel[l2 + 3] = 200;
 
                         // draw left boarder
-                        const r = canvasRow + (imgW + 1) * 4;
-                        canvasPixel[r] = color[0]; // R
-                        canvasPixel[r + 1] = color[1]; // G
-                        canvasPixel[r + 2] = color[2]; // B
-                        canvasPixel[r + 3] = 200;
+                        const r = explorerRow + (imgW + 1) * 4;
+                        explorerPixel[r] = color[0]; // R
+                        explorerPixel[r + 1] = color[1]; // G
+                        explorerPixel[r + 2] = color[2]; // B
+                        explorerPixel[r + 3] = 200;
 
-                        const r2 = canvasRow + imgW * 4;
-                        canvasPixel[r2] = color[0]; // R
-                        canvasPixel[r2 + 1] = color[1]; // G
-                        canvasPixel[r2 + 2] = color[2]; // B
-                        canvasPixel[r2 + 3] = 200;
+                        const r2 = explorerRow + imgW * 4;
+                        explorerPixel[r2] = color[0]; // R
+                        explorerPixel[r2 + 1] = color[1]; // G
+                        explorerPixel[r2 + 2] = color[2]; // B
+                        explorerPixel[r2 + 3] = 200;
                     }
                 }
             }
@@ -1198,42 +1198,42 @@ export default class CanvasState {
                         : null;
             if (lineColor) {
                 for (let row = -2; row <= imgH + 1; row += 1) {
-                    const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
+                    const explorerRow = ((nodeY + row) * explorerW + nodeX) * 4;
                     if (row === -2 || row === -1 || row === imgH + 1 || row === imgH) {
                         // draw top line r
                         for (let col = -2; col < imgW + 2; col += 1) {
-                            const c = canvasRow + col * 4;
-                            canvasPixel[c] = lineColor[0]; // R
-                            canvasPixel[c + 1] = lineColor[1]; // G
-                            canvasPixel[c + 2] = lineColor[2]; // B
-                            canvasPixel[c + 3] = 200;
+                            const c = explorerRow + col * 4;
+                            explorerPixel[c] = lineColor[0]; // R
+                            explorerPixel[c + 1] = lineColor[1]; // G
+                            explorerPixel[c + 2] = lineColor[2]; // B
+                            explorerPixel[c + 3] = 200;
                         }
                     } else {
                         // draw left boarder
-                        const l = canvasRow - 8;
-                        canvasPixel[l] = lineColor[0]; // R
-                        canvasPixel[l + 1] = lineColor[1]; // G
-                        canvasPixel[l + 2] = lineColor[2]; // B
-                        canvasPixel[l + 3] = 200;
+                        const l = explorerRow - 8;
+                        explorerPixel[l] = lineColor[0]; // R
+                        explorerPixel[l + 1] = lineColor[1]; // G
+                        explorerPixel[l + 2] = lineColor[2]; // B
+                        explorerPixel[l + 3] = 200;
 
-                        const l2 = canvasRow - 4;
-                        canvasPixel[l2] = lineColor[0]; // R
-                        canvasPixel[l2 + 1] = lineColor[1]; // G
-                        canvasPixel[l2 + 2] = lineColor[2]; // B
-                        canvasPixel[l2 + 3] = 200;
+                        const l2 = explorerRow - 4;
+                        explorerPixel[l2] = lineColor[0]; // R
+                        explorerPixel[l2 + 1] = lineColor[1]; // G
+                        explorerPixel[l2 + 2] = lineColor[2]; // B
+                        explorerPixel[l2 + 3] = 200;
 
                         // draw left boarder
-                        const r = canvasRow + (imgW + 1) * 4;
-                        canvasPixel[r] = lineColor[0]; // R
-                        canvasPixel[r + 1] = lineColor[1]; // G
-                        canvasPixel[r + 2] = lineColor[2]; // B
-                        canvasPixel[r + 3] = 200;
+                        const r = explorerRow + (imgW + 1) * 4;
+                        explorerPixel[r] = lineColor[0]; // R
+                        explorerPixel[r + 1] = lineColor[1]; // G
+                        explorerPixel[r + 2] = lineColor[2]; // B
+                        explorerPixel[r + 3] = 200;
 
-                        const r2 = canvasRow + imgW * 4;
-                        canvasPixel[r2] = lineColor[0]; // R
-                        canvasPixel[r2 + 1] = lineColor[1]; // G
-                        canvasPixel[r2 + 2] = lineColor[2]; // B
-                        canvasPixel[r2 + 3] = 200;
+                        const r2 = explorerRow + imgW * 4;
+                        explorerPixel[r2] = lineColor[0]; // R
+                        explorerPixel[r2 + 1] = lineColor[1]; // G
+                        explorerPixel[r2 + 2] = lineColor[2]; // B
+                        explorerPixel[r2 + 3] = 200;
                     }
                 }
             }
@@ -1291,24 +1291,24 @@ export default class CanvasState {
 
             const inside = nodeX > borderW
                 && nodeY > borderW
-                && nodeX < canvasW - iw - borderW
-                && nodeY < canvasH - ih - borderW;
+                && nodeX < explorerW - iw - borderW
+                && nodeY < explorerH - ih - borderW;
 
             if (inside) {
                 const h = Math.ceil(ih / 10);
                 const w = Math.ceil(iw / 10);
                 // wir gehen durch alle reihen des bildes
                 for (let row = 0; row < h; row += 1) {
-                    const canvasRow = ((nodeY + ih + h + row) * canvasW + nodeX - w) * 4;
+                    const explorerRow = ((nodeY + ih + h + row) * explorerW + nodeX - w) * 4;
                     // copy row to pixel
                     // wir laufen durch alle spalten des bildes und betrachten dann 4 werte im array
                     for (let col = 0; col < iw + 2 * w; col += 1) {
-                        const c = canvasRow + col * 4;
-                        // if(c > canvasW * canvasH * 4) console.error("CRY")
-                        canvasPixel[c] = lineColor[0]; // R
-                        canvasPixel[c + 1] = lineColor[1]; // G
-                        canvasPixel[c + 2] = lineColor[2]; // B
-                        canvasPixel[c + 3] = neighbour ? 200 : 255;
+                        const c = explorerRow + col * 4;
+                        // if(c > explorerW * explorerH * 4) console.error("CRY")
+                        explorerPixel[c] = lineColor[0]; // R
+                        explorerPixel[c + 1] = lineColor[1]; // G
+                        explorerPixel[c + 2] = lineColor[2]; // B
+                        explorerPixel[c + 3] = neighbour ? 200 : 255;
                     }
                 }
             }
@@ -1320,8 +1320,8 @@ export default class CanvasState {
             DRAW SCISSORS
          */
         if (this.drawScissors) {
-            const canvasX = this.scissorsStartX < this.scissorsEndX ? this.scissorsStartX : this.scissorsEndX;
-            const canvasY = this.scissorsStartY < this.scissorsEndY ? this.scissorsStartY : this.scissorsEndY;
+            const explorerX = this.scissorsStartX < this.scissorsEndX ? this.scissorsStartX : this.scissorsEndX;
+            const explorerY = this.scissorsStartY < this.scissorsEndY ? this.scissorsStartY : this.scissorsEndY;
 
             const w = Math.abs(this.scissorsEndX - this.scissorsStartX);
             const h = Math.abs(this.scissorsEndY - this.scissorsStartY);
@@ -1330,38 +1330,38 @@ export default class CanvasState {
             const color = [56, 130, 255];
 
             for (let row = 0; row < h; row += 1) {
-                const canvasRow = ((canvasY + row) * canvasW + canvasX) * 4;
+                const explorerRow = ((explorerY + row) * explorerW + explorerX) * 4;
 
                 for (let col = 0; col < w; col += 1) {
-                    const c = canvasRow + col * 4;
+                    const c = explorerRow + col * 4;
                     if (row === 0 || row === h - 1) {
                         // draw top line r
 
-                        canvasPixel[c] = color[0]; // R
-                        canvasPixel[c + 1] = color[1]; // G
-                        canvasPixel[c + 2] = color[2]; // B
-                        canvasPixel[c + 3] = 255;
+                        explorerPixel[c] = color[0]; // R
+                        explorerPixel[c + 1] = color[1]; // G
+                        explorerPixel[c + 2] = color[2]; // B
+                        explorerPixel[c + 3] = 255;
                     } else if (col === 0 || col === w - 1) {
                         // draw left boarder
-                        const l = canvasRow;
-                        canvasPixel[l] = color[0]; // R
-                        canvasPixel[l + 1] = color[1]; // G
-                        canvasPixel[l + 2] = color[2]; // B
-                        canvasPixel[l + 3] = 255;
+                        const l = explorerRow;
+                        explorerPixel[l] = color[0]; // R
+                        explorerPixel[l + 1] = color[1]; // G
+                        explorerPixel[l + 2] = color[2]; // B
+                        explorerPixel[l + 3] = 255;
 
                         // draw left boarder
-                        const r = canvasRow + (w - 1) * 4;
-                        canvasPixel[r] = color[0]; // R
-                        canvasPixel[r + 1] = color[1]; // G
-                        canvasPixel[r + 2] = color[2]; // B
-                        canvasPixel[r + 3] = 255;
+                        const r = explorerRow + (w - 1) * 4;
+                        explorerPixel[r] = color[0]; // R
+                        explorerPixel[r + 1] = color[1]; // G
+                        explorerPixel[r + 2] = color[2]; // B
+                        explorerPixel[r + 3] = 255;
                     }
                 }
             }
         }
 
-        const pic = new ImageData(canvasPixel, canvasW, canvasH);
-        const hitmap = new ImageData(hitmapPixel, canvasW, canvasH);
+        const pic = new ImageData(explorerPixel, explorerW, explorerH);
+        const hitmap = new ImageData(hitmapPixel, explorerW, explorerH);
         const hitmapCtx = this.ui.toggle ? this.ctx : this.hitCtx;
         this.ctx.resetTransform();
         this.ctx.clearRect(0, 0, this.width, this.height);
@@ -1370,7 +1370,7 @@ export default class CanvasState {
         hitmapCtx.clearRect(0, 0, this.width, this.height);
         hitmapCtx.putImageData(hitmap, 0, 0);
         // console.log(pic);
-        // console.log(canvasPixel);
+        // console.log(explorerPixel);
 
         // console.log({ w, h, tx, ty, pixel });
         // console.timeEnd('draw2');
@@ -1481,7 +1481,7 @@ export default class CanvasState {
 
         // console.log(this.hitCanvas.width);
         // console.log(this.hitCtx.width);
-        // console.log(this.canvas.width);
+        // console.log(this.explorer.width);
         // console.log(this.ctx.width);
 
         // saving for checking if node was clicked in handleMouseUp
@@ -1511,8 +1511,8 @@ export default class CanvasState {
     handleMouseMove(e) {
         // other way for getting x/y
         /* const mousePos = {
-            x: e.clientX - canvas.offsetLeft,
-            y: e.clientY - canvas.offsetTop
+            x: e.clientX - explorer.offsetLeft,
+            y: e.clientY - explorer.offsetTop
         }; */
 
         const mouseX = e.offsetX;
