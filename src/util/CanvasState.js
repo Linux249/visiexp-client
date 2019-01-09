@@ -935,7 +935,6 @@ export default class CanvasState {
             alphaBase,
             alphaIncrease,
         } = this.ui;
-        const borderW = 1;
 
         if (clusterMode) this.updateClustering();
 
@@ -967,23 +966,20 @@ export default class CanvasState {
             const img = node.imageData[imgSize];
             if (!img) return console.error(`no image for node: ${node.id}exists`);
 
-            const iw = img.width;
-            const ih = img.height;
+            const imgW = img.width;
+            const imgH = img.height;
 
-            const nodeX = Math.floor(node.x * scale + tx - iw / 2);
-            const nodeY = Math.floor(node.y * scale + ty - ih / 2);
+            const nodeX = Math.floor(node.x * scale + tx - imgW / 2);
+            const nodeY = Math.floor(node.y * scale + ty - imgH / 2);
 
-            // nothing to do if the image is outside the canvas
-            const inside = nodeX > borderW
-                && nodeY > borderW
-                && nodeX < canvasW - iw - borderW
-                && nodeY < canvasH - ih - borderW;
-            if (!inside) return;
+            // test if the image is outside the canvas
+            if (!(nodeX < canvasW - imgW && nodeY < canvasH - imgH)) return;
 
             // check if the image is allowed to draw in certain rules
             let show = true;
 
             // 1. Rule: some labels can be selected as "not show this"
+            // TODO diese funktion wird nicht in der BA beschrieben da nicht klar ob noch erwünscht
             node.labels.forEach((nodeLabel, i) => {
                 if (nodeLabel && this.ui.labels[i]) {
                     this.ui.labels[i].labels.forEach((e) => {
@@ -1009,11 +1005,11 @@ export default class CanvasState {
                 DRAW not active Groups
              */
             if (node.groupId && !node.group) {
-                for (let row = -2; row <= ih + 1; row += 1) {
+                for (let row = -2; row <= imgH + 1; row += 1) {
                     const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
-                    if (row === -2 || row === -1 || row === ih + 1 || row === ih) {
+                    if (row === -2 || row === -1 || row === imgH + 1 || row === imgH) {
                         // draw top line r
-                        for (let col = -2; col < iw + 2; col += 1) {
+                        for (let col = -2; col < imgW + 2; col += 1) {
                             const c = canvasRow + col * 4;
                             canvasPixel[c] = groupColor[0]; // R
                             canvasPixel[c + 1] = groupColor[1]; // G
@@ -1035,13 +1031,13 @@ export default class CanvasState {
                         canvasPixel[l2 + 3] = 50;
 
                         // draw left boarder
-                        const r = canvasRow + (iw + 1) * 4;
+                        const r = canvasRow + (imgW + 1) * 4;
                         canvasPixel[r] = groupColor[0]; // R
                         canvasPixel[r + 1] = groupColor[1]; // G
                         canvasPixel[r + 2] = groupColor[2]; // B
                         canvasPixel[r + 3] = 50;
 
-                        const r2 = canvasRow + iw * 4;
+                        const r2 = canvasRow + imgW * 4;
                         canvasPixel[r2] = groupColor[0]; // R
                         canvasPixel[r2 + 1] = groupColor[1]; // G
                         canvasPixel[r2 + 2] = groupColor[2]; // B
@@ -1055,12 +1051,12 @@ export default class CanvasState {
              */
             if (show) {
                 // loop through rows in img
-                for (let row = 0; row < ih; row += 1) {
+                for (let row = 0; row < imgH; row += 1) {
                     const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
                     // loop through column in img
-                    for (let col = 0; col < iw; col += 1) {
+                    for (let col = 0; col < imgW; col += 1) {
                         const c = canvasRow + col * 4;
-                        const p = (row * iw + col) * 4;
+                        const p = (row * imgW + col) * 4;
                         canvasPixel[c] = imgData[p]; // R
                         canvasPixel[c + 1] = imgData[p + 1]; // G
                         canvasPixel[c + 2] = imgData[p + 2]; // B
@@ -1086,11 +1082,11 @@ export default class CanvasState {
             if (boarderRankedMode) {
                 const color = gradient[node.cliqueLen];
                 // draw boarder
-                for (let row = -2; row <= ih + 1; row += 1) {
+                for (let row = -2; row <= imgH + 1; row += 1) {
                     const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
-                    if (row === -2 || row === -1 || row === ih + 1 || row === ih) {
+                    if (row === -2 || row === -1 || row === imgH + 1 || row === imgH) {
                         // draw top line r
-                        for (let col = -2; col < iw + 2; col += 1) {
+                        for (let col = -2; col < imgW + 2; col += 1) {
                             const c = canvasRow + col * 4;
                             canvasPixel[c] = color[0]; // R
                             canvasPixel[c + 1] = color[1]; // G
@@ -1112,13 +1108,13 @@ export default class CanvasState {
                         canvasPixel[r2 + 3] = 200;
 
                         // draw left boarder
-                        const l = canvasRow + (iw + 1) * 4;
+                        const l = canvasRow + (imgW + 1) * 4;
                         canvasPixel[l] = color[0]; // R
                         canvasPixel[l + 1] = color[1]; // G
                         canvasPixel[l + 2] = color[2]; // B
                         canvasPixel[l + 3] = 200;
 
-                        const l2 = canvasRow + iw * 4;
+                        const l2 = canvasRow + imgW * 4;
                         canvasPixel[l2] = color[0]; // R
                         canvasPixel[l2 + 1] = color[1]; // G
                         canvasPixel[l2 + 2] = color[2]; // B
@@ -1139,11 +1135,11 @@ export default class CanvasState {
                     e => e.name === this.selectedLabel,
                 );
                 // draw boarder
-                for (let row = -2; row <= ih + 1; row += 1) {
+                for (let row = -2; row <= imgH + 1; row += 1) {
                     const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
-                    if (row === -2 || row === -1 || row === ih + 1 || row === ih) {
+                    if (row === -2 || row === -1 || row === imgH + 1 || row === imgH) {
                         // draw top line r
-                        for (let col = -2; col < iw + 2; col += 1) {
+                        for (let col = -2; col < imgW + 2; col += 1) {
                             const c = canvasRow + col * 4;
                             canvasPixel[c] = color[0]; // R
                             canvasPixel[c + 1] = color[1]; // G
@@ -1165,13 +1161,13 @@ export default class CanvasState {
                         canvasPixel[l2 + 3] = 200;
 
                         // draw left boarder
-                        const r = canvasRow + (iw + 1) * 4;
+                        const r = canvasRow + (imgW + 1) * 4;
                         canvasPixel[r] = color[0]; // R
                         canvasPixel[r + 1] = color[1]; // G
                         canvasPixel[r + 2] = color[2]; // B
                         canvasPixel[r + 3] = 200;
 
-                        const r2 = canvasRow + iw * 4;
+                        const r2 = canvasRow + imgW * 4;
                         canvasPixel[r2] = color[0]; // R
                         canvasPixel[r2 + 1] = color[1]; // G
                         canvasPixel[r2 + 2] = color[2]; // B
@@ -1201,11 +1197,11 @@ export default class CanvasState {
                         ? groupColor
                         : null;
             if (lineColor) {
-                for (let row = -2; row <= ih + 1; row += 1) {
+                for (let row = -2; row <= imgH + 1; row += 1) {
                     const canvasRow = ((nodeY + row) * canvasW + nodeX) * 4;
-                    if (row === -2 || row === -1 || row === ih + 1 || row === ih) {
+                    if (row === -2 || row === -1 || row === imgH + 1 || row === imgH) {
                         // draw top line r
-                        for (let col = -2; col < iw + 2; col += 1) {
+                        for (let col = -2; col < imgW + 2; col += 1) {
                             const c = canvasRow + col * 4;
                             canvasPixel[c] = lineColor[0]; // R
                             canvasPixel[c + 1] = lineColor[1]; // G
@@ -1227,13 +1223,13 @@ export default class CanvasState {
                         canvasPixel[l2 + 3] = 200;
 
                         // draw left boarder
-                        const r = canvasRow + (iw + 1) * 4;
+                        const r = canvasRow + (imgW + 1) * 4;
                         canvasPixel[r] = lineColor[0]; // R
                         canvasPixel[r + 1] = lineColor[1]; // G
                         canvasPixel[r + 2] = lineColor[2]; // B
                         canvasPixel[r + 3] = 200;
 
-                        const r2 = canvasRow + iw * 4;
+                        const r2 = canvasRow + imgW * 4;
                         canvasPixel[r2] = lineColor[0]; // R
                         canvasPixel[r2 + 1] = lineColor[1]; // G
                         canvasPixel[r2 + 2] = lineColor[2]; // B
@@ -1398,8 +1394,8 @@ export default class CanvasState {
     zoom(wheelEvent) {
         // console.log('zoom event');
         // event can be a custom/dummy event
-        if(wheelEvent.hasOwnProperty('preventDefault'))wheelEvent.preventDefault();
-        if(wheelEvent.hasOwnProperty('stopPropagation'))wheelEvent.stopPropagation();
+        if (wheelEvent.hasOwnProperty('preventDefault'))wheelEvent.preventDefault();
+        if (wheelEvent.hasOwnProperty('stopPropagation'))wheelEvent.stopPropagation();
         // console.log(wheelEvent)
         // const { nodeUnderMouse } = this;
 
