@@ -2,7 +2,7 @@
     <div class="tsne-map">
         <div class="mode-header">
             <div class="row">
-                <div
+                <!--<div
                     class="btn"
                     :class="{ active: clusterMode }"
                     @click="toggleClusterMode"
@@ -15,28 +15,14 @@
                     @click="toggleOldClusterMode"
                 >
                     old cluster
-                </div>
-                <div
-                    class="btn"
-                    :class="{ active: sizeRankedMode }"
-                    @click="toggleSizeRankedMode"
-                >
-                    size Ranked
-                </div>
-                <div
-                    class="btn"
-                    :class="{ active: boarderRankedMode }"
-                    @click="toggleBoarderRankedMode"
-                >
-                    boarder Ranked
-                </div>
-                <div
+                </div>-->
+                <!--<div
                     class="btn"
                     :class="{ active: neighbourMode }"
                     @click="toggleNeighbourMode"
                 >
                     neighbour
-                </div>
+                </div>-->
             </div>
             <div class="row">
                 <!--<div># {{nodesCount}}</div>-->
@@ -50,15 +36,11 @@
                 <div class="btn" @click="doubleNodes">doubleNodes</div>-->
                 <!--<div class="btn" :class="{ active: sorted }" @click="sortNodes">sort</div>-->
                 <!--<div class="dropdownArea"></div>-->
-                <div @click="toggleShowHeatmap" :class="{ active: showHeatmap }" class="btn">
-                    <navmap></navmap>
-                </div>
+
                 <!-- <div @click="toggleShowNavMap" :class="{ active: showNavMap }" class="btn">
                      <navmap></navmap>
                  </div>-->
-                <div @click="toggleShowNavHeatmap" :class="{ active: showNavHeatmap }" class="btn">
-                    <navmap></navmap>
-                </div>
+
                 <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">
                     Options
                 </div>
@@ -92,6 +74,14 @@
                         </div>
                         <div @click="clearGroup" class="btn">
                             <x></x>
+                        </div>
+                    </div>
+                    <div class="row-end">
+                        <div @click="toggleShowHeatmap" :class="{ active: showHeatmap }" class="btn">
+                            <navmap></navmap>
+                        </div>
+                        <div @click="toggleShowNavHeatmap" :class="{ active: showNavHeatmap }" class="btn">
+                            <navmap></navmap>
                         </div>
                     </div>
                 </div>
@@ -250,13 +240,6 @@
                     </div>-->
                     <div class="option-title">Ranked</div>
                     <div class="row-btn">
-                        <div>sizeRange: {{sizeRange}}</div>
-                        <div class="row">
-                            <div @click="changeSizeRange(-1)" class="btn"><minus></minus></div>
-                            <div @click="changeSizeRange(1)" class="btn"><plus></plus></div>
-                        </div>
-                    </div>
-                    <div class="row-btn">
                         <div>Sort</div>
                         <div
                             @click="sortNodes"
@@ -264,6 +247,33 @@
                             :class="{active: sorted}"
                         >
                             {{sorted ? "On" : "Off"}}
+                        </div>
+                    </div>
+                    <div class="row-btn">
+                        <div>Size</div>
+                        <div
+                            class="btn"
+                            :class="{ active: sizeRankedMode }"
+                            @click="toggleSizeRankedMode"
+                        >
+                            {{sizeRankedMode ? "On" : "Off"}}
+                        </div>
+                    </div>
+                    <div class="row-btn">
+                        <div>Size range: {{sizeRange}}</div>
+                        <div class="row">
+                            <div @click="changeSizeRange(-1)" class="btn"><minus></minus></div>
+                            <div @click="changeSizeRange(1)" class="btn"><plus></plus></div>
+                        </div>
+                    </div>
+                    <div class="row-btn">
+                        <div>Border</div>
+                        <div
+                            class="btn"
+                            :class="{ active: boarderRankedMode }"
+                            @click="toggleBoarderRankedMode"
+                        >
+                            {{boarderRankedMode ? "On" : "Off"}}
                         </div>
                     </div>
                     <div class="row-btn">
@@ -701,8 +711,8 @@ export default {
             this.store.triggerDraw();
         },
 
-        toggleClusterMode() {
-            this.clusterMode = !this.clusterMode;
+        activateClusterMode() {
+            this.clusterMode = true;
             this.store.createSuperCluster();
         },
 
@@ -899,6 +909,7 @@ export default {
                 count: 0,
                 colorId: groupId % Object.keys(this.groupColours).length,
             });
+            this.activeGroup = groupId;
             this.store.saveGroup(groupId);
             this.store.triggerDraw();
         },
@@ -1227,6 +1238,7 @@ export default {
         socket.on('allNodesSend', () => {
             console.log('allNodesSend');
             this.loadingNodes = false;
+            this.activateClusterMode();
             console.timeEnd('loadAllNodes');
 
             // TODO test super cluster

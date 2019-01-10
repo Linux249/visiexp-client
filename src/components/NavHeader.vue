@@ -1,7 +1,7 @@
 <template>
     <div class="header">
         <div class="left-header">
-            <router-link to="/tsne">t-SNE</router-link>
+            <router-link to="/">t-SNE</router-link>
             <router-link to="/svm">SVM</router-link>
             <router-link to="/classifier">Classifier</router-link>
             <!--<router-link to="/triplets">Triplets</router-link>

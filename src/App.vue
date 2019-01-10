@@ -47,6 +47,11 @@ input {
     justify-content: space-between;
 }
 
+.row-end {
+    display: flex;
+    justify-content: flex-end;
+}
+
 .wrap {
     flex-wrap: wrap;
 }
