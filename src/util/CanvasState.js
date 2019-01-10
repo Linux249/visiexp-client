@@ -346,6 +346,7 @@ export default class CanvasState {
     createSuperCluster() {
         console.time('build superClusterIndex');
         console.time('create geoPoints');
+        // parse nodes into suitable format for supercluster
         const geoPoints = Object.values(this.nodes).map(n => ({
             type: 'Feature',
             geometry: {
@@ -404,7 +405,6 @@ export default class CanvasState {
         console.log(notClusterd.length);
         console.log('cluster count');
         console.log(clusterd.length); */
-        this.updateClustering(true);
         this.triggerDraw();
     }
 
@@ -426,7 +426,7 @@ export default class CanvasState {
 
         const rect = [-tx / scale, -ty / scale, (explorerW - ty) / scale, (explorerH - ty) / scale];
 
-        // get clustering for curretn section (viewbox)
+        // get clustering for current section (viewbox)
         const cluster = this.supercluster.getClusters(rect, zoomStage);
         console.timeEnd('get cluster');
         // console.log(rect);

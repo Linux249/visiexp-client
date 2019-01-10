@@ -1,9 +1,9 @@
 <template>
     <div class="header">
         <div class="left-header">
-            <!--<router-link to="/tsne">t-SNE</router-link>
+            <router-link to="/tsne">t-SNE</router-link>
             <router-link to="/svm">SVM</router-link>
-            <router-link to="/classifier">Classifier</router-link>-->
+            <router-link to="/classifier">Classifier</router-link>
             <!--<router-link to="/triplets">Triplets</router-link>
             <router-link to="/neighbours">Neighbours</router-link>
             <router-link to="/labels">Labels</router-link>-->
