@@ -863,9 +863,9 @@ export default class CanvasState {
                     const explorerRow = ((imgY + imgRow) * explorerW + imgX) * 4;
                     // wir laufen durch alle spalten des bildes
                     // und betrachten dann 4 werte im array
-                    for (let col = 0; col < imgW; col += 1) {
-                        const c = explorerRow + col * 4;
-                        // const p = (imgRow * imgW + col) * 4;
+                    for (let imgCol = 0; imgCol < imgW; imgCol += 1) {
+                        const c = explorerRow + imgCol * 4;
+                        // const p = (imgRow * imgW + imgCol) * 4;
                         hitmapPixel[c] = node.colorKey[0]; // R
                         hitmapPixel[c + 1] = node.colorKey[1]; // G
                         hitmapPixel[c + 2] = node.colorKey[2]; // B
@@ -1009,8 +1009,8 @@ export default class CanvasState {
                     const explorerRow = ((imgY + imgRow) * explorerW + imgX) * 4;
                     if (imgRow === -2 || imgRow === -1 || imgRow === imgH + 1 || imgRow === imgH) {
                         // draw top line r
-                        for (let col = -2; col < imgW + 2; col += 1) {
-                            const c = explorerRow + col * 4;
+                        for (let imgCol = -2; imgCol < imgW + 2; imgCol += 1) {
+                            const c = explorerRow + imgCol * 4;
                             explorerPixel[c] = groupColor[0]; // R
                             explorerPixel[c + 1] = groupColor[1]; // G
                             explorerPixel[c + 2] = groupColor[2]; // B
@@ -1054,9 +1054,9 @@ export default class CanvasState {
                 for (let imgRow = 0; imgRow < imgH; imgRow += 1) {
                     const explorerRow = ((imgY + imgRow) * explorerW + imgX) * 4;
                     // loop through column in img
-                    for (let col = 0; col < imgW; col += 1) {
-                        const c = explorerRow + col * 4;
-                        const p = (imgRow * imgW + col) * 4;
+                    for (let imgCol = 0; imgCol < imgW; imgCol += 1) {
+                        const c = explorerRow + imgCol * 4;
+                        const p = (imgRow * imgW + imgCol) * 4;
                         explorerPixel[c] = imgData[p]; // R
                         explorerPixel[c + 1] = imgData[p + 1]; // G
                         explorerPixel[c + 2] = imgData[p + 2]; // B
@@ -1086,8 +1086,8 @@ export default class CanvasState {
                     const explorerRow = ((imgY + imgRow) * explorerW + imgX) * 4;
                     if (imgRow === -2 || imgRow === -1 || imgRow === imgH + 1 || imgRow === imgH) {
                         // draw top line r
-                        for (let col = -2; col < imgW + 2; col += 1) {
-                            const c = explorerRow + col * 4;
+                        for (let imgCol = -2; imgCol < imgW + 2; imgCol += 1) {
+                            const c = explorerRow + imgCol * 4;
                             explorerPixel[c] = color[0]; // R
                             explorerPixel[c + 1] = color[1]; // G
                             explorerPixel[c + 2] = color[2]; // B
@@ -1139,8 +1139,8 @@ export default class CanvasState {
                     const explorerRow = ((imgY + imgRow) * explorerW + imgX) * 4;
                     if (imgRow === -2 || imgRow === -1 || imgRow === imgH + 1 || imgRow === imgH) {
                         // draw top line r
-                        for (let col = -2; col < imgW + 2; col += 1) {
-                            const c = explorerRow + col * 4;
+                        for (let imgCol = -2; imgCol < imgW + 2; imgCol += 1) {
+                            const c = explorerRow + imgCol * 4;
                             explorerPixel[c] = color[0]; // R
                             explorerPixel[c + 1] = color[1]; // G
                             explorerPixel[c + 2] = color[2]; // B
@@ -1201,8 +1201,8 @@ export default class CanvasState {
                     const explorerRow = ((imgY + imgRow) * explorerW + imgX) * 4;
                     if (imgRow === -2 || imgRow === -1 || imgRow === imgH + 1 || imgRow === imgH) {
                         // draw top line r
-                        for (let col = -2; col < imgW + 2; col += 1) {
-                            const c = explorerRow + col * 4;
+                        for (let imgCol = -2; imgCol < imgW + 2; imgCol += 1) {
+                            const c = explorerRow + imgCol * 4;
                             explorerPixel[c] = lineColor[0]; // R
                             explorerPixel[c + 1] = lineColor[1]; // G
                             explorerPixel[c + 2] = lineColor[2]; // B
@@ -1302,8 +1302,8 @@ export default class CanvasState {
                     const explorerRow = ((imgY + ih + h + imgRow) * explorerW + imgX - w) * 4;
                     // copy imgRow to pixel
                     // wir laufen durch alle spalten des bildes und betrachten dann 4 werte im array
-                    for (let col = 0; col < iw + 2 * w; col += 1) {
-                        const c = explorerRow + col * 4;
+                    for (let imgCol = 0; imgCol < iw + 2 * w; imgCol += 1) {
+                        const c = explorerRow + imgCol * 4;
                         // if(c > explorerW * explorerH * 4) console.error("CRY")
                         explorerPixel[c] = lineColor[0]; // R
                         explorerPixel[c + 1] = lineColor[1]; // G
@@ -1329,19 +1329,19 @@ export default class CanvasState {
             // '#3882ff';
             const color = [56, 130, 255];
 
-            for (let imgRow = 0; imgRow < h; imgRow += 1) {
-                const explorerRow = ((explorerY + imgRow) * explorerW + explorerX) * 4;
+            for (let scisRow = 0; scisRow < h; scisRow += 1) {
+                const explorerRow = ((explorerY + scisRow) * explorerW + explorerX) * 4;
 
-                for (let col = 0; col < w; col += 1) {
-                    const c = explorerRow + col * 4;
-                    if (imgRow === 0 || imgRow === h - 1) {
+                for (let scisCol = 0; scisCol < w; scisCol += 1) {
+                    const c = explorerRow + scisCol * 4;
+                    if (scisRow === 0 || scisRow === h - 1) {
                         // draw top line r
 
                         explorerPixel[c] = color[0]; // R
                         explorerPixel[c + 1] = color[1]; // G
                         explorerPixel[c + 2] = color[2]; // B
                         explorerPixel[c + 3] = 255;
-                    } else if (col === 0 || col === w - 1) {
+                    } else if (scisCol === 0 || scisCol === w - 1) {
                         // draw left boarder
                         const l = explorerRow;
                         explorerPixel[l] = color[0]; // R
