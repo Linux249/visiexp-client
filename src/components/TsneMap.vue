@@ -152,13 +152,6 @@
                     </div>
                     <div class="option-title">Image</div>
                     <div class="row-btn">
-                        <div>Represent: size: {{representImgSize}}</div>
-                        <div class="row">
-                            <div @click="changeRepresentImgSize(-1)" class="btn"><img-size-down></img-size-down></div>
-                            <div @click="changeRepresentImgSize(1)" class="btn"><img-size-up></img-size-up></div>
-                        </div>
-                    </div>
-                    <div class="row-btn">
                         <div>Alpha (base): {{alphaBase}}</div>
                         <div class="row">
                             <div @click="changeAlphaBase(-10)" class="btn">-10</div>
@@ -170,6 +163,13 @@
                         <div class="row">
                             <div @click="changeAlphaIncrease(-10)" class="btn">-10</div>
                             <div @click="changeAlphaIncrease(10)" class="btn">+10</div>
+                        </div>
+                    </div>
+                    <div class="row-btn">
+                        <div>Represent: size: {{representImgSize}}</div>
+                        <div class="row">
+                            <div @click="changeRepresentImgSize(-1)" class="btn"><img-size-down></img-size-down></div>
+                            <div @click="changeRepresentImgSize(1)" class="btn"><img-size-up></img-size-up></div>
                         </div>
                     </div>
                     <div class="row-btn">
@@ -792,7 +792,7 @@ export default {
 
         selectTarget() {
             this.target = !this.target;
-            this.store.moveGroupToMouse = this.target;
+            this.store.moveGroupToMousePosition = this.target;
         },
         selectScissors() {
             console.log('selectScissors');

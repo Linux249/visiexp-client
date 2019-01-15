@@ -48,6 +48,7 @@ export default class CanvasState {
         this.scissorsStartY = 0;
         this.scissorsEndX = 0;
         this.scissorsEndY = 0;
+        this.scissiorColor = [56, 130, 255];
 
         this._cluster = 100;
         this._clusterRadius = 5;
@@ -107,6 +108,7 @@ export default class CanvasState {
         this.groupNeighbours = {};
         this.removedGroupNeighbours = {};
         this.groupColours = groupColors;
+        this.nonActiveGroupAplha = 50;
 
         // performance messure
         this.maxDrawTime = 0;
@@ -224,7 +226,7 @@ export default class CanvasState {
         return this._nodeUnderMouse;
     }
 
-    set moveGroupToMouse(value) {
+    set moveGroupToMousePosition(value) {
         this._moveGroupToMouse = value;
         // const curser = `url('${pointer}')`;
         // console.log({curser, value});
@@ -232,7 +234,7 @@ export default class CanvasState {
         // this.explorer.style.cursor = value ? curser : 'default';
     }
 
-    get moveGroupToMouse() {
+    get moveGroupToMousePosition() {
         return this._moveGroupToMouse;
     }
 
@@ -523,16 +525,6 @@ export default class CanvasState {
             this.nodes[id].group = true;
             this.nodes[id].groupId = this.ui.activeGroup;
         });
-    }
-
-    moveGroupToPosition(x, y) {
-        Object.values(this.nodes).forEach((node) => {
-            if (node.group) {
-                node.x += (x - node.x) / 2;
-                node.y += (y - node.y) / 2;
-            }
-        });
-        this.triggerDraw();
     }
 
     updateGroupNeighbours(neighbours) {
@@ -918,6 +910,7 @@ export default class CanvasState {
             translateX: tx,
             translateY: ty,
             representImgSize,
+            nonActiveGroupAplha,
         } = this;
         const explorerPixel = new Uint8ClampedArray(explorerW * explorerH * 4);
         const hitmapPixel = new Uint8ClampedArray(explorerW * explorerH * 4);
@@ -1022,26 +1015,26 @@ export default class CanvasState {
                         explorerPixel[l] = groupColor[0]; // R
                         explorerPixel[l + 1] = groupColor[1]; // G
                         explorerPixel[l + 2] = groupColor[2]; // B
-                        explorerPixel[l + 3] = 50;
+                        explorerPixel[l + 3] = nonActiveGroupAplha;
 
                         const l2 = explorerRow - 4;
                         explorerPixel[l2] = groupColor[0]; // R
                         explorerPixel[l2 + 1] = groupColor[1]; // G
                         explorerPixel[l2 + 2] = groupColor[2]; // B
-                        explorerPixel[l2 + 3] = 50;
+                        explorerPixel[l2 + 3] = nonActiveGroupAplha;
 
                         // draw right boarder
                         const r = explorerRow + (imgW + 1) * 4;
                         explorerPixel[r] = groupColor[0]; // R
                         explorerPixel[r + 1] = groupColor[1]; // G
                         explorerPixel[r + 2] = groupColor[2]; // B
-                        explorerPixel[r + 3] = 50;
+                        explorerPixel[r + 3] = nonActiveGroupAplha;
 
                         const r2 = explorerRow + imgW * 4;
                         explorerPixel[r2] = groupColor[0]; // R
                         explorerPixel[r2 + 1] = groupColor[1]; // G
                         explorerPixel[r2 + 2] = groupColor[2]; // B
-                        explorerPixel[r2 + 3] = 50;
+                        explorerPixel[r2 + 3] = nonActiveGroupAplha;
                     }
                 }
             }
@@ -1062,7 +1055,7 @@ export default class CanvasState {
                         explorerPixel[c + 2] = imgData[p + 2]; // B
                         // special mode for represents // img over other img // white background
                         explorerPixel[c + 3] = representWithAlpha && isRepresent
-                            ? 200
+                            ? 255
                             : explorerPixel[c + 3]
                                 ? explorerPixel[c + 3] + 10 * node.cliqueLen
                                 : alphaBase + zoomStage * alphaIncrease;
@@ -1323,25 +1316,26 @@ export default class CanvasState {
             const explorerX = this.scissorsStartX < this.scissorsEndX ? this.scissorsStartX : this.scissorsEndX;
             const explorerY = this.scissorsStartY < this.scissorsEndY ? this.scissorsStartY : this.scissorsEndY;
 
-            const w = Math.abs(this.scissorsEndX - this.scissorsStartX);
-            const h = Math.abs(this.scissorsEndY - this.scissorsStartY);
+            const scissorW = Math.abs(this.scissorsEndX - this.scissorsStartX);
+            const scissorH = Math.abs(this.scissorsEndY - this.scissorsStartY);
 
             // '#3882ff';
-            const color = [56, 130, 255];
+            const color = this.scissiorColor;
 
-            for (let scisRow = 0; scisRow < h; scisRow += 1) {
+            // loop through each row of the reactangle
+            for (let scisRow = 0; scisRow < scissorH; scisRow += 1) {
                 const explorerRow = ((explorerY + scisRow) * explorerW + explorerX) * 4;
 
-                for (let scisCol = 0; scisCol < w; scisCol += 1) {
+                // loop through each col of the reactangle
+                for (let scisCol = 0; scisCol < scissorW; scisCol += 1) {
                     const c = explorerRow + scisCol * 4;
-                    if (scisRow === 0 || scisRow === h - 1) {
+                    if (scisRow === 0 || scisRow === scissorH - 1) {
                         // draw top line r
-
                         explorerPixel[c] = color[0]; // R
                         explorerPixel[c + 1] = color[1]; // G
                         explorerPixel[c + 2] = color[2]; // B
                         explorerPixel[c + 3] = 255;
-                    } else if (scisCol === 0 || scisCol === w - 1) {
+                    } else if (scisCol === 0 || scisCol === scissorW - 1) {
                         // draw left boarder
                         const l = explorerRow;
                         explorerPixel[l] = color[0]; // R
@@ -1350,7 +1344,7 @@ export default class CanvasState {
                         explorerPixel[l + 3] = 255;
 
                         // draw left boarder
-                        const r = explorerRow + (w - 1) * 4;
+                        const r = explorerRow + (scissorW - 1) * 4;
                         explorerPixel[r] = color[0]; // R
                         explorerPixel[r + 1] = color[1]; // G
                         explorerPixel[r + 2] = color[2]; // B
@@ -1678,12 +1672,18 @@ export default class CanvasState {
         /* if (this.nodeUnderMouse && this.nodeUnderMouse !== this.selection) {
             this.selection = this.nodeUnderMouse;
         } else this.selection = null; */
-        if (this.moveGroupToMouse) {
+        if (this.moveGroupToMousePosition) {
             const x = (e.offsetX - this.translateX) / this.scale;
             const y = (e.offsetY - this.translateY) / this.scale;
-            this.moveGroupToPosition(x, y);
+            // move group members to mouse position
+            Object.values(this.nodes).forEach((node) => {
+                if (node.group) {
+                    node.x += (x - node.x) / 2;
+                    node.y += (y - node.y) / 2;
+                }
+            });
+            this.triggerDraw();
             this.createSuperCluster();
         }
-        // this.triggerDraw();
     }
 }
