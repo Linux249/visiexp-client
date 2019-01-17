@@ -387,7 +387,7 @@
                 />
 
 
-                <div class="info-box"  v-if="activeNode">
+                <div class="area"  v-if="activeNode">
                     <img
                         class="active-img"
                         v-if="activeNode.hasImage"
@@ -395,7 +395,11 @@
                     />
                     <div>Name: {{activeNode.name}}</div>
                     <div>Label: {{activeNode.label}}</div>
-                    <div>Labels: {{activeNode.labels}}</div>
+                    <div class="row">Labels:
+                        <div class="label" v-for="label in activeNode.labels">
+                            {{label}}
+                        </div>
+                    </div>
                     <div>Links #: {{Object.keys(activeNode.links).length}}</div>
                 </div>
                 <logs :getStore="getStore"/>
@@ -1337,7 +1341,7 @@ export default {
 
 .details {
     width: 25rem;
-    margin: 0.5rem;
+    margin: 0.5rem 0.5rem 0 0;
     background-color: white;
 }
 
@@ -1410,9 +1414,6 @@ export default {
     align-items: center;
 }
 
-.info-box {
-    /*padding: 0.5rem;*/
-}
 
 .active-img {
     max-width: 100%;
@@ -1503,5 +1504,10 @@ export default {
     letter-spacing: 0.025em;
     transition: all 0.15s ease;
     cursor: pointer;
+}
+
+.label {
+    padding: 0 2px;
+    text-decoration: underline;
 }
 </style>
