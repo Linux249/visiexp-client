@@ -525,6 +525,7 @@ export default class CanvasState {
             this.nodes[id].group = true;
             this.nodes[id].groupId = this.ui.activeGroupId;
         });
+        this.updateGroupCounter();
     }
 
     updateGroupNeighbours(neighbours) {
@@ -1389,9 +1390,9 @@ export default class CanvasState {
         // console.log('zoom event');
         // event can be a custom/dummy event
         if (wheelEvent.hasOwnProperty('preventDefault')) wheelEvent.preventDefault();
-        if ( Object.prototype.hasOwnProperty.call(wheelEvent, "preventDefault")) wheelEvent.preventDefault();
+        if (Object.prototype.hasOwnProperty.call(wheelEvent, 'preventDefault')) wheelEvent.preventDefault();
         if (wheelEvent.hasOwnProperty('stopPropagation')) wheelEvent.stopPropagation();
-        if ( Object.prototype.hasOwnProperty.call(wheelEvent, "preventDefault")) wheelEvent.stopPropagation();
+        if (Object.prototype.hasOwnProperty.call(wheelEvent, 'preventDefault')) wheelEvent.stopPropagation();
         // console.log(wheelEvent)
         // const { nodeUnderMouse } = this;
 
@@ -1598,8 +1599,8 @@ export default class CanvasState {
             console.log('click on node:');
             console.log(nodeUnderMouse);
 
-            // marke node as group in every case
-            if (ctrlKeyPressed) {
+            // flag/unflag node as and add/remove from group
+            if (ctrlKeyPressed && !this.ui.neighbourMode) {
                 if (nodeUnderMouse.group) {
                     nodeUnderMouse.group = false;
                     nodeUnderMouse.groupId = 0;
@@ -1609,17 +1610,23 @@ export default class CanvasState {
                 }
                 this.updateGroupCounter();
             }
-            // used for components for adding nodes to special cases
-            this.ui.clickedNode = nodeUnderMouse;
 
             if (this.ui.neighbourMode) {
+                // if user removes a neighbour
                 if (this.groupNeighbours[nodeUnderMouse.index]) {
                     this.removedGroupNeighbours[nodeUnderMouse.index] = this.groupNeighbours[
                         nodeUnderMouse.index
                     ];
                     this.groupNeighbours[nodeUnderMouse.index] = undefined;
+                } else if (nodeUnderMouse.group) {
+                    nodeUnderMouse.group = false;
+                    nodeUnderMouse.groupId = 0;
+                    this.removedGroupNeighbours[nodeUnderMouse.index] = 1; // 1 is default threshold - isn't uses
                 }
             }
+
+            // used for components for adding nodes to special cases
+            this.ui.clickedNode = nodeUnderMouse;
 
             if (this.draggNode) {
                 // merge all "nearby nodes" to group
