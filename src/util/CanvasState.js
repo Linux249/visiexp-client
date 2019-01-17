@@ -523,7 +523,7 @@ export default class CanvasState {
     addNodesToActiveGroup(ids) {
         ids.forEach((id) => {
             this.nodes[id].group = true;
-            this.nodes[id].groupId = this.ui.activeGroup;
+            this.nodes[id].groupId = this.ui.activeGroupId;
         });
     }
 
@@ -1388,8 +1388,10 @@ export default class CanvasState {
     zoom(wheelEvent) {
         // console.log('zoom event');
         // event can be a custom/dummy event
-        if (wheelEvent.hasOwnProperty('preventDefault'))wheelEvent.preventDefault();
-        if (wheelEvent.hasOwnProperty('stopPropagation'))wheelEvent.stopPropagation();
+        if (wheelEvent.hasOwnProperty('preventDefault')) wheelEvent.preventDefault();
+        if ( Object.prototype.hasOwnProperty.call(wheelEvent, "preventDefault")) wheelEvent.preventDefault();
+        if (wheelEvent.hasOwnProperty('stopPropagation')) wheelEvent.stopPropagation();
+        if ( Object.prototype.hasOwnProperty.call(wheelEvent, "preventDefault")) wheelEvent.stopPropagation();
         // console.log(wheelEvent)
         // const { nodeUnderMouse } = this;
 
@@ -1603,7 +1605,7 @@ export default class CanvasState {
                     nodeUnderMouse.groupId = 0;
                 } else {
                     nodeUnderMouse.group = true;
-                    nodeUnderMouse.groupId = this.ui.activeGroup;
+                    nodeUnderMouse.groupId = this.ui.activeGroupId;
                 }
                 this.updateGroupCounter();
             }
@@ -1652,7 +1654,7 @@ export default class CanvasState {
                     if ((node.y < startY && node.y > endY) || (node.y > startY && node.y < endY)) {
                         this.ui.cuttedNodes.push(node);
                         node.group = true;
-                        node.groupId = this.ui.activeGroup;
+                        node.groupId = this.ui.activeGroupId;
                     }
                 }
             });

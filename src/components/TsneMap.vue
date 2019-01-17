@@ -330,7 +330,7 @@
                         >
                             <div
                                 class="btn"
-                                :class="{active: group.groupId === activeGroup}"
+                                :class="{active: group.groupId === activeGroupId}"
                                 @click="selectGroup(i)"
                             >
                                 {{`${group.name}`}}
@@ -353,7 +353,7 @@
                             </select>
                             <div
                                 class="btn"
-                                :class="{active: neighbourMode && group.groupId === activeGroup}"
+                                :class="{active: neighbourMode && group.groupId === activeGroupId}"
                                 @click="handleNeighbourMode(i)"
                             >
                                 <repeat></repeat>
@@ -370,6 +370,7 @@
                 <neighbours
                     v-if="neighbourMode"
                     :getStore="getStore"
+                    :activeGroupId="activeGroupId"
                     :changeNeighboursThreshold="changeNeighboursThreshold"
                     :neighboursThreshold="neighboursThreshold"
                 />
@@ -554,7 +555,7 @@ export default {
         socketId: '',
         dataset: '001', // defualt value is 001
         neighboursThreshold: 0.2,
-        activeGroup: 0,
+        activeGroupId: 0,
         representWithAlpha: false,
         savedGroups: [],
         groupName: '',
@@ -586,12 +587,12 @@ export default {
 
         clearGroup() {
             this.store.clearGroup();
-            this.activeGroup = null;
+            this.activeGroupId = null;
             this.neighbourMode = false;
         },
 
         setActiveGroup(id) {
-            this.activeGroup = id;
+            this.activeGroupId = id;
             this.store.triggerDraw();
         },
 
@@ -716,16 +717,10 @@ export default {
             this.store.createSuperCluster();
         },
 
-        toggleOldClusterMode() {
+        /* toggleOldClusterMode() {
             this.oldClusterMode = !this.oldClusterMode;
             this.store.triggerDraw();
-        },
-
-        toggleNeighbourMode() {
-            this.neighbourMode = !this.neighbourMode;
-            // this.store.createSuperCluster();
-            this.store.triggerDraw();
-        },
+        }, */
 
         changeImgSize(v) {
             this.store.imgSize += v;
@@ -909,14 +904,14 @@ export default {
                 count: 0,
                 colorId: groupId % Object.keys(this.groupColours).length,
             });
-            this.activeGroup = groupId;
+            this.activeGroupId = groupId;
             this.store.saveGroup(groupId);
             this.store.triggerDraw();
         },
 
         selectGroup(i) {
             const { groupId } = this.savedGroups[i];
-            if (groupId === this.activeGroup) {
+            if (groupId === this.activeGroupId) {
                 // console.log('unselect');
                 this.setActiveGroup(null);
                 this.store.clearGroup();
@@ -942,13 +937,13 @@ export default {
         },
 
         handleNeighbourMode(i) {
-            // set groupt to active if not allready set
+            // set group to active if not already set
             const { groupId } = this.savedGroups[i];
-            if (groupId !== this.activeGroup) this.selectGroup(i);
-
+            // the button is accessibly even if the group is not active
+            if (groupId !== this.activeGroupId) this.selectGroup(i);
             // switch to neighbourmode
-            this.toggleNeighbourMode();
-            this.setActiveGroup(groupId);
+            this.neighbourMode = !this.neighbourMode;
+            this.store.triggerDraw();
         },
         /* drawNavMap() {
             console.time('drawNavMap');

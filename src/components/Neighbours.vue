@@ -20,7 +20,7 @@ import RangeSlider from './RangeSlider';
 
 export default {
     name: 'Neighbours',
-    props: ['getStore', 'neighboursThreshold', 'changeNeighboursThreshold'],
+    props: ['getStore', 'neighboursThreshold', 'changeNeighboursThreshold', 'activeGroupId'],
     components: {
         RangeSlider,
     },
@@ -42,6 +42,7 @@ export default {
                 const body = {
                     group: store.getGroupedNodeIds(),
                     threshold: this.neighboursThreshold,
+                    groupId: this.activeGroupId,
                 };
                 const { groupNeighbours, removedGroupNeighbours } = store;
                 // add neighbours to body depending on existing
