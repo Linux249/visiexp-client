@@ -1,7 +1,11 @@
 <template>
     <div class="areas">
         <div v-if="loading" class="loading"><div class="loading-wheel"></div></div>
-        <div class="imgArea" :class="{activePositiv: selectPositives}" @click="toggleActive(true)">
+        <div
+            class="imgArea"
+            :class="{activePositiv: selectPositives}"
+            @click="toggleActive(true)"
+        >
             <div
                 class="image"
                 v-for="(node, i) in positives"
@@ -9,8 +13,9 @@
                 @mouseover="handleMouseOver(node)"
             >
                 <img
-                    :src="node.icon"
-                    alt=""
+                    v-if="node.hasImage"
+                    :src="node.image.src"
+                    :alt="node.name"
                     @click="switchPositivs(i)"
                     @contextmenu.prevent="removePositives(i)"
                 >
@@ -28,8 +33,9 @@
                 @mouseover="handleMouseOver(node)"
             >
                 <img
-                    :src="node.icon"
-                    alt=""
+                    v-if="node.hasImage"
+                    :src="node.image.src"
+                    :alt="node.name"
                     @click="switchNegatives(i)"
                     @contextmenu.prevent="removeNegatives(i)"
                 >
@@ -38,8 +44,9 @@
         <div class="imgArea">
             <div class="image" v-for="(n, i) in topScored" :key="i">
                 <img
-                    :src="n.icon"
-                    alt=""
+                    v-if="node.hasImage"
+                    :src="node.image.src"
+                    :alt="node.name"
                 >
             </div>
         </div>
@@ -263,13 +270,13 @@ export default {
     overflow: auto;
 }
 
-/*.activePositiv {
-        box-shadow: 0 7px 14px rgba(10, 255, 0, 0.2), 0 3px 6px rgba(0,0,0,.2);
-    }
+.activePositiv {
+    box-shadow: 0 7px 14px rgba(10, 255, 0, 0.2), 0 3px 6px rgba(0,0,0,.2);
+}
 
-    .activeNegativ {
-        box-shadow: 0 7px 14px rgba(255, 0, 66, 0.2), 0 3px 6px rgba(0,0,0,.2);
-    }*/
+.activeNegativ {
+    box-shadow: 0 7px 14px rgba(255, 0, 66, 0.2), 0 3px 6px rgba(0,0,0,.2);
+}
 
 img {
     height: 100%;
