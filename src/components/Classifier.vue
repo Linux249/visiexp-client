@@ -64,8 +64,9 @@
         <div class="imgArea">
             <div class="image" v-for="(n, i) in selectedNodes" :key="i">
                 <img
-                    :src="n.icon"
-                    alt=""
+                    v-if="n.hasImage"
+                    :src="n.image.src"
+                    :alt="n.name"
                     @click="removeNode(i)"
                 >
             </div>
@@ -148,11 +149,12 @@ export default {
         },
         addLabel() {
             console.log('addLabel clicked');
-            console.log(this.label);
+            // console.log(this.label);
+
 
             // check if label is in list of labels allready?
             if (!this.labels[this.selectedCategory].labels.some(e => e.name === this.label)) {
-                this.labels[this.selectedCategory].labels.push({ name: this.label, show: true });
+                this.labels[this.selectedCategory].labels.push({ name: this.label, show: true, color: [0, 0, 140] });
             }
 
             // ad label to nodes after checking that is npot allready used at node
@@ -197,11 +199,11 @@ export default {
                     // this.loading = false;
                     console.error(e);
                 });
-
-            console.log(data);
+            // console.log(data);
         },
         clear() {
             this.selectedNodes = [];
+            this.label = '';
         },
 
         changeLabelColor(i, e) {
@@ -210,19 +212,19 @@ export default {
             this.labels[this.selectedCategory].labels[i].color[0] = hexToR(e.target.value);
             this.labels[this.selectedCategory].labels[i].color[1] = hexToG(e.target.value);
             this.labels[this.selectedCategory].labels[i].color[2] = hexToB(e.target.value);
-            this.store.triggerDraw();
+            this.getStore().triggerDraw();
         },
         /*
         toogleShowCategory(i) {
             this.labels[i].show = !this.labels[i].show;
             this.labels[i].labels.forEach(label => (label.show = this.labels[i].show));
-            this.store.triggerDraw();
+            this.getStore().triggerDraw();
         },
         toogleCategory(cat) {
             if (this.selectedCategory === cat) this.selectedCategory = null;
             else this.selectedCategory = cat;
-            this.store.selectedCategory = this.selectedCategory;
-            this.store.triggerDraw();
+            this.getStore().selectedCategory = this.selectedCategory;
+            this.getStore().triggerDraw();
         },
         */
 
@@ -233,13 +235,13 @@ export default {
             this.getStore().triggerDraw();
         },
         addLabeledToGroup(label) {
-            this.store.addLabeledToGroup(label);
+            this.getStore().addLabeledToGroup(label);
         },
 
         toogleShowLabel(i) {
             this.labels[this.selectedCategory].labels[i].show = !this.labels[this.selectedCategory]
                 .labels[i].show;
-            this.store.triggerDraw();
+            this.getStore().triggerDraw();
         },
     },
     computed: {
