@@ -511,6 +511,12 @@ export default class CanvasState {
         return ids;
     }
 
+    getGroupIdsByGroupId(id) {
+        const ids = [];
+        Object.values(this.nodes).forEach(node => (node.groupId === id ? ids.push(node.index) : null));
+        return ids;
+    }
+
     // set to all als group marked items the group id
     // the groups are saved in the ui state
     saveGroup(groupId) {
@@ -583,7 +589,11 @@ export default class CanvasState {
         // TODO check perfomance: what is faster?
         // return Object.values(this.nodes).map(({ index, x, y }) => ({ id: index, x, y }));
         const nodes = {};
-        Object.values(this.nodes).forEach(({ index, x, y }) => (nodes[index] = { index, x, y }));
+        Object.values(this.nodes).forEach(({
+            index, x, y, groupId,
+        }) => (nodes[index] = {
+            index, x, y, groupId,
+        }));
         return nodes;
     }
 
@@ -1555,6 +1565,7 @@ export default class CanvasState {
                     if (this.ui.clusterMode) {
                         console.time('nodesInRange');
                         const tree = this.supercluster.trees[this.supercluster.trees.length - 1];
+                        // todo scale an zoomstufe anpassen da ja unterschiedliche trees?
                         const r = (0.01 * 20) / this.scale;
                         const nodes = tree.within(
                             this.lngX(this.draggNode.x),

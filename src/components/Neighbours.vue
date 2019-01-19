@@ -40,7 +40,7 @@ export default {
                 this.loading = true;
                 const store = this.getStore();
                 const body = {
-                    group: store.getGroupedNodeIds(),
+                    group: store.getGroupIdsByGroupId(this.activeGroupId),
                     threshold: this.neighboursThreshold,
                     groupId: this.activeGroupId,
                 };
@@ -48,10 +48,8 @@ export default {
                 // add neighbours to body depending on existing
                 // neighbours to show init getNeighbours or update
                 if (Object.keys(groupNeighbours).length) {
+                    body.removedNeighbours = removedGroupNeighbours;
                     body.neighbours = groupNeighbours;
-                    if (Object.keys(removedGroupNeighbours).length) {
-                        body.removedNeighbours = removedGroupNeighbours;
-                    }
                 }
 
                 const data = await fetch('/api/v1/getGroupNeighbours', {
