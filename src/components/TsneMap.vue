@@ -415,7 +415,7 @@ import io from 'socket.io-client';
 import simpleheat from 'simpleheat';
 import { Slider } from 'vue-color';
 import Node from '../util/Node';
-import CanvasState from '../util/CanvasState';
+import ExplorerState from '../util/ExplorerState';
 import groupColors from '../config/groupColors';
 // import Groups from './Groups';
 import Neighbours from './Neighbours';
@@ -609,7 +609,7 @@ export default {
 
         changeCluster(v) {
             // console.log("cluster more clicked")
-            this.store.cluster += v; // update canvasState
+            this.store.cluster += v; // update explorerState
             this.cluster = this.store.cluster; // update ui
         },
 
@@ -1014,20 +1014,20 @@ export default {
 
         /*
         activeImgWidthMore() {
-            this.store.activeImgScale += 1; // update canvasState
+            this.store.activeImgScale += 1; // update explorerState
             this.activeImgWidth = this.store.activeImgScale; // update ui
         },
         activeImgWidthLess() {
-            this.store.activeImgScale -= 1; // update canvasState
+            this.store.activeImgScale -= 1; // update explorerState
             this.activeImgWidth = this.store.activeImgScale; // update ui
         },
 
         borderWidthMore() {
-            this.store.borderWidth += 1; // update canvasState
+            this.store.borderWidth += 1; // update explorerState
             this.borderWidth = this.store.borderWidth; // update ui
         },
         borderWidthLess() {
-            this.store.borderWidth -= 1; // update canvasState
+            this.store.borderWidth -= 1; // update explorerState
             this.borderWidth = this.store.borderWidth; // update ui
         },
         doubleNodes() {
@@ -1160,7 +1160,7 @@ export default {
         this.navHeatmapRect = navHeatmapRect;
 
         // const ctx = canvas.getContext('2d');
-        const s = new CanvasState(canvas, hitCanvas, socket, this);
+        const s = new ExplorerState(canvas, hitCanvas, socket, this);
 
         this.store = s;
 

@@ -3,7 +3,7 @@ import groupColors from '../config/groupColors';
 // import pointer from '../icons/Pointer.svg';
 // import { SVM, LABELS, NEIGHBOURS } from './modes';
 
-export default class CanvasState {
+export default class ExplorerState {
     constructor(canvas, hitCanvas, socket, ui) {
         this.socket = socket;
 
