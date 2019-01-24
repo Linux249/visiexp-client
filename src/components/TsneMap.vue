@@ -1,46 +1,17 @@
 <template>
     <div class="tsne-map">
-        <div class="mode-header">
-            <div class="row">
-                <!--<div
-                    class="btn"
-                    :class="{ active: clusterMode }"
-                    @click="toggleClusterMode"
-                >
-                    cluster
-                </div>
-                <div
-                    class="btn"
-                    :class="{ active: oldClusterMode }"
-                    @click="toggleOldClusterMode"
-                >
-                    old cluster
-                </div>-->
-                <!--<div
-                    class="btn"
-                    :class="{ active: neighbourMode }"
-                    @click="toggleNeighbourMode"
-                >
-                    neighbour
-                </div>-->
+        <div class="header">
+            <div class="left-header">
+                <router-link to="/">t-SNE</router-link>
+                <router-link to="/svm">SVM</router-link>
+                <router-link to="/classifier">Classifier</router-link>
+                <!--<router-link to="/triplets">Triplets</router-link>
+                <router-link to="/neighbours">Neighbours</router-link>
+                <router-link to="/labels">Labels</router-link>-->
             </div>
-            <div class="row">
-                <!--<div># {{nodesCount}}</div>-->
-                <!--<div>connected: {{connectedToSocket}}</div>-->
-                <!--<div class="btn">{{scale}}</div>-->
-                <!--<div class="btn">{{scale2}}</div>-->
-                <!--<div class="btn">{{zoomStage}}</div>-->
-                <!--<div class="btn">{{translateX}}</div>
-                <div class="btn">{{translateY}}</div>-->
-                <!--<div class="btn" @click="draw2">draw2</div>
-                <div class="btn" @click="doubleNodes">doubleNodes</div>-->
-                <!--<div class="btn" :class="{ active: sorted }" @click="sortNodes">sort</div>-->
-                <!--<div class="dropdownArea"></div>-->
-
-                <!-- <div @click="toggleShowNavMap" :class="{ active: showNavMap }" class="btn">
-                     <navmap></navmap>
-                 </div>-->
-
+            <div class="right-header">
+                <!--<router-link to="/Dataset">Dataset</router-link>
+                <router-link to="/modes">modes</router-link>-->
                 <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">
                     Options
                 </div>
@@ -60,6 +31,50 @@
                 </div>
             </div>
         </div>
+        <!--<div class="mode-header">
+            <div class="row">
+                &lt;!&ndash;<div
+                    class="btn"
+                    :class="{ active: clusterMode }"
+                    @click="toggleClusterMode"
+                >
+                    cluster
+                </div>
+                <div
+                    class="btn"
+                    :class="{ active: oldClusterMode }"
+                    @click="toggleOldClusterMode"
+                >
+                    old cluster
+                </div>&ndash;&gt;
+                &lt;!&ndash;<div
+                    class="btn"
+                    :class="{ active: neighbourMode }"
+                    @click="toggleNeighbourMode"
+                >
+                    neighbour
+                </div>&ndash;&gt;
+            </div>
+            <div class="row">
+                &lt;!&ndash;<div># {{nodesCount}}</div>&ndash;&gt;
+                &lt;!&ndash;<div>connected: {{connectedToSocket}}</div>&ndash;&gt;
+                &lt;!&ndash;<div class="btn">{{scale}}</div>&ndash;&gt;
+                &lt;!&ndash;<div class="btn">{{scale2}}</div>&ndash;&gt;
+                &lt;!&ndash;<div class="btn">{{zoomStage}}</div>&ndash;&gt;
+                &lt;!&ndash;<div class="btn">{{translateX}}</div>
+                <div class="btn">{{translateY}}</div>&ndash;&gt;
+                &lt;!&ndash;<div class="btn" @click="draw2">draw2</div>
+                <div class="btn" @click="doubleNodes">doubleNodes</div>&ndash;&gt;
+                &lt;!&ndash;<div class="btn" :class="{ active: sorted }" @click="sortNodes">sort</div>&ndash;&gt;
+                &lt;!&ndash;<div class="dropdownArea"></div>&ndash;&gt;
+
+                &lt;!&ndash; <div @click="toggleShowNavMap" :class="{ active: showNavMap }" class="btn">
+                     <navmap></navmap>
+                 </div>&ndash;&gt;
+
+
+            </div>
+        </div>-->
 
         <div class="row stack">
             <div class="explorer">
@@ -1509,5 +1524,43 @@ export default {
 .label {
     padding: 0 2px;
     text-decoration: underline;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    height: 40px;
+    box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+}
+
+.left-header,
+.right-header {
+    display: flex;
+    align-items: center;
+}
+
+a {
+    text-decoration: none;
+
+    display: flex;
+    align-items: center;
+
+    height: 35px;
+
+    font-weight: bold;
+    padding: 0 1em;
+    margin-bottom: 5px;
+    color: #767676;
+}
+
+a:hover {
+    color: #484848;
+}
+
+.router-link-exact-active {
+    /*//background-color: paleturquoise;*/
+    border-bottom: 5px solid paleturquoise;
+    color: #484848;
+    margin-bottom: 0;
 }
 </style>
