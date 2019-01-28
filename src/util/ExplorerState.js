@@ -345,6 +345,7 @@ export default class ExplorerState {
         console.log(this.nodes);
     }
 
+    // todo check where the function is used and if this is fine with updateCluster on every draw
     createSuperCluster() {
         console.time('build superClusterIndex');
         console.time('create geoPoints');
@@ -568,25 +569,26 @@ export default class ExplorerState {
         const nodes = {};
         Object.values(this.nodes).forEach(
             ({
-                index, x, y, name, negatives, positives, links, labels,
+                index, x, y, name, /* negatives, positives, links, */ labels, groupId,
             }) => {
                 nodes[index] = {
                     index,
                     x,
                     y,
                     name,
-                    negatives,
+                    /* negatives,
                     positives,
-                    links,
+                    links, */
                     labels,
+                    groupId,
                 };
             },
         );
         return nodes;
     }
 
-    getNodesSimple() {
-        // TODO check perfomance: what is faster?
+    /* getNodesSimple() {
+        // TODO check performance: what is faster?
         // return Object.values(this.nodes).map(({ index, x, y }) => ({ id: index, x, y }));
         const nodes = {};
         Object.values(this.nodes).forEach(({
@@ -595,7 +597,7 @@ export default class ExplorerState {
             index, x, y, groupId,
         }));
         return nodes;
-    }
+    } */
 
     getNode(i) {
         return this.nodes[i];
@@ -1407,7 +1409,6 @@ export default class ExplorerState {
         // const { nodeUnderMouse } = this;
 
         // if there is a selection and the mouse is over a link
-        // TODO test if this.selection.links[nodeUnderMouse.index] exists for cleaner statement
         // if (this.selection && this.selection.links[nodeUnderMouse.index]) {
         // if (false) {
         /* const { index: i } = nodeUnderMouse;

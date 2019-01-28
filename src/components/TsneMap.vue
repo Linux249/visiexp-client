@@ -437,6 +437,7 @@ import Neighbours from './Neighbours';
 import Scissors from '../icons/Scissors';
 import X from '../icons/X';
 import Play from '../icons/Play';
+import Stop from '../icons/Stop';
 import Send from '../icons/Send';
 import Navmap from '../icons/Map';
 import Target from '../icons/Target';
@@ -459,6 +460,7 @@ export default {
         Scissors,
         X,
         Play,
+        Stop,
         Send,
         Navmap,
         Target,
@@ -590,13 +592,15 @@ export default {
         },
         sendData() {
             console.log('send data clicked');
-            console.log(this.store.nodes);
+            // console.log(this.store.nodes);
             const nodes = this.store.getNodes();
-            console.log(nodes);
-            // this.store.resetStore();
-            this.loadingNodes = true;
-            this.socket.emit('updateNodes', { nodes });
-            // this.reset();
+            // console.log(nodes);
+            if (!this.loadingNodes) {
+                // this.store.resetStore();
+                this.loadingNodes = true;
+                this.socket.emit('updateEmbedding', { nodes });
+                // this.reset();
+            }
         },
 
         changeActiveNode(n) {
@@ -870,7 +874,7 @@ export default {
 
                 try {
                     const body = JSON.stringify({
-                        nodes: this.store.getNodesSimple(),
+                        nodes: this.store.getNodes(),
                         socketId: this.socketId,
                     });
                     await fetch('/api/v1/startUpdateEmbedding', {
@@ -1092,11 +1096,6 @@ export default {
             console.log(this.colors);
             // const { b, g, r } = this.colors.rgba;
         },
-        $route() {
-            // initial draw trigger when switching to neigbhours mode
-            // TODO remove if mode is encapsulated from routes
-            this.store.triggerDraw();
-        },
     },
     /* computed: {
         /!* selectedNode() {
@@ -1234,7 +1233,7 @@ export default {
             s.triggerDraw();
         });
 
-        socket.on('receiveImage', (data) => {
+        socket.on('requestImage', (data) => {
             // console.log('receive image data');
             // console.log(data);
             const node = s.nodes[data.index];
@@ -1263,28 +1262,28 @@ export default {
             this.nodesCount = nodesCount;
         }); */
 
-        socket.on('updateLabels', (data) => {
-            console.log('updateLabels');
+        socket.on('updateCategories', (data) => {
+            console.log('updateCategories');
             console.log(data);
             this.labels = data;
         });
 
-        socket.on('updateKdtree', (kdtree) => {
+        /* socket.on('updateKdtree', (kdtree) => {
             console.log('updateKdtree');
             console.log(kdtree);
             s.kdtree = kdtree;
             // console.log(s.range(-5 ,-5 ,5 ,5))
-        });
+        }); */
 
         socket.on('updateEmbedding', (data, cb) => {
             console.log('updateEmbedding');
-            console.log(data);
-            console.log(this.loadingNodes);
-            this.loadingNodes = false;
-            console.log(this.loadingNodes);
-            cb({ stopped: this.autoUpdateEmbedding });
+            // console.log(data);
+            // console.log(this.loadingNodes);
+            if (cb) cb({ stopped: this.autoUpdateEmbedding });
             this.store.updateNodes(data.nodes);
+            // todo check if necessary after have a good solution for best place for init clustering
             this.store.createSuperCluster();
+            this.loadingNodes = false;
         });
         // this.updateCanvas();
 

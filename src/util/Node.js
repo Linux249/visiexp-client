@@ -2,7 +2,7 @@
 export default class Node {
     constructor(data) {
         this.name = data.name;
-        this.links = data.links;
+        // this.links = data.links;
         this.index = data.index;
         this.x = data.x;
         this.y = data.y;
@@ -38,7 +38,7 @@ export default class Node {
         this.rank = data.rank;
 
         this.hasImage = false; // is there detailed image?
-        this.image = new Image(); // rest is set throuh socket-receiveImage
+        this.image = new Image(); // rest is set through socket-receiveImage
 
         // this.pics = {};
         this.imageData = {};
