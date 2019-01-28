@@ -1245,7 +1245,7 @@ export default {
         socket.on('totalNodesCount', (data) => {
             console.log('totalNodesCount');
             console.log(data);
-            this.nodesTotal = data;
+            this.nodesTotal = data.count;
         });
 
         socket.on('allNodesSend', () => {
@@ -1265,7 +1265,7 @@ export default {
         socket.on('updateCategories', (data) => {
             console.log('updateCategories');
             console.log(data);
-            this.labels = data;
+            this.labels = data.labels;
         });
 
         /* socket.on('updateKdtree', (kdtree) => {
