@@ -371,7 +371,8 @@
                                 :class="{active: neighbourMode && group.groupId === activeGroupId}"
                                 @click="handleNeighbourMode(i)"
                             >
-                                <repeat></repeat>
+                                <play v-if="!(neighbourMode && group.groupId === activeGroupId)"></play>
+                                <stop v-if="neighbourMode && group.groupId === activeGroupId"></stop>
                             </div>
                             <div class="btn" @click="deleteGroup(i)"><trash></trash></div>
                         </div>
@@ -449,14 +450,12 @@ import Plus from '../icons/Plus';
 import Minus from '../icons/Minus';
 import Logs from './Logs';
 import Trash from '../icons/Trash';
-import Repeat from '../icons/Repeat';
 // import TestWorker from '../worker/test.worker';
 
 export default {
     store: null,
     name: 'TsneMap',
     components: {
-        Repeat,
         Scissors,
         X,
         Play,
@@ -1427,7 +1426,6 @@ export default {
     justify-content: space-between;
     align-items: center;
 }
-
 
 .active-img {
     max-width: 100%;

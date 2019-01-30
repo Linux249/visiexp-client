@@ -9,20 +9,24 @@
             ></range-slider>
         </div>
         <div class="row">
-            <div class="btn" @click="getGroupNeighbours">Update</div>
-            <div class="btn" @click="resetNeighbours">Reset</div>
+            <div class="btn" @click="getGroupNeighbours">Update<repeat></repeat></div>
+            <div class="btn" @click="resetNeighbours">Reset<trash></trash></div>
         </div>
     </div>
 </template>
 
 <script>
 import RangeSlider from './RangeSlider';
+import Repeat from '../icons/Repeat';
+import Trash from '../icons/Trash';
 
 export default {
     name: 'Neighbours',
     props: ['getStore', 'neighboursThreshold', 'changeNeighboursThreshold', 'activeGroupId'],
     components: {
         RangeSlider,
+        Repeat,
+        Trash,
     },
     data: () => ({
         loading: false,
