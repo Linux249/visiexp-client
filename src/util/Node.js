@@ -38,7 +38,12 @@ export default class Node {
         this.rank = data.rank;
 
         this.hasImage = false; // is there detailed image?
+        this.imgLoading = false;
         this.image = new Image(); // rest is set through socket-receiveImage
+        this.image.onload = () => {
+            this.hasImage = true;
+            this.imgLoading = false;
+        }
 
         // this.pics = {};
         this.imageData = {};

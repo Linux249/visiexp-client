@@ -1591,7 +1591,8 @@ export default class ExplorerState {
         this.nodeUnderMouse = nodeUnderMouse;
         this.ui.activeNode = nodeUnderMouse;
         // trigger load high resolution img
-        if (nodeUnderMouse && !nodeUnderMouse.hasImage) {
+        if (nodeUnderMouse && !nodeUnderMouse.hasImage && !nodeUnderMouse.imgLoading) {
+            nodeUnderMouse.imgLoading = true
             this.socket.emit('requestImage', {
                 name: nodeUnderMouse.name,
                 index: nodeUnderMouse.index,

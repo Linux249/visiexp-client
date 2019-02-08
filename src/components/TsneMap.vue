@@ -409,14 +409,15 @@
                         v-if="activeNode.hasImage"
                         :src="activeNode.image.src"
                     />
+                    <div v-if="activeNode.imgLoading" class="loader" ></div>
                     <div>Name: {{activeNode.name}}</div>
-                    <div>Label: {{activeNode.label}}</div>
+                    <!--<div>Label: {{activeNode.label}}</div>-->
                     <div class="row">Labels:
                         <div class="label" v-for="label in activeNode.labels">
                             {{label}}
                         </div>
                     </div>
-                    <div>Links #: {{Object.keys(activeNode.links).length}}</div>
+                    <!--<div>Links #: {{Object.keys(activeNode.links).length}}</div>-->
                 </div>
                 <logs :getStore="getStore"/>
             </div>
@@ -476,7 +477,7 @@ export default {
         Trash,
     },
     data: () => ({
-        items: [],
+        // items: [],
         // positives: [],
         // negatives: [],
         // store: null,
@@ -485,19 +486,19 @@ export default {
         loadingNodes: false,
         nodesTotal: 0,
         nodesRecived: 0,
-        scale: 0,
+        scale: 0, // default - will update later
         // scale2: 0,
         labels: [],
         selectedLabel: null, // save the selected label
         selectedCategory: null,
         showLabels: false, // show the labels in a dropdown
         clickedNode: null,
-        labelColor: '#6057ff',
-        showKLabels: false,
+        // labelColor: '#6057ff',
+        // showKLabels: false,
         scissors: false,
         target: false,
-        width: 0,
-        height: 0,
+        // width: 0,
+        // height: 0,
         activeNode: null,
         cluster: 5, // default - set on mount from CanvasStore class
         clusterRadius: 0, // default - set on mount from CanvasStore class
@@ -514,8 +515,8 @@ export default {
         // scrollGrowth: 0,
         // scrollImgGrowth: 0,
         clusterGrowth: 0,
-        translateX: 0,
-        translateY: 0,
+        // translateX: 0,
+        // translateY: 0,
         // heatmap: {}, // this object should not be controlled by
         showHeatmap: false,
         heatmapRadius: 1,
@@ -1178,7 +1179,7 @@ export default {
         this.store = s;
 
         // sync values from UI to store
-        s.labelColor = this.labelColor;
+        // s.labelColor = this.labelColor;
 
         // set init value in UI
         this.cluster = s.cluster;
@@ -1207,7 +1208,7 @@ export default {
             console.log('nodes in store while connect (its maybe just a reconnect)');
             console.log(nodes);
             if (!Object.keys(nodes).length && !this.loadingNodes) {
-                socket.emit('getNodes', { nodes: {} });
+                socket.emit('getNodes');
                 this.reset();
             }
             // s.clear() // maybe there is something inside?
@@ -1238,7 +1239,6 @@ export default {
             const node = s.nodes[data.index];
             // console.log(node);
             node.image.src = `data:image/jpeg;base64,${data.buffer}`;
-            node.hasImage = true;
         });
 
         socket.on('totalNodesCount', (data) => {
