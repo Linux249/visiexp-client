@@ -21,7 +21,7 @@ export default class ExplorerState {
         // this.kdtree = {};
 
         // this.valid = true; // when set to false, the explorer will redraw everything
-        this._valid = true;
+        this.valid = true;
         this.nodes = {}; // hash for all nodes
         this.colorHash = {}; // find nodes by color
         this.panning = false; // Keep track of when we are dragging
@@ -310,20 +310,8 @@ export default class ExplorerState {
         this.ui.clusterGrowth = this.clusterGrowth;
     }
 
-    set valid(v) {
-        // let i;
-        // TODO so wird jeder neue draw ausgetzt weil der alte noch läuft
-        if (!v && this.valid) window.requestAnimationFrame(() => this.draw2());
-        // console.log(i)
-        // if (i > 2) window.cancelAnimationFrame(i)
-        this._valid = v;
-    }
-
-    get valid() {
-        return this._valid;
-    }
-
     triggerDraw() {
+        if (this.valid) window.requestAnimationFrame(() => this.draw2());
         this.valid = false;
     }
 
@@ -979,7 +967,7 @@ export default class ExplorerState {
             const imgY = Math.floor(node.y * scale + ty - imgH / 2);
 
             // test if the image is outside the explorer
-            if (!(imgX < explorerW - imgW && imgY < explorerH - imgH)) return;
+            if (!(imgX < (explorerW - imgW) && imgY < (explorerH - imgH) && imgX > 0 && imgY > 0)) return;
 
             // check if the image is allowed to draw in certain rules
             let show = true;

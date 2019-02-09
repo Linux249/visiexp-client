@@ -411,6 +411,7 @@
                     />
                     <div v-if="activeNode.imgLoading" class="loader" ></div>
                     <div>Name: {{activeNode.name}}</div>
+                    <!--<div>X:Y: {{activeNode.x + ":" + activeNode.y}}</div>-->
                     <!--<div>Label: {{activeNode.label}}</div>-->
                     <div class="row">Labels:
                         <div class="label" v-for="label in activeNode.labels">
