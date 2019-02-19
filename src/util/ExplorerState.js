@@ -616,10 +616,10 @@ export default class ExplorerState {
         if (!this.sortedNodes.length) {
             console.time('sortNodes');
             this.sortedNodes = Object.values(this.nodes).sort((a, b) => {
-                console.log(a.cliqueLen - b.cliqueLen);
-                return a.cliqueLen - b.cliqueLen;
+                console.log(a.cliqueLength - b.cliqueLength);
+                return a.cliqueLength - b.cliqueLength;
             });
-            // nodes.forEach(node => console.log(`name: ${node.name}: ${node.cliqueLen}`))
+            // nodes.forEach(node => console.log(`name: ${node.name}: ${node.cliqueLength}`))
             console.timeEnd('sortNodes');
         }
         this.triggerDraw();
@@ -924,7 +924,7 @@ export default class ExplorerState {
             clusterMode,
             oldClusterMode,
             neighbourMode,
-            representWithAlpha,
+            representMaxAlpha,
             repsMode,
             alphaBase,
             alphaIncrease,
@@ -1055,10 +1055,10 @@ export default class ExplorerState {
                         explorerPixel[c + 1] = imgData[p + 1]; // G
                         explorerPixel[c + 2] = imgData[p + 2]; // B
                         // special mode for represents // img over other img // white background
-                        explorerPixel[c + 3] = representWithAlpha && isRepresent
+                        explorerPixel[c + 3] = representMaxAlpha && isRepresent
                             ? 255
                             : explorerPixel[c + 3]
-                                ? explorerPixel[c + 3] + 10 * node.cliqueLen
+                                ? explorerPixel[c + 3] + 10 * node.cliqueLength
                                 : alphaBase + zoomStage * alphaIncrease;
 
                         // draw hitmap
@@ -1074,7 +1074,7 @@ export default class ExplorerState {
                 DRAW RANK COLOR BORDER
              */
             if (boarderRankedMode) {
-                const color = gradient[node.cliqueLen];
+                const color = gradient[node.cliqueLength];
                 // draw boarder
                 for (let imgRow = -2; imgRow <= imgH + 1; imgRow += 1) {
                     const explorerRow = ((imgY + imgRow) * explorerW + imgX) * 4;

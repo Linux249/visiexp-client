@@ -190,11 +190,11 @@
                     <div class="row-btn">
                         <div>Represent: alpha</div>
                         <div
-                            @click="toggleRepresentWithAlpha"
+                            @click="togglerepresentMaxAlpha"
                             class="btn"
-                            :class="{active: representWithAlpha}"
+                            :class="{active: representMaxAlpha}"
                         >
-                            {{representWithAlpha ? "On" : "Off"}}
+                            {{representMaxAlpha ? "On" : "Off"}}
                         </div>
                     </div>
                     <div class="row-btn">
@@ -578,7 +578,7 @@ export default {
         dataset: '001', // defualt value is 001
         neighboursThreshold: 0.2,
         activeGroupId: 0,
-        representWithAlpha: false,
+        representMaxAlpha: false,
         savedGroups: [],
         groupName: '',
         groupCounter: 0, // 0 is no group, counter inc for first use
@@ -824,8 +824,8 @@ export default {
             this.nodesTotal = 0;
         },
 
-        toggleRepresentWithAlpha() {
-            this.representWithAlpha = !this.representWithAlpha;
+        togglerepresentMaxAlpha() {
+            this.representMaxAlpha = !this.representMaxAlpha;
             this.store.triggerDraw();
         },
 

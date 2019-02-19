@@ -16,7 +16,7 @@ export default class Node {
         this.group = false;
         this.groupId = null;
         this.clique = data.clique;
-        this.cliqueLen = data.clique.length;
+        this.cliqueLength = data.clique.length;
 
         this.cluster = data.cluster;
         this.isClusterd = true;
