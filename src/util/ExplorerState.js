@@ -1358,11 +1358,11 @@ export default class ExplorerState {
         const pic = new ImageData(explorerPixel, explorerW, explorerH);
         const hitmap = new ImageData(hitmapPixel, explorerW, explorerH);
         const hitmapCtx = this.ui.toggle ? this.ctx : this.hitCtx;
-        this.ctx.resetTransform();
-        this.ctx.clearRect(0, 0, this.width, this.height);
+        // this.ctx.resetTransform();
+        // this.ctx.clearRect(0, 0, this.width, this.height);
         this.ctx.putImageData(pic, 0, 0);
-        hitmapCtx.resetTransform();
-        hitmapCtx.clearRect(0, 0, this.width, this.height);
+        // hitmapCtx.resetTransform();
+        // hitmapCtx.clearRect(0, 0, this.width, this.height);
         hitmapCtx.putImageData(hitmap, 0, 0);
         // console.log(pic);
         // console.log(explorerPixel);
@@ -1580,7 +1580,7 @@ export default class ExplorerState {
         this.ui.activeNode = nodeUnderMouse;
         // trigger load high resolution img
         if (nodeUnderMouse && !nodeUnderMouse.hasImage && !nodeUnderMouse.imgLoading) {
-            nodeUnderMouse.imgLoading = true
+            nodeUnderMouse.imgLoading = true;
             this.socket.emit('requestImage', {
                 name: nodeUnderMouse.name,
                 index: nodeUnderMouse.index,
