@@ -1552,19 +1552,7 @@ export default class ExplorerState {
                     });
                     // todo remove 'if' if clustermode is default
                     if (this.ui.clusterMode) {
-                        console.time('nodesInRange');
-                        const tree = this.supercluster.trees[this.supercluster.trees.length - 1];
-                        // todo scale an zoomstufe anpassen da ja unterschiedliche trees?
-                        const r = (0.01 * 20) / this.scale;
-                        const nodes = tree.within(
-                            this.lngX(this.draggNode.x),
-                            this.latY(this.draggNode.y),
-                            r,
-                        );
-                        Object.values(this.nodes).forEach((node) => {
-                            node.isNearly = !node.group && nodes.includes(node.index);
-                        });
-                        console.timeEnd('nodesInRange');
+                        this.updateNodesInRange();
                     }
                 } else {
                     // drag only one node
@@ -1695,5 +1683,21 @@ export default class ExplorerState {
             this.triggerDraw();
             this.createSuperCluster();
         }
+    }
+
+    updateNodesInRange() {
+        console.time('nodesInRange');
+        const tree = this.supercluster.trees[this.supercluster.trees.length - 1];
+        // todo scale an zoomstufe anpassen da ja unterschiedliche trees?
+        const r = (0.01 * 20) / this.scale;
+        const nodes = tree.within(
+            this.lngX(this.draggNode.x),
+            this.latY(this.draggNode.y),
+            r,
+        );
+        Object.values(this.nodes).forEach((node) => {
+            node.isNearly = !node.group && nodes.includes(node.index);
+        });
+        console.timeEnd('nodesInRange');
     }
 }
