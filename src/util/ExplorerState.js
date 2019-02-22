@@ -100,6 +100,7 @@ export default class ExplorerState {
         // this.timerId = setInterval(() => this.draw(), this.interval);
         this.sizeRange = 3;
 
+        // garantie the max zoom lvl
         this.maxZoomLvl = 20;
 
         this._moveGroupToMouse = false;
@@ -400,12 +401,13 @@ export default class ExplorerState {
     }
 
     updateClustering(init) {
+        console.time('updateClustering');
         function distance(v1, v2) {
             return Math.hypot(v2[0] - v1[0], v2[1] - v1[1]);
         }
         // TODO remove after right implementation
         if (!this.supercluster) return;
-        console.time('get cluster');
+        //console.time('get cluster');
         const {
             zoomStage,
             scale,
@@ -419,12 +421,11 @@ export default class ExplorerState {
 
         // get clustering for current section (viewbox)
         const cluster = this.supercluster.getClusters(rect, zoomStage);
-        console.timeEnd('get cluster');
+        //console.timeEnd('get cluster');
         // console.log(rect);
         // console.log(cluster);
 
-        console.time('update cluster on nodes');
-        console.log(cluster);
+        // console.log(cluster);
         cluster.forEach((c) => {
             const { index, cluster_id } = c.properties;
             if (index) {
@@ -457,7 +458,7 @@ export default class ExplorerState {
                 this.nodes[centroidId].isClusterd = false;
             }
         });
-        console.timeEnd('update cluster on nodes');
+        console.timeEnd('updateClustering');
     }
 
     clearGroup() {
