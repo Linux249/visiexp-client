@@ -25,7 +25,7 @@ export default class ExplorerState {
         this.nodes = {}; // hash for all nodes
         this.colorHash = {}; // find nodes by color
         this.panning = false; // Keep track of when we are dragging
-        this.draggNode = false; // save the node for dragging
+        this.draggedNode = false; // save the node for dragging
 
         // the current selected object.
         // TODO  In the future we could turn this into an array for multiple selection
@@ -513,7 +513,7 @@ export default class ExplorerState {
         Object.keys(this.nodes).forEach(
             i => (this.nodes[i].group ? (this.nodes[i].groupId = groupId) : null),
         );
-        this.updateGroupCounter();
+        this.updateGroupCount();
     }
 
     addNodesToActiveGroup(ids) {
@@ -521,7 +521,7 @@ export default class ExplorerState {
             this.nodes[id].group = true;
             this.nodes[id].groupId = this.ui.activeGroupId;
         });
-        this.updateGroupCounter();
+        this.updateGroupCount();
     }
 
     updateGroupNeighbours(neighbours) {
@@ -663,7 +663,7 @@ export default class ExplorerState {
         }
     };
 
-    updateGroupCounter() {
+    updateGroupCount() {
         // build counter
         const counter = {};
         this.ui.savedGroups.forEach(group => (counter[group.groupId] = 0));
@@ -1491,7 +1491,7 @@ export default class ExplorerState {
 
         // if there is no mouse under mouse then move everything
         if (nodeUnderMouse) {
-            this.draggNode = nodeUnderMouse;
+            this.draggedNode = nodeUnderMouse;
         } else if (this.scissors) {
             console.log('Scissors');
             // save start X/Y
@@ -1522,7 +1522,7 @@ export default class ExplorerState {
         }
 
         // DRAG AND DROP
-        if (this.draggNode || this.panning) {
+        if (this.draggedNode || this.panning) {
             // get mouse movement based on the last triggered event
             const moveX = mouseX - this.startX; // +80 means move 80px to right
             const moveY = mouseY - this.startY; // -50 means move 50 to top
@@ -1537,14 +1537,14 @@ export default class ExplorerState {
                 // move the x/y
                 this.translateX += moveX;
                 this.translateY += moveY;
-            } else if (this.draggNode) {
+            } else if (this.draggedNode) {
                 // console.log("draggeNode")
                 // scale the X/Y
                 const imgX = moveX / this.scale;
                 const imgY = moveY / this.scale;
 
                 // drag hole group
-                if (this.draggNode.group) {
+                if (this.draggedNode.group) {
                     Object.values(this.nodes).forEach((node) => {
                         if (node.group) {
                             node.x += imgX;
@@ -1557,8 +1557,8 @@ export default class ExplorerState {
                     }
                 } else {
                     // drag only one node
-                    this.draggNode.x += imgX;
-                    this.draggNode.y += imgY;
+                    this.draggedNode.x += imgX;
+                    this.draggedNode.y += imgY;
                 }
             }
             return this.triggerDraw();
@@ -1598,7 +1598,7 @@ export default class ExplorerState {
                     nodeUnderMouse.group = true;
                     nodeUnderMouse.groupId = this.ui.activeGroupId;
                 }
-                this.updateGroupCounter();
+                this.updateGroupCount();
             }
 
             if (this.ui.neighbourMode) {
@@ -1618,19 +1618,13 @@ export default class ExplorerState {
             // used for components for adding nodes to special cases
             this.ui.clickedNode = nodeUnderMouse;
 
-            if (this.draggNode) {
+            if (this.draggedNode) {
                 // merge all "nearby nodes" to group
-                if (this.draggNode.group) {
-                    Object.values(this.nodes).forEach((node) => {
-                        if (node.isNearly) {
-                            node.group = true;
-                            node.groupId = this.draggNode.groupId;
-                            node.isNearly = false; // remove nearly status
-                        }
-                    });
-                    this.updateGroupCounter();
+                if (this.draggedNode.group) {
+                    this.addNodesInRangeToGroup();
+                    this.updateGroupCount();
                 }
-                this.draggNode = false;
+                this.draggedNode = false;
             }
 
             // todo update instead of recreate supercluster here maybe bedder? how?
@@ -1656,7 +1650,7 @@ export default class ExplorerState {
                 }
             });
 
-            this.updateGroupCounter();
+            this.updateGroupCount();
             // reset
             this.scissors = false;
             this.ui.scissors = false;
@@ -1692,13 +1686,23 @@ export default class ExplorerState {
         // todo scale an zoomstufe anpassen da ja unterschiedliche trees?
         const r = (0.01 * 20) / this.scale;
         const nodes = tree.within(
-            this.lngX(this.draggNode.x),
-            this.latY(this.draggNode.y),
+            this.lngX(this.draggedNode.x),
+            this.latY(this.draggedNode.y),
             r,
         );
         Object.values(this.nodes).forEach((node) => {
             node.isNearly = !node.group && nodes.includes(node.index);
         });
         console.timeEnd('nodesInRange');
+    }
+
+    addNodesInRangeToGroup() {
+        Object.values(this.nodes).forEach((node) => {
+            if (node.isNearly) {
+                node.group = true;
+                node.groupId = this.draggedNode.groupId;
+                node.isNearly = false; // remove nearly status
+            }
+        });
     }
 }
