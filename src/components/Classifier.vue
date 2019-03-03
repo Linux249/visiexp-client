@@ -151,10 +151,13 @@ export default {
             console.log('addLabel clicked');
             // console.log(this.label);
 
-
             // check if label is in list of labels allready?
             if (!this.labels[this.selectedCategory].labels.some(e => e.name === this.label)) {
-                this.labels[this.selectedCategory].labels.push({ name: this.label, show: true, color: [0, 0, 140] });
+                this.labels[this.selectedCategory].labels.push({
+                    name: this.label,
+                    show: true,
+                    color: [0, 0, 140],
+                });
             }
 
             // ad label to nodes after checking that is npot allready used at node
@@ -214,19 +217,6 @@ export default {
             this.labels[this.selectedCategory].labels[i].color[2] = hexToB(e.target.value);
             this.getStore().triggerDraw();
         },
-        /*
-        toogleShowCategory(i) {
-            this.labels[i].show = !this.labels[i].show;
-            this.labels[i].labels.forEach(label => (label.show = this.labels[i].show));
-            this.getStore().triggerDraw();
-        },
-        toogleCategory(cat) {
-            if (this.selectedCategory === cat) this.selectedCategory = null;
-            else this.selectedCategory = cat;
-            this.getStore().selectedCategory = this.selectedCategory;
-            this.getStore().triggerDraw();
-        },
-        */
 
         toogleLabel(label, category) {
             this.selectedLabel = this.selectedLabel === label ? null : label;
