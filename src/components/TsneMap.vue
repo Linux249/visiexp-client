@@ -337,7 +337,7 @@
                     :neighbourMode="neighbourMode"
                 />-->
                 <div class="area">
-                    <div class="title">Save/load groups</div>
+                    <div class="title">Groups</div>
                     <div v-if="this.savedGroups.length" class="group-list">
                         <div class="group-item row-between"
                              v-for="(group, i) in savedGroups"

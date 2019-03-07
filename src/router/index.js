@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Welcome from '@/components/Welcome';
+import TSNE from '@/components/TSNE';
 import Svm from '@/components/Svm';
 import Classifier from '../components/Classifier';
 // import Dataset from '../components/Dataset';
@@ -19,7 +19,7 @@ export default new Router({
         {
             path: '/',
             name: 'Welcome',
-            component: Welcome,
+            component: TSNE,
         },
         {
             path: `/${CLASSIFIER}`,

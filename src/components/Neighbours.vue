@@ -1,6 +1,6 @@
 <template>
     <div class="area">
-        <div class="title">Neighbours</div>
+        <div class="title">Similars</div>
         <div class="btn between">
             {{neighboursThreshold}}
             <range-slider
