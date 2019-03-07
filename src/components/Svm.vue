@@ -61,6 +61,8 @@
 </template>
 
 <script>
+import { apiUrl } from '../config/apiUrl';
+
 export default {
     name: 'Svm',
     props: ['node', 'nodes', 'getNode', 'changeActiveNode'],
@@ -128,7 +130,7 @@ export default {
                 n: this.negativesAll.map(node => node.index),
                 count: this.count,
             });
-            const data = await fetch('/api/v1/svm/train', {
+            const data = await fetch(`${apiUrl}/api/v1/svm/train`, {
                 method: 'POST',
                 headers: { 'Content-type': 'application/json' },
                 body,
@@ -185,7 +187,7 @@ export default {
             console.log('stopSvm clicked');
             this.loading = true;
 
-            await fetch('/api/v1/svm/stop', {
+            await fetch(`${apiUrl}/api/v1/svm/stop`, {
                 method: 'POST',
                 headers: { 'Content-type': 'application/json' },
             })

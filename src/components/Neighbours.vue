@@ -19,6 +19,7 @@
 import RangeSlider from './RangeSlider';
 import Repeat from '../icons/Repeat';
 import Trash from '../icons/Trash';
+import { apiUrl } from '../config/apiUrl';
 
 export default {
     name: 'Neighbours',
@@ -56,7 +57,7 @@ export default {
                     body.neighbours = groupNeighbours;
                 }
 
-                const data = await fetch('/api/v1/getGroupNeighbours', {
+                const data = await fetch(`${apiUrl}/api/v1/getGroupNeighbours`, {
                     method: 'POST',
                     headers: { 'Content-type': 'application/json' },
                     body: JSON.stringify(body),

@@ -2,5 +2,5 @@ module.exports = {
     devServer: {
         proxy: 'http://localhost:3000',
     },
-    publicPath: 'visiexp',
+    publicPath: process.env.NODE_ENV === 'production' ? '/visiexp/' : '/',
 };

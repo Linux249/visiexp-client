@@ -358,6 +358,7 @@ import Plus from '../icons/Plus';
 import Minus from '../icons/Minus';
 import Logs from './Logs';
 import Trash from '../icons/Trash';
+import { apiUrl } from '../config/apiUrl';
 
 export default {
     store: null,
@@ -753,7 +754,7 @@ export default {
                         nodes: this.store.getNodes(),
                         socketId: this.socketId,
                     });
-                    await fetch('/api/v1/startUpdateEmbedding', {
+                    await fetch(`${apiUrl}/api/v1/startUpdateEmbedding`, {
                         method: 'POST',
                         headers: { 'Content-type': 'application/json' },
                         body,
@@ -847,11 +848,12 @@ export default {
     },
 
     mounted() {
-        const socketIp = process.env.NODE_ENV === 'production' ? 'localhost' : 'localhost';
+        const socketIp = process.env.NODE_ENV === 'production' ? 'localhost:3000' : '/visiexp/';
+
 
         // init socket connection
         const socket = io.connect(
-            `http://${socketIp}:3000`,
+            `${socketIp}`,
             {
                 transports: ['websocket'],
                 reconnectionDelay: 100,
