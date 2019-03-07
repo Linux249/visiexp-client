@@ -15,6 +15,8 @@
 </template>
 
 <script>
+import { apiUrl } from '../config/apiUrl';
+
 export default {
     name: 'Dataset',
     props: ['dataset', 'handleChangeDataset'],
@@ -25,7 +27,7 @@ export default {
     async mounted() {
         try {
             this.loading = true;
-            const datasets = await fetch('/api/v1/dataset/all').then(res => res.json());
+            const datasets = await fetch(`${apiUrl}/api/v1/dataset/all`).then(res => res.json());
             console.log(datasets);
             this.datasets = datasets;
             this.loading = false;

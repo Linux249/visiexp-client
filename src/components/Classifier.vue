@@ -102,6 +102,7 @@ import Grid from '../icons/Grid';
 import {
     hexToB, hexToG, hexToR, rgbToHex,
 } from '../util/colourConverter';
+import { apiUrl } from '../config/apiUrl';
 
 export default {
     name: 'classifier',
@@ -191,7 +192,7 @@ export default {
             const body = JSON.stringify({
                 nodes,
             });
-            const data = await fetch('/api/v1/updateLabels', {
+            const data = await fetch(`${apiUrl}/api/v1/updateLabels`, {
                 method: 'POST',
                 headers: { 'Content-type': 'application/json' },
                 body,
