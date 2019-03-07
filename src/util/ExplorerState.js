@@ -536,6 +536,7 @@ export default class ExplorerState {
         this.nodes[node.index] = node;
         this.colorHash[`rgb(${node.colorKey[0]},${node.colorKey[1]},${node.colorKey[2]})`] = node.index;
         this.triggerDraw();
+    }
 
     updateNodes(nodes) {
         Object.values(nodes).forEach((node) => {
