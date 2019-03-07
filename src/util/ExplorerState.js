@@ -1,7 +1,5 @@
 import supercluster from 'supercluster';
 import groupColors from '../config/groupColors';
-// import pointer from '../icons/Pointer.svg';
-// import { SVM, LABELS, NEIGHBOURS } from './modes';
 
 export default class ExplorerState {
     constructor(canvas, hitCanvas, socket, ui) {
@@ -14,14 +12,9 @@ export default class ExplorerState {
         this.width = canvas.width;
         this.height = canvas.height;
 
-        // this.hitCanvas = hitCanvas;
         this.hitCtx = hitCanvas.getContext('2d');
 
-        // **** Keep track of state! ****
-        // this.kdtree = {};
-
-        // this.valid = true; // when set to false, the explorer will redraw everything
-        this.valid = true;
+        this.valid = true;  // use for checking if draw() is running
         this.nodes = {}; // hash for all nodes
         this.colorHash = {}; // find nodes by color
         this.panning = false; // Keep track of when we are dragging
@@ -312,7 +305,7 @@ export default class ExplorerState {
     }
 
     triggerDraw() {
-        if (this.valid) window.requestAnimationFrame(() => this.draw2());
+        if (this.valid) window.requestAnimationFrame(() => this.draw());
         this.valid = false;
     }
 
@@ -542,8 +535,7 @@ export default class ExplorerState {
 
         this.nodes[node.index] = node;
         this.colorHash[`rgb(${node.colorKey[0]},${node.colorKey[1]},${node.colorKey[2]})`] = node.index;
-        this.triggerDraw(); // for redrawing
-    }
+        this.triggerDraw();
 
     updateNodes(nodes) {
         Object.values(nodes).forEach((node) => {
@@ -558,16 +550,13 @@ export default class ExplorerState {
         const nodes = {};
         Object.values(this.nodes).forEach(
             ({
-                index, x, y, name, /* negatives, positives, links, */ labels, groupId,
+                index, x, y, name, labels, groupId,
             }) => {
                 nodes[index] = {
                     index,
                     x,
                     y,
                     name,
-                    /* negatives,
-                    positives,
-                    links, */
                     labels,
                     groupId,
                 };
@@ -576,35 +565,9 @@ export default class ExplorerState {
         return nodes;
     }
 
-    /* getNodesSimple() {
-        // TODO check performance: what is faster?
-        // return Object.values(this.nodes).map(({ index, x, y }) => ({ id: index, x, y }));
-        const nodes = {};
-        Object.values(this.nodes).forEach(({
-            index, x, y, groupId,
-        }) => (nodes[index] = {
-            index, x, y, groupId,
-        }));
-        return nodes;
-    } */
-
     getNode(i) {
         return this.nodes[i];
     }
-
-    /* range(minX, minY, maxX, maxY) {
-        const result = range(
-            this.kdtree.ids,
-            this.kdtree.coords,
-            minX,
-            minY,
-            maxX,
-            maxY,
-            this.kdtree.nodeSize,
-        );
-        console.log('range');
-        console.log(result);
-    } */
 
     /* resetStore() {
         this.nodes = {};
@@ -650,11 +613,11 @@ export default class ExplorerState {
     }
 
     // TODO test automatic draw effects like animation, zoom
-    toggleScaleTest() {
-        this.scaleTest = !this.scaleTest;
-        requestAnimationFrame(this.scaleTestDraw);
-        return this.scaleTest;
-    }
+    // toggleScaleTest() {
+    //     this.scaleTest = !this.scaleTest;
+    //     requestAnimationFrame(this.scaleTestDraw);
+    //     return this.scaleTest;
+    // }
 
     scaleTestDraw = () => {
         if (this.scaleTest) {
@@ -890,9 +853,9 @@ export default class ExplorerState {
         }
     } */
 
-    draw2() {
+    draw() {
         // console.log('start draw')
-        // console.time('draw2');
+        // console.time('draw');
         const startTime = window.performance.now();
 
         // TODO Performance tests
@@ -1369,7 +1332,7 @@ export default class ExplorerState {
         // console.log(explorerPixel);
 
         // console.log({ w, h, tx, ty, pixel });
-        // console.timeEnd('draw2');
+        // console.timeEnd('draw');
         const endTime = window.performance.now();
         const time = endTime - startTime;
         this.perfLogs.draw.push(time);

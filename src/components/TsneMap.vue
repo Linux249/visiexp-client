@@ -5,13 +5,17 @@
                 <router-link to="/">t-SNE</router-link>
                 <router-link to="/svm">SVM</router-link>
                 <router-link to="/classifier">Classifier</router-link>
-                <!--<router-link to="/triplets">Triplets</router-link>
+                <!--
+                <router-link to="/triplets">Triplets</router-link>
                 <router-link to="/neighbours">Neighbours</router-link>
-                <router-link to="/labels">Labels</router-link>-->
+                <router-link to="/labels">Labels</router-link>
+                -->
             </div>
             <div class="right-header">
-                <!--<router-link to="/Dataset">Dataset</router-link>
-                <router-link to="/modes">modes</router-link>-->
+                <!--
+                <router-link t o="/Dataset">Dataset</router-link>
+                <router-link to="/modes">modes</router-link>
+                -->
                 <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">
                     Options
                 </div>
@@ -31,51 +35,6 @@
                 </div>
             </div>
         </div>
-        <!--<div class="mode-header">
-            <div class="row">
-                &lt;!&ndash;<div
-                    class="btn"
-                    :class="{ active: clusterMode }"
-                    @click="toggleClusterMode"
-                >
-                    cluster
-                </div>
-                <div
-                    class="btn"
-                    :class="{ active: oldClusterMode }"
-                    @click="toggleOldClusterMode"
-                >
-                    old cluster
-                </div>&ndash;&gt;
-                &lt;!&ndash;<div
-                    class="btn"
-                    :class="{ active: neighbourMode }"
-                    @click="toggleNeighbourMode"
-                >
-                    neighbour
-                </div>&ndash;&gt;
-            </div>
-            <div class="row">
-                &lt;!&ndash;<div># {{nodesCount}}</div>&ndash;&gt;
-                &lt;!&ndash;<div>connected: {{connectedToSocket}}</div>&ndash;&gt;
-                &lt;!&ndash;<div class="btn">{{scale}}</div>&ndash;&gt;
-                &lt;!&ndash;<div class="btn">{{scale2}}</div>&ndash;&gt;
-                &lt;!&ndash;<div class="btn">{{zoomStage}}</div>&ndash;&gt;
-                &lt;!&ndash;<div class="btn">{{translateX}}</div>
-                <div class="btn">{{translateY}}</div>&ndash;&gt;
-                &lt;!&ndash;<div class="btn" @click="draw2">draw2</div>
-                <div class="btn" @click="doubleNodes">doubleNodes</div>&ndash;&gt;
-                &lt;!&ndash;<div class="btn" :class="{ active: sorted }" @click="sortNodes">sort</div>&ndash;&gt;
-                &lt;!&ndash;<div class="dropdownArea"></div>&ndash;&gt;
-
-                &lt;!&ndash; <div @click="toggleShowNavMap" :class="{ active: showNavMap }" class="btn">
-                     <navmap></navmap>
-                 </div>&ndash;&gt;
-
-
-            </div>
-        </div>-->
-
         <div class="row stack">
             <div class="explorer">
                 <canvas ref="canvas" id="canvas" class="canvas" tabindex="0" ></canvas>
@@ -129,7 +88,6 @@
             <div class="details">
                 <div v-if="showOptions" class="area">
                     <div class="title">Options</div>
-
                     <div class="option-title">Cluster</div>
                     <div class="row-btn">
                         <div>Cluster: radius: {{clusterRadius}}</div>
@@ -146,8 +104,6 @@
                             <div @click="changeClusterTile(1)" class="btn"><plus></plus></div>
                         </div>
                     </div>
-
-
                     <div class="option-title">Old cluster</div>
                     <div class="row-btn">
                         <div>Cluster: {{Math.round(cluster)}}</div>
@@ -214,7 +170,6 @@
                             <div @click="changeNeighbourImgSize(1)" class="btn"><img-size-up></img-size-up></div>
                         </div>
                     </div>
-
                     <div class="option-title">Other</div>
                     <div class="row-btn">
                         <div>zoomStage: {{zoomStage}}</div>
@@ -223,36 +178,6 @@
                             <div @click="changeZoomStage(1)" class="btn"><plus></plus></div>
                         </div>
                     </div>
-                    <!--
-                    <div class="row-btn">
-                        <div>ScrollGrowth: {{scrollGrowth}}</div>
-                        <div class="row">
-                            <div @click="changeScrollGrowth(-0.01)" class="btn">-0.1</div>
-                            <div @click="changeScrollGrowth(0.01)" class="btn">+0.1</div>
-                        </div>
-                    </div>
-                    <div class="row-btn">
-                        <div>ScrollImgGrowth: {{scrollImgGrowth}}</div>
-                        <div class="row">
-                            <div @click="changeScrollImgGrowth(-0.01)" class="btn">-0.1</div>
-                            <div @click="changeScrollImgGrowth(0.01)" class="btn">+0.1</div>
-                        </div>
-                    </div> -->
-
-                    <!--<div class="row-btn">
-                        <div>MinOpacity: {{heatmapMinOpacity}}</div>
-                        <div class="row">
-                            <div @click="changeHeatmapMinOpacity(-0.01)" class="btn">-0.01</div>
-                            <div @click="changeHeatmapMinOpacity(0.01)" class="btn">+0.01</div>
-                        </div>
-                    </div>-->
-                    <!--<div class="row-btn">
-                        <div>NavMapAlpha: {{navMapAlpha}}</div>
-                        <div class="row">
-                            <div @click="changeNavMapAlpha(-0.1)" class="btn">-0.1</div>
-                            <div @click="changeNavMapAlpha(0.1)" class="btn">+0.1</div>
-                        </div>
-                    </div>-->
                     <div class="option-title">Ranked</div>
                     <div class="row-btn">
                         <div>Sort</div>
@@ -305,12 +230,6 @@
                         </div>
                     </div>
                     <slider-picker v-model="colors" @input="changeColor"/>
-
-                    <!--<div class="row-btn">
-                        <div>{{range}}}</div>
-                        <range-slider v-model="cluster" type="range" min="0" max="800" step="10" />
-                    </div>-->
-
                     <div class="option-title">Heatmap</div>
                     <div class="row-btn">
                         <div>Radius: {{heatmapRadius}}</div>
@@ -326,16 +245,8 @@
                             <div @click="changeHeatmapBlur(1)" class="btn"><plus></plus></div>
                         </div>
                     </div>
-
                 </div>
 
-                <!--<groups v-if="showGroups"
-                    :setActiveGroup="setActiveGroup"
-                    :activeGroup="activeGroup"
-                    :getStore="getStore"
-                    :toggleNeighbourMode="toggleNeighbourMode"
-                    :neighbourMode="neighbourMode"
-                />-->
                 <div class="area">
                     <div class="title">Groups</div>
                     <div v-if="this.savedGroups.length" class="group-list">
@@ -358,7 +269,7 @@
                             >
                                 <option
                                     v-for="(color, id) in groupColours"
-                                    :selected="group.colorId == id"
+                                    :selected="+group.colorId === +id"
                                     :id="group.colorId"
                                     :value="id"
                                     :key="id"
@@ -402,29 +313,25 @@
                     :handleChangeDataset="handleChangeDataset"
                 />
 
-
                 <div class="area"  v-if="activeNode">
                     <img
                         class="active-img"
                         v-if="activeNode.hasImage"
                         :src="activeNode.image.src"
+                        :alt="activeNode.name"
                     />
                     <div v-if="activeNode.imgLoading" class="loader" ></div>
                     <div>Name: {{activeNode.name}}</div>
                     <!--<div>X:Y: {{activeNode.x + ":" + activeNode.y}}</div>-->
-                    <!--<div>Label: {{activeNode.label}}</div>-->
                     <div class="row">Labels:
-                        <div class="label" v-for="label in activeNode.labels">
+                        <div class="label" v-for="label in activeNode.labels" :key="label">
                             {{label}}
                         </div>
                     </div>
-                    <!--<div>Links #: {{Object.keys(activeNode.links).length}}</div>-->
                 </div>
                 <logs :getStore="getStore"/>
             </div>
         </div>
-
-        <!--<triplets :node="activeNode"/>-->
     </div>
 </template>
 
@@ -435,7 +342,6 @@ import { Slider } from 'vue-color';
 import Node from '../util/Node';
 import ExplorerState from '../util/ExplorerState';
 import groupColors from '../config/groupColors';
-// import Groups from './Groups';
 import Neighbours from './Neighbours';
 import Scissors from '../icons/Scissors';
 import X from '../icons/X';
@@ -452,7 +358,6 @@ import Plus from '../icons/Plus';
 import Minus from '../icons/Minus';
 import Logs from './Logs';
 import Trash from '../icons/Trash';
-// import TestWorker from '../worker/test.worker';
 
 export default {
     store: null,
@@ -478,9 +383,6 @@ export default {
         Trash,
     },
     data: () => ({
-        // items: [],
-        // positives: [],
-        // negatives: [],
         // store: null,
         socket: null,
         connectedToSocket: false,
@@ -488,18 +390,13 @@ export default {
         nodesTotal: 0,
         nodesRecived: 0,
         scale: 0, // default - will update later
-        // scale2: 0,
         labels: [],
         selectedLabel: null, // save the selected label
         selectedCategory: null,
         showLabels: false, // show the labels in a dropdown
         clickedNode: null,
-        // labelColor: '#6057ff',
-        // showKLabels: false,
         scissors: false,
         target: false,
-        // width: 0,
-        // height: 0,
         activeNode: null,
         cluster: 5, // default - set on mount from CanvasStore class
         clusterRadius: 0, // default - set on mount from CanvasStore class
@@ -507,24 +404,15 @@ export default {
         imgSize: 0, // default - set on mount from CanvasStore class
         representImgSize: 0, // default - set on mount from CanvasStore class
         neighbourImgSize: 0, // default - set on mount from CanvasStore class
-        // borderWidth: 0, // default - set on mount from CanvasStore class
         alphaBase: 50,
         alphaIncrease: 50,
         range: 0,
         cuttedNodes: [], // selected nodes through scissor
         showOptions: false, // show options menu
-        // scrollGrowth: 0,
-        // scrollImgGrowth: 0,
         clusterGrowth: 0,
-        // translateX: 0,
-        // translateY: 0,
-        // heatmap: {}, // this object should not be controlled by
         showHeatmap: false,
         heatmapRadius: 1,
         heatmapBlur: 5,
-        // heatmapMinOpacity: 0.05,
-        // showNavMap: false,
-        // navMapAlpha: 0.1,
         showNavHeatmap: false,
         sizeRankedMode: false,
         boarderRankedMode: false,
@@ -741,11 +629,6 @@ export default {
             this.store.createSuperCluster();
         },
 
-        /* toggleOldClusterMode() {
-            this.oldClusterMode = !this.oldClusterMode;
-            this.store.triggerDraw();
-        }, */
-
         changeImgSize(v) {
             this.store.imgSize += v;
             this.imgSize = this.store.imgSize;
@@ -804,10 +687,6 @@ export default {
             this.sizeRange = this.store.sizeRange;
             this.store.triggerDraw();
         },
-        /* changeNavMapAlpha(v) {
-            this.navMapAlpha += v;
-            this.drawNavMap();
-        }, */
 
         selectTarget() {
             this.target = !this.target;
@@ -847,10 +726,6 @@ export default {
         changeGradientColor(i) {
             console.log('changeGradientColor');
             // console.log(this.gradient);
-            // console.log(i);
-            // console.log(this.gradient[i]);
-            // console.log(this.colors);
-            // console.log(this.colors.rgba);
             this.selectedGradient = i;
             console.log(this.selectedGradient);
             this.colors.rgba.r = this.gradient[i][0];
@@ -888,7 +763,6 @@ export default {
                 }
             } else {
                 console.log('stopUpdateEmbedding');
-                // console.log()
             }
         },
 
@@ -920,14 +794,15 @@ export default {
 
             // get the name
             const name = this.groupName || `Group ${groupId}`;
-            // get the ids of the groupd nodes
 
+            // get the ids of the groupd nodes
             this.savedGroups.push({
                 groupId,
                 name,
                 count: 0,
                 colorId: groupId % Object.keys(this.groupColours).length,
             });
+
             this.activeGroupId = groupId;
             this.store.saveGroup(groupId);
             this.store.triggerDraw();
@@ -969,158 +844,9 @@ export default {
             this.neighbourMode = !this.neighbourMode;
             this.store.triggerDraw();
         },
-        /* drawNavMap() {
-            console.time('drawNavMap');
-            const ctx = this.navMap.getContext('2d');
-
-            const w = this.navMap.width;
-
-            const h = this.navMap.height;
-
-            // clean the canvas first
-            ctx.clearRect(0, 0, w, h);
-
-            ctx.lineWidth = 0.05;
-
-            for (const i in this.store.nodes) {
-                const node = this.store.nodes[i];
-                const x = node.x * 5 + w / 2; // 5 = initscale (20) / 4 (25%)
-                const y = node.y * 5 + h / 2;
-
-                const c = this.gradient[node.rank * 10];
-                const color = this.boarderRanked ? `rgb(${c[0]},${c[1]},${c[2]})` : 'grey';
-                ctx.fillStyle = color;
-                ctx.strokeStyle = color;
-                ctx.beginPath();
-                ctx.arc(x, y, 3, 0, 2 * Math.PI);
-                ctx.globalAlpha = this.navMapAlpha;
-                ctx.fill();
-                ctx.globalAlpha = 1;
-                ctx.stroke();
-            }
-            requestAnimationFrame(() => console.timeEnd('drawNavMap'));
-        }, */
-
-        /* drawNavMapRect() {
-            console.time('drawNavMapRect');
-            const ctx = this.navMapRect.getContext('2d');
-            const scale = 20 / this.store.scale;
-            const tx = this.store.translateX / 4;
-            const ty = this.store.translateY / 4;
-
-            const w = this.navMapRect.width;
-            const h = this.navMapRect.height;
-
-            // const x = tx + w/2 ;
-            const x = w / 2 - tx * scale;
-            // const y = ty + h/2;
-            const y = h / 2 - ty * scale;
-
-            ctx.clearRect(0, 0, this.navMapRect.width, this.navMapRect.height);
-            ctx.strokeRect(x, y, w * scale, h * scale);
-            requestAnimationFrame(() => console.timeEnd('drawNavMapRect'));
-        }, */
-
-        /* toggleShowNavMap() {
-            this.showNavMap = !this.showNavMap;
-            if (this.showNavMap) requestAnimationFrame(this.drawNavMap);
-            if (this.showNavMap) requestAnimationFrame(this.drawNavMapRect);
-        }, */
-
-        /* toggleToggle() {
-            this.toggle = !this.toggle;
-            this.store.draw2();
-        }, */
-
-        /*
-        activeImgWidthMore() {
-            this.store.activeImgScale += 1; // update explorerState
-            this.activeImgWidth = this.store.activeImgScale; // update ui
-        },
-        activeImgWidthLess() {
-            this.store.activeImgScale -= 1; // update explorerState
-            this.activeImgWidth = this.store.activeImgScale; // update ui
-        },
-
-        borderWidthMore() {
-            this.store.borderWidth += 1; // update explorerState
-            this.borderWidth = this.store.borderWidth; // update ui
-        },
-        borderWidthLess() {
-            this.store.borderWidth -= 1; // update explorerState
-            this.borderWidth = this.store.borderWidth; // update ui
-        },
-        doubleNodes() {
-            this.store.doubleNodes();
-            // Update count nodes in UI
-            this.nodesTotal *= 2;
-            this.nodesRecived *= 2;
-        },
-
-
-        addNodeToClassify(node) {
-            console.log('addNodeToClassify');
-            console.log(node);
-            if (this.cuttedNodes.indexOf(node) === -1) this.cuttedNodes.push(node);
-        },
-        */
-
-        /* changeScrollGrowth(v) {
-            this.store.scrollGrowth = Math.round((this.store.scrollGrowth + v) * 100) / 100;
-            this.scrollGrowth = this.store.scrollGrowth;
-        },
-        changeScrollImgGrowth(v) {
-            this.store.scrollImgGrowth = Math.round((this.store.scrollImgGrowth + v) * 100) / 100;
-            this.scrollImgGrowth = this.store.scrollImgGrowth;
-        }, */
-
-        /* changeHeatmapMinOpacity(v) {
-            this.heatmapMinOpacity += v;
-            this.drawHeatmap();
-        }, */
-
-        /* toggleShowKLabels() {
-            this.showKLabels = !this.showKLabels;
-            this.store.showKLabels = this.showKLabels;
-            this.store.valid = false;
-            console.log(this.showKLabels);
-        }, */
     },
-    watch: {
-        cluster(value) {
-            // console.log('change cluster');
-            this.store.cluster = value;
-        },
-        colors(value) {
-            console.log('watch color');
-            console.log(value);
-            console.log(this.colors);
-            // const { b, g, r } = this.colors.rgba;
-        },
-    },
-    /* computed: {
-        /!* selectedNode() {
-            return this.store && this.store.selection && this.store.selection.name;
-        }, *!/
-        selectedNodeNeighboursCount() {
-            return this.activeNode.links && Object.keys(this.activeNode.links).length;
-        },
-        /!* imageScale() {
-            return this.store && this.store.selection && this.store.selection.imageScale;
-        }, *!/
-    }, */
+
     mounted() {
-        // const worker = new TestWorker();
-
-        // worker.postMessage({ a: 1 });
-
-        /* worker.onmessage = function (event) {
-            console.log('worker post a message');
-            console.log(event.type);
-            console.log(event.data);
-        };
-        */
-
         const socketIp = process.env.NODE_ENV === 'production' ? 'localhost' : 'localhost';
 
         // init socket connection
@@ -1132,14 +858,13 @@ export default {
                 reconnectionDelayMax: 1000,
             },
         );
+
+        // set width/height responsive
         const canvas = document.getElementById('canvas');
-        const parantWidth = canvas.parentNode.clientWidth; //* 0.8;
-        const parantHeight = canvas.parentNode.clientHeight; // 700; //
+        const parantWidth = canvas.parentNode.clientWidth;
+        const parantHeight = canvas.parentNode.clientHeight;
         canvas.width = parantWidth;
         canvas.height = parantHeight;
-
-        // this.width = parantWidth;
-        // this.height = parantHeight;
 
         const hitCanvas = document.createElement('canvas');
         hitCanvas.width = parantWidth;
@@ -1148,24 +873,12 @@ export default {
         const heatmapCanvas = document.getElementById('heatmap');
         heatmapCanvas.width = parantWidth / 4;
         heatmapCanvas.height = parantHeight / 4;
-        this.heatmap = simpleheat(heatmapCanvas);
-
-        /* const navMap = document.getElementById('navMap');
-        navMap.width = parantWidth / 4;
-        navMap.height = parantHeight / 4;
-        this.navMap = navMap;
-
-        const navMapRect = document.getElementById('navMapRect');
-        navMapRect.width = parantWidth / 4;
-        navMapRect.height = parantHeight / 4;
-        navMapRect.getContext('2d').strokeStyle = '#3882ff';
-        navMapRect.getContext('2d').lineWidth = 1.5;
-        this.navMapRect = navMapRect; */
+        this.heatmap = simpleheat(heatmapCanvas); // todo why is it grey/unused?
 
         const navHeatmapCanvas = document.getElementById('navHeatmap');
         navHeatmapCanvas.width = parantWidth / 4;
         navHeatmapCanvas.height = parantHeight / 4;
-        this.navHeatmap = simpleheat(navHeatmapCanvas); // todo why is it grey/unused?
+        this.navHeatmap = simpleheat(navHeatmapCanvas);
 
         const navHeatmapRect = document.getElementById('navHeatmapRect');
         navHeatmapRect.width = parantWidth / 4;
@@ -1174,37 +887,29 @@ export default {
         navHeatmapRect.getContext('2d').lineWidth = 1.5;
         this.navHeatmapRect = navHeatmapRect;
 
-        // const ctx = canvas.getContext('2d');
-        const s = new ExplorerState(canvas, hitCanvas, socket, this);
+        const store = new ExplorerState(canvas, hitCanvas, socket, this);
+        this.store = store;
 
-        this.store = s;
-
-        // sync values from UI to store
-        // s.labelColor = this.labelColor;
-
-        // set init value in UI
-        this.cluster = s.cluster;
-        this.clusterRadius = s.clusterRadius;
-        this.clusterTile = s.clusterTile;
-        this.representImgSize = s.representImgSize;
-        this.neighbourImgSize = s.neighbourImgSize;
-        this.zoomStage = s.zoomStage;
-        this.sizeRange = s.sizeRange;
-        this.scale = s.scale;
-        // this.borderWidth = s.borderWidth;
-        // this.scrollGrowth = s.scrollGrowth;
-        // this.scrollImgGrowth = s.scrollImgGrowth;
+        // set init value from store to UI
+        this.cluster = store.cluster;
+        this.clusterRadius = store.clusterRadius;
+        this.clusterTile = store.clusterTile;
+        this.representImgSize = store.representImgSize;
+        this.neighbourImgSize = store.neighbourImgSize;
+        this.zoomStage = store.zoomStage;
+        this.sizeRange = store.sizeRange;
+        this.scale = store.scale;
 
         // save socket to ui
         this.socket = socket;
 
         socket.on('connect', () => {
             this.connectedToSocket = true;
-            console.log('conected'); // das wirft immer unde
-            console.log(`Socket id: ${socket.id}`); // das wirft immer unde
-            console.log(socket);
+            console.log('Socket: connect');
+            console.log(`Socket id: ${socket.id}`);
+            // console.log(socket);
             this.socketId = socket.id;
-            // if there is allready data then this is just a reconnect
+            // there are already data then this is just a reconnect
             const nodes = this.store.getNodes();
             console.log('nodes in store while connect (its maybe just a reconnect)');
             console.log(nodes);
@@ -1212,73 +917,58 @@ export default {
                 socket.emit('getNodes');
                 this.reset();
             }
-            // s.clear() // maybe there is something inside?
         });
 
         socket.on('disconnect', (reason) => {
             this.connectedToSocket = false;
-            console.log(`disconnect: ${reason}`); // das wirft immer unde
-            console.log(socket);
-            // s.clear() // maybe there is something inside?
+            console.log('Socket: disconnect', reason);
         });
 
+        // get a new node from server
         socket.on('node', (data) => {
             if (data.index % 100 === 0) {
-                console.log(`receive node ${data.index}`);
+                console.log(`Socket: node ${data.index}`);
                 console.log(data);
             }
-            // start time measure
+            // start time measure, ended in allNodesSend
             if (this.nodesRecived === 0) console.time('loadAllNodes');
             this.nodesRecived += 1;
-            s.addNode(new Node(data));
-            s.triggerDraw();
+            store.addNode(new Node(data));
+            store.triggerDraw();
         });
 
         socket.on('requestImage', (data) => {
-            // console.log('receive image data');
+            // console.log('Socket: requestImage');
             // console.log(data);
-            const node = s.nodes[data.index];
+            const node = store.nodes[data.index];
             // console.log(node);
             node.image.src = `data:image/jpeg;base64,${data.buffer}`;
         });
 
         socket.on('totalNodesCount', (data) => {
-            console.log('totalNodesCount');
-            console.log(data);
+            // console.log('Socket: totalNodesCount');
+            // console.log(data);
             this.nodesTotal = data.count;
         });
 
         socket.on('allNodesSend', () => {
-            console.log('allNodesSend');
+            console.log('Socket: allNodesSend');
             this.loadingNodes = false;
             this.activateClusterMode();
             console.timeEnd('loadAllNodes');
-
-            // TODO test super cluster
         });
 
-        /* socket.on('nodesCount', (nodesCount) => {
-            console.log(`nodesCount: ${nodesCount}`);
-            this.nodesCount = nodesCount;
-        }); */
-
         socket.on('updateCategories', (data) => {
-            console.log('updateCategories');
+            console.log('Socket: updateCategories');
             console.log(data);
             this.labels = data.labels;
         });
 
-        /* socket.on('updateKdtree', (kdtree) => {
-            console.log('updateKdtree');
-            console.log(kdtree);
-            s.kdtree = kdtree;
-            // console.log(s.range(-5 ,-5 ,5 ,5))
-        }); */
-
         socket.on('updateEmbedding', (data, cb) => {
-            console.log('updateEmbedding');
+            console.log('Socket: updateEmbedding');
             // console.log(data);
-            // console.log(this.loadingNodes);
+
+            // not every handler sends a cb
             if (cb) cb({ stopped: this.autoUpdateEmbedding });
             this.store.updateNodes(data.nodes);
             // todo check if necessary after have a good solution for best place for init clustering
@@ -1288,42 +978,40 @@ export default {
         // this.updateCanvas();
 
         socket.on('connect_error', () => {
-            console.log('connect_error');
+            console.log('Socket: connect_error');
         });
 
         socket.on('connect_timeout', () => {
-            console.log('connect_timeout');
+            console.log('Socket: connect_timeout');
         });
 
         socket.on('reconnect', () => {
-            console.log('reconnect');
+            console.log('Socket: reconnect');
         });
 
         socket.on('connecting', () => {
-            console.log('connecting');
+            console.log('Socket: connecting');
         });
 
-        socket.on('reconnecting', () => {
+        socket.on('Socket: reconnecting', () => {
             console.log('reconnecting');
         });
 
         socket.on('connect_failed', () => {
-            console.log('connect_failed');
+            console.log('Socket: connect_failed');
         });
 
         socket.on('reconnect_failed', () => {
-            console.log('reconnect_failed');
+            console.log('Socket: reconnect_failed');
         });
 
         socket.on('close', () => {
-            console.log('close');
+            console.log('Socket: close');
         });
     },
     beforeDestroy() {
         // end connection with server socket
         if (this.socket) this.socket.disconnect();
-        // clear check-for-drawing interval
-        // clearInterval(this.store.timerId);
     },
 };
 </script>
