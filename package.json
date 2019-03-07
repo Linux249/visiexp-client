@@ -7,7 +7,10 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "deploy": "git pull && npm run build && npm run deploy:del && npm run deploy:move",
+    "deploy:del": "rm -rf /media/dataDrive/www/html/visiexp",
+    "deploy:move": "mv /home/jlibor_local/bachelor-vue/dist /media/dataDrive/www/html/visiexp"
   },
   "dependencies": {
     "chart.js": "^2.7.3",

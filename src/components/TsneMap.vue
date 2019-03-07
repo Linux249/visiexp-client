@@ -848,7 +848,7 @@ export default {
     },
 
     mounted() {
-        const socketIp = process.env.NODE_ENV === 'production' ? 'localhost:3000' : '/visiexp/';
+        const socketIp = process.env.NODE_ENV === 'production' ? '/visiexp/' : 'localhost:3000';
 
 
         // init socket connection
