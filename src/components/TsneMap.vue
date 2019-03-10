@@ -854,7 +854,7 @@ export default {
 
         // init socket connection
         const socket = io.connect(
-            socketIp && socketIp,
+            socketIp,
             {
                 transports: ['websocket'],
                 reconnectionDelay: 100,
