@@ -848,13 +848,13 @@ export default {
     },
 
     mounted() {
-        const socketIp = process.env.NODE_ENV === 'production' ? '' : 'localhost:3000';
+        const socketIp = process.env.NODE_ENV === 'production' ? null : 'localhost:3000';
         const socketPath = process.env.NODE_ENV === 'production' ? '/visiexp/socket.io' : '';
 
 
         // init socket connection
         const socket = io.connect(
-            `${socketIp}`,
+            socketIp && socketIp,
             {
                 transports: ['websocket'],
                 reconnectionDelay: 100,
