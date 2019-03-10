@@ -849,7 +849,7 @@ export default {
 
     mounted() {
         const socketIp = process.env.NODE_ENV === 'production' ? null : 'localhost:3000';
-        //const socketPath = process.env.NODE_ENV === 'production' ? '/visiexp/socket.io' : '';
+        const socketPath = process.env.NODE_ENV === 'production' ? '/visiexp/socket.io' : '';
 
 
         // init socket connection
@@ -859,7 +859,7 @@ export default {
                 transports: ['websocket'],
                 reconnectionDelay: 100,
                 reconnectionDelayMax: 1000,
-                //path: socketPath,
+                path: socketPath,
             },
         );
 
