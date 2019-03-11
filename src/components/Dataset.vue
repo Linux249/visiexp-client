@@ -7,9 +7,11 @@
             :key="set.id"
             @click="handleChangeDataset(set.id)"
         >
-            <div class="btn"  :class="{active: dataset === set.id}">{{set.name}}</div>
-            <div class="description">#{{set.count}}</div>
-            <div class="description">{{set.description}}</div>
+            <div class="row v-center">
+                <div class="btn" :class="{ active: dataset === set.id }">{{ set.name }}</div>
+                <div class="description">#{{ set.count }}</div>
+            </div>
+            <div class="description">{{ set.description }}</div>
         </div>
     </div>
 </template>
@@ -33,6 +35,7 @@ export default {
             this.loading = false;
         } catch (e) {
             this.loading = false;
+            // TODO bedder error handling!
             console.error(e);
         }
     },

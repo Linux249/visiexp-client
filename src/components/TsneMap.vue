@@ -12,8 +12,8 @@
                 -->
             </div>
             <div class="right-header">
+                <router-link to="/Dataset">Dataset</router-link>
                 <!--
-                <router-link t o="/Dataset">Dataset</router-link>
                 <router-link to="/modes">modes</router-link>
                 -->
                 <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">
@@ -22,14 +22,14 @@
                 <div @click="sendData" class="btn" :class="{ active: loadingNodes }">
                     Update
                     <send v-if="!loadingNodes"></send>
-                    <div v-if="loadingNodes" class="loader" ></div>
+                    <div v-if="loadingNodes" class="loader"></div>
                 </div>
                 <div
                     @click="toggleUpdateEmbedding"
                     :class="{ active: autoUpdateEmbedding }"
                     class="btn"
                 >
-                    {{autoUpdateEmbedding ? 'stop' : 'start'}}
+                    {{ autoUpdateEmbedding ? 'stop' : 'start' }}
                     <play v-if="!autoUpdateEmbedding"></play>
                     <stop v-if="autoUpdateEmbedding"></stop>
                 </div>
@@ -37,7 +37,7 @@
         </div>
         <div class="row stack">
             <div class="explorer">
-                <canvas ref="canvas" id="canvas" class="canvas" tabindex="0" ></canvas>
+                <canvas ref="canvas" id="canvas" class="canvas" tabindex="0"></canvas>
                 <div class="box top right">
                     <div class="row">
                         <div @click="selectTarget" :class="{ active: target }" class="btn">
@@ -51,26 +51,46 @@
                         </div>
                     </div>
                     <div class="row-end">
-                        <div @click="toggleShowHeatmap" :class="{ active: showHeatmap }" class="btn">
+                        <div
+                            @click="toggleShowHeatmap"
+                            :class="{ active: showHeatmap }"
+                            class="btn"
+                        >
                             <navmap></navmap>
                         </div>
-                        <div @click="toggleShowNavHeatmap" :class="{ active: showNavHeatmap }" class="btn">
+                        <div
+                            @click="toggleShowNavHeatmap"
+                            :class="{ active: showNavHeatmap }"
+                            class="btn"
+                        >
                             <navmap></navmap>
                         </div>
                     </div>
                 </div>
-                <div class="box top left"><div class="btn" :if="nodesTotal">{{nodesRecived + "/" + nodesTotal}}</div></div>
-                <div class="box bottom left"><div :class="{ hide: !showHeatmap }">
-                    <canvas
-                        id="heatmap"
-                        class="canvas"
-                        style="margin: 0.5rem; border-radius: 4px"
-                        tabindex="0"
-                    ></canvas>
+                <div class="box top left">
+                    <div class="btn" :if="nodesTotal">{{ nodesRecived + '/' + nodesTotal }}</div>
                 </div>
+                <div class="box bottom left">
+                    <div :class="{ hide: !showHeatmap }">
+                        <canvas
+                            id="heatmap"
+                            class="canvas"
+                            style="margin: 0.5rem; border-radius: 4px"
+                            tabindex="0"
+                        ></canvas>
+                    </div>
                     <div class="navMap" :class="{ hide: !showNavHeatmap }">
-                        <canvas id="navHeatmap" class="canvas" style="margin: 0.5rem; border-radius: 4px" tabindex="0" ></canvas>
-                        <canvas id="navHeatmapRect" style="margin: 0.5rem; border-radius: 4px" tabindex="0" ></canvas>
+                        <canvas
+                            id="navHeatmap"
+                            class="canvas"
+                            style="margin: 0.5rem; border-radius: 4px"
+                            tabindex="0"
+                        ></canvas>
+                        <canvas
+                            id="navHeatmapRect"
+                            style="margin: 0.5rem; border-radius: 4px"
+                            tabindex="0"
+                        ></canvas>
                     </div>
                 </div>
                 <div class="box bottom right">
@@ -79,7 +99,9 @@
                         <div @click="changeScaleUp()" class="btn"><maximize></maximize></div>
                     </div>
                     <div class="row">
-                        <div @click="changeImgSize(-1)" class="btn"><img-size-down></img-size-down></div>
+                        <div @click="changeImgSize(-1)" class="btn">
+                            <img-size-down></img-size-down>
+                        </div>
                         <div @click="changeImgSize(1)" class="btn"><img-size-up></img-size-up></div>
                     </div>
                 </div>
@@ -90,7 +112,7 @@
                     <div class="title">Options</div>
                     <div class="option-title">Cluster</div>
                     <div class="row-btn">
-                        <div>Cluster: radius: {{clusterRadius}}</div>
+                        <div>Cluster: radius: {{ clusterRadius }}</div>
                         <div class="row">
                             <div @click="changeClusterRadius(-1)" class="btn"><minus></minus></div>
                             <div @click="changeClusterRadius(1)" class="btn"><plus></plus></div>
@@ -98,7 +120,7 @@
                         </div>
                     </div>
                     <div class="row-btn">
-                        <div>Cluster: tile: {{clusterTile}}</div>
+                        <div>Cluster: tile: {{ clusterTile }}</div>
                         <div class="row">
                             <div @click="changeClusterTile(-1)" class="btn"><minus></minus></div>
                             <div @click="changeClusterTile(1)" class="btn"><plus></plus></div>
@@ -106,7 +128,7 @@
                     </div>
                     <div class="option-title">Old cluster</div>
                     <div class="row-btn">
-                        <div>Cluster: {{Math.round(cluster)}}</div>
+                        <div>Cluster: {{ Math.round(cluster) }}</div>
                         <div class="row">
                             <div @click="changeCluster(-10)" class="btn">-10</div>
                             <div @click="changeCluster(-100)" class="btn">-100</div>
@@ -115,7 +137,7 @@
                         </div>
                     </div>
                     <div class="row-btn">
-                        <div>Cluster: growth: {{clusterGrowth}}</div>
+                        <div>Cluster: growth: {{ clusterGrowth }}</div>
                         <div class="row">
                             <div @click="changeClusterGrowth(-0.01)" class="btn">-0.1</div>
                             <div @click="changeClusterGrowth(0.01)" class="btn">+0.1</div>
@@ -123,24 +145,28 @@
                     </div>
                     <div class="option-title">Image</div>
                     <div class="row-btn">
-                        <div>Alpha (base): {{alphaBase}}</div>
+                        <div>Alpha (base): {{ alphaBase }}</div>
                         <div class="row">
                             <div @click="changeAlphaBase(-10)" class="btn">-10</div>
                             <div @click="changeAlphaBase(10)" class="btn">+10</div>
                         </div>
                     </div>
                     <div class="row-btn">
-                        <div>Aplha (increase): {{alphaIncrease}}</div>
+                        <div>Aplha (increase): {{ alphaIncrease }}</div>
                         <div class="row">
                             <div @click="changeAlphaIncrease(-10)" class="btn">-10</div>
                             <div @click="changeAlphaIncrease(10)" class="btn">+10</div>
                         </div>
                     </div>
                     <div class="row-btn">
-                        <div>Represent: size: {{representImgSize}}</div>
+                        <div>Represent: size: {{ representImgSize }}</div>
                         <div class="row">
-                            <div @click="changeRepresentImgSize(-1)" class="btn"><img-size-down></img-size-down></div>
-                            <div @click="changeRepresentImgSize(1)" class="btn"><img-size-up></img-size-up></div>
+                            <div @click="changeRepresentImgSize(-1)" class="btn">
+                                <img-size-down></img-size-down>
+                            </div>
+                            <div @click="changeRepresentImgSize(1)" class="btn">
+                                <img-size-up></img-size-up>
+                            </div>
                         </div>
                     </div>
                     <div class="row-btn">
@@ -148,31 +174,31 @@
                         <div
                             @click="togglerepresentMaxAlpha"
                             class="btn"
-                            :class="{active: representMaxAlpha}"
+                            :class="{ active: representMaxAlpha }"
                         >
-                            {{representMaxAlpha ? "On" : "Off"}}
+                            {{ representMaxAlpha ? 'On' : 'Off' }}
                         </div>
                     </div>
                     <div class="row-btn">
                         <div>Represent: sort</div>
-                        <div
-                            @click="toogleRepsMode"
-                            class="btn"
-                            :class="{active: repsMode}"
-                        >
-                            {{repsMode === 0 ? "normal" : repsMode === 1 ? 'before' : 'behind'}}
+                        <div @click="toogleRepsMode" class="btn" :class="{ active: repsMode }">
+                            {{ repsMode === 0 ? 'normal' : repsMode === 1 ? 'before' : 'behind' }}
                         </div>
                     </div>
                     <div class="row-btn">
-                        <div>Neighbours: size: {{neighbourImgSize}}</div>
+                        <div>Neighbours: size: {{ neighbourImgSize }}</div>
                         <div class="row">
-                            <div @click="changeNeighbourImgSize(-1)" class="btn"><img-size-down></img-size-down></div>
-                            <div @click="changeNeighbourImgSize(1)" class="btn"><img-size-up></img-size-up></div>
+                            <div @click="changeNeighbourImgSize(-1)" class="btn">
+                                <img-size-down></img-size-down>
+                            </div>
+                            <div @click="changeNeighbourImgSize(1)" class="btn">
+                                <img-size-up></img-size-up>
+                            </div>
                         </div>
                     </div>
                     <div class="option-title">Other</div>
                     <div class="row-btn">
-                        <div>zoomStage: {{zoomStage}}</div>
+                        <div>zoomStage: {{ zoomStage }}</div>
                         <div class="row">
                             <div @click="changeZoomStage(-1)" class="btn"><minus></minus></div>
                             <div @click="changeZoomStage(1)" class="btn"><plus></plus></div>
@@ -181,12 +207,8 @@
                     <div class="option-title">Ranked</div>
                     <div class="row-btn">
                         <div>Sort</div>
-                        <div
-                            @click="sortNodes"
-                            class="btn"
-                            :class="{active: sorted}"
-                        >
-                            {{sorted ? "On" : "Off"}}
+                        <div @click="sortNodes" class="btn" :class="{ active: sorted }">
+                            {{ sorted ? 'On' : 'Off' }}
                         </div>
                     </div>
                     <div class="row-btn">
@@ -196,11 +218,11 @@
                             :class="{ active: sizeRankedMode }"
                             @click="toggleSizeRankedMode"
                         >
-                            {{sizeRankedMode ? "On" : "Off"}}
+                            {{ sizeRankedMode ? 'On' : 'Off' }}
                         </div>
                     </div>
                     <div class="row-btn">
-                        <div>Size range: {{sizeRange}}</div>
+                        <div>Size range: {{ sizeRange }}</div>
                         <div class="row">
                             <div @click="changeSizeRange(-1)" class="btn"><minus></minus></div>
                             <div @click="changeSizeRange(1)" class="btn"><plus></plus></div>
@@ -213,33 +235,34 @@
                             :class="{ active: boarderRankedMode }"
                             @click="toggleBoarderRankedMode"
                         >
-                            {{boarderRankedMode ? "On" : "Off"}}
+                            {{ boarderRankedMode ? 'On' : 'Off' }}
                         </div>
                     </div>
                     <div class="row-btn">
                         <div
                             class="color"
-                            :class="{activeColor: selectedGradient === i}"
+                            :class="{ activeColor: selectedGradient === i }"
                             v-for="(color, i) in gradient"
                             :key="i"
-                            v-bind:style="{ backgroundColor:
-                                 `rgb(${color[0]},${color[1]},${color[2]})`}"
+                            v-bind:style="{
+                                backgroundColor: `rgb(${color[0]},${color[1]},${color[2]})`,
+                            }"
                             @click="changeGradientColor(i)"
                         >
-                            {{i}}
+                            {{ i }}
                         </div>
                     </div>
-                    <slider-picker v-model="colors" @input="changeColor"/>
+                    <slider-picker v-model="colors" @input="changeColor" />
                     <div class="option-title">Heatmap</div>
                     <div class="row-btn">
-                        <div>Radius: {{heatmapRadius}}</div>
+                        <div>Radius: {{ heatmapRadius }}</div>
                         <div class="row">
                             <div @click="changeHeatmapRadius(-1)" class="btn"><minus></minus></div>
                             <div @click="changeHeatmapRadius(1)" class="btn"><plus></plus></div>
                         </div>
                     </div>
                     <div class="row-btn">
-                        <div>Blur: {{heatmapBlur}}</div>
+                        <div>Blur: {{ heatmapBlur }}</div>
                         <div class="row">
                             <div @click="changeHeatmapBlur(-1)" class="btn"><minus></minus></div>
                             <div @click="changeHeatmapBlur(1)" class="btn"><plus></plus></div>
@@ -250,21 +273,27 @@
                 <div class="area">
                     <div class="title">Groups</div>
                     <div v-if="this.savedGroups.length" class="group-list">
-                        <div class="group-item row-between"
-                             v-for="(group, i) in savedGroups"
-                             :key="i"
+                        <div
+                            class="group-item row-between"
+                            v-for="(group, i) in savedGroups"
+                            :key="i"
                         >
                             <div
                                 class="btn"
-                                :class="{active: group.groupId === activeGroupId}"
+                                :class="{ active: group.groupId === activeGroupId }"
                                 @click="selectGroup(i)"
                             >
-                                {{`${group.name}`}}
+                                {{ `${group.name}` }}
                             </div>
-                            <div>{{`#${group.count}`}}</div>
+                            <div>{{ `#${group.count}` }}</div>
                             <select
                                 class="btn"
-                                :style="{width: '3rem', backgroundColor: `rgb(${groupColours[group.colorId][0]},${groupColours[group.colorId][1]},${groupColours[group.colorId][2]})`}"
+                                :style="{
+                                    width: '3rem',
+                                    backgroundColor: `rgb(${groupColours[group.colorId][0]},${
+                                        groupColours[group.colorId][1]
+                                    },${groupColours[group.colorId][2]})`,
+                                }"
                                 @change="changeGroupColor($event, i)"
                             >
                                 <option
@@ -273,23 +302,31 @@
                                     :id="group.colorId"
                                     :value="id"
                                     :key="id"
-                                    :style="{backgroundColor: `rgb(${color[0]},${color[1]},${color[2]})`}"
+                                    :style="{
+                                        backgroundColor: `rgb(${color[0]},${color[1]},${color[2]})`,
+                                    }"
                                 >
                                 </option>
                             </select>
                             <div
                                 class="btn"
-                                :class="{active: neighbourMode && group.groupId === activeGroupId}"
+                                :class="{
+                                    active: neighbourMode && group.groupId === activeGroupId,
+                                }"
                                 @click="handleNeighbourMode(i)"
                             >
-                                <play v-if="!(neighbourMode && group.groupId === activeGroupId)"></play>
-                                <stop v-if="neighbourMode && group.groupId === activeGroupId"></stop>
+                                <play
+                                    v-if="!(neighbourMode && group.groupId === activeGroupId)"
+                                ></play>
+                                <stop
+                                    v-if="neighbourMode && group.groupId === activeGroupId"
+                                ></stop>
                             </div>
                             <div class="btn" @click="deleteGroup(i)"><trash></trash></div>
                         </div>
                     </div>
                     <div class="row v-center">
-                        <input class="input" type="text" v-model="groupName"/>
+                        <input class="input" type="text" v-model="groupName" />
                         <div @click="saveGroup" class="btn">save group</div>
                     </div>
                 </div>
@@ -313,23 +350,24 @@
                     :handleChangeDataset="handleChangeDataset"
                 />
 
-                <div class="area"  v-if="activeNode">
+                <div class="area" v-if="activeNode">
                     <img
                         class="active-img"
                         v-if="activeNode.hasImage"
                         :src="activeNode.image.src"
                         :alt="activeNode.name"
                     />
-                    <div v-if="activeNode.imgLoading" class="loader" ></div>
-                    <div>Name: {{activeNode.name}}</div>
+                    <div v-if="activeNode.imgLoading" class="loader"></div>
+                    <div>Name: {{ activeNode.name }}</div>
                     <!--<div>X:Y: {{activeNode.x + ":" + activeNode.y}}</div>-->
-                    <div class="row">Labels:
+                    <div class="row">
+                        Labels:
                         <div class="label" v-for="label in activeNode.labels" :key="label">
-                            {{label}}
+                            {{ label }}
                         </div>
                     </div>
                 </div>
-                <logs :getStore="getStore"/>
+                <logs :getStore="getStore" />
             </div>
         </div>
     </div>
@@ -363,6 +401,7 @@ import { apiUrl } from '../config/apiUrl';
 export default {
     store: null,
     name: 'TsneMap',
+    props: ['dataset', 'switchDataset'],
     components: {
         Scissors,
         X,
@@ -464,7 +503,7 @@ export default {
         selectedGradient: 0, // default is the first
         autoUpdateEmbedding: false,
         socketId: '',
-        dataset: '001', // defualt value is 001
+        // dataset: '001', // defualt value is 001
         neighboursThreshold: 0.2,
         activeGroupId: 0,
         representMaxAlpha: false,
@@ -768,7 +807,7 @@ export default {
         },
 
         handleChangeDataset(dataset) {
-            this.dataset = dataset;
+            this.switchDataset(dataset);
             // TODO trigger reload of datas
         },
 
@@ -851,17 +890,13 @@ export default {
         const socketIp = process.env.NODE_ENV === 'production' ? '/' : 'localhost:3000';
         const socketPath = process.env.NODE_ENV === 'production' ? '/visiexp/socket.io' : '';
 
-
         // init socket connection
-        const socket = io.connect(
-            socketIp,
-            {
-                transports: ['websocket'],
-                reconnectionDelay: 100,
-                reconnectionDelayMax: 1000,
-                path: socketPath,
-            },
-        );
+        const socket = io.connect(socketIp, {
+            transports: ['websocket'],
+            reconnectionDelay: 100,
+            reconnectionDelayMax: 1000,
+            path: socketPath,
+        });
 
         // set width/height responsive
         const canvas = document.getElementById('canvas');
@@ -918,7 +953,7 @@ export default {
             console.log('nodes in store while connect (its maybe just a reconnect)');
             console.log(nodes);
             if (!Object.keys(nodes).length && !this.loadingNodes) {
-                socket.emit('getNodes');
+                socket.emit('getNodes', { datasetId: this.dataset });
                 this.reset();
             }
         });

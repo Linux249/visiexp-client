@@ -1,8 +1,7 @@
-
 <template>
     <div id="app">
         <nav-header />
-        <tsne-map />
+        <tsne-map :dataset="dataset" :key="dataset" :switchDataset="switchDataset" />
     </div>
 </template>
 
@@ -13,6 +12,18 @@ import TsneMap from './components/TsneMap';
 export default {
     name: 'App',
     components: { NavHeader, TsneMap },
+    // maybe here is a good place to reset component...
+    data: () => ({
+        dataset: '001',
+    }),
+    // TODO add key to TSNEMAP for changing all!
+    methods: {
+        switchDataset(newDataset) {
+            console.log('handleChangeDataset');
+            console.error(newDataset);
+            this.dataset = newDataset;
+        },
+    },
 };
 </script>
 
