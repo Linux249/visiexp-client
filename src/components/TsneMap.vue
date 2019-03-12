@@ -5,6 +5,7 @@
                 <router-link to="/">t-SNE</router-link>
                 <router-link to="/svm">SVM</router-link>
                 <router-link to="/classifier">Classifier</router-link>
+                <router-link to="/Dataset">Dataset</router-link>
                 <!--
                 <router-link to="/triplets">Triplets</router-link>
                 <router-link to="/neighbours">Neighbours</router-link>
@@ -12,7 +13,6 @@
                 -->
             </div>
             <div class="right-header">
-                <router-link to="/Dataset">Dataset</router-link>
                 <!--
                 <router-link to="/modes">modes</router-link>
                 -->
@@ -110,23 +110,7 @@
             <div class="details">
                 <div v-if="showOptions" class="area">
                     <div class="title">Options</div>
-                    <div class="option-title">Cluster</div>
-                    <div class="row-btn">
-                        <div>Cluster: radius: {{ clusterRadius }}</div>
-                        <div class="row">
-                            <div @click="changeClusterRadius(-1)" class="btn"><minus></minus></div>
-                            <div @click="changeClusterRadius(1)" class="btn"><plus></plus></div>
-                            <div @click="superCluster()" class="btn">update</div>
-                        </div>
-                    </div>
-                    <div class="row-btn">
-                        <div>Cluster: tile: {{ clusterTile }}</div>
-                        <div class="row">
-                            <div @click="changeClusterTile(-1)" class="btn"><minus></minus></div>
-                            <div @click="changeClusterTile(1)" class="btn"><plus></plus></div>
-                        </div>
-                    </div>
-                    <div class="option-title">Old cluster</div>
+                    <!--<div class="option-title">Old cluster</div>
                     <div class="row-btn">
                         <div>Cluster: {{ Math.round(cluster) }}</div>
                         <div class="row">
@@ -135,14 +119,14 @@
                             <div @click="changeCluster(100)" class="btn">+100</div>
                             <div @click="changeCluster(10)" class="btn">+10</div>
                         </div>
-                    </div>
-                    <div class="row-btn">
+                    </div>-->
+                    <!--<div class="row-btn">
                         <div>Cluster: growth: {{ clusterGrowth }}</div>
                         <div class="row">
                             <div @click="changeClusterGrowth(-0.01)" class="btn">-0.1</div>
                             <div @click="changeClusterGrowth(0.01)" class="btn">+0.1</div>
                         </div>
-                    </div>
+                    </div>-->
                     <div class="option-title">Image</div>
                     <div class="row-btn">
                         <div>Alpha (base): {{ alphaBase }}</div>
@@ -186,7 +170,7 @@
                         </div>
                     </div>
                     <div class="row-btn">
-                        <div>Neighbours: size: {{ neighbourImgSize }}</div>
+                        <div>Similar: size: {{ neighbourImgSize }}</div>
                         <div class="row">
                             <div @click="changeNeighbourImgSize(-1)" class="btn">
                                 <img-size-down></img-size-down>
@@ -196,15 +180,15 @@
                             </div>
                         </div>
                     </div>
-                    <div class="option-title">Other</div>
+                    <!--<div class="option-title">Other</div>
                     <div class="row-btn">
                         <div>zoomStage: {{ zoomStage }}</div>
                         <div class="row">
                             <div @click="changeZoomStage(-1)" class="btn"><minus></minus></div>
                             <div @click="changeZoomStage(1)" class="btn"><plus></plus></div>
                         </div>
-                    </div>
-                    <div class="option-title">Ranked</div>
+                    </div>-->
+                    <div class="option-title">Rank/Clique</div>
                     <div class="row-btn">
                         <div>Sort</div>
                         <div @click="sortNodes" class="btn" :class="{ active: sorted }">
@@ -222,7 +206,7 @@
                         </div>
                     </div>
                     <div class="row-btn">
-                        <div>Size range: {{ sizeRange }}</div>
+                        <div>Multiplier: {{ sizeRange }}</div>
                         <div class="row">
                             <div @click="changeSizeRange(-1)" class="btn"><minus></minus></div>
                             <div @click="changeSizeRange(1)" class="btn"><plus></plus></div>
@@ -249,10 +233,10 @@
                             }"
                             @click="changeGradientColor(i)"
                         >
-                            {{ i }}
+                            {{ '.' + i }}
                         </div>
                     </div>
-                    <slider-picker v-model="colors" @input="changeColor" />
+                    <slider-picker style="width: inherit;" v-model="colors" @input="changeColor" />
                     <div class="option-title">Heatmap</div>
                     <div class="row-btn">
                         <div>Radius: {{ heatmapRadius }}</div>
@@ -268,6 +252,23 @@
                             <div @click="changeHeatmapBlur(1)" class="btn"><plus></plus></div>
                         </div>
                     </div>
+                    <div class="option-title">Cluster</div>
+                    <div class="row-btn">
+                        <div>Cluster: radius: {{ clusterRadius }}</div>
+                        <div class="row">
+                            <div @click="changeClusterRadius(-1)" class="btn"><minus></minus></div>
+                            <div @click="changeClusterRadius(1)" class="btn"><plus></plus></div>
+                            <div @click="superCluster()" class="btn">update</div>
+                        </div>
+                    </div>
+                    <div class="row-btn">
+                        <div>Cluster: tile: {{ clusterTile }}</div>
+                        <div class="row">
+                            <div @click="changeClusterTile(-1)" class="btn"><minus></minus></div>
+                            <div @click="changeClusterTile(1)" class="btn"><plus></plus></div>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="area">
@@ -1084,6 +1085,9 @@ export default {
     width: 25rem;
     margin: 0.5rem 0.5rem 0 0;
     background-color: white;
+    height: calc(100% - 1rem);
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .canvas {
@@ -1287,5 +1291,28 @@ a:hover {
     border-bottom: 5px solid paleturquoise;
     color: #484848;
     margin-bottom: 0;
+}
+
+/*
+Custom scrollbar style
+*/
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 </style>
