@@ -54,8 +54,8 @@
             <div class="btn" @click="trainSvm">train</div>
             <div class="btn" @click="stopSvm">stop</div>
             <div class="btn" @click="clearSvm">clear</div>
+            <div class="btn" @click="clearSvm">{{count}}</div>
         </div>
-        <div class="btn" @click="clearSvm">{{count}}</div>
     </div>
 
 </template>
@@ -228,7 +228,7 @@ export default {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.1);
+    //background-color: rgba(0, 0, 0, 0.1);
 }
 
 .loading-wheel {
