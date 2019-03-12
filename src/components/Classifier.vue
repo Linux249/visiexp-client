@@ -1,6 +1,6 @@
 <template>
     <div class="area">
-        <div class="title">categories</div>
+        <div class="title">Categories</div>
         <div
             v-for="(category, ii) in labels"
             :key="ii"
@@ -142,6 +142,8 @@ export default {
         addCategory() {
             console.log('addLabel clicked');
             console.log(this.category);
+            // return if the user clicks button with enter a text
+            if (!this.category.length) return;
             const newKey = Object.keys(this.labels).length;
             this.labels[newKey] = { name: this.category, labels: [] };
 
