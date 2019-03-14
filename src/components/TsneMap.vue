@@ -16,7 +16,9 @@
                 <!--
                 <router-link to="/modes">modes</router-link>
                 -->
-                <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">
+                <div @click="doubleNodes" class="btn" :class="{ active: showOptions }">
+                    double
+                </div><div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">
                     Options
                 </div>
                 <div @click="sendData" class="btn" :class="{ active: loadingNodes }">
@@ -680,6 +682,9 @@ export default {
             this.showOptions = !this.showOptions;
         },
 
+        doubleNodes(){
+            this.store.doubleNodes();
+        },
         changeClusterGrowth(v) {
             this.store.clusterGrowth = Math.round((this.store.clusterGrowth + v) * 100) / 100;
             // this.clusterGrowth = this.store.clusterGrowth;

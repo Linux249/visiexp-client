@@ -325,6 +325,7 @@ export default class ExplorerState {
             this.addNode(newNode);
         });
         console.log(this.nodes);
+        this.triggerDraw()
     }
 
     // todo check where the function is used and if this is fine with updateCluster on every draw
