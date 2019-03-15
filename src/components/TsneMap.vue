@@ -964,6 +964,11 @@ export default {
             }
         });
 
+        socket.on('Error', (data) => {
+            console.error('Server response with error:')
+            console.error(data.message)
+        })
+
         socket.on('disconnect', (reason) => {
             this.connectedToSocket = false;
             console.log('Socket: disconnect', reason);
