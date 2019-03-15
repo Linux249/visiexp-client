@@ -1538,6 +1538,7 @@ export default class ExplorerState {
             this.socket.emit('requestImage', {
                 name: nodeUnderMouse.name,
                 index: nodeUnderMouse.index,
+                datasetId: this.ui.dataset,
             });
         }
         return null;
