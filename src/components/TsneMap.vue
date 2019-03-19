@@ -16,7 +16,7 @@
                 <!--
                 <router-link to="/modes">modes</router-link>
                 -->
-                <div @click="doubleNodes" class="btn" :class="{ active: showOptions }">
+                <div @click="doubleNodes" class="btn">
                     double
                 </div><div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">
                     Options
