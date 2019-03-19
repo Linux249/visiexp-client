@@ -530,7 +530,7 @@ export default {
             if (!this.loadingNodes) {
                 // this.store.resetStore();
                 this.loadingNodes = true;
-                this.socket.emit('updateEmbedding', { nodes });
+                this.socket.emit('updateEmbedding', { nodes, datasetId: this.dataset });
                 // this.reset();
             }
         },
@@ -682,7 +682,7 @@ export default {
             this.showOptions = !this.showOptions;
         },
 
-        doubleNodes(){
+        doubleNodes() {
             this.store.doubleNodes();
         },
         changeClusterGrowth(v) {
@@ -965,9 +965,9 @@ export default {
         });
 
         socket.on('Error', (data) => {
-            console.error('Server response with error:')
-            console.error(data.message)
-        })
+            console.error('Server response with error:');
+            console.error(data.message);
+        });
 
         socket.on('disconnect', (reason) => {
             this.connectedToSocket = false;
