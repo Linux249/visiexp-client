@@ -1,7 +1,9 @@
 <template>
     <div class="area">
-        <div class="row center">
-            performance monitor
+        <div class="title">
+            Draw performance
+        </div>
+        <div class="row">
             <div class="btn" @click="calcChartData">start</div>
             <div class="btn" @click="resetChartData">reset</div>
         </div>
@@ -11,14 +13,18 @@
             auto-draw
         >
         </trend>
-        {{maxDrawTime()}}
+        <div class="row-btn">
+            {{maxDrawTime()}}
+        </div>
         <trend
             :data="hitMapData"
             :gradient="['#6fa8dc', '#42b983', '#2c3e50']"
             auto-draw
         >
         </trend>
-        {{maxHitMapTime()}}
+        <div class="row-btn">
+            {{maxHitMapTime()}}
+        </div>
     </div>
 </template>
 

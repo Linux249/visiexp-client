@@ -1,8 +1,8 @@
 <template>
-    <div>
-        <div>SELECT A DATASET</div>
+    <div class="area">
+        <div class="title">Data sets</div>
         <div
-            class="areas"
+
             v-for="set in datasets"
             :key="set.id"
             @click="handleChangeDataset(set.id)"
@@ -48,15 +48,19 @@ export default {
     max-height: 15rem;
     box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
     margin-bottom: 1rem;
-    overflow: auto;
+    //overflow: auto;
 }
 
 .description {
-    padding: 2px 14px;
+    width: auto;
+    word-spacing: -1px;
+    padding: 0 0.7rem;
     background: #fff;
     font-size: 15px;
-    font-weight: 600;
+    font-style: italic;
+    font-weight: 400;
     letter-spacing: 0.025em;
     transition: all 0.15s ease;
+    margin-bottom: 0.5rem;
 }
 </style>

@@ -353,7 +353,7 @@
                     :handleChangeDataset="handleChangeDataset"
                 />
 
-                <div class="area" v-if="activeNode">
+                <div class="area padding" v-if="activeNode">
                     <img
                         class="active-img"
                         v-if="activeNode.hasImage"
@@ -1162,6 +1162,7 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 0 0.5rem;
 }
 
 .active-img {
@@ -1192,6 +1193,7 @@ export default {
     font-size: 15px;
     font-weight: 600;
     border-bottom: 0.05rem solid grey;
+    padding: 0 0.5rem;
 }
 
 .color {
@@ -1242,7 +1244,7 @@ export default {
     margin: 0.5rem;
     /*height: 20px;*/
     line-height: 20px;
-    padding: 1px 14px;
+    /*padding: 1px 14px;*/
     box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
     background: #fff;
     color: #6772e5;

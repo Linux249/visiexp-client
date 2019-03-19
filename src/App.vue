@@ -90,7 +90,7 @@ input {
     /*align-self: center;*/
     text-decoration: none;
     /*text-overflow: ;*/
-    margin: 0.5rem;
+    margin: 0.3rem 0.5rem;
     /*height: 20px;*/
     line-height: 20px;
     padding: 1px 14px;
@@ -120,16 +120,15 @@ input {
     width: 100%;
     font-weight: bold;
     color: #767676;
-    margin: 0.5rem;
+    padding: 0.5rem 0.5rem 0.2rem;
 }
 
 .area {
     background-color: white;
-    box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
-    /*margin: 0.5rem;*/
     outline: none;
-    padding: 0.2rem;
     margin-bottom: 0.5rem;
+
+    box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
 }
 
 .between {
@@ -148,5 +147,8 @@ input {
     /*height: 20px;*/
     border: 0;
     padding: 0;
+}
+.padding {
+    padding: 0.5rem;
 }
 </style>
