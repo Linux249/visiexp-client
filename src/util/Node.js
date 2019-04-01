@@ -6,12 +6,8 @@ export default class Node {
         this.index = data.index;
         this.x = data.x;
         this.y = data.y;
-        // this.width = 1; // 40;
-        // this.height = 1; // 40;
+
         this.colorKey = data.colorKey;
-        // this.color = data.color;
-        // his.ctx = ctx;
-        // this.hitCtx = hitCtx;
 
         this.group = false;
         this.groupId = null;
@@ -21,19 +17,8 @@ export default class Node {
         this.cluster = data.cluster;
         this.isClusterd = true;
         this.isNearly = false;
-        // this.positives = data.positives;
-        // this.negatives = data.negatives;
 
-        // this.label = data.label;
-        // this.label2 = data.label2 // || null;
         this.labels = data.labels;
-        // x,y for reseting
-        // this.initX = data.x;
-        // this.initY = data.y;
-
-        // this.activeScale = 3; // showing images bigger
-        // this.icon = new Image();
-        // this.icon.src = data.buffer;
 
         this.rank = data.rank;
 
@@ -45,7 +30,6 @@ export default class Node {
             this.imgLoading = false;
         }
 
-        // this.pics = {};
         this.imageData = {};
 
         try {
@@ -85,17 +69,6 @@ export default class Node {
             console.log(this);
             console.log(data);
         }
-
-        // this._isActive = false; // handle clicked node
-        // this.isActiveNeighbour = false; // is this a neighbour of a active node?
-
-        // this.image.src = `data:image/jpeg;base64,${data.buffer}`;
-
-        // this.imgScale = null; // used for scaling img width
-        //
-        // this.timerId = 0;
-
-        // this.imgData = makeImgageData(this.icon)
     }
 
     /*

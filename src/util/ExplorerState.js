@@ -21,8 +21,6 @@ export default class ExplorerState {
         this.draggedNode = false; // save the node for dragging
 
         // the current selected object.
-        // TODO  In the future we could turn this into an array for multiple selection
-        // this.selection = null; // pointer to the activated node
         this.nodeOnMouseDown = false; // save node on mouseDown for check in mouseUp
 
         // K labels for development
@@ -31,10 +29,8 @@ export default class ExplorerState {
         this.selectedCategory = null; // the choosen Category
         // this.labelColor = null; // updatet throud ui
 
-        // this.activeMode = false; // freeze for handling selection
         this._nodeUnderMouse = false; // is set (only!) on mouse move
 
-        // Scissor todo why 2 states?
         this._scissors = false;
         this.drawScissors = false;
         this.scissorsStartX = 0;
@@ -47,28 +43,17 @@ export default class ExplorerState {
         this._clusterRadius = 5;
         this._clusterTile = 10;
         this.supercluster = supercluster(); // TODO check best init for this var
-        // this.updateClusterUI = null;
 
         this._scale = 20;
         this._scaleFaktor = 0;
         this._zoomStage = 0; // default zoom stage, 0 is the smalest pic
-        // this._scale2 = 20; // vorher 0
-        // this.updateScaleUI = null;
-        // this.updateScale2UI = null;
-        // this._activeImgScale = 10;
 
         this.imgSize = 0; // for adding higher img size as standart
         this.representImgSize = 5;
         this.neighbourImgSize = 7;
 
-        // this._borderWidth = 5;
-        // this._scrollGrowth = 100; // vorher 20
-        // this.scaleStage = [20, 50, 100, 200, 400, 800, 1600, 3200];
-        // this._scrollImgGrowth = 1.1;
         this._clusterGrowth = 1.2;
 
-        // this.interval = 100;
-        //
         // this.offsetLeft = canvas.getBoundingClientRect().left;
         // this.offsetTop = canvas.getBoundingClientRect().top;
 
@@ -77,8 +62,6 @@ export default class ExplorerState {
 
         this.startX = null;
         this.startY = null;
-        // this.ctx.translate(this.translateX / 2, this.translateY / 2);
-        // this.ctx.scale(this.scale, this.scale);
 
         // add event listener
         this.explorer.onmousedown = e => this.handleMouseDown(e);
@@ -89,8 +72,6 @@ export default class ExplorerState {
 
         this.sortedNodes = [];
         this.sorted = false;
-        // this.explorer.onblur = this.blur;
-        // this.timerId = setInterval(() => this.draw(), this.interval);
         this.sizeRange = 3;
 
         // garantie the max zoom lvl
@@ -639,221 +620,6 @@ export default class ExplorerState {
         // update groups in ui
         this.ui.savedGroups.forEach(group => (group.count = counter[group.groupId]));
     }
-    /* clear() {
-        // move point 0,0 to middle of explorer
-        // console.log(this.ctx)
-        this.ctx.resetTransform();
-        this.ctx.clearRect(0, 0, this.width, this.height);
-        this.ctx.translate(this.translateX, this.translateY);
-        this.ctx.scale(this.scale, this.scale);
-        // console.log(this.ctx)
-        console.log(this.translateX, this.translateY);
-
-        // same on hit ctx
-        this.hitCtx.resetTransform();
-        this.hitCtx.clearRect(0, 0, this.width, this.height);
-        this.hitCtx.translate(this.translateX, this.translateY);
-        this.hitCtx.scale(this.scale, this.scale);
-    } */
-
-    /* draw() {
-        // if our state is invalid, redraw and validate!
-        if (!this.valid) {
-            console.time('draw');
-            console.time('nextFrameAfterDraw');
-            // const nodes = this.nodes;
-            this.clear();
-
-
-            // if some nodes are active set other transparent
-            // if (this.selection) this.ctx.globalAlpha = 0.3;
-            // else this.ctx.globalAlpha = 1;
-            if (this.selection) {
-                console.log('SELECTION WHILE DRAW');
-                const links = Object.keys(this.selection.links);
-                console.log(this.selection);
-                console.log(links);
-
-                this.ctx.globalAlpha = 0.2;
-
-                Object.values(this.nodes).forEach((node) => {
-                    if (node === this.selection) {
-                        console.log('ACKTIVE NODE');
-                        console.log(node);
-                        this.ctx.globalAlpha = 1;
-                        node.drawAsActive(this.scale, this.activeImgScale);
-                        this.ctx.globalAlpha = 0.2;
-                    } else if (this.selection.links[node.index]) {
-                        console.log('LINKED NODE');
-                        this.ctx.globalAlpha = 1;
-                        node.drawAsNeighbour(
-                            this.scale,
-                            this.activeImgScale,
-                            this.selection.links[node.index],
-                        );
-                        this.ctx.globalAlpha = 0.2;
-                    } else if (this.cluster < node.cluster) { // TODO add cluster mode
-                        node.drawClusterd(this.scale, this.scale2, this.imgScale, this.cluster);
-                    } else node.draw(this.scale, this.scale2, this.imgScale, this.cluster);
-                });
-
-                this.ctx.globalAlpha = 1;
-            } else {
-                // draw images
-                Object.values(this.nodes).forEach((node) => {
-                    // if node is clustered dont draw and draw pixel instead
-                    if (this.cluster < node.cluster) { // TODO add cluster mode
-                        node.drawClusterd(this.scale, this.scale2, this.imgScale, this.cluster);
-                    } else node.draw(this.scale, this.scale2, this.imgScale, this.cluster);
-                });
-            }
-
-
-            // draw borders
-            if (this.showKLabels) {
-                // draw borders
-                Object.values(this.nodes).forEach((node) => {
-                    node.drawBorder(
-                        this.scale,
-                        this.imgScale,
-                        this.activeImgScale,
-                        this.cluster,
-                        this.borderWidth);
-                });
-            } else if (this.selectedLabel) {
-                Object.values(this.nodes).forEach((node) => {
-                    if (node.labels.indexOf(this.selectedLabel) !== -1) {
-                        node.drawBorder(
-                            this.scale,
-                            this.imgScale,
-                            this.activeImgScale,
-                            this.cluster,
-                            this.borderWidth,
-                            this.labelColor);
-                    }
-                });
-            }
-
-            if (this.drawScissors) {
-                const x = (this.scissorsStartX - this.translateX) / this.scale;
-                const y = (this.scissorsStartY - this.translateY) / this.scale;
-                const w = (this.scissorsEndX - this.scissorsStartX) / this.scale;
-                const h = (this.scissorsEndY - this.scissorsStartY) / this.scale;
-
-                this.ctx.strokeStyle = '#3882ff';
-                this.ctx.lineWidth = 2 / this.scale;
-
-                this.ctx.strokeRect(x, y, w, h);
-                this.ctx.globalAlpha = 0.2;
-                this.ctx.fillRect(x, y, w, h);
-                this.ctx.globalAlpha = 1.0;
-            }
-            this.valid = true;
-            console.timeEnd('draw');
-            requestAnimationFrame(() => console.timeEnd('nextFrameAfterDraw'));
-        }
-    }
-*/
-
-    /*
-    drawHitmap() {
-        const startTime = window.performance.now();
-
-        const explorerW = this.width;
-
-        const explorerH = this.height;
-
-        const tx = this.translateX;
-        // verschiebung des Nullpunktes im Raum
-
-        const ty = this.translateY;
-
-        const { zoomStage, scale } = this;
-
-        const hitmapPixel = new Uint8ClampedArray(explorerW * explorerH * 4);
-
-        const { sizeRanked: rankSize, clusterMode } = this.ui;
-        const nodes = this.sorted ? this.sortedNodes : Object.values(this.nodes);
-
-        const neighbourMode = this.ui.$route.name === LABELS;
-
-        nodes.forEach((node) => {
-            // start x,y ist x *scale + translateX
-
-            let imgSize = rankSize ? zoomStage + Math.floor(node.rank * this.sizeRange)
-            : zoomStage;
-            imgSize += this.imgSize; // add imgSize from user input
-            if (imgSize < 0) imgSize = 0;
-            if (imgSize > 14) imgSize = 14;
-            if (clusterMode && !node.isClusterd) imgSize += 5;
-
-            const img = node.imageData[imgSize];
-            if (!img) return console.error(`no image for node: ${node.id}exists`);
-            const imgW = img.width;
-            const imgH = img.height;
-            const imgX = Math.floor(node.x * scale + tx - imgW / 2);
-            const imgY = Math.floor(node.y * scale + ty - imgH / 2);
-            const inside = imgX > 0 && imgY > 0 &&
-            imgX < explorerW - imgW && imgY < explorerH - imgH;
-
-            // check if the image is allowed to draw in certain rules
-            let show = true;
-            // 1. Rule: some labels can be selected as "not show this"
-            node.labels.forEach((nodeLabel, i) => {
-                if (nodeLabel && this.ui.labels[i]) {
-                    this.ui.labels[i].labels.forEach((e) => {
-                        if (e && !e.show && e.name === nodeLabel) show = false;
-                    });
-                }
-            });
-
-            // 2. if neighbours mode:  check if node is not groupd
-            if (neighbourMode && !node.group) {
-                // the node should not be in the neighbours list
-                const neighbour = this.groupNeighbours[node.index];
-                if (!neighbour || neighbour > this.ui.neighboursThreshold) show = false;
-            }
-
-            // test if image obj exists
-            if (show && inside) {
-                // cluster
-                // wir gehen durch alle reihen des bildes
-                for (let imgRow = 0; imgRow < imgH; imgRow += 1) {
-                    const explorerRow = ((imgY + imgRow) * explorerW + imgX) * 4;
-                    // wir laufen durch alle spalten des bildes
-                    // und betrachten dann 4 werte im array
-                    for (let imgCol = 0; imgCol < imgW; imgCol += 1) {
-                        const c = explorerRow + imgCol * 4;
-                        // const p = (imgRow * imgW + imgCol) * 4;
-                        hitmapPixel[c] = node.colorKey[0]; // R
-                        hitmapPixel[c + 1] = node.colorKey[1]; // G
-                        hitmapPixel[c + 2] = node.colorKey[2]; // B
-                        hitmapPixel[c + 3] = 255; //
-                    }
-                }
-            }
-        });
-
-        const pic = new ImageData(hitmapPixel, explorerW, explorerH);
-        const ctx = this.ui.toggle ? this.ctx : this.hitCtx;
-        ctx.resetTransform();
-        ctx.clearRect(0, 0, this.width, this.height);
-        ctx.putImageData(pic, 0, 0);
-
-        // console.log(pic);
-        // console.log(explorerPixel);
-
-        // console.log({ w, h, tx, ty, pixel });
-        // console.timeEnd('drawHitmap');
-        const endTime = window.performance.now();
-        const time = endTime - startTime;
-        this.perfLogs.hitmap.push(time);
-        if (time > this.maxHitMapTime) {
-            this.maxHitMapTime = time;
-            console.warn('new max hit map time');
-            console.warn(this.maxHitMapTime);
-        }
-    } */
 
     draw() {
         // console.log('start draw')
