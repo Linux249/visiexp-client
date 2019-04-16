@@ -263,13 +263,21 @@
                             <div @click="superCluster()" class="btn">update</div>
                         </div>
                     </div>
+                    <div class="option-title">Performance</div>
                     <div class="row-btn">
-                        <div>Cluster: tile: {{ clusterTile }}</div>
-                        <div class="row">
-                            <div @click="changeClusterTile(-1)" class="btn"><minus></minus></div>
-                            <div @click="changeClusterTile(1)" class="btn"><plus></plus></div>
+                        <div>Monitor</div>
+                        <div @click="toggleShowLogs" class="btn" :class="{ active: showLogs }">
+                            {{ showLogs ? 'On' : 'Off' }}
                         </div>
                     </div>
+
+                    <!--<div class="row-btn">-->
+                        <!--<div>Cluster: tile: {{ clusterTile }}</div>-->
+                        <!--<div class="row">-->
+                            <!--<div @click="changeClusterTile(-1)" class="btn"><minus></minus></div>-->
+                            <!--<div @click="changeClusterTile(1)" class="btn"><plus></plus></div>-->
+                        <!--</div>-->
+                    <!--</div>-->
 
                 </div>
 
@@ -370,7 +378,7 @@
                         </div>
                     </div>
                 </div>
-                <logs :getStore="getStore" />
+                <logs v-if="showLogs" :getStore="getStore" />
             </div>
         </div>
     </div>
@@ -514,6 +522,7 @@ export default {
         groupName: '',
         groupCounter: 0, // 0 is no group, counter inc for first use
         groupColours: groupColors,
+        showLogs: false,
     }),
     methods: {
         getNode(i) {
@@ -890,6 +899,9 @@ export default {
             this.neighbourMode = !this.neighbourMode;
             this.store.triggerDraw();
         },
+        toggleShowLogs() {
+            this.showLogs = !this.showLogs
+        }
     },
 
     mounted() {
