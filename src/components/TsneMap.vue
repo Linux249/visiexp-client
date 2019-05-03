@@ -263,13 +263,21 @@
                             <div @click="superCluster()" class="btn">update</div>
                         </div>
                     </div>
+                    <div class="option-title">Performance</div>
                     <div class="row-btn">
-                        <div>Cluster: tile: {{ clusterTile }}</div>
-                        <div class="row">
-                            <div @click="changeClusterTile(-1)" class="btn"><minus></minus></div>
-                            <div @click="changeClusterTile(1)" class="btn"><plus></plus></div>
+                        <div>Monitor</div>
+                        <div @click="toggleShowLogs" class="btn" :class="{ active: showLogs }">
+                            {{ showLogs ? 'On' : 'Off' }}
                         </div>
                     </div>
+
+                    <!--<div class="row-btn">-->
+                        <!--<div>Cluster: tile: {{ clusterTile }}</div>-->
+                        <!--<div class="row">-->
+                            <!--<div @click="changeClusterTile(-1)" class="btn"><minus></minus></div>-->
+                            <!--<div @click="changeClusterTile(1)" class="btn"><plus></plus></div>-->
+                        <!--</div>-->
+                    <!--</div>-->
 
                 </div>
 
@@ -370,7 +378,7 @@
                         </div>
                     </div>
                 </div>
-                <logs :getStore="getStore" />
+                <logs v-if="showLogs" :getStore="getStore" />
             </div>
         </div>
     </div>
@@ -514,6 +522,7 @@ export default {
         groupName: '',
         groupCounter: 0, // 0 is no group, counter inc for first use
         groupColours: groupColors,
+        showLogs: false,
     }),
     methods: {
         getNode(i) {
@@ -530,7 +539,7 @@ export default {
             if (!this.loadingNodes) {
                 // this.store.resetStore();
                 this.loadingNodes = true;
-                this.socket.emit('updateEmbedding', { nodes });
+                this.socket.emit('updateEmbedding', { nodes, datasetId: this.dataset });
                 // this.reset();
             }
         },
@@ -682,7 +691,7 @@ export default {
             this.showOptions = !this.showOptions;
         },
 
-        doubleNodes(){
+        doubleNodes() {
             this.store.doubleNodes();
         },
         changeClusterGrowth(v) {
@@ -890,6 +899,9 @@ export default {
             this.neighbourMode = !this.neighbourMode;
             this.store.triggerDraw();
         },
+        toggleShowLogs() {
+            this.showLogs = !this.showLogs
+        }
     },
 
     mounted() {
@@ -965,9 +977,9 @@ export default {
         });
 
         socket.on('Error', (data) => {
-            console.error('Server response with error:')
-            console.error(data.message)
-        })
+            console.error('Server response with error:');
+            console.error(data.message);
+        });
 
         socket.on('disconnect', (reason) => {
             this.connectedToSocket = false;
@@ -1001,8 +1013,86 @@ export default {
             this.nodesTotal = data.count;
         });
 
-        socket.on('allNodesSend', () => {
-            console.log('Socket: allNodesSend');
+        socket.on('sendAllNodes', async (nodes) => {
+            console.log('Socket: sendAllNodes');
+            console.log(nodes);
+            const state = this;
+
+            const { nodesRecived } = this;
+            async function consume(reader) {
+                // let total = 0;
+                let w = 0;
+                let h = 1; // point to w/h positions in the buffer
+                let size = 0; // actual size of the images
+                let readFromChunk = 0; // save ow many bytes from the chunk are used
+                let picByteLen = 0; // len of the pic to read
+                let nodeId = 0; // starting node id
+                let oldChunk = new Uint8Array(); // save the rest of the unused chunk
+
+
+                function pump() {
+                    return reader.read().then(({ done, value }) => {
+                        if (done) {
+                            console.log('finish request');
+                            return;
+                        }
+                        // merge rest of old chunk with new chunk for cleaner code
+                        const chunk = new Uint8Array(oldChunk.length + value.length);
+                        chunk.set(oldChunk);
+                        chunk.set(value, oldChunk.length);
+                        readFromChunk = 0; // reset
+                        picByteLen = chunk[w] * chunk[h] * 4; // test if the hole image is in chunk
+
+                        // check if a hole image is in the chunk or if the data are part of the next one
+                        while (picByteLen <= chunk.byteLength - readFromChunk - 2) {
+                            if (!nodes[nodeId].imageData) nodes[nodeId].imageData = Object.create(null);
+
+                            nodes[nodeId].imageData[size] = new ImageData(
+                                new Uint8ClampedArray(chunk.slice(h + 1, h + picByteLen + 1)),
+                                chunk[w],
+                                chunk[h],
+                            );
+
+                            // update vars for reading bytes
+                            readFromChunk += picByteLen + 2; // 2 bytes for w/h
+                            w += picByteLen + 2;
+                            h += picByteLen + 2;
+                            picByteLen = chunk[w] * chunk[h] * 4; // len of the next pic
+                            if (size < 14) {
+                                size += 1;
+                            } else {
+                                size = 0;
+                                state.nodesRecived += 1;
+                                store.addNode(new Node(nodes[nodeId]));
+                                store.triggerDraw();
+                                nodeId += 1;
+                                // todo the node can now be established
+                            }
+                        }
+
+                        oldChunk = new Uint8Array(chunk.slice(readFromChunk));
+                        w = 0;
+                        h = 1;
+                        return pump();
+                    });
+                }
+                return pump();
+            }
+
+            const data = await fetch(`${apiUrl}/api/v1/dataset/${this.dataset}`)
+                .then(async (res) => {
+                    console.log(res);
+                    console.log(res.headers);
+                    console.log(res.headers.get('content-length'));
+                    await consume(res.body.getReader());
+                })
+                .then((e) => {
+                    console.log(e);
+                    console.log('consumed the entire body without keeping the whole thing in memory!');
+                })
+                .catch(e => console.log(`something went wrong: ${e}`));
+
+
             this.loadingNodes = false;
             this.activateClusterMode();
             console.timeEnd('loadAllNodes');

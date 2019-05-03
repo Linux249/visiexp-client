@@ -1337,7 +1337,7 @@ export default class ExplorerState {
         // console.timeEnd('draw');
         const endTime = window.performance.now();
         const time = endTime - startTime;
-        this.perfLogs.draw.push(time);
+        if(this.ui.showLogs) this.perfLogs.draw.push(time);
         if (time > this.maxDrawTime) {
             this.maxDrawTime = time;
             console.warn('new max draw time');
