@@ -1008,8 +1008,8 @@ export default {
         });
 
         socket.on('totalNodesCount', (data) => {
-            // console.log('Socket: totalNodesCount');
-            // console.log(data);
+            console.log('Socket: totalNodesCount');
+            console.log(data);
             this.nodesTotal = data.count;
         });
 
@@ -1018,7 +1018,6 @@ export default {
             console.log(nodes);
             const state = this;
 
-            const { nodesRecived } = this;
             async function consume(reader) {
                 // let total = 0;
                 let w = 0;
