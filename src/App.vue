@@ -1,20 +1,24 @@
 <template>
     <div id="app">
         <nav-header />
-        <tsne-map :dataset="dataset" :key="dataset" :switchDataset="switchDataset" />
+        <tsne-map v-if="isAuth" :user="userId" :dataset="dataset" :key="dataset" :switchDataset="switchDataset" />
+        <login v-if="!isAuth" :setAuth="setAuth"/>
     </div>
 </template>
 
 <script>
 import NavHeader from './components/NavHeader';
 import TsneMap from './components/TsneMap';
+import Login from './components/Login';
 
 export default {
     name: 'App',
-    components: { NavHeader, TsneMap },
+    components: { NavHeader, TsneMap, Login },
     // maybe here is a good place to reset component...
     data: () => ({
         dataset: '001',
+        userId: null,
+        isAuth: false,
     }),
     // TODO add key to TSNEMAP for changing all!
     methods: {
@@ -23,6 +27,10 @@ export default {
             console.error(newDataset);
             this.dataset = newDataset;
         },
+        setAuth(userId) {
+            this.isAuth = true
+            this.userId = userId
+        }
     },
 };
 </script>
