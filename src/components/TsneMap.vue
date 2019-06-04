@@ -6,16 +6,8 @@
                 <router-link to="/svm">SVM</router-link>
                 <router-link to="/classifier">Classifier</router-link>
                 <router-link to="/Dataset">Dataset</router-link>
-                <!--
-                <router-link to="/triplets">Triplets</router-link>
-                <router-link to="/neighbours">Neighbours</router-link>
-                <router-link to="/labels">Labels</router-link>
-                -->
             </div>
             <div class="right-header">
-                <!--
-                <router-link to="/modes">modes</router-link>
-                -->
                 <div @click="doubleNodes" class="btn">
                     double
                 </div><div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">
@@ -268,6 +260,12 @@
                         <div>Monitor</div>
                         <div @click="toggleShowLogs" class="btn" :class="{ active: showLogs }">
                             {{ showLogs ? 'On' : 'Off' }}
+                        </div>
+                    </div>
+                    <div class="row-btn">
+                        <div>Show Hitmap</div>
+                        <div @click="toggleShowHitmap" class="btn" :class="{ active: toggle }">
+                            {{ toggle ? 'On' : 'Off' }}
                         </div>
                     </div>
 
@@ -778,6 +776,10 @@ export default {
             this.store.triggerDraw();
         },
 
+        toggleShowHitmap() {
+            this.toggle = !this.toggle
+        },
+
         changeGradientColor(i) {
             console.log('changeGradientColor');
             // console.log(this.gradient);
@@ -1105,8 +1107,7 @@ export default {
 
         socket.on('updateEmbedding', (data, cb) => {
             console.log('Socket: updateEmbedding');
-            // console.log(data);
-
+            console.log(data);
             // not every handler sends a cb
             if (cb) cb({ stopped: this.autoUpdateEmbedding });
             this.store.updateNodes(data.nodes);

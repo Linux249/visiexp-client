@@ -354,7 +354,7 @@ export default class ExplorerState {
             radius: this.clusterRadius,
             maxZoom: this.maxZoomLvl,
             extend: this.clusterTile,
-            log: true,
+            log: false,
         });
         this.supercluster.load(geoPoints);
         console.timeEnd('build superClusterIndex');
@@ -387,6 +387,7 @@ export default class ExplorerState {
                 // find represent: test if fist value suits
             }
         });
+        });
         console.log('not clustered items count');
         console.log(notClusterd.length);
         console.log('cluster count');
@@ -394,11 +395,13 @@ export default class ExplorerState {
         this.triggerDraw();
     }
 
+    distance(v1, v2) {
+        return Math.hypot(v2[0] - v1[0], v2[1] - v1[1]);
+    }
+
     updateClustering(init) {
         console.time('updateClustering');
-        function distance(v1, v2) {
-            return Math.hypot(v2[0] - v1[0], v2[1] - v1[1]);
-        }
+
         // TODO remove after right implementation
         if (!this.supercluster) return;
         //console.time('get cluster');
@@ -440,7 +443,7 @@ export default class ExplorerState {
                     node.isClusterd = true;
                     if (init) console.log([node.x, node.y]);
                     if (init) console.log(p.geometry.coordinates);
-                    const dist = distance(p.geometry.coordinates, c.geometry.coordinates);
+                    const dist = this.distance(p.geometry.coordinates, c.geometry.coordinates);
                     if (init) console.log(dist);
                     if (dist < min) {
                         min = dist;
