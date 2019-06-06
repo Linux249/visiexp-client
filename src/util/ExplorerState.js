@@ -1573,9 +1573,11 @@ export default class ExplorerState {
             if (this.ui.neighbourMode) {
                 // if user removes a neighbour
                 if (this.groupNeighbours[nodeUnderMouse.index]) {
+                    // add node to removed neighbours
                     this.removedGroupNeighbours[nodeUnderMouse.index] = this.groupNeighbours[
                         nodeUnderMouse.index
                     ];
+                    // remove node from neighbours
                     this.groupNeighbours[nodeUnderMouse.index] = undefined;
                 } else if (nodeUnderMouse.group) {
                     nodeUnderMouse.group = false;

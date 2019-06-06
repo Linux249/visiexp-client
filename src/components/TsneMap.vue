@@ -513,7 +513,7 @@ export default {
         autoUpdateEmbedding: false,
         socketId: '',
         // dataset: '001', // defualt value is 001
-        neighboursThreshold: 0.2,
+        neighboursThreshold: 15,
         activeGroupId: 0,
         representMaxAlpha: false,
         savedGroups: [],
