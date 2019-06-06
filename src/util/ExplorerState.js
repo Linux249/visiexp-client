@@ -14,7 +14,7 @@ export default class ExplorerState {
 
         this.hitCtx = hitCanvas.getContext('2d');
 
-        this.valid = true;  // use for checking if draw() is running
+        this.valid = true; // use for checking if draw() is running
         this.nodes = {}; // hash for all nodes
         this.colorHash = {}; // find nodes by color
         this.panning = false; // Keep track of when we are dragging
@@ -404,7 +404,7 @@ export default class ExplorerState {
 
         // TODO remove after right implementation
         if (!this.supercluster) return;
-        //console.time('get cluster');
+        // console.time('get cluster');
         const {
             zoomStage,
             scale,
@@ -418,7 +418,7 @@ export default class ExplorerState {
 
         // get clustering for current section (viewbox)
         const cluster = this.supercluster.getClusters(rect, zoomStage);
-        //console.timeEnd('get cluster');
+        // console.timeEnd('get cluster');
         // console.log(rect);
         // console.log(cluster);
 
@@ -918,9 +918,8 @@ export default class ExplorerState {
             if (neighbourMode && !node.group) {
                 // the node should not be in the neighbours list
                 const neighbour = this.groupNeighbours[node.index];
-                if (neighbour && neighbour <= this.ui.neighboursThreshold) {
-                    imgSize += this.neighbourImgSize;
-                } else return;
+                if (neighbour) imgSize += this.neighbourImgSize;
+                else return;
             } else if (isRepresent) imgSize += representImgSize;
 
             if (imgSize < 0) imgSize = 0;
@@ -1149,7 +1148,7 @@ export default class ExplorerState {
             if (
                 !node.group
                 && !node.isNearly
-                && (!neighbour || neighbour > this.ui.neighboursThreshold)
+                && (!neighbour)
             ) return;
 
             const lineColor = neighbour
@@ -1340,7 +1339,7 @@ export default class ExplorerState {
         // console.timeEnd('draw');
         const endTime = window.performance.now();
         const time = endTime - startTime;
-        if(this.ui.showLogs) this.perfLogs.draw.push(time);
+        if (this.ui.showLogs) this.perfLogs.draw.push(time);
         if (time > this.maxDrawTime) {
             this.maxDrawTime = time;
             console.warn('new max draw time');
