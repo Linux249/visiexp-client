@@ -1,5 +1,5 @@
 <template>
-    <input type="range" min="0" max="1" step="0.01" :value="value" @input="change"/>
+    <input class="" type="range" min="0" max="100" step="1" :value="value" @input="change"/>
 </template>
 
 <script>
@@ -14,7 +14,7 @@ export default {
 input[type='range'] {
     -webkit-appearance: none;
     width: 85%;
-    margin: 6px 0;
+    margin: 6px 6px 0 6px;
     border-bottom: 0;
 }
 input[type='range']:focus {
@@ -89,7 +89,7 @@ input[type='range']::-ms-thumb {
     border-radius: 12px;
     background: #6772e5;
     cursor: pointer;
-    height: 10.9px;
+    height: 11px;
 }
 input[type='range']:focus::-ms-fill-lower {
     background: #ffffff;

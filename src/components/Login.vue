@@ -56,6 +56,7 @@ export default {
                 if (res.isAuth) {
                     this.setAuth(res.id);
                 }
+                if (process.env.NODE_ENV === 'development') this.setAuth(0);
             } catch (e) {
                 this.loading = false;
                 this.error = e.message;

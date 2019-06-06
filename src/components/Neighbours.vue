@@ -1,13 +1,14 @@
 <template>
     <div class="area">
         <div class="title">Similars</div>
-        <div class="btn between">
-            {{neighboursThreshold}}
+        <div class="between">
             <range-slider
                 :value="neighboursThreshold"
                 :change="changeNeighboursThreshold"
             ></range-slider>
+            <div class="btn">{{neighboursThreshold}}</div>
         </div>
+        <div class="row hint"># proposals in next iteration</div>
         <div class="row">
             <div class="btn" @click="getGroupNeighbours">Update<repeat></repeat></div>
             <div class="btn" @click="resetNeighbours">Reset<trash></trash></div>
@@ -90,4 +91,11 @@ export default {
 </script>
 
 <style scoped>
+.hint {
+    font-size: small;
+    font-style: italic;
+    padding-left: 0.5rem;
+    padding-top: -0.5rem;
+    margin-bottom: 0.5rem;
+}
 </style>
