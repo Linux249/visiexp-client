@@ -10,7 +10,7 @@
             <input type="password" v-model="password">
         </label>
         <div class="btn" @click="login">login</div>
-        <div v-if="error" class="title" style="color: red">{{error}}}</div>
+        <div v-if="error" class="title" style="color: red">{{error}}</div>
         <div v-if="loading" class="title" style="color: red">Loading...</div>
     </div>
     </div>
@@ -30,7 +30,7 @@ export default {
     }),
     methods: {
         async login() {
-            this.loading = true
+            this.loading = true;
             console.log('Login clicked');
             console.log(this.user);
             console.log(this.password);
@@ -51,16 +51,17 @@ export default {
                 if (res.status !== 200) {
                     this.error = res.message;
                 }
-                this.loading = false
+                this.loading = false;
 
-                if(res.isAuth) {
-                    this.setAuth(res.id)
+                if (res.isAuth) {
+                    this.setAuth(res.id);
                 }
             } catch (e) {
-                this.loading = false
+                this.loading = false;
                 this.error = e.message;
                 console.log(e);
                 console.log(e.message);
+                if (process.env.NODE_ENV === 'development') this.setAuth(0);
             }
         },
     },

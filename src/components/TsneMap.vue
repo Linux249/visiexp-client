@@ -410,7 +410,7 @@ import { apiUrl } from '../config/apiUrl';
 export default {
     store: null,
     name: 'TsneMap',
-    props: ['dataset', 'switchDataset'],
+    props: ['dataset', 'switchDataset', 'userId'],
     components: {
         Scissors,
         X,
@@ -537,7 +537,7 @@ export default {
             if (!this.loadingNodes) {
                 // this.store.resetStore();
                 this.loadingNodes = true;
-                this.socket.emit('updateEmbedding', { nodes, datasetId: this.dataset });
+                this.socket.emit('updateEmbedding', { nodes, datasetId: this.dataset, userId: this.userId });
                 // this.reset();
             }
         },
@@ -809,6 +809,7 @@ export default {
                     const body = JSON.stringify({
                         nodes: this.store.getNodes(),
                         socketId: this.socketId,
+                        userId: this.userId,
                     });
                     await fetch(`${apiUrl}/api/v1/startUpdateEmbedding`, {
                         method: 'POST',
@@ -973,7 +974,7 @@ export default {
             console.log('nodes in store while connect (its maybe just a reconnect)');
             console.log(nodes);
             if (!Object.keys(nodes).length && !this.loadingNodes) {
-                socket.emit('getNodes', { datasetId: this.dataset });
+                socket.emit('getNodes', { datasetId: this.dataset, userId: this.userId });
                 this.reset();
             }
         });

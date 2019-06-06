@@ -193,6 +193,7 @@ export default {
 
             const body = JSON.stringify({
                 nodes,
+                userId: this.$parent.userId,
             });
             const data = await fetch(`${apiUrl}/api/v1/updateLabels`, {
                 method: 'POST',

@@ -23,7 +23,7 @@ import { apiUrl } from '../config/apiUrl';
 
 export default {
     name: 'Neighbours',
-    props: ['getStore', 'neighboursThreshold', 'changeNeighboursThreshold', 'activeGroupId'],
+    props: ['getStore', 'neighboursThreshold', 'changeNeighboursThreshold', 'activeGroupId', ],
     components: {
         RangeSlider,
         Repeat,
@@ -42,12 +42,15 @@ export default {
     methods: {
         async getGroupNeighbours() {
             try {
+                console.log('getGroupNeighbours')
+                console.log(this.$parent.userId)
                 this.loading = true;
                 const store = this.getStore();
                 const body = {
                     group: store.getGroupIdsByGroupId(this.activeGroupId),
                     threshold: this.neighboursThreshold,
                     groupId: this.activeGroupId,
+                    userId: this.$parent.userId,
                 };
                 const { groupNeighbours, removedGroupNeighbours } = store;
                 // add neighbours to body depending on existing

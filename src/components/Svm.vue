@@ -129,6 +129,7 @@ export default {
                 p: this.positivesAll.map(node => node.index),
                 n: this.negativesAll.map(node => node.index),
                 count: this.count,
+                userId: this.$parent.userId,
             });
             const data = await fetch(`${apiUrl}/api/v1/svm/train`, {
                 method: 'POST',
@@ -190,6 +191,7 @@ export default {
             await fetch(`${apiUrl}/api/v1/svm/stop`, {
                 method: 'POST',
                 headers: { 'Content-type': 'application/json' },
+                body: JSON.stringify({userId: this.$parent.userId})
             })
                 .then(res => res.json())
                 .catch(e => console.error(e));

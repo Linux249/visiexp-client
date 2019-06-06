@@ -1,7 +1,7 @@
 <template>
     <div id="app">
         <nav-header />
-        <tsne-map v-if="isAuth" :user="userId" :dataset="dataset" :key="dataset" :switchDataset="switchDataset" />
+        <tsne-map v-if="isAuth" :userId="userId" :dataset="dataset" :key="dataset" :switchDataset="switchDataset" />
         <login v-if="!isAuth" :setAuth="setAuth"/>
     </div>
 </template>
