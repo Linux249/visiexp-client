@@ -28,9 +28,9 @@ export default {
             this.dataset = newDataset;
         },
         setAuth(userId) {
-            this.isAuth = true
-            this.userId = userId
-        }
+            this.isAuth = true;
+            this.userId = userId;
+        },
     },
 };
 </script>
@@ -135,7 +135,6 @@ input {
     background-color: white;
     outline: none;
     margin-bottom: 0.5rem;
-
     box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
 }
 

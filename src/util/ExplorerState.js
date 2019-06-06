@@ -624,12 +624,12 @@ export default class ExplorerState {
     //     return this.scaleTest;
     // }
 
-    scaleTestDraw = () => {
-        if (this.scaleTest) {
-            console.log('scaleTestDraw');
-            requestAnimationFrame(this.scaleTestDraw);
-        }
-    };
+    // scaleTestDraw = () => {
+    //     if (this.scaleTest) {
+    //         console.log('scaleTestDraw');
+    //         requestAnimationFrame(this.scaleTestDraw);
+    //     }
+    // };
 
     updateGroupCount() {
         // build counter

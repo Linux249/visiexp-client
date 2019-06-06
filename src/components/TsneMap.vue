@@ -8,9 +8,7 @@
                 <router-link to="/Dataset">Dataset</router-link>
             </div>
             <div class="right-header">
-                <div @click="doubleNodes" class="btn">
-                    double
-                </div><div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">
+                <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">
                     Options
                 </div>
                 <div @click="sendData" class="btn" :class="{ active: loadingNodes }">
@@ -269,6 +267,17 @@
                         </div>
                     </div>
 
+
+                    <div class="option-title">Others</div>
+                    <div class="row-btn">
+                        <div>Double Nodes</div>
+                        <div @click="doubleNodes" class="btn">double</div>
+                    </div>
+                    <div class="row-btn">
+                        <div>100xDraw</div>
+                        <div class="btn">TODO</div>
+                    </div>
+
                     <!--<div class="row-btn">-->
                         <!--<div>Cluster: tile: {{ clusterTile }}</div>-->
                         <!--<div class="row">-->
@@ -376,6 +385,20 @@
                         </div>
                     </div>
                 </div>
+
+                <div v-if="showInfo" class="area info-box">
+                    <div class="row v-center">
+                        1. mark images with <div class="btn">STRG+Click</div> or <scissors class="btn"></scissors>
+                    </div>
+                    <div class="row v-center">2. create groups</div>
+                    <div class="row v-center">3. get proposals with <play class="btn"></play></div>
+                    <div class="row v-center">4. remove wrong with <div class="btn">Click</div></div>
+                    <div class="row v-center">5. update proposals and iterate</div>
+                    <div class="row v-center">6. repeat with other groups</div>
+                    <div class="row v-center">7. update embedding</div>
+                    <div class="btn" @click="showInfo = !showInfo">Close info</div>
+                </div>
+
                 <logs v-if="showLogs" :getStore="getStore" />
             </div>
         </div>
@@ -521,6 +544,7 @@ export default {
         groupCounter: 0, // 0 is no group, counter inc for first use
         groupColours: groupColors,
         showLogs: false,
+        showInfo: true,
     }),
     methods: {
         getNode(i) {
@@ -777,7 +801,7 @@ export default {
         },
 
         toggleShowHitmap() {
-            this.toggle = !this.toggle
+            this.toggle = !this.toggle;
         },
 
         changeGradientColor(i) {
@@ -903,8 +927,8 @@ export default {
             this.store.triggerDraw();
         },
         toggleShowLogs() {
-            this.showLogs = !this.showLogs
-        }
+            this.showLogs = !this.showLogs;
+        },
     },
 
     mounted() {
@@ -1259,6 +1283,9 @@ export default {
     justify-content: space-between;
     align-items: center;
     padding: 0 0.5rem;
+}
+.info-box{
+    padding: 0.5rem;
 }
 
 .active-img {
