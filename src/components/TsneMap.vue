@@ -250,7 +250,7 @@
                         <div class="row">
                             <div @click="changeClusterRadius(-1)" class="btn"><minus></minus></div>
                             <div @click="changeClusterRadius(1)" class="btn"><plus></plus></div>
-                            <div @click="superCluster()" class="btn">update</div>
+                            <div @click="updateCluster()" class="btn">update</div>
                         </div>
                     </div>
                     <div class="option-title">Performance</div>
@@ -488,8 +488,8 @@ export default {
         showNavHeatmap: false,
         sizeRankedMode: false,
         boarderRankedMode: false,
-        clusterMode: false,
-        oldClusterMode: false,
+        clusterMode: false,     // flag if first clustering was calculated
+        // oldClusterMode: false,
         neighbourMode: false,
         repsMode: 0,
         gradient: [
@@ -853,7 +853,7 @@ export default {
             // TODO trigger reload of datas
         },
 
-        superCluster() {
+        updateCluster() {
             this.store.createSuperCluster();
         },
 

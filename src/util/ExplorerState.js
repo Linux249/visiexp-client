@@ -330,7 +330,7 @@ export default class ExplorerState {
 
     // todo check where the function is used and if this is fine with updateCluster on every draw
     createSuperCluster() {
-        console.time('build superClusterIndex');
+        console.time('update clustering');
         console.time('create geoPoints');
         // parse nodes into suitable format for supercluster
         const geoPoints = Object.values(this.nodes).map(n => ({
@@ -345,9 +345,7 @@ export default class ExplorerState {
             },
         }));
         console.timeEnd('create geoPoints');
-        console.log({ geoPoints });
-
-        // TODO find the best radius
+        // console.log({ geoPoints });
 
         // calculated the supercluster
         this.supercluster = supercluster({
@@ -357,41 +355,7 @@ export default class ExplorerState {
             log: false,
         });
         this.supercluster.load(geoPoints);
-        console.timeEnd('build superClusterIndex');
-        console.log(this.supercluster);
-
-        // testing
-
-        /* const notClusterd = [];
-        const clusterd = [];
-        cluster.forEach((e) => {
-            if (e.properties.index) {
-                notClusterd.push(e.properties.index);
-            }
-        });
-        cluster.forEach((e) => {
-            if (e.id) {
-                clusterd.push(e);
-                console.log(e);
-                const geclustert = superClusterIndex.getLeaves(e.id);
-                console.log(geclustert);
-                geclustert.forEach((c, i) => {
-                    console.log(`${c.properties.index}
-                    ${notClusterd.includes(c.properties.index)}`);
-                });
-                // test tile: tile never get results...
-                /!* console.log("TILE")
-                const tile = superClusterIndex.getTile(
-                zoomStage, e.geometry.coordinates[0], e.geometry.coordinates[1])
-                console.log(tile) *!/
-                // find represent: test if fist value suits
-            }
-        });
-        });
-        console.log('not clustered items count');
-        console.log(notClusterd.length);
-        console.log('cluster count');
-        console.log(clusterd.length); */
+        console.timeEnd('update clustering');
         this.triggerDraw();
     }
 
@@ -399,6 +363,8 @@ export default class ExplorerState {
         return Math.hypot(v2[0] - v1[0], v2[1] - v1[1]);
     }
 
+
+    // todo nodes can be saved for: draw only the nodes from here 'in the rect'
     updateClustering(init) {
         console.time('updateClustering');
 
@@ -414,6 +380,7 @@ export default class ExplorerState {
             translateY: ty,
         } = this;
 
+        // todo here kann man das kleiner machen um bilder nicht übern rand zu zeichnen
         const rect = [-tx / scale, -ty / scale, (explorerW - ty) / scale, (explorerH - ty) / scale];
 
         // get clustering for current section (viewbox)
@@ -891,7 +858,7 @@ export default class ExplorerState {
             sizeRankedMode,
             gradient,
             clusterMode,
-            oldClusterMode,
+            // oldClusterMode,
             neighbourMode,
             representMaxAlpha,
             repsMode,
@@ -912,8 +879,8 @@ export default class ExplorerState {
                 ? zoomStage + Math.floor(node.rank * this.sizeRange)
                 : zoomStage;
             imgSize += this.imgSize; // add imgSize from user input
-            const isRepresent = (clusterMode && !node.isClusterd)
-                || (oldClusterMode && node.cluster < this.cluster);
+            const isRepresent = (clusterMode && !node.isClusterd);
+            // || (oldClusterMode && node.cluster < this.cluster);
 
             if (neighbourMode && !node.group) {
                 // the node should not be in the neighbours list
