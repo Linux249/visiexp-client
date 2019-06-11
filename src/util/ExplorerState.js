@@ -648,12 +648,18 @@ export default class ExplorerState {
             const isRepresent = (clusterMode && !node.isClusterd);
             // || (oldClusterMode && node.cluster < this.cluster);
 
+            // asked here to not ask later again
+            const neighbour = neighbourMode && !node.group && this.groupNeighbours[node.index];
+            const removedNeighbour = neighbourMode && !node.group && this.removedGroupNeighbours[node.index];
+
             if (neighbourMode && !node.group) {
                 // the node should not be in the neighbours list
-                const neighbour = this.groupNeighbours[node.index];
-                if (neighbour) imgSize += this.neighbourImgSize;
+                if (neighbour || removedNeighbour) imgSize += this.neighbourImgSize;
                 else return;
-            } else if (isRepresent) imgSize += representImgSize;
+            }
+
+            // reps size higher
+            if (isRepresent) imgSize += representImgSize;
 
             if (imgSize < 0) imgSize = 0;
             if (imgSize > 14) imgSize = 14;
@@ -670,10 +676,10 @@ export default class ExplorerState {
             // test if the image is outside the explorer
             if (!(imgX < (explorerW - imgW) && imgY < (explorerH - imgH) && imgX > 0 && imgY > 0)) return;
 
-            // check if the image is allowed to draw in certain rules
-            let show = true;
 
             // 1. Rule: some labels can be selected as "not show this"
+            // check if the image is allowed to draw in certain rules
+            let show = true;
             // TODO diese funktion wird nicht in der BA beschrieben da nicht klar ob noch erwünscht
             node.labels.forEach((nodeLabel, i) => {
                 if (nodeLabel && this.ui.labels[i]) {
@@ -682,6 +688,8 @@ export default class ExplorerState {
                     });
                 }
             });
+
+            if (!show) return;
 
             // 2. if neighbours mode:  check if node is not groupd
 
@@ -744,7 +752,7 @@ export default class ExplorerState {
             /*
                 DRAW IMAGE
              */
-            if (show) {
+            if (!removedNeighbour) {
                 // loop through rows in img
                 for (let imgRow = 0; imgRow < imgH; imgRow += 1) {
                     const explorerRow = ((imgY + imgRow) * explorerW + imgX) * 4;
@@ -766,6 +774,31 @@ export default class ExplorerState {
                         hitmapPixel[c] = node.colorKey[0]; // R
                         hitmapPixel[c + 1] = node.colorKey[1]; // G
                         hitmapPixel[c + 2] = node.colorKey[2]; // B
+                        hitmapPixel[c + 3] = 255; //
+                    }
+                }
+            } else {
+                // loop through rows in img
+                for (let imgRow = 0; imgRow < imgH; imgRow += 1) {
+                    const explorerRow = ((imgY + imgRow) * explorerW + imgX) * 4;
+                    // loop through column in img
+                    for (let imgCol = 0; imgCol < imgW; imgCol += 1) {
+                        const c = explorerRow + imgCol * 4;
+                        const p = (imgRow * imgW + imgCol) * 4;
+                        explorerPixel[c] = imgData[p]; // R
+                        explorerPixel[c + 1] = imgData[p + 1]; // G
+                        explorerPixel[c + 2] = imgData[p + 2]; // B
+                        // special mode for represents // img over other img // white background
+                        explorerPixel[c + 3] = representMaxAlpha && isRepresent
+                            ? 255
+                            : explorerPixel[c + 3]
+                                ? explorerPixel[c + 3] + 10 * node.cliqueLength
+                                : alphaBase + zoomStage * alphaIncrease;
+
+                        // draw hitmap
+                        hitmapPixel[c] = node.colorKey[0]; // R
+                        hitmapPixel[c + 1] = node.colorKey[2]; // G
+                        hitmapPixel[c + 2] = node.colorKey[1]; // B
                         hitmapPixel[c + 3] = 255; //
                     }
                 }
@@ -874,14 +907,13 @@ export default class ExplorerState {
             /*
                 DRAW GROUP BORDER
              */
-            const neighbour = this.groupNeighbours[node.index];
             // TODO Perfomance is maybe bedder without another loop
 
             // draw only if group, label2 or neighbour
             if (
                 !node.group
                 && !node.isNearly
-                && (!neighbour)
+            // && (!neighbour)
             ) return;
 
             const lineColor = neighbour
@@ -1306,15 +1338,21 @@ export default class ExplorerState {
                 // if user removes a neighbour
                 if (this.groupNeighbours[nodeUnderMouse.index]) {
                     // add node to removed neighbours
+                    console.log('remove node from neighbours')
                     this.removedGroupNeighbours[nodeUnderMouse.index] = this.groupNeighbours[
                         nodeUnderMouse.index
                     ];
                     // remove node from neighbours
                     this.groupNeighbours[nodeUnderMouse.index] = undefined;
+                } else if (this.removedGroupNeighbours[nodeUnderMouse.index]) {
+                    // remove node from removed nodes and add it back again to neighbours
+                    console.log('add removed node from neighbours back to neighbours')
+                    this.groupNeighbours[nodeUnderMouse.index] = this.removedGroupNeighbours[nodeUnderMouse.index];
+                    this.removedGroupNeighbours[nodeUnderMouse.index] = undefined
                 } else if (nodeUnderMouse.group) {
-                    nodeUnderMouse.group = false;
-                    nodeUnderMouse.groupId = 0;
-                    this.removedGroupNeighbours[nodeUnderMouse.index] = 1; // 1 is default threshold - isn't uses
+                    // nodeUnderMouse.group = false;
+                    // nodeUnderMouse.groupId = 0;
+                    // this.removedGroupNeighbours[nodeUnderMouse.index] = 1; // 1 is default threshold - isn't uses
                 }
             }
 
