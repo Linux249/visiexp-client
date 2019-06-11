@@ -34,43 +34,43 @@ export default class Node {
         this.imageData = data.imageData;
 
 
-            try {
-                // this.icon = new Image();
-                // this.icon.src = data.buffer;
+        /* try {
+            // this.icon = new Image();
+            // this.icon.src = data.buffer;
 
-                // TODO das kann sicherlich optimiert werden
-                // const canvas = document.createElement('canvas');
-                // const context = canvas.getContext('2d');
-                Object.values(data.pics).forEach((pic, i) => {
-                    this.imageData[i] = new ImageData(
-                        new Uint8ClampedArray(pic.data),
-                        pic.info.width,
-                        pic.info.height,
-                    );
-                    // const img = new Image();
-                    // img.src = pic;
-                    // img.onload = async () => {
-                    //     this.pics[i] = await createImageBitmap(img);
-                    //     canvas.width = img.width;
-                    //     canvas.height = img.height;
-                    //     context.drawImage(img, 0, 0);
-                    //     this.imageData[i] = context.getImageData(0, 0, img.width, img.height);
-                    // };
-                    if (i === 9) {
-                        const canvas = document.createElement('canvas');
-                        const img = this.imageData[i];
-                        canvas.width = img.width; // or 'width' if you want a special/scaled size
-                        canvas.height = img.height; // or 'height' if you want a special/scaled size
+            // TODO das kann sicherlich optimiert werden
+            // const canvas = document.createElement('canvas');
+            // const context = canvas.getContext('2d');
+            Object.values(data.pics).forEach((pic, i) => {
+                this.imageData[i] = new ImageData(
+                    new Uint8ClampedArray(pic.data),
+                    pic.info.width,
+                    pic.info.height,
+                );
+                // const img = new Image();
+                // img.src = pic;
+                // img.onload = async () => {
+                //     this.pics[i] = await createImageBitmap(img);
+                //     canvas.width = img.width;
+                //     canvas.height = img.height;
+                //     context.drawImage(img, 0, 0);
+                //     this.imageData[i] = context.getImageData(0, 0, img.width, img.height);
+                // };
+                if (i === 9) {
+                    const canvas = document.createElement('canvas');
+                    const img = this.imageData[i];
+                    canvas.width = img.width; // or 'width' if you want a special/scaled size
+                    canvas.height = img.height; // or 'height' if you want a special/scaled size
 
-                        canvas.getContext('2d').putImageData(img, 0, 0);
-                        this.icon = canvas.toDataURL('image/png');
-                    }
-                });
-            } catch (e) {
-                console.error(e);
-                console.log(this);
-                console.log(data);
-            }
+                    canvas.getContext('2d').putImageData(img, 0, 0);
+                    this.icon = canvas.toDataURL('image/png');
+                }
+            });
+        } catch (e) {
+            console.error(e);
+            console.log(this);
+            console.log(data);
+        } */
 
         // this._isActive = false; // handle clicked node
         // this.isActiveNeighbour = false; // is this a neighbour of a active node?

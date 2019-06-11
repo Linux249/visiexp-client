@@ -10,7 +10,7 @@
         </div>
         <div class="row hint"># proposals in next iteration</div>
         <div class="row">
-            <div class="btn" @click="getGroupNeighbours">Update<repeat></repeat></div>
+            <div class="btn" @click="getGroupNeighbours" :class="{ active: loading }">Update<repeat></repeat></div>
             <div class="btn" @click="resetNeighbours">Reset<trash></trash></div>
         </div>
     </div>
