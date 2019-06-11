@@ -14,7 +14,7 @@ export default class Node {
         this.clique = data.clique;
         this.cliqueLength = data.clique.length;
 
-        this.cluster = data.cluster;
+        // this.cluster = data.cluster;
         this.isClusterd = true;
         this.isNearly = false;
 
@@ -28,11 +28,13 @@ export default class Node {
         this.image.onload = () => {
             this.hasImage = true;
             this.imgLoading = false;
-        }
+        };
 
-        this.imageData = {};
+        // this.pics = {};
+        this.imageData = data.imageData;
 
-        try {
+        /*
+            try {
             // this.icon = new Image();
             // this.icon.src = data.buffer;
 
@@ -54,7 +56,7 @@ export default class Node {
                 //     context.drawImage(img, 0, 0);
                 //     this.imageData[i] = context.getImageData(0, 0, img.width, img.height);
                 // };
-                /* if (i === 9) {
+                if (i === 9) {
                     const canvas = document.createElement('canvas');
                     const img = this.imageData[i];
                     canvas.width = img.width; // or 'width' if you want a special/scaled size
@@ -62,13 +64,24 @@ export default class Node {
 
                     canvas.getContext('2d').putImageData(img, 0, 0);
                     this.icon = canvas.toDataURL('image/png');
-                } */
-            });
-        } catch (e) {
-            console.error(e);
-            console.log(this);
-            console.log(data);
-        }
+                }
+    });
+} catch (e) {
+    console.error(e);
+    console.log(this);
+    console.log(data);
+}
+         */
+        // this._isActive = false; // handle clicked node
+        // this.isActiveNeighbour = false; // is this a neighbour of a active node?
+
+        // this.image.src = `data:image/jpeg;base64,${data.buffer}`;
+
+        // this.imgScale = null; // used for scaling img width
+        //
+        // this.timerId = 0;
+
+        // this.imgData = makeImgageData(this.icon)
     }
 
     /*

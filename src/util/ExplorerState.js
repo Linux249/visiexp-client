@@ -14,7 +14,7 @@ export default class ExplorerState {
 
         this.hitCtx = hitCanvas.getContext('2d');
 
-        this.valid = true;  // use for checking if draw() is running
+        this.valid = true; // use for checking if draw() is running
         this.nodes = {}; // hash for all nodes
         this.colorHash = {}; // find nodes by color
         this.panning = false; // Keep track of when we are dragging
@@ -311,7 +311,7 @@ export default class ExplorerState {
 
     // todo check where the function is used and if this is fine with updateCluster on every draw
     createSuperCluster() {
-        console.time('build superClusterIndex');
+        console.time('update clustering');
         console.time('create geoPoints');
         // parse nodes into suitable format for supercluster
         const geoPoints = Object.values(this.nodes).map(n => ({
@@ -326,63 +326,32 @@ export default class ExplorerState {
             },
         }));
         console.timeEnd('create geoPoints');
-        console.log({ geoPoints });
-
-        // TODO find the best radius
+        // console.log({ geoPoints });
 
         // calculated the supercluster
         this.supercluster = supercluster({
             radius: this.clusterRadius,
             maxZoom: this.maxZoomLvl,
             extend: this.clusterTile,
-            log: true,
+            log: false,
         });
         this.supercluster.load(geoPoints);
-        console.timeEnd('build superClusterIndex');
-        console.log(this.supercluster);
-
-        // testing
-
-        /* const notClusterd = [];
-        const clusterd = [];
-        cluster.forEach((e) => {
-            if (e.properties.index) {
-                notClusterd.push(e.properties.index);
-            }
-        });
-        cluster.forEach((e) => {
-            if (e.id) {
-                clusterd.push(e);
-                console.log(e);
-                const geclustert = superClusterIndex.getLeaves(e.id);
-                console.log(geclustert);
-                geclustert.forEach((c, i) => {
-                    console.log(`${c.properties.index}
-                    ${notClusterd.includes(c.properties.index)}`);
-                });
-                // test tile: tile never get results...
-                /!* console.log("TILE")
-                const tile = superClusterIndex.getTile(
-                zoomStage, e.geometry.coordinates[0], e.geometry.coordinates[1])
-                console.log(tile) *!/
-                // find represent: test if fist value suits
-            }
-        });
-        console.log('not clustered items count');
-        console.log(notClusterd.length);
-        console.log('cluster count');
-        console.log(clusterd.length); */
+        console.timeEnd('update clustering');
         this.triggerDraw();
     }
 
+    distance(v1, v2) {
+        return Math.hypot(v2[0] - v1[0], v2[1] - v1[1]);
+    }
+
+
+    // todo nodes can be saved for: draw only the nodes from here 'in the rect'
     updateClustering(init) {
         console.time('updateClustering');
-        function distance(v1, v2) {
-            return Math.hypot(v2[0] - v1[0], v2[1] - v1[1]);
-        }
+
         // TODO remove after right implementation
         if (!this.supercluster) return;
-        //console.time('get cluster');
+        // console.time('get cluster');
         const {
             zoomStage,
             scale,
@@ -392,11 +361,12 @@ export default class ExplorerState {
             translateY: ty,
         } = this;
 
+        // todo here kann man das kleiner machen um bilder nicht übern rand zu zeichnen
         const rect = [-tx / scale, -ty / scale, (explorerW - ty) / scale, (explorerH - ty) / scale];
 
         // get clustering for current section (viewbox)
         const cluster = this.supercluster.getClusters(rect, zoomStage);
-        //console.timeEnd('get cluster');
+        // console.timeEnd('get cluster');
         // console.log(rect);
         // console.log(cluster);
 
@@ -421,7 +391,7 @@ export default class ExplorerState {
                     node.isClusterd = true;
                     if (init) console.log([node.x, node.y]);
                     if (init) console.log(p.geometry.coordinates);
-                    const dist = distance(p.geometry.coordinates, c.geometry.coordinates);
+                    const dist = this.distance(p.geometry.coordinates, c.geometry.coordinates);
                     if (init) console.log(dist);
                     if (dist < min) {
                         min = dist;
@@ -602,12 +572,12 @@ export default class ExplorerState {
     //     return this.scaleTest;
     // }
 
-    scaleTestDraw = () => {
-        if (this.scaleTest) {
-            console.log('scaleTestDraw');
-            requestAnimationFrame(this.scaleTestDraw);
-        }
-    };
+    // scaleTestDraw = () => {
+    //     if (this.scaleTest) {
+    //         console.log('scaleTestDraw');
+    //         requestAnimationFrame(this.scaleTestDraw);
+    //     }
+    // };
 
     updateGroupCount() {
         // build counter
@@ -654,7 +624,7 @@ export default class ExplorerState {
             sizeRankedMode,
             gradient,
             clusterMode,
-            oldClusterMode,
+            // oldClusterMode,
             neighbourMode,
             representMaxAlpha,
             repsMode,
@@ -675,15 +645,14 @@ export default class ExplorerState {
                 ? zoomStage + Math.floor(node.rank * this.sizeRange)
                 : zoomStage;
             imgSize += this.imgSize; // add imgSize from user input
-            const isRepresent = (clusterMode && !node.isClusterd)
-                || (oldClusterMode && node.cluster < this.cluster);
+            const isRepresent = (clusterMode && !node.isClusterd);
+            // || (oldClusterMode && node.cluster < this.cluster);
 
             if (neighbourMode && !node.group) {
                 // the node should not be in the neighbours list
                 const neighbour = this.groupNeighbours[node.index];
-                if (neighbour && neighbour <= this.ui.neighboursThreshold) {
-                    imgSize += this.neighbourImgSize;
-                } else return;
+                if (neighbour) imgSize += this.neighbourImgSize;
+                else return;
             } else if (isRepresent) imgSize += representImgSize;
 
             if (imgSize < 0) imgSize = 0;
@@ -912,7 +881,7 @@ export default class ExplorerState {
             if (
                 !node.group
                 && !node.isNearly
-                && (!neighbour || neighbour > this.ui.neighboursThreshold)
+                && (!neighbour)
             ) return;
 
             const lineColor = neighbour
@@ -1103,7 +1072,7 @@ export default class ExplorerState {
         // console.timeEnd('draw');
         const endTime = window.performance.now();
         const time = endTime - startTime;
-        this.perfLogs.draw.push(time);
+        if (this.ui.showLogs) this.perfLogs.draw.push(time);
         if (time > this.maxDrawTime) {
             this.maxDrawTime = time;
             console.warn('new max draw time');
@@ -1336,9 +1305,11 @@ export default class ExplorerState {
             if (this.ui.neighbourMode) {
                 // if user removes a neighbour
                 if (this.groupNeighbours[nodeUnderMouse.index]) {
+                    // add node to removed neighbours
                     this.removedGroupNeighbours[nodeUnderMouse.index] = this.groupNeighbours[
                         nodeUnderMouse.index
                     ];
+                    // remove node from neighbours
                     this.groupNeighbours[nodeUnderMouse.index] = undefined;
                 } else if (nodeUnderMouse.group) {
                     nodeUnderMouse.group = false;

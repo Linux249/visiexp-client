@@ -6,19 +6,9 @@
                 <router-link to="/svm">SVM</router-link>
                 <router-link to="/classifier">Classifier</router-link>
                 <router-link to="/Dataset">Dataset</router-link>
-                <!--
-                <router-link to="/triplets">Triplets</router-link>
-                <router-link to="/neighbours">Neighbours</router-link>
-                <router-link to="/labels">Labels</router-link>
-                -->
             </div>
             <div class="right-header">
-                <!--
-                <router-link to="/modes">modes</router-link>
-                -->
-                <div @click="doubleNodes" class="btn">
-                    double
-                </div><div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">
+                <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">
                     Options
                 </div>
                 <div @click="sendData" class="btn" :class="{ active: loadingNodes }">
@@ -260,16 +250,41 @@
                         <div class="row">
                             <div @click="changeClusterRadius(-1)" class="btn"><minus></minus></div>
                             <div @click="changeClusterRadius(1)" class="btn"><plus></plus></div>
-                            <div @click="superCluster()" class="btn">update</div>
+                            <div @click="updateCluster()" class="btn">update</div>
+                        </div>
+                    </div>
+                    <div class="option-title">Performance</div>
+                    <div class="row-btn">
+                        <div>Monitor</div>
+                        <div @click="toggleShowLogs" class="btn" :class="{ active: showLogs }">
+                            {{ showLogs ? 'On' : 'Off' }}
                         </div>
                     </div>
                     <div class="row-btn">
-                        <div>Cluster: tile: {{ clusterTile }}</div>
-                        <div class="row">
-                            <div @click="changeClusterTile(-1)" class="btn"><minus></minus></div>
-                            <div @click="changeClusterTile(1)" class="btn"><plus></plus></div>
+                        <div>Show Hitmap</div>
+                        <div @click="toggleShowHitmap" class="btn" :class="{ active: toggle }">
+                            {{ toggle ? 'On' : 'Off' }}
                         </div>
                     </div>
+
+
+                    <div class="option-title">Others</div>
+                    <div class="row-btn">
+                        <div>Double Nodes</div>
+                        <div @click="doubleNodes" class="btn">double</div>
+                    </div>
+                    <div class="row-btn">
+                        <div>100xDraw</div>
+                        <div class="btn">TODO</div>
+                    </div>
+
+                    <!--<div class="row-btn">-->
+                        <!--<div>Cluster: tile: {{ clusterTile }}</div>-->
+                        <!--<div class="row">-->
+                            <!--<div @click="changeClusterTile(-1)" class="btn"><minus></minus></div>-->
+                            <!--<div @click="changeClusterTile(1)" class="btn"><plus></plus></div>-->
+                        <!--</div>-->
+                    <!--</div>-->
 
                 </div>
 
@@ -370,7 +385,21 @@
                         </div>
                     </div>
                 </div>
-                <logs :getStore="getStore" />
+
+                <div v-if="showInfo" class="area info-box">
+                    <div class="row v-center">
+                        1. mark images with <div class="btn">STRG+Click</div> or <scissors class="btn"></scissors>
+                    </div>
+                    <div class="row v-center">2. create groups</div>
+                    <div class="row v-center">3. get proposals with <play class="btn"></play></div>
+                    <div class="row v-center">4. remove wrong with <div class="btn">Click</div></div>
+                    <div class="row v-center">5. update proposals and iterate</div>
+                    <div class="row v-center">6. repeat with other groups</div>
+                    <div class="row v-center">7. update embedding</div>
+                    <div class="btn" @click="showInfo = !showInfo">Close info</div>
+                </div>
+
+                <logs v-if="showLogs" :getStore="getStore" />
             </div>
         </div>
     </div>
@@ -404,7 +433,7 @@ import { apiUrl } from '../config/apiUrl';
 export default {
     store: null,
     name: 'TsneMap',
-    props: ['dataset', 'switchDataset'],
+    props: ['dataset', 'switchDataset', 'userId'],
     components: {
         Scissors,
         X,
@@ -459,8 +488,8 @@ export default {
         showNavHeatmap: false,
         sizeRankedMode: false,
         boarderRankedMode: false,
-        clusterMode: false,
-        oldClusterMode: false,
+        clusterMode: false,     // flag if first clustering was calculated
+        // oldClusterMode: false,
         neighbourMode: false,
         repsMode: 0,
         gradient: [
@@ -507,13 +536,15 @@ export default {
         autoUpdateEmbedding: false,
         socketId: '',
         // dataset: '001', // defualt value is 001
-        neighboursThreshold: 0.2,
+        neighboursThreshold: 15,
         activeGroupId: 0,
         representMaxAlpha: false,
         savedGroups: [],
         groupName: '',
         groupCounter: 0, // 0 is no group, counter inc for first use
         groupColours: groupColors,
+        showLogs: false,
+        showInfo: true,
     }),
     methods: {
         getNode(i) {
@@ -530,7 +561,7 @@ export default {
             if (!this.loadingNodes) {
                 // this.store.resetStore();
                 this.loadingNodes = true;
-                this.socket.emit('updateEmbedding', { nodes, datasetId: this.dataset });
+                this.socket.emit('updateEmbedding', { nodes, datasetId: this.dataset, userId: this.userId });
                 // this.reset();
             }
         },
@@ -769,6 +800,10 @@ export default {
             this.store.triggerDraw();
         },
 
+        toggleShowHitmap() {
+            this.toggle = !this.toggle;
+        },
+
         changeGradientColor(i) {
             console.log('changeGradientColor');
             // console.log(this.gradient);
@@ -798,6 +833,7 @@ export default {
                     const body = JSON.stringify({
                         nodes: this.store.getNodes(),
                         socketId: this.socketId,
+                        userId: this.userId,
                     });
                     await fetch(`${apiUrl}/api/v1/startUpdateEmbedding`, {
                         method: 'POST',
@@ -817,7 +853,7 @@ export default {
             // TODO trigger reload of datas
         },
 
-        superCluster() {
+        updateCluster() {
             this.store.createSuperCluster();
         },
 
@@ -890,6 +926,9 @@ export default {
             this.neighbourMode = !this.neighbourMode;
             this.store.triggerDraw();
         },
+        toggleShowLogs() {
+            this.showLogs = !this.showLogs;
+        },
     },
 
     mounted() {
@@ -959,7 +998,7 @@ export default {
             console.log('nodes in store while connect (its maybe just a reconnect)');
             console.log(nodes);
             if (!Object.keys(nodes).length && !this.loadingNodes) {
-                socket.emit('getNodes', { datasetId: this.dataset });
+                socket.emit('getNodes', { datasetId: this.dataset, userId: this.userId });
                 this.reset();
             }
         });
@@ -996,13 +1035,90 @@ export default {
         });
 
         socket.on('totalNodesCount', (data) => {
-            // console.log('Socket: totalNodesCount');
-            // console.log(data);
+            console.log('Socket: totalNodesCount');
+            console.log(data);
             this.nodesTotal = data.count;
         });
 
-        socket.on('allNodesSend', () => {
-            console.log('Socket: allNodesSend');
+        socket.on('sendAllNodes', async (nodes) => {
+            console.log('Socket: sendAllNodes');
+            console.log(nodes);
+            const state = this;
+
+            async function consume(reader) {
+                // let total = 0;
+                let w = 0;
+                let h = 1; // point to w/h positions in the buffer
+                let size = 0; // actual size of the images
+                let readFromChunk = 0; // save ow many bytes from the chunk are used
+                let picByteLen = 0; // len of the pic to read
+                let nodeId = 0; // starting node id
+                let oldChunk = new Uint8Array(); // save the rest of the unused chunk
+
+
+                function pump() {
+                    return reader.read().then(({ done, value }) => {
+                        if (done) {
+                            console.log('finish request');
+                            return;
+                        }
+                        // merge rest of old chunk with new chunk for cleaner code
+                        const chunk = new Uint8Array(oldChunk.length + value.length);
+                        chunk.set(oldChunk);
+                        chunk.set(value, oldChunk.length);
+                        readFromChunk = 0; // reset
+                        picByteLen = chunk[w] * chunk[h] * 4; // test if the hole image is in chunk
+
+                        // check if a hole image is in the chunk or if the data are part of the next one
+                        while (picByteLen <= chunk.byteLength - readFromChunk - 2) {
+                            if (!nodes[nodeId].imageData) nodes[nodeId].imageData = Object.create(null);
+
+                            nodes[nodeId].imageData[size] = new ImageData(
+                                new Uint8ClampedArray(chunk.slice(h + 1, h + picByteLen + 1)),
+                                chunk[w],
+                                chunk[h],
+                            );
+
+                            // update vars for reading bytes
+                            readFromChunk += picByteLen + 2; // 2 bytes for w/h
+                            w += picByteLen + 2;
+                            h += picByteLen + 2;
+                            picByteLen = chunk[w] * chunk[h] * 4; // len of the next pic
+                            if (size < 14) {
+                                size += 1;
+                            } else {
+                                size = 0;
+                                state.nodesRecived += 1;
+                                store.addNode(new Node(nodes[nodeId]));
+                                store.triggerDraw();
+                                nodeId += 1;
+                                // todo the node can now be established
+                            }
+                        }
+
+                        oldChunk = new Uint8Array(chunk.slice(readFromChunk));
+                        w = 0;
+                        h = 1;
+                        return pump();
+                    });
+                }
+                return pump();
+            }
+
+            const data = await fetch(`${apiUrl}/api/v1/dataset/${this.dataset}`)
+                .then(async (res) => {
+                    console.log(res);
+                    console.log(res.headers);
+                    console.log(res.headers.get('content-length'));
+                    await consume(res.body.getReader());
+                })
+                .then((e) => {
+                    console.log(e);
+                    console.log('consumed the entire body without keeping the whole thing in memory!');
+                })
+                .catch(e => console.log(`something went wrong: ${e}`));
+
+
             this.loadingNodes = false;
             this.activateClusterMode();
             console.timeEnd('loadAllNodes');
@@ -1016,8 +1132,7 @@ export default {
 
         socket.on('updateEmbedding', (data, cb) => {
             console.log('Socket: updateEmbedding');
-            // console.log(data);
-
+            console.log(data);
             // not every handler sends a cb
             if (cb) cb({ stopped: this.autoUpdateEmbedding });
             this.store.updateNodes(data.nodes);
@@ -1168,6 +1283,9 @@ export default {
     justify-content: space-between;
     align-items: center;
     padding: 0 0.5rem;
+}
+.info-box{
+    padding: 0.5rem;
 }
 
 .active-img {

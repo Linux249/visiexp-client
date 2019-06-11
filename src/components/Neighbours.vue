@@ -1,13 +1,14 @@
 <template>
     <div class="area">
         <div class="title">Similars</div>
-        <div class="btn between">
-            {{neighboursThreshold}}
+        <div class="between">
             <range-slider
                 :value="neighboursThreshold"
                 :change="changeNeighboursThreshold"
             ></range-slider>
+            <div class="btn">{{neighboursThreshold}}</div>
         </div>
+        <div class="row hint"># proposals in next iteration</div>
         <div class="row">
             <div class="btn" @click="getGroupNeighbours">Update<repeat></repeat></div>
             <div class="btn" @click="resetNeighbours">Reset<trash></trash></div>
@@ -23,7 +24,7 @@ import { apiUrl } from '../config/apiUrl';
 
 export default {
     name: 'Neighbours',
-    props: ['getStore', 'neighboursThreshold', 'changeNeighboursThreshold', 'activeGroupId'],
+    props: ['getStore', 'neighboursThreshold', 'changeNeighboursThreshold', 'activeGroupId', ],
     components: {
         RangeSlider,
         Repeat,
@@ -42,12 +43,15 @@ export default {
     methods: {
         async getGroupNeighbours() {
             try {
+                console.log('getGroupNeighbours')
+                console.log(this.$parent.userId)
                 this.loading = true;
                 const store = this.getStore();
                 const body = {
                     group: store.getGroupIdsByGroupId(this.activeGroupId),
                     threshold: this.neighboursThreshold,
                     groupId: this.activeGroupId,
+                    userId: this.$parent.userId,
                 };
                 const { groupNeighbours, removedGroupNeighbours } = store;
                 // add neighbours to body depending on existing
@@ -87,4 +91,11 @@ export default {
 </script>
 
 <style scoped>
+.hint {
+    font-size: small;
+    font-style: italic;
+    padding-left: 0.5rem;
+    padding-top: -0.5rem;
+    margin-bottom: 0.5rem;
+}
 </style>
