@@ -50,7 +50,7 @@ export default class ExplorerState {
 
         this.imgSize = 0; // for adding higher img size as standart
         this.representImgSize = 5;
-        this.neighbourImgSize = 7;
+        this.neighbourImgSize = 15;
 
         this._clusterGrowth = 1.2;
 
@@ -785,7 +785,9 @@ export default class ExplorerState {
                     for (let imgCol = 0; imgCol < imgW; imgCol += 1) {
                         const c = explorerRow + imgCol * 4;
                         const p = (imgRow * imgW + imgCol) * 4;
-                        explorerPixel[c] = imgData[p]; // R
+
+                        // red cast
+                        explorerPixel[c] = 255; // imgData[p]; // R
                         explorerPixel[c + 1] = imgData[p + 1]; // G
                         explorerPixel[c + 2] = imgData[p + 2]; // B
                         // special mode for represents // img over other img // white background
@@ -797,8 +799,8 @@ export default class ExplorerState {
 
                         // draw hitmap
                         hitmapPixel[c] = node.colorKey[0]; // R
-                        hitmapPixel[c + 1] = node.colorKey[2]; // G
-                        hitmapPixel[c + 2] = node.colorKey[1]; // B
+                        hitmapPixel[c + 1] = node.colorKey[1]; // G
+                        hitmapPixel[c + 2] = node.colorKey[2]; // B
                         hitmapPixel[c + 3] = 255; //
                     }
                 }
