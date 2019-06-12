@@ -1105,7 +1105,7 @@ export default {
                 return pump();
             }
 
-            const data = await fetch(`${apiUrl}/api/v1/dataset/${this.dataset}`)
+            await fetch(`${apiUrl}/api/v1/dataset/images/${this.dataset}`)
                 .then(async (res) => {
                     console.log(res);
                     console.log(res.headers);
