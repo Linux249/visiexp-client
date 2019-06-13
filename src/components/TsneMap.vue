@@ -275,7 +275,7 @@
                     </div>
                     <div class="row-btn">
                         <div>100xDraw</div>
-                        <div class="btn">TODO</div>
+                        <div class="btn" @click="testPerformance">TODO</div>
                     </div>
 
                     <!--<div class="row-btn">-->
@@ -929,6 +929,10 @@ export default {
         toggleShowLogs() {
             this.showLogs = !this.showLogs;
         },
+
+        testPerformance() {
+            this.store.testPerformance()
+        }
     },
 
     mounted() {

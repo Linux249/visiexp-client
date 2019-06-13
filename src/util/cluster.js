@@ -85,9 +85,11 @@ SuperCluster.prototype = {
 
         const tree = this.trees[this._limitZoom(zoom)];
         const ids = tree.range(lngX(minLng), latY(maxLat), lngX(maxLng), latY(minLat));
+        console.log({ids})
         const clusters = [];
         for (let i = 0; i < ids.length; i++) {
             const c = tree.points[ids[i]];
+            console.log(c)
             clusters.push(c.numPoints ? getClusterJSON(c) : this.points[c.index]);
         }
         return clusters;
@@ -273,6 +275,7 @@ SuperCluster.prototype = {
             }
 
             if (numPoints === 1) {
+                p.isClusterd = true
                 clusters.push(p);
             } else {
                 p.parentId = id;
@@ -292,7 +295,7 @@ SuperCluster.prototype = {
     },
 };
 
-function createCluster(x, y, id, numPoints, properties) {
+function createCluster(x, y, id, numPoints, properties, ) {
     return {
         x, // weighted cluster center
         y,

@@ -1,4 +1,4 @@
-import supercluster from 'supercluster';
+import supercluster from './cluster';
 import groupColors from '../config/groupColors';
 
 export default class ExplorerState {
@@ -92,7 +92,8 @@ export default class ExplorerState {
             draw: [],
             hitmap: [],
         };
-        this.scaleTest = false;
+        this.performanceTest = false;
+        this.datas = [];
     }
 
     set sizeRange(v) {
@@ -309,9 +310,45 @@ export default class ExplorerState {
         this.triggerDraw();
     }
 
+    testPerformance(n = 100) {
+        console.log('test performance: times from last one');
+        console.log(this.perfLogs.draw);
+        const sorted = this.perfLogs.draw.sort();
+        const min = sorted[0];
+        const max = sorted[n - 1];
+        const median = (sorted[49] + sorted[50]) / 2;
+        const firstQuantil = (sorted[24] + sorted[25]) / 2;
+        const thirdQuantil = (sorted[74] + sorted[74]) / 2;
+
+        const avrg = sorted.reduce((e, a) => a + e, 0) / sorted.length;
+
+        const data = {
+            nodes: Object.keys(this.nodes).length,
+            times: n,
+            min,
+            max,
+            '1. Q': firstQuantil,
+            '2. Q (M)': median,
+            '3. Q (M)': thirdQuantil,
+            avrg,
+        };
+        this.datas.push(data);
+        console.table(this.datas);
+
+        this.performanceTest = true;
+        this.perfLogs.draw = [];
+        for (let i = 0; i < n; i += 1) {
+            window.requestAnimationFrame(() => this.draw());
+        }
+
+        // this.performanceTest = false;
+        console.log('test performance end');
+        console.log(this.perfLogs.draw);
+    }
+
     // todo check where the function is used and if this is fine with updateCluster on every draw
     createSuperCluster() {
-        console.time('update clustering');
+        console.time('update createSuperCluster');
         console.time('create geoPoints');
         // parse nodes into suitable format for supercluster
         const geoPoints = Object.values(this.nodes).map(n => ({
@@ -323,6 +360,7 @@ export default class ExplorerState {
             },
             properties: {
                 index: n.index,
+                isClusterd: false,
             },
         }));
         console.timeEnd('create geoPoints');
@@ -336,7 +374,7 @@ export default class ExplorerState {
             log: false,
         });
         this.supercluster.load(geoPoints);
-        console.timeEnd('update clustering');
+        console.timeEnd('update createSuperCluster');
         this.triggerDraw();
     }
 
@@ -350,6 +388,7 @@ export default class ExplorerState {
         console.time('updateClustering');
 
         // TODO remove after right implementation
+        //  +
         if (!this.supercluster) return;
         // console.time('get cluster');
         const {
@@ -1106,7 +1145,8 @@ export default class ExplorerState {
         // console.timeEnd('draw');
         const endTime = window.performance.now();
         const time = endTime - startTime;
-        if (this.ui.showLogs) this.perfLogs.draw.push(time);
+        // console.log(`Draw: ${time}`);
+        if (this.ui.showLogs || this.performanceTest) this.perfLogs.draw.push(time);
         if (time > this.maxDrawTime) {
             this.maxDrawTime = time;
             console.warn('new max draw time');
@@ -1116,9 +1156,7 @@ export default class ExplorerState {
         this.valid = true;
         if (this.ui.showHeatmap) requestAnimationFrame(this.ui.drawHeatmap);
         // if (this.ui.showNavMap) requestAnimationFrame(this.ui.drawNavMapRect);
-        if (this.ui.showNavHeatmap) {
-            requestAnimationFrame(this.ui.drawNavHeatmapRect);
-        }
+        if (this.ui.showNavHeatmap) requestAnimationFrame(this.ui.drawNavHeatmapRect);
     }
 
     zoom(wheelEvent) {
@@ -1340,7 +1378,7 @@ export default class ExplorerState {
                 // if user removes a neighbour
                 if (this.groupNeighbours[nodeUnderMouse.index]) {
                     // add node to removed neighbours
-                    console.log('remove node from neighbours')
+                    console.log('remove node from neighbours');
                     this.removedGroupNeighbours[nodeUnderMouse.index] = this.groupNeighbours[
                         nodeUnderMouse.index
                     ];
@@ -1348,9 +1386,9 @@ export default class ExplorerState {
                     this.groupNeighbours[nodeUnderMouse.index] = undefined;
                 } else if (this.removedGroupNeighbours[nodeUnderMouse.index]) {
                     // remove node from removed nodes and add it back again to neighbours
-                    console.log('add removed node from neighbours back to neighbours')
+                    console.log('add removed node from neighbours back to neighbours');
                     this.groupNeighbours[nodeUnderMouse.index] = this.removedGroupNeighbours[nodeUnderMouse.index];
-                    this.removedGroupNeighbours[nodeUnderMouse.index] = undefined
+                    this.removedGroupNeighbours[nodeUnderMouse.index] = undefined;
                 } else if (nodeUnderMouse.group) {
                     // nodeUnderMouse.group = false;
                     // nodeUnderMouse.groupId = 0;
