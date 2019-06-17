@@ -360,8 +360,8 @@ export default class ExplorerState {
             },
             properties: {
                 index: n.index,
-                isClusterd: false,
             },
+            nodeId: n.index
         }));
         console.timeEnd('create geoPoints');
         // console.log({ geoPoints });
@@ -407,7 +407,7 @@ export default class ExplorerState {
         const cluster = this.supercluster.getClusters(rect, zoomStage);
         // console.timeEnd('get cluster');
         // console.log(rect);
-        // console.log(cluster);
+        // console.log({cluster});
 
         // console.log(cluster);
         cluster.forEach((c) => {
@@ -438,6 +438,7 @@ export default class ExplorerState {
                     }
                 });
                 if (init) console.log({ centroidId, min });
+                console.log({ centroidId, id: c.properties.centroidId});
                 // set centroid as represent
                 this.nodes[centroidId].isClusterd = false;
             }

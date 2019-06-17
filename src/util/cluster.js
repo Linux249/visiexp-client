@@ -1,5 +1,5 @@
 
-import kdbush from 'kdbush';
+import Kdbush from 'kdbush';
 
 export default function supercluster(options) {
     return new SuperCluster(options);
@@ -18,15 +18,6 @@ SuperCluster.prototype = {
         extent: 512, // tile extent (radius is calculated relative to it)
         nodeSize: 64, // size of the KD-tree leaf node, affects performance
         log: false, // whether to log timing info
-
-        // a reduce function for calculating custom cluster properties
-        reduce: null, // function (accumulated, props) { accumulated.sum += props.sum; }
-
-        // initial properties of a cluster (before running the reducer)
-        initial() { return {}; }, // function () { return {sum: 0}; },
-
-        // properties to use for individual points when running the reducer
-        map(props) { return props; }, // function (props) { return {sum: props.my_value}; },
     },
 
     load(points) {
@@ -42,12 +33,14 @@ SuperCluster.prototype = {
         // generate a cluster object for each point and index input points into a KD-tree
         let clusters = [];
         for (let i = 0; i < points.length; i++) {
+            // each point needs the geometry propertie
+            // todo thats useless
             if (!points[i].geometry) {
                 continue;
             }
             clusters.push(createPointCluster(points[i], i));
         }
-        this.trees[this.options.maxZoom + 1] = kdbush(clusters, getX, getY, this.options.nodeSize, Float32Array);
+        this.trees[this.options.maxZoom + 1] = new Kdbush(clusters, getX, getY, this.options.nodeSize, Float32Array);
 
         if (log) console.timeEnd(timerId);
 
@@ -58,7 +51,7 @@ SuperCluster.prototype = {
 
             // create a new set of clusters for the zoom and index them with a KD-tree
             clusters = this._cluster(clusters, z);
-            this.trees[z] = kdbush(clusters, getX, getY, this.options.nodeSize, Float32Array);
+            this.trees[z] = new Kdbush(clusters, getX, getY, this.options.nodeSize, Float32Array);
 
             if (log) console.log('z%d: %d clusters in %dms', z, clusters.length, +Date.now() - now);
         }
@@ -85,11 +78,11 @@ SuperCluster.prototype = {
 
         const tree = this.trees[this._limitZoom(zoom)];
         const ids = tree.range(lngX(minLng), latY(maxLat), lngX(maxLng), latY(minLat));
-        console.log({ids})
+        // console.log({ids})
         const clusters = [];
         for (let i = 0; i < ids.length; i++) {
             const c = tree.points[ids[i]];
-            console.log(c)
+            console.log(c);
             clusters.push(c.numPoints ? getClusterJSON(c) : this.points[c.index]);
         }
         return clusters;
@@ -246,20 +239,16 @@ SuperCluster.prototype = {
             let wx = p.x * numPoints;
             let wy = p.y * numPoints;
 
-            let clusterProperties = null;
-
-            if (this.options.reduce) {
-                clusterProperties = this.options.initial();
-                this._accumulate(clusterProperties, p);
-            }
-
             // encode both zoom and point index on which the cluster originated
             const id = (i << 5) + (zoom + 1);
 
+
+            const all = [];
             for (let j = 0; j < neighborIds.length; j++) {
                 const b = tree.points[neighborIds[j]];
                 // filter out neighbors that are already processed
                 if (b.zoom <= zoom) continue;
+                all.push(b);
                 b.zoom = zoom; // save the zoom (so it doesn't get processed twice)
 
                 const numPoints2 = b.numPoints || 1;
@@ -268,34 +257,54 @@ SuperCluster.prototype = {
 
                 numPoints += numPoints2;
                 b.parentId = id;
-
-                if (this.options.reduce) {
-                    this._accumulate(clusterProperties, b);
-                }
             }
+            // console.log({all})
+
 
             if (numPoints === 1) {
-                p.isClusterd = true
+                p.isClusterd = true;
                 clusters.push(p);
             } else {
                 p.parentId = id;
-                clusters.push(createCluster(wx / numPoints, wy / numPoints, id, numPoints, clusterProperties));
+                let centroidId = null;
+                let min = Infinity;
+                const x = wx / numPoints;
+                const y = wy / numPoints;
+                if (!all.length) {
+                    centroidId = p.properties.centroidId;
+                } else {
+                    if (p.properties && p.properties.centroidId) {
+                        const pp = this.points[p.id >> 5];
+                        min = distance([pp.x, pp.y], [x, y]);
+                        centroidId = pp.properties.index;
+                    }
+                    all.forEach((poi) => {
+                        const dist = distance([poi.x, poi.y], [x, y]);
+                        if (dist < min) {
+                            min = dist;
+                            // console.log('new rep')
+                            // console.log({p})
+                            centroidId = this.points[poi.index || poi.id >> 5].properties.index;
+                        }
+                    });
+                }
+                // console.error(p)
+                // console.log(id - id >> 5, x, y, id >> 5, numPoints, properties, all)
+                clusters.push(createCluster(x, y, id, numPoints, { centroidId }, all));
             }
         }
 
         return clusters;
     },
 
-    _accumulate(clusterProperties, point) {
-        const properties = point.numPoints
-            ? point.properties
-            : this.options.map(this.points[point.index].properties);
-
-        this.options.reduce(clusterProperties, properties);
-    },
 };
 
-function createCluster(x, y, id, numPoints, properties, ) {
+
+function distance(v1, v2) {
+    return Math.hypot(v2[0] - v1[0], v2[1] - v1[1]);
+}
+
+function createCluster(x, y, id, numPoints, properties, all) {
     return {
         x, // weighted cluster center
         y,
@@ -307,6 +316,7 @@ function createCluster(x, y, id, numPoints, properties, ) {
     };
 }
 
+// point cluster have just one point inside, on initialisation very point become such a cluster
 function createPointCluster(p, id) {
     const coords = p.geometry.coordinates;
     return {
@@ -331,14 +341,14 @@ function getClusterJSON(cluster) {
 }
 
 function getClusterProperties(cluster) {
-    const count = cluster.numPoints;
-    const abbrev = count >= 10000 ? `${Math.round(count / 1000)}k`
-        : count >= 1000 ? `${Math.round(count / 100) / 10}k` : count;
+    // const count = cluster.numPoints;
+    /* const abbrev = count >= 10000 ? `${Math.round(count / 1000)}k`
+        : count >= 1000 ? `${Math.round(count / 100) / 10}k` : count; */
     return extend(extend({}, cluster.properties), {
         cluster: true,
         cluster_id: cluster.id,
-        point_count: count,
-        point_count_abbreviated: abbrev,
+        point_count: cluster.numPoints,
+        // point_count_abbreviated: abbrev,
     });
 }
 
