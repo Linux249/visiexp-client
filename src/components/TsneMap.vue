@@ -272,9 +272,6 @@
                             {{ toggle ? 'On' : 'Off' }}
                         </div>
                     </div>
-
-
-                    <div class="option-title">Others</div>
                     <div class="row-btn">
                         <div>Double Nodes</div>
                         <div @click="doubleNodes" class="btn">double</div>
@@ -708,7 +705,7 @@ export default {
 
         activateClusterMode() {
             this.clusterMode = true;
-            this.store.createSuperCluster();
+            this.store.createCluster();
         },
 
         changeImgSize(v) {
@@ -862,7 +859,7 @@ export default {
         },
 
         updateCluster() {
-            this.store.createSuperCluster();
+            this.store.createCluster();
         },
 
         changeRepresentImgSize(v) {
@@ -1153,7 +1150,7 @@ export default {
             if (cb) cb({ stopped: this.autoUpdateEmbedding });
             this.store.updateNodes(data.nodes);
             // todo check if necessary after have a good solution for best place for init clustering
-            this.store.createSuperCluster();
+            this.store.createCluster();
             this.loadingNodes = false;
         });
         // this.updateCanvas();

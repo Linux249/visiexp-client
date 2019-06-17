@@ -39,20 +39,26 @@ export default class ExplorerState {
         this.scissorsEndY = 0;
         this.scissiorColor = [56, 130, 255];
 
-        this._cluster = 100;
+        // this._cluster = 100;
         this._clusterRadius = 20;
         this._clusterTile = 5;
         this.supercluster = supercluster(); // TODO check best init for this var
 
+
         this._scale = 20;
         this._scaleFaktor = 0;
-        this._zoomStage = 0; // default zoom stage, 0 is the smalest pic
+        this._zoomStage = 0; // default zoom stage, 0 is the smallest pic
+        this.maxZoomLvl = 20; // granite the max zoom lvl
+        this.clusteringOnZoomStages = new Object(null);
+        for (let z = this._zoomStage; z < this.maxZoomLvl; z += 1) {
+            this.clusteringOnZoomStages[z] = false;
+        }
 
         this.imgSize = 0; // for adding higher img size as standart
         this.representImgSize = 5;
         this.neighbourImgSize = 15;
 
-        this._clusterGrowth = 1.2;
+        // this._clusterGrowth = 1.2;
 
         // this.offsetLeft = canvas.getBoundingClientRect().left;
         // this.offsetTop = canvas.getBoundingClientRect().top;
@@ -73,9 +79,6 @@ export default class ExplorerState {
         this.sortedNodes = [];
         this.sorted = false;
         this.sizeRange = 3;
-
-        // garantie the max zoom lvl
-        this.maxZoomLvl = 20;
 
         this._moveGroupToMouse = false;
 
@@ -154,17 +157,17 @@ export default class ExplorerState {
         return this._translateY;
     }
 
-    set cluster(value) {
+    /* set cluster(value) {
         // console.log(this._cluster);
         if (value < 1) this._cluster = 1;
         else this._cluster = value;
         this.triggerDraw();
         this.ui.cluster = this.cluster;
-    }
+    } */
 
-    get cluster() {
+    /* get cluster() {
         return this._cluster;
-    }
+    } */
 
     set clusterRadius(value) {
         if (value < 1) this._clusterRadius = 1;
@@ -236,6 +239,12 @@ export default class ExplorerState {
         a.click();
     }
 
+    resetClusteringOnZoomStages() {
+        for (let z = this._zoomStage; z < this.maxZoomLvl; z += 1) {
+            this.clusteringOnZoomStages[z] = false;
+        }
+    }
+
     /*
     set scale2(value) {
         if (value < 0) this._scale2 = 0;
@@ -288,7 +297,7 @@ export default class ExplorerState {
         return this._scrollImgGrowth;
     } */
 
-    get clusterGrowth() {
+    /* get clusterGrowth() {
         return this._clusterGrowth;
     }
 
@@ -296,7 +305,7 @@ export default class ExplorerState {
         if (v <= 1) this._clusterGrowth = 1.01;
         else this._clusterGrowth = v;
         this.ui.clusterGrowth = this.clusterGrowth;
-    }
+    } */
 
     triggerDraw() {
         if (this.valid) window.requestAnimationFrame(() => this.draw());
@@ -359,9 +368,12 @@ export default class ExplorerState {
     }
 
     // todo check where the function is used and if this is fine with updateCluster on every draw
-    createSuperCluster() {
-        console.time('update createSuperCluster');
+    createCluster() {
+        console.time('update createCluster');
         console.time('create geoPoints');
+
+        // reset cluster flags for zoom stages
+        this.resetClusteringOnZoomStages()
         // parse nodes into suitable format for supercluster
         const geoPoints = Object.values(this.nodes).map(n => ({
             x: n.x,
@@ -383,7 +395,10 @@ export default class ExplorerState {
             log: false,
         });
         this.supercluster.load(geoPoints);
-        console.timeEnd('update createSuperCluster');
+        console.timeEnd('update createCluster');
+        console.log(this.supercluster);
+        // update reps and new draw
+        this.updateClustering();
         this.triggerDraw();
     }
 
@@ -410,13 +425,14 @@ export default class ExplorerState {
         } = this;
 
         // todo here kann man das kleiner machen um bilder nicht übern rand zu zeichnen
-        const rect = [-tx / scale, -ty / scale, (explorerW - ty) / scale, (explorerH - ty) / scale];
+        // const rect = [-tx / scale, -ty / scale, (explorerW - ty) / scale, (explorerH - ty) / scale];
+        const rect = [-25, -25, 25, 25];
 
         // get clustering for current section (viewbox)
         const cluster = this.supercluster.getClusters(rect, zoomStage);
         // console.timeEnd('get cluster');
         // console.log(rect);
-        console.log({ cluster });
+        // console.log({ cluster });
 
         // console.log(cluster);
         cluster.forEach((c) => {
@@ -449,7 +465,7 @@ export default class ExplorerState {
                     }
                 });
                 if (log) console.log({ centroidId, min });
-                console.log({ centroidId, id: c.properties.centroidId });
+                // console.log({ centroidId, id: c.properties.centroidId });
                 // set centroid as represent
                 this.nodes[centroidId].isClusterd = false;
             }
@@ -683,7 +699,7 @@ export default class ExplorerState {
             alphaIncrease,
         } = this.ui;
 
-        if (clusterMode) this.updateClustering();
+        // if (clusterMode) this.updateClustering();
 
         const nodes = this.sorted
             ? this.sortedNodes
@@ -1181,25 +1197,6 @@ export default class ExplorerState {
         // console.log(wheelEvent)
         // const { nodeUnderMouse } = this;
 
-        // if there is a selection and the mouse is over a link
-        // if (this.selection && this.selection.links[nodeUnderMouse.index]) {
-        // if (false) {
-        /* const { index: i } = nodeUnderMouse;
-            const { links } = this.selection;
-            if (wheelEvent.deltaY < 0) {
-                console.log('zoom in - image smaller');
-                links[i] -= 0.1;
-            }
-
-            // Zoom out = decrease = wheel down = positiv delta Y
-            if (wheelEvent.deltaY > 0) {
-                console.log('zoom out - image bigger');
-                links[i] += 0.1;
-            }
-            if (links[i] < 0.1) links[i] = 0.1;
-            if (links[i] > 1) links[i] = 1;
-            this.triggerDraw(); */
-        // } else {
         const oldScale = this.scale;
         const mouseX = wheelEvent.offsetX;
         const mouseY = wheelEvent.offsetY;
@@ -1216,7 +1213,7 @@ export default class ExplorerState {
             // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
             this.zoomStage += 1;
             this.changeScaleUp();
-            this.cluster *= this.clusterGrowth;
+            // this.cluster *= this.clusterGrowth;
         }
 
         // Zoom out = decrease = wheel down = positiv delta Y
@@ -1226,15 +1223,16 @@ export default class ExplorerState {
             // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
             this.zoomStage -= 1;
             this.changeScaleDown();
-            this.cluster /= this.clusterGrowth;
+            // this.cluster /= this.clusterGrowth;
         }
 
         const scaleChange = this.scale - oldScale;
         this.translateX -= offsetX * scaleChange;
         this.translateY -= offsetY * scaleChange;
 
+        this.updateClustering();
         this.triggerDraw();
-        // }
+
         return false;
     }
 
@@ -1365,14 +1363,23 @@ export default class ExplorerState {
 
     handleMouseUp(e) {
         console.log('mouseup');
+        if (this.panning) {
+            this.panning = false;
+            this.triggerDraw();
+            return;
+        }
         const { nodeUnderMouse } = this;
         const ctrlKeyPressed = e.ctrlKey;
         // const shiftKeyPressed = e.shiftKey;
         // const altKeyPressed = e.altKey;
+
         if (nodeUnderMouse && nodeUnderMouse === this.nodeOnMouseDown) {
             // click event on a special node - do something
             console.log('click on node:');
             console.log(nodeUnderMouse);
+
+            // used for components for adding nodes to special cases
+            this.ui.clickedNode = nodeUnderMouse;
 
             // flag/unflag node as and add/remove from group
             if (ctrlKeyPressed && !this.ui.neighbourMode) {
@@ -1408,9 +1415,6 @@ export default class ExplorerState {
                 }
             }
 
-            // used for components for adding nodes to special cases
-            this.ui.clickedNode = nodeUnderMouse;
-
             if (this.draggedNode) {
                 // merge all "nearby nodes" to group
                 if (this.draggedNode.group) {
@@ -1418,11 +1422,13 @@ export default class ExplorerState {
                     this.updateGroupCount();
                 }
                 this.draggedNode = false;
+                // update clustering after move one or more nodes
+                this.createCluster();
+                return; // draw triggers in create cluster
             }
 
             // todo update instead of recreate supercluster here maybe bedder? how?
             // update cluster cause of new embedding
-            this.createSuperCluster();
         } else if (this.scissors) {
             this.ui.cuttedNodes = [];
             const startX = (this.scissorsStartX - this.translateX) / this.scale;
@@ -1449,7 +1455,6 @@ export default class ExplorerState {
             this.ui.scissors = false;
             this.drawScissors = false;
         }
-        this.panning = false; // todo if this is necessary here write a comment why
         this.triggerDraw();
     }
 
@@ -1468,8 +1473,7 @@ export default class ExplorerState {
                     node.y += (y - node.y) / 2;
                 }
             });
-            this.triggerDraw();
-            this.createSuperCluster();
+            this.createCluster();
         }
     }
 
