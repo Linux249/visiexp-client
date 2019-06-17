@@ -268,6 +268,7 @@ function createPointCluster(p, id) {
         zoom: Infinity, // the last zoom the point was processed at
         index: id, // index of the source feature in the original input array,
         parentId: -1, // parent cluster id
+        repId: id,
     };
 }
 

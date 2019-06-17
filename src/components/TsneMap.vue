@@ -119,6 +119,12 @@
                             <div @click="changeClusterGrowth(0.01)" class="btn">+0.1</div>
                         </div>
                     </div>-->
+                    <div class="row-btn">
+                        <div>Save:</div>
+                        <div class="row">
+                            <div @click="saveCanvas" class="btn"><save></save></div>
+                        </div>
+                    </div>
                     <div class="option-title">Image</div>
                     <div class="row-btn">
                         <div>Alpha (base): {{ alphaBase }}</div>
@@ -417,6 +423,7 @@ import Scissors from '../icons/Scissors';
 import X from '../icons/X';
 import Play from '../icons/Play';
 import Stop from '../icons/Stop';
+import Save from '../icons/Save';
 import Send from '../icons/Send';
 import Navmap from '../icons/Map';
 import Target from '../icons/Target';
@@ -439,6 +446,7 @@ export default {
         X,
         Play,
         Stop,
+        Save,
         Send,
         Navmap,
         Target,
@@ -867,6 +875,10 @@ export default {
             this.store.neighbourImgSize += v;
             this.neighbourImgSize = this.store.neighbourImgSize;
             this.store.triggerDraw();
+        },
+
+        saveCanvas() {
+            this.store.save()
         },
 
         saveGroup() {

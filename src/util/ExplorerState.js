@@ -224,6 +224,18 @@ export default class ExplorerState {
         return y < 0 ? 0 : y > 1 ? 1 : y;
     }
 
+    save() {
+        console.log('save');
+        const dataUrl = this.explorer.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+
+        const a = document.getElementById('save_canvas_to_png') || document.createElement('a');
+        a.id = 'save_canvas_to_png';
+        a.href = dataUrl;
+        a.download = 'file.png';
+        document.body.appendChild(a);
+        a.click();
+    }
+
     /*
     set scale2(value) {
         if (value < 0) this._scale2 = 0;
@@ -404,7 +416,7 @@ export default class ExplorerState {
         const cluster = this.supercluster.getClusters(rect, zoomStage);
         // console.timeEnd('get cluster');
         // console.log(rect);
-        console.log({cluster});
+        console.log({ cluster });
 
         // console.log(cluster);
         cluster.forEach((c) => {
@@ -429,7 +441,7 @@ export default class ExplorerState {
                     node.isClusterd = true;
                     if (log) console.log([node.x, node.y]);
                     if (log) console.log(p.geometry.coordinates);
-                    const dist = this.distance([p.x, p.y], [c.x, c.y])
+                    const dist = this.distance([p.x, p.y], [c.x, c.y]);
                     if (log) console.log(dist);
                     if (dist < min) {
                         min = dist;
@@ -437,7 +449,7 @@ export default class ExplorerState {
                     }
                 });
                 if (log) console.log({ centroidId, min });
-                console.log({ centroidId, id: c.properties.centroidId});
+                console.log({ centroidId, id: c.properties.centroidId });
                 // set centroid as represent
                 this.nodes[centroidId].isClusterd = false;
             }
