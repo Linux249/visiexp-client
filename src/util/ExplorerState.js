@@ -40,8 +40,8 @@ export default class ExplorerState {
         this.scissiorColor = [56, 130, 255];
 
         this._cluster = 100;
-        this._clusterRadius = 5;
-        this._clusterTile = 10;
+        this._clusterRadius = 20;
+        this._clusterTile = 5;
         this.supercluster = supercluster(); // TODO check best init for this var
 
         this._scale = 20;
@@ -352,16 +352,13 @@ export default class ExplorerState {
         console.time('create geoPoints');
         // parse nodes into suitable format for supercluster
         const geoPoints = Object.values(this.nodes).map(n => ({
-            type: 'Feature',
-            geometry: {
-                // https://tools.ietf.org/html/rfc7946#section-3.1.2
-                type: 'Point',
-                coordinates: [n.x, n.y],
-            },
+            x: n.x,
+            y: n.y,
             properties: {
                 index: n.index,
             },
-            nodeId: n.index
+            nodeId: n.index,
+
         }));
         console.timeEnd('create geoPoints');
         // console.log({ geoPoints });
@@ -370,7 +367,7 @@ export default class ExplorerState {
         this.supercluster = supercluster({
             radius: this.clusterRadius,
             maxZoom: this.maxZoomLvl,
-            extend: this.clusterTile,
+            extent: this.clusterTile,
             log: false,
         });
         this.supercluster.load(geoPoints);
@@ -384,7 +381,7 @@ export default class ExplorerState {
 
 
     // todo nodes can be saved for: draw only the nodes from here 'in the rect'
-    updateClustering(init) {
+    updateClustering(log) {
         console.time('updateClustering');
 
         // TODO remove after right implementation
@@ -407,19 +404,21 @@ export default class ExplorerState {
         const cluster = this.supercluster.getClusters(rect, zoomStage);
         // console.timeEnd('get cluster');
         // console.log(rect);
-        // console.log({cluster});
+        console.log({cluster});
 
         // console.log(cluster);
         cluster.forEach((c) => {
-            const { index, cluster_id } = c.properties;
+            const { index, cluster_id, point_count } = c.properties;
+            // console.log({ index, cluster_id, point_count } )
             if (index) {
                 // this is a not clustered point
                 this.nodes[index].isClusterd = false;
             } else if (cluster_id) {
                 // this is a cluster
-                const pointsInsideCluster = this.supercluster.getLeaves(c.id, Infinity);
-                if (init) console.log(c);
-                if (init) console.log(c.geometry.coordinates);
+                const pointsInsideCluster = this.supercluster.getLeaves(c.id);
+                // console.log({pointsInsideCluster})
+                if (log) console.log(c);
+                if (log) console.log(c.geometry.coordinates);
                 // TODO find represent
                 // represent is first item LOL
                 let centroidId = null;
@@ -428,16 +427,16 @@ export default class ExplorerState {
                 pointsInsideCluster.forEach((p) => {
                     const node = this.nodes[p.properties.index];
                     node.isClusterd = true;
-                    if (init) console.log([node.x, node.y]);
-                    if (init) console.log(p.geometry.coordinates);
-                    const dist = this.distance(p.geometry.coordinates, c.geometry.coordinates);
-                    if (init) console.log(dist);
+                    if (log) console.log([node.x, node.y]);
+                    if (log) console.log(p.geometry.coordinates);
+                    const dist = this.distance([p.x, p.y], [c.x, c.y])
+                    if (log) console.log(dist);
                     if (dist < min) {
                         min = dist;
                         centroidId = p.properties.index;
                     }
                 });
-                if (init) console.log({ centroidId, min });
+                if (log) console.log({ centroidId, min });
                 console.log({ centroidId, id: c.properties.centroidId});
                 // set centroid as represent
                 this.nodes[centroidId].isClusterd = false;

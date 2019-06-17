@@ -1,4 +1,3 @@
-
 import Kdbush from 'kdbush';
 
 export default function supercluster(options) {
@@ -32,12 +31,8 @@ SuperCluster.prototype = {
 
         // generate a cluster object for each point and index input points into a KD-tree
         let clusters = [];
-        for (let i = 0; i < points.length; i++) {
+        for (let i = 0; i < points.length; i += 1) {
             // each point needs the geometry propertie
-            // todo thats useless
-            if (!points[i].geometry) {
-                continue;
-            }
             clusters.push(createPointCluster(points[i], i));
         }
         this.trees[this.options.maxZoom + 1] = new Kdbush(clusters, getX, getY, this.options.nodeSize, Float32Array);
@@ -46,7 +41,7 @@ SuperCluster.prototype = {
 
         // cluster points on max zoom, then cluster the results on previous zoom, etc.;
         // results in a cluster hierarchy across zoom levels
-        for (let z = this.options.maxZoom; z >= this.options.minZoom; z--) {
+        for (let z = this.options.maxZoom; z >= this.options.minZoom; z -= 1) {
             const now = log && +Date.now();
 
             // create a new set of clusters for the zoom and index them with a KD-tree
@@ -62,34 +57,34 @@ SuperCluster.prototype = {
     },
 
     getClusters(bbox, zoom) {
-        let minLng = ((bbox[0] + 180) % 360 + 360) % 360 - 180;
-        const minLat = Math.max(-90, Math.min(90, bbox[1]));
-        let maxLng = bbox[2] === 180 ? 180 : ((bbox[2] + 180) % 360 + 360) % 360 - 180;
-        const maxLat = Math.max(-90, Math.min(90, bbox[3]));
-
-        if (bbox[2] - bbox[0] >= 360) {
-            minLng = -180;
-            maxLng = 180;
-        } else if (minLng > maxLng) {
-            const easternHem = this.getClusters([minLng, minLat, 180, maxLat], zoom);
-            const westernHem = this.getClusters([-180, minLat, maxLng, maxLat], zoom);
-            return easternHem.concat(westernHem);
-        }
+        const minX = bbox[0];
+        const minY = bbox[1];
+        const maxX = bbox[2];
+        const maxY = bbox[3];
 
         const tree = this.trees[this._limitZoom(zoom)];
-        const ids = tree.range(lngX(minLng), latY(maxLat), lngX(maxLng), latY(minLat));
-        // console.log({ids})
+
+        const ids = tree.range(minX, minY, maxX, maxY);
+        /* console.log({
+            tree,
+            ids,
+            minLng: minX,
+            maxLat: maxY,
+            maxLng: maxX,
+            minLat: minY,
+        }); */
+        // console.log(this.trees);
         const clusters = [];
         for (let i = 0; i < ids.length; i++) {
             const c = tree.points[ids[i]];
-            console.log(c);
+            // console.log(c);
             clusters.push(c.numPoints ? getClusterJSON(c) : this.points[c.index]);
         }
         return clusters;
     },
 
     getChildren(clusterId) {
-        const originId = clusterId >> 5;
+        const originId = clusterId >> 5; // eslint-disable-line no-bitwise
         const originZoom = clusterId % 32;
         const errorMsg = 'No cluster with the specified id.';
 
@@ -99,10 +94,10 @@ SuperCluster.prototype = {
         const origin = index.points[originId];
         if (!origin) throw new Error(errorMsg);
 
-        const r = this.options.radius / (this.options.extent * Math.pow(2, originZoom - 1));
+        const r = this.options.radius / (this.options.extent * (2 ** (originZoom - 1)));
         const ids = index.within(origin.x, origin.y, r);
         const children = [];
-        for (let i = 0; i < ids.length; i++) {
+        for (let i = 0; i < ids.length; i += 1) {
             const c = index.points[ids[i]];
             if (c.parentId === clusterId) {
                 children.push(c.numPoints ? getClusterJSON(c) : this.points[c.index]);
@@ -114,55 +109,18 @@ SuperCluster.prototype = {
         return children;
     },
 
-    getLeaves(clusterId, limit, offset) {
-        limit = limit || 10;
-        offset = offset || 0;
-
+    getLeaves(clusterId, limit = Infinity, offset = 0) {
         const leaves = [];
         this._appendLeaves(leaves, clusterId, limit, offset, 0);
 
         return leaves;
     },
 
-    getTile(z, x, y) {
-        const tree = this.trees[this._limitZoom(z)];
-        const z2 = Math.pow(2, z);
-        const { extent } = this.options;
-        const r = this.options.radius;
-        const p = r / extent;
-        const top = (y - p) / z2;
-        const bottom = (y + 1 + p) / z2;
-
-        const tile = {
-            features: [],
-        };
-
-        this._addTileFeatures(
-            tree.range((x - p) / z2, top, (x + 1 + p) / z2, bottom),
-            tree.points, x, y, z2, tile,
-        );
-
-        if (x === 0) {
-            this._addTileFeatures(
-                tree.range(1 - p / z2, top, 1, bottom),
-                tree.points, z2, y, z2, tile,
-            );
-        }
-        if (x === z2 - 1) {
-            this._addTileFeatures(
-                tree.range(0, top, p / z2, bottom),
-                tree.points, -1, y, z2, tile,
-            );
-        }
-
-        return tile.features.length ? tile : null;
-    },
-
     getClusterExpansionZoom(clusterId) {
         let clusterZoom = (clusterId % 32) - 1;
         while (clusterZoom < this.options.maxZoom) {
             const children = this.getChildren(clusterId);
-            clusterZoom++;
+            clusterZoom += 1;
             if (children.length !== 1) break;
             clusterId = children[0].properties.cluster_id;
         }
@@ -186,7 +144,7 @@ SuperCluster.prototype = {
                 }
             } else if (skipped < offset) {
                 // skip a single point
-                skipped++;
+                skipped += 1;
             } else {
                 // add a single point
                 result.push(children[i]);
@@ -197,35 +155,19 @@ SuperCluster.prototype = {
         return skipped;
     },
 
-    _addTileFeatures(ids, points, x, y, z2, tile) {
-        for (let i = 0; i < ids.length; i++) {
-            const c = points[ids[i]];
-            const f = {
-                type: 1,
-                geometry: [[
-                    Math.round(this.options.extent * (c.x * z2 - x)),
-                    Math.round(this.options.extent * (c.y * z2 - y)),
-                ]],
-                tags: c.numPoints ? getClusterProperties(c) : this.points[c.index].properties,
-            };
-            const id = c.numPoints ? c.id : this.points[c.index].id;
-            if (id !== undefined) {
-                f.id = id;
-            }
-            tile.features.push(f);
-        }
-    },
-
     _limitZoom(z) {
         return Math.max(this.options.minZoom, Math.min(z, this.options.maxZoom + 1));
     },
 
     _cluster(points, zoom) {
         const clusters = [];
-        const r = this.options.radius / (this.options.extent * Math.pow(2, zoom));
+        // const r = this.options.radius / (this.options.extent * (2 ** zoom));
+        // todo radius should maybe behave like scale
+        const r = this.options.radius / (this.options.extent * (2 ** zoom));
 
+        // console.log(r);
         // loop through each point
-        for (let i = 0; i < points.length; i++) {
+        for (let i = 0; i < points.length; i += 1) {
             const p = points[i];
             // if we've already visited the point at this zoom level, skip it
             if (p.zoom <= zoom) continue;
@@ -233,15 +175,16 @@ SuperCluster.prototype = {
 
             // find all nearby points
             const tree = this.trees[zoom + 1];
+
             const neighborIds = tree.within(p.x, p.y, r);
+            // console.log({ neighborIds });
 
             let numPoints = p.numPoints || 1;
             let wx = p.x * numPoints;
             let wy = p.y * numPoints;
 
             // encode both zoom and point index on which the cluster originated
-            const id = (i << 5) + (zoom + 1);
-
+            const id = (i << 5) + (zoom + 1); // eslint-disable-line no-bitwise
 
             const all = [];
             for (let j = 0; j < neighborIds.length; j++) {
@@ -284,7 +227,7 @@ SuperCluster.prototype = {
                             min = dist;
                             // console.log('new rep')
                             // console.log({p})
-                            centroidId = this.points[poi.index || poi.id >> 5].properties.index;
+                            centroidId = this.points[poi.index || poi.id >> 5].properties.index; // eslint-disable-line no-bitwise
                         }
                     });
                 }
@@ -294,6 +237,7 @@ SuperCluster.prototype = {
             }
         }
 
+        // console.log(clusters.length);
         return clusters;
     },
 
@@ -318,10 +262,9 @@ function createCluster(x, y, id, numPoints, properties, all) {
 
 // point cluster have just one point inside, on initialisation very point become such a cluster
 function createPointCluster(p, id) {
-    const coords = p.geometry.coordinates;
     return {
-        x: lngX(coords[0]), // projected point coordinates
-        y: latY(coords[1]),
+        x: p.x, // projected point coordinates
+        y: p.y,
         zoom: Infinity, // the last zoom the point was processed at
         index: id, // index of the source feature in the original input array,
         parentId: -1, // parent cluster id
@@ -330,13 +273,10 @@ function createPointCluster(p, id) {
 
 function getClusterJSON(cluster) {
     return {
-        type: 'Feature',
         id: cluster.id,
         properties: getClusterProperties(cluster),
-        geometry: {
-            type: 'Point',
-            coordinates: [xLng(cluster.x), yLat(cluster.y)],
-        },
+        x: cluster.x,
+        y: cluster.y,
     };
 }
 
@@ -350,25 +290,6 @@ function getClusterProperties(cluster) {
         point_count: cluster.numPoints,
         // point_count_abbreviated: abbrev,
     });
-}
-
-// longitude/latitude to spherical mercator in [0..1] range
-function lngX(lng) {
-    return lng / 360 + 0.5;
-}
-function latY(lat) {
-    const sin = Math.sin(lat * Math.PI / 180);
-    const y = (0.5 - 0.25 * Math.log((1 + sin) / (1 - sin)) / Math.PI);
-    return y < 0 ? 0 : y > 1 ? 1 : y;
-}
-
-// spherical mercator to longitude/latitude
-function xLng(x) {
-    return (x - 0.5) * 360;
-}
-function yLat(y) {
-    const y2 = (180 - y * 360) * Math.PI / 180;
-    return 360 * Math.atan(Math.exp(y2)) / Math.PI - 90;
 }
 
 function extend(dest, src) {
