@@ -27,7 +27,7 @@
                 </div>
             </div>
         </div>
-        <div class="row stack">
+        <div class="row body">
             <div class="explorer">
                 <canvas ref="canvas" id="canvas" class="canvas" tabindex="0"></canvas>
                 <div class="box top right">
@@ -1208,8 +1208,24 @@ export default {
     box-shadow: 0 5px 8px -3px rgba(32, 33, 36, 0.28);
 }
 
-.stack {
+.body {
     height: 100%;
+    /*margin: 0.5rem;*/
+}
+
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    height: 40px;
+    box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+    /*margin-bottom: 0.5rem;*/
+}
+
+.left-header,
+.right-header {
+    display: flex;
+    align-items: center;
 }
 
 .explorer {
@@ -1221,11 +1237,13 @@ export default {
 
 .details {
     width: 25rem;
-    margin: 0.5rem 0.5rem 0 0;
+    /*margin-right: 0.5rem;*/
+    padding: 0.5rem;
     background-color: white;
-    height: calc(100% - 1rem);
+    height: calc(100% - 2rem);
     overflow-y: auto;
     overflow-x: hidden;
+    z-index: -1;
 }
 
 .canvas {
@@ -1396,19 +1414,6 @@ export default {
 .label {
     padding: 0 2px;
     text-decoration: underline;
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    height: 40px;
-    box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
-}
-
-.left-header,
-.right-header {
-    display: flex;
-    align-items: center;
 }
 
 a {
