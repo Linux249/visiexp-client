@@ -1243,7 +1243,7 @@ export default {
     height: calc(100% - 2rem);
     overflow-y: auto;
     overflow-x: hidden;
-    z-index: -1;
+    /*z-index: -1;*/
 }
 
 .canvas {
