@@ -74,7 +74,7 @@ export default {
                     });
                 const { neighbours, group } = data;
                 store.updateGroupNeighbours(neighbours);
-                //store.addNodesToActiveGroup(group);
+                store.addNodesToActiveGroup(group);
                 console.log({ neighbours, group });
                 this.loading = false;
             } catch (e) {
