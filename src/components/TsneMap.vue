@@ -16,7 +16,10 @@
                     <send v-if="!loadingNodes"></send>
                     <div v-if="loadingNodes" class="loader"></div>
                 </div>
-                <div
+                <div @click="showInfo = !showInfo" class="btn" :class="{ active: showInfo }">
+                    <help></help>
+                </div>
+                <!--<div
                     @click="toggleUpdateEmbedding"
                     :class="{ active: autoUpdateEmbedding }"
                     class="btn"
@@ -24,7 +27,7 @@
                     {{ autoUpdateEmbedding ? 'stop' : 'start' }}
                     <play v-if="!autoUpdateEmbedding"></play>
                     <stop v-if="autoUpdateEmbedding"></stop>
-                </div>
+                </div>-->
             </div>
         </div>
         <div class="row body">
@@ -399,7 +402,7 @@
                     <div class="row v-center">5. update proposals and iterate</div>
                     <div class="row v-center">6. repeat with other groups</div>
                     <div class="row v-center">7. update embedding</div>
-                    <div class="btn" @click="showInfo = !showInfo">Close info</div>
+                    <!--<div class="btn" @click="showInfo = !showInfo">Close info</div>-->
                 </div>
 
                 <logs v-if="showLogs" :getStore="getStore" />
@@ -422,6 +425,7 @@ import Play from '../icons/Play';
 import Stop from '../icons/Stop';
 import Save from '../icons/Save';
 import Send from '../icons/Send';
+import Help from '../icons/Help';
 import Navmap from '../icons/Map';
 import Target from '../icons/Target';
 import Maximize from '../icons/Maximize';
@@ -445,6 +449,7 @@ export default {
         Stop,
         Save,
         Send,
+        Help,
         Navmap,
         Target,
         // Groups,
@@ -493,7 +498,7 @@ export default {
         showNavHeatmap: false,
         sizeRankedMode: false,
         boarderRankedMode: false,
-        clusterMode: false,     // flag if first clustering was calculated
+        clusterMode: false, // flag if first clustering was calculated
         // oldClusterMode: false,
         neighbourMode: false,
         repsMode: 0,
@@ -875,7 +880,7 @@ export default {
         },
 
         saveCanvas() {
-            this.store.save()
+            this.store.save();
         },
 
         saveGroup() {
@@ -940,8 +945,8 @@ export default {
         },
 
         testPerformance() {
-            this.store.testPerformance()
-        }
+            this.store.testPerformance();
+        },
     },
 
     mounted() {
