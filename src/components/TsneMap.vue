@@ -1223,8 +1223,8 @@ export default {
     display: flex;
     justify-content: space-between;
     height: 40px;
-    box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
-    /*margin-bottom: 0.5rem;*/
+    box-shadow: 0 2px 3px rgba(32, 33, 36, 0.28);
+    margin-bottom: 3px;
 }
 
 .left-header,
@@ -1235,7 +1235,7 @@ export default {
 
 .explorer {
     position: relative;
-    margin: 0.5rem;
+    margin: 5px;
     height: calc(100% - 1rem); /* -double margin */
     width: calc(100% - 25rem); /* -details width */
 }
@@ -1243,7 +1243,8 @@ export default {
 .details {
     width: 25rem;
     /*margin-right: 0.5rem;*/
-    padding: 0.5rem;
+    padding: 3px;
+    margin: 2px;
     background-color: white;
     height: calc(100% - 2rem);
     overflow-y: auto;
@@ -1253,7 +1254,8 @@ export default {
 
 .canvas {
     background-color: white;
-    box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+    /*box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);*/
+    box-shadow: 0 2px 4px rgba(50, 50, 93, 0.1), 0 2px 4px rgba(0, 0, 0, 0.08);
     outline: none;
 }
 
