@@ -6,12 +6,13 @@
                 :value="neighboursThreshold"
                 :change="changeNeighboursThreshold"
             ></range-slider>
-            <div class="btn">{{neighboursThreshold}}</div>
+            <div class="btn">{{`${neighboursThreshold}#`}}</div>
         </div>
         <div class="row hint"># proposals in next iteration</div>
         <div class="row">
             <div class="btn" @click="getGroupNeighbours" :class="{ active: loading }">Update<repeat></repeat></div>
-            <div class="btn" @click="resetNeighbours">Reset<trash></trash></div>
+            <div class="btn" @click="stop" :class="{ active: loading }">Stop<stop></stop></div>
+            <!--<div class="btn" @click="resetNeighbours">Reset<trash></trash></div>-->
         </div>
     </div>
 </template>
@@ -19,16 +20,16 @@
 <script>
 import RangeSlider from './RangeSlider';
 import Repeat from '../icons/Repeat';
-import Trash from '../icons/Trash';
+import Stop from '../icons/Stop';
 import { apiUrl } from '../config/apiUrl';
 
 export default {
     name: 'Neighbours',
-    props: ['getStore', 'neighboursThreshold', 'changeNeighboursThreshold', 'activeGroupId', ],
+    props: ['getStore', 'neighboursThreshold', 'changeNeighboursThreshold', 'activeGroupId', 'stop'],
     components: {
         RangeSlider,
         Repeat,
-        Trash,
+        Stop,
     },
     data: () => ({
         loading: false,

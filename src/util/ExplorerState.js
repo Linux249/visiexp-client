@@ -542,11 +542,11 @@ export default class ExplorerState {
         this.triggerDraw();
     }
 
-    resetGroupNeighbours() {
+    /*resetGroupNeighbours() {
         this.groupNeighbours = {};
         this.removedGroupNeighbours = {};
         this.triggerDraw();
-    }
+    }*/
 
     addNode(node) {
         // TODO der NodeArray könnte bereits inistalisert sein oder?

@@ -9,7 +9,7 @@
             <div class="title" >Password</div>
             <input type="password" v-model="password">
         </label>
-        <div class="btn" @click="login">login</div>
+        <div class="btn margin" @click="login">login</div>
         <div v-if="error" class="title" style="color: red">{{error}}</div>
         <div v-if="loading" class="title" style="color: red">Loading...</div>
     </div>
@@ -78,13 +78,19 @@ export default {
         justify-content: center;
         align-items: center;
     }
-.login {
-    width: 20rem;
-    padding-right: 8px;
-    padding-top: 0.5rem;
-}
+    .login {
+        width: 20rem;
+        padding-right: 8px;
+        padding-top: 0.5rem;
+    }
     input {
         width: 90%;
         margin: 8px;
+    }
+    .margin {
+        width: min-content;
+        display: block;
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
     }
 </style>

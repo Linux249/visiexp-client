@@ -294,7 +294,7 @@
 
                 </div>
 
-                <div class="area">
+                <div v-if="!neighbourMode" class="area">
                     <div class="title">Groups</div>
                     <div v-if="this.savedGroups.length" class="group-list">
                         <div
@@ -361,6 +361,7 @@
                     :activeGroupId="activeGroupId"
                     :changeNeighboursThreshold="changeNeighboursThreshold"
                     :neighboursThreshold="neighboursThreshold"
+                    :stop="stopNeighbourMode"
                 />
 
                 <router-view
@@ -392,16 +393,28 @@
                     </div>
                 </div>
 
-                <div v-if="showInfo" class="area info-box">
+                <div v-if="showInfo && !neighbourMode" class="area info-box">
                     <div class="row v-center">
-                        1. mark images with <div class="btn">STRG+Click</div> or <scissors class="btn"></scissors>
+                        1. mark images with <div class="btn">STRG+Click</div> / <scissors class="btn"></scissors>
                     </div>
-                    <div class="row v-center">2. create groups</div>
+                    <div class="row v-center">2. create groups with <div class="btn">save group</div></div>
                     <div class="row v-center">3. get proposals with <play class="btn"></play></div>
-                    <div class="row v-center">4. remove wrong with <div class="btn">Click</div></div>
-                    <div class="row v-center">5. update proposals and iterate</div>
-                    <div class="row v-center">6. repeat with other groups</div>
-                    <div class="row v-center">7. update embedding</div>
+                    <!--<div class="row v-center">4. remove wrong with <div class="btn">Click</div></div>-->
+                    <!--<div class="row v-center">5. update proposals and iterate</div>-->
+                    <div class="row v-center">4. repeat with other groups</div>
+                    <div class="row v-center">5. update embedding</div>
+                    <!--<div class="btn" @click="showInfo = !showInfo">Close info</div>-->
+                </div>
+                <div v-if="showInfo && neighbourMode" class="area info-box">
+                    <!--<div class="row v-center">-->
+                        <!--1. mark images with <div class="btn">STRG+Click</div> or <scissors class="btn"></scissors>-->
+                    <!--</div>-->
+                    <!--<div class="row v-center">2. create groups</div>-->
+                    <!--<div class="row v-center">3. get proposals with <play class="btn"></play></div>-->
+                    <div class="row v-center">1. mark wrong with <div class="btn">Click</div></div>
+                    <div class="row v-center">2. update proposals and iterate</div>
+                    <div class="row v-center">3. stop with</div>
+                    <!--<div class="row v-center">7. update embedding</div>-->
                     <!--<div class="btn" @click="showInfo = !showInfo">Close info</div>-->
                 </div>
 
@@ -940,6 +953,11 @@ export default {
             this.neighbourMode = !this.neighbourMode;
             this.store.triggerDraw();
         },
+
+        stopNeighbourMode() {
+            this.neighbourMode = false;
+        },
+
         toggleShowLogs() {
             this.showLogs = !this.showLogs;
         },
