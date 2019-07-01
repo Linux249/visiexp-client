@@ -89,7 +89,6 @@ export default {
     }
     .margin {
         width: min-content;
-        display: block;
         margin-top: 0.5rem;
         margin-bottom: 0.5rem;
     }

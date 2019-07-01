@@ -1,12 +1,26 @@
 <template>
-    <input class="" type="range" min="0" max="100" step="1" :value="value" @input="change"/>
+    <input class="" type="range" :min="min" :max="max" :step="step" :value="value" @input="change"/>
 </template>
 
 <script>
 export default {
     name: 'range-slider',
-
-    props: ['value', 'change', 'input', 'slide'],
+    props: {
+        value: Number,
+        change: Function,
+        min: {
+            type: Number,
+            default: 1,
+        },
+        max: {
+            type: Number,
+            default: 100,
+        },
+        step: {
+            type: Number,
+            default: 1,
+        },
+    },
 };
 </script>
 

@@ -1,7 +1,10 @@
 <template>
     <div id="app">
         <nav-header />
-        <tsne-map v-if="isAuth" :userId="userId" :dataset="dataset" :key="dataset" :switchDataset="switchDataset" />
+        <tsne-map
+            v-if="isAuth" :userId="userId" :dataset="dataset"
+            :selectedImgCount="selectedImgCount"
+            :key="dataset" :switchDataset="switchDataset" />
         <login v-if="!isAuth" :setAuth="setAuth"/>
     </div>
 </template>
@@ -19,13 +22,15 @@ export default {
         dataset: '001',
         userId: null,
         isAuth: false,
+        selectedImgCount: 500, // default
     }),
     // TODO add key to TSNEMAP for changing all!
     methods: {
-        switchDataset(newDataset) {
-            console.log('handleChangeDataset');
-            console.error(newDataset);
+        switchDataset(newDataset, count) {
+            console.log('switchDataset');
+            console.error(newDataset, count);
             this.dataset = newDataset;
+            this.selectedImgCount = count;
         },
         setAuth(userId) {
             this.isAuth = true;
@@ -160,4 +165,8 @@ input {
 .padding {
     padding: 0.5rem;
 }
+.flex {
+    display: flex;
+}
+
 </style>

@@ -454,7 +454,12 @@ import { apiUrl } from '../config/apiUrl';
 export default {
     store: null,
     name: 'TsneMap',
-    props: ['dataset', 'switchDataset', 'userId'],
+    props: {
+        dataset: String,
+        switchDataset: Function,
+        userId: Number,
+        selectedImgCount: Number,
+    },
     components: {
         Scissors,
         X,
@@ -584,7 +589,9 @@ export default {
             if (!this.loadingNodes) {
                 // this.store.resetStore();
                 this.loadingNodes = true;
-                this.socket.emit('updateEmbedding', { nodes, datasetId: this.dataset, userId: this.userId });
+                this.socket.emit('updateEmbedding', {
+                    nodes, datasetId: this.dataset, userId: this.userId, count: this.selectedImgCount,
+                });
                 // this.reset();
             }
         },
@@ -607,8 +614,8 @@ export default {
 
         changeNeighboursThreshold({ target }) {
             console.log('changeNeighboursThreshold');
-            console.log(target.v);
-            this.neighboursThreshold = target.value;
+            // console.log(target.value);
+            this.neighboursThreshold = +target.value;
             this.store.triggerDraw();
         },
 
@@ -871,8 +878,10 @@ export default {
             }
         },
 
-        handleChangeDataset(dataset) {
-            this.switchDataset(dataset);
+        handleChangeDataset(dataset, count) {
+            console.log('handleChangeDataset');
+            console.log(dataset, count);
+            this.switchDataset(dataset, count);
             // TODO trigger reload of datas
         },
 
@@ -1034,7 +1043,12 @@ export default {
             console.log('nodes in store while connect (its maybe just a reconnect)');
             console.log(nodes);
             if (!Object.keys(nodes).length && !this.loadingNodes) {
-                socket.emit('getNodes', { datasetId: this.dataset, userId: this.userId });
+                socket.emit('getNodes', {
+                    datasetId: this.dataset,
+                    userId: this.userId,
+                    count: this.selectedImgCount,
+                    init: true,
+                });
                 this.reset();
             }
         });
@@ -1141,7 +1155,7 @@ export default {
                 return pump();
             }
 
-            await fetch(`${apiUrl}/api/v1/dataset/images/${this.dataset}`)
+            await fetch(`${apiUrl}/api/v1/dataset/images/${this.dataset}/${this.selectedImgCount}`)
                 .then(async (res) => {
                     console.log(res);
                     console.log(res.headers);
