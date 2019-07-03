@@ -1109,10 +1109,11 @@ export default {
                 function pump() {
                     return reader.read().then(({ done, value }) => {
                         if (done) {
-                            console.log('finish request');
+                            console.log('finish request with done');
                             return;
                         }
                         // merge rest of old chunk with new chunk for cleaner code
+                        if(nodeId < 5) console.log(oldChunk, value)
                         const chunk = new Uint8Array(oldChunk.length + value.length);
                         chunk.set(oldChunk);
                         chunk.set(value, oldChunk.length);

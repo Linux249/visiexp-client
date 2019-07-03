@@ -1230,8 +1230,8 @@ export default class ExplorerState {
             this.changeScaleDown();
             // this.cluster /= this.clusterGrowth;
         }
-        console.log(this.zoomStage);
-        console.log(this.scale);
+        // console.log(this.zoomStage);
+        // console.log(this.scale);
 
         const scaleChange = this.scale - oldScale;
         this.translateX -= offsetX * scaleChange;
