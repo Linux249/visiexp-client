@@ -34,6 +34,7 @@ export default {
     props: {
         dataset: String,
         handleChangeDataset: Function,
+        selectedImgCount: Number,
         // getStore: Function,
     },
     components: {
@@ -44,7 +45,7 @@ export default {
             datasets: [],
             loading: false,
             // imgCount: process.env
-            imgCount: 500,
+            imgCount: this.selectedImgCount,
             selectedDataset: this.dataset,
         };
     },

@@ -372,6 +372,7 @@
                     :changeActiveNode="changeActiveNode"
                     :getStore="getStore"
                     :dataset="dataset"
+                    :selectedImgCount="selectedImgCount"
                     :handleChangeDataset="handleChangeDataset"
                 />
 

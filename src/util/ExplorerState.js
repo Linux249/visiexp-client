@@ -334,7 +334,7 @@ export default class ExplorerState {
     testPerformance(n = 100) {
         console.log('test performance: times from last one');
         console.log(this.perfLogs.draw);
-        const sorted = this.perfLogs.draw.sort();
+        const sorted = this.perfLogs.draw.sort((a, b) => a - b);
         console.log(sorted);
         const min = sorted[0];
         const max = sorted[n - 1];
@@ -1179,7 +1179,7 @@ export default class ExplorerState {
         const endTime = window.performance.now();
         const time = endTime - startTime;
         // console.log(`Draw: ${time}`);
-        if (this.ui.showLogs || this.performanceTest) this.perfLogs.draw.push(time);
+        if (this.ui.showLogs || this.performanceTest) this.perfLogs.draw.push(Math.round(time*1000)/1000);
         if (time > this.maxDrawTime) {
             this.maxDrawTime = time;
             console.warn('new max draw time');
@@ -1205,7 +1205,7 @@ export default class ExplorerState {
         const oldScale = this.scale;
         const mouseX = wheelEvent.offsetX;
         const mouseY = wheelEvent.offsetY;
-        console.log({ mouseX, mouseY });
+        // console.log({ mouseX, mouseY });
         // get mouse movement based on the last triggered event
         const offsetX = (mouseX - this.translateX) / oldScale; // +80 means move 80px to right
         const offsetY = (mouseY - this.translateY) / oldScale; // -50 means move 50 to top
