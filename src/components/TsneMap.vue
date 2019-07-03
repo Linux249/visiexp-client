@@ -1113,7 +1113,7 @@ export default {
                             return;
                         }
                         // merge rest of old chunk with new chunk for cleaner code
-                        console.log(nodeId, oldChunk, value)
+                        console.log(nodeId, oldChunk, value);
                         const chunk = new Uint8Array(oldChunk.length + value.length);
                         chunk.set(oldChunk);
                         chunk.set(value, oldChunk.length);
@@ -1167,7 +1167,10 @@ export default {
                     console.log(e);
                     console.log('consumed the entire body without keeping the whole thing in memory!');
                 })
-                .catch(e => console.log(`something went wrong: ${e}`));
+                .catch((e) => {
+                    console.error('something went wrong with reading img stream:');
+                    console.log(e);
+                });
 
 
             this.loadingNodes = false;
