@@ -1113,7 +1113,7 @@ export default {
                             return;
                         }
                         // merge rest of old chunk with new chunk for cleaner code
-                        if(nodeId < 5) console.log(oldChunk, value)
+                        console.log(nodeId, oldChunk, value)
                         const chunk = new Uint8Array(oldChunk.length + value.length);
                         chunk.set(oldChunk);
                         chunk.set(value, oldChunk.length);
