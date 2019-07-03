@@ -5,12 +5,13 @@
                 <router-link to="/">t-SNE</router-link>
                 <router-link to="/svm">SVM</router-link>
                 <router-link to="/classifier">Classifier</router-link>
-                <router-link to="/Dataset">Dataset</router-link>
+                <router-link to="/dataset">Dataset</router-link>
+                <router-link to="/options">Options</router-link>
             </div>
             <div class="right-header">
-                <div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">
+                <!--<div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">
                     Options
-                </div>
+                </div>-->
                 <div @click="sendData" class="btn" :class="{ active: loadingNodes }">
                     Update
                     <send v-if="!loadingNodes"></send>
@@ -103,7 +104,7 @@
             </div>
 
             <div class="details">
-                <div v-if="showOptions" class="area">
+                <div v-if="$route.path === '/options'" class="area">
                     <div class="title">Options</div>
                     <!--<div class="option-title">Old cluster</div>
                     <div class="row-btn">
@@ -509,7 +510,7 @@ export default {
         alphaIncrease: 30,
         range: 0,
         cuttedNodes: [], // selected nodes through scissor
-        showOptions: false, // show options menu
+        // showOptions: false, // show options menu
         clusterGrowth: 0,
         showHeatmap: false,
         heatmapRadius: 1,
@@ -740,9 +741,9 @@ export default {
             this.store.triggerDraw();
         },
 
-        toggleShowOptions() {
-            this.showOptions = !this.showOptions;
-        },
+        // toggleShowOptions() {
+        //     this.showOptions = !this.showOptions;
+        // },
 
         doubleNodes() {
             this.store.doubleNodes();
@@ -1054,6 +1055,7 @@ export default {
         socket.on('Error', (data) => {
             console.error('Server response with error:');
             console.error(data.message);
+            console.error(data);
         });
 
         socket.on('disconnect', (reason) => {
