@@ -1,6 +1,9 @@
 <template>
     <div class="area">
         <div class="title">Data sets</div>
+        <div class="loading">
+            <div v-if="loading" class="loader"></div>
+        </div>
         <div v-for="set in datasets" :key="set.id" @click="selectDataset(set.id)">
             <div class="row v-center">
                 <div class="btn" :class="{ active: selectedDataset === set.id }">{{ `${set.name}` }}</div>
@@ -109,5 +112,9 @@ export default {
     letter-spacing: 0.025em;
     transition: all 0.15s ease;
     margin-bottom: 0.2rem;
+}
+.loading {
+    display: flex;
+    justify-content: center;
 }
 </style>
