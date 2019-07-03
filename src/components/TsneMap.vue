@@ -504,8 +504,8 @@ export default {
         imgSize: 0, // default - set on mount from CanvasStore class
         representImgSize: 0, // default - set on mount from CanvasStore class
         neighbourImgSize: 0, // default - set on mount from CanvasStore class
-        alphaBase: 50,
-        alphaIncrease: 50,
+        alphaBase: 100,
+        alphaIncrease: 30,
         range: 0,
         cuttedNodes: [], // selected nodes through scissor
         showOptions: false, // show options menu
@@ -1131,7 +1131,7 @@ export default {
                             w += picByteLen + 2;
                             h += picByteLen + 2;
                             picByteLen = chunk[w] * chunk[h] * 4; // len of the next pic
-                            if (size < 14) {
+                            if (size < 9) {
                                 size += 1;
                             } else {
                                 size = 0;

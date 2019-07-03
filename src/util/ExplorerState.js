@@ -40,7 +40,7 @@ export default class ExplorerState {
         this.scissiorColor = [56, 130, 255];
 
         // this._cluster = 100;
-        this._clusterRadius = 20;
+        this._clusterRadius = 40;
         this._clusterTile = 5;
         this.supercluster = supercluster(); // TODO check best init for this var
 
@@ -111,7 +111,7 @@ export default class ExplorerState {
 
     set scale(value) {
         if (value < 20) this._scale = 20;
-        else this._scale = Math.round(value);
+        else this._scale = value; // Math.round(value);
         this.ui.scale = this.scale;
     }
 
@@ -335,6 +335,7 @@ export default class ExplorerState {
         console.log('test performance: times from last one');
         console.log(this.perfLogs.draw);
         const sorted = this.perfLogs.draw.sort();
+        console.log(sorted);
         const min = sorted[0];
         const max = sorted[n - 1];
         const median = (sorted[49] + sorted[50]) / 2;
@@ -373,7 +374,7 @@ export default class ExplorerState {
         console.time('create geoPoints');
 
         // reset cluster flags for zoom stages
-        this.resetClusteringOnZoomStages()
+        this.resetClusteringOnZoomStages();
         // parse nodes into suitable format for supercluster
         const geoPoints = Object.values(this.nodes).map(n => ({
             x: n.x,
@@ -416,13 +417,14 @@ export default class ExplorerState {
         if (!this.supercluster) return;
         // console.time('get cluster');
         const {
-            zoomStage,
+            // zoomStage,
             scale,
             width: explorerW,
             height: explorerH,
             translateX: tx,
             translateY: ty,
         } = this;
+        const zoomStage = Math.floor(this.zoomStage);
 
         // todo here kann man das kleiner machen um bilder nicht übern rand zu zeichnen
         // const rect = [-tx / scale, -ty / scale, (explorerW - ty) / scale, (explorerH - ty) / scale];
@@ -621,14 +623,16 @@ export default class ExplorerState {
     }
 
     changeScaleUp() {
-        this.scaleFaktor += 1;
-        this.scale += 20 * this.scaleFaktor;
+        this.scaleFaktor += 0.2;
+        // this.scale += 20 * this.scaleFaktor;
+        this.scale += 1 + (this.scaleFaktor ** 2);
         this.ui.scale = this.scale; // update ui (options)
     }
 
     changeScaleDown() {
-        this.scale -= 20 * this.scaleFaktor;
-        this.scaleFaktor -= 1;
+        // this.scale -= 20 * this.scaleFaktor;
+        this.scale -= 1 + (this.scaleFaktor ** 2);
+        this.scaleFaktor -= 0.2;
         this.ui.scale = this.scale; // update ui (options)
     }
 
@@ -647,7 +651,7 @@ export default class ExplorerState {
     // };
 
     updateGroupCount() {
-        console.log('updateGroupCount')
+        console.log('updateGroupCount');
         // build counter
         const counter = {};
         this.ui.savedGroups.forEach(group => (counter[group.groupId] = 0));
@@ -674,7 +678,7 @@ export default class ExplorerState {
         // TODO 1. calc 50 k-means wirh kdtree results
 
         const {
-            zoomStage,
+            // zoomStage,
             scale,
             width: explorerW,
             height: explorerH,
@@ -683,6 +687,7 @@ export default class ExplorerState {
             representImgSize,
             nonActiveGroupAplha,
         } = this;
+        const zoomStage = Math.floor(this.zoomStage);
         const explorerPixel = new Uint8ClampedArray(explorerW * explorerH * 4);
         const hitmapPixel = new Uint8ClampedArray(explorerW * explorerH * 4);
         // console.log({ explorerW, explorerH, tx, ty, scale });
@@ -713,7 +718,9 @@ export default class ExplorerState {
                 ? zoomStage + Math.floor(node.rank * this.sizeRange)
                 : zoomStage;
             imgSize += this.imgSize; // add imgSize from user input
+            // reps size higher
             const isRepresent = (clusterMode && !node.isClusterd);
+            if (isRepresent) imgSize += representImgSize;
             // || (oldClusterMode && node.cluster < this.cluster);
 
             // asked here to not ask later again
@@ -725,12 +732,9 @@ export default class ExplorerState {
                 if (neighbour || removedNeighbour) imgSize += this.neighbourImgSize;
                 else return;
             }
-
-            // reps size higher
-            if (isRepresent) imgSize += representImgSize;
-
+            // check imgsize
             if (imgSize < 0) imgSize = 0;
-            if (imgSize > 14) imgSize = 14;
+            else if (imgSize > 9) imgSize = 9;
 
             const img = node.imageData[imgSize];
             if (!img) return console.error(`no image for node: ${node.id}exists`);
@@ -1212,7 +1216,7 @@ export default class ExplorerState {
             console.log('zoom in');
             // this.scale2 += 1;
             // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
-            this.zoomStage += 1;
+            this.zoomStage += 0.2;
             this.changeScaleUp();
             // this.cluster *= this.clusterGrowth;
         }
@@ -1222,10 +1226,12 @@ export default class ExplorerState {
             console.log('zoom out');
             // this.scale2 -= 1;
             // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
-            this.zoomStage -= 1;
+            this.zoomStage -= 0.2;
             this.changeScaleDown();
             // this.cluster /= this.clusterGrowth;
         }
+        console.log(this.zoomStage);
+        console.log(this.scale);
 
         const scaleChange = this.scale - oldScale;
         this.translateX -= offsetX * scaleChange;
