@@ -879,10 +879,7 @@ export default {
         },
 
         handleChangeDataset(dataset, count) {
-            console.log('handleChangeDataset');
-            console.log(dataset, count);
             this.switchDataset(dataset, count);
-            // TODO trigger reload of datas
         },
 
         updateCluster() {
