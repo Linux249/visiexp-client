@@ -430,6 +430,7 @@
 import io from 'socket.io-client';
 import simpleheat from 'simpleheat';
 import { Slider } from 'vue-color';
+import { instantiateStreaming, ASUtil } from 'assemblyscript/lib/loader';
 import Node from '../util/Node';
 import ExplorerState from '../util/ExplorerState';
 import groupColors from '../config/groupColors';
@@ -975,7 +976,147 @@ export default {
         },
     },
 
-    mounted() {
+    async mounted() {
+        console.error('START FETCH');
+        try {
+            // import asmPromise from '../assemblyscript/index.ts';
+
+            // console.log(asmPromise)
+            // asmPromise().then((asmModule) => {
+            // fetch('../assemblyscript/index.ts').then((asmModule) => {
+            //     // here you can use the wasm.exports
+            //     console.log('WASM LOADED')
+            //     console.log(asmModule)
+            //     // asmModule.step();
+            //     const a = asmModule.add();
+            //     console.error({ a });
+            // });
+
+            /* Vue.prototype.$wasm = {
+                store: extractModule(wasmModul),
+            }; */
+            const extractModule = async (module) => {
+                const { instance } = await module();
+                return instance.exports;
+            };
+
+            /* const stores = wasmModul().then(({ instance }) => {
+                console.log('INSIDE WASM')
+                console.log(instance.exports.add(2,3))
+                return instance.exports
+            }); */
+
+
+            // const importObject = { imports: { i: arg => console.log(arg) } };
+            const importObject = {
+                main: {
+                    sayHello() {
+                        console.log('Hello from WebAssembly!');
+                    },
+                },
+                env: {
+                    abort(_msg, _file, line, column) {
+                        console.error(`abort called at main.ts:${line}:${column}`);
+                    },
+                },
+            };
+            // let stores = await extractModule(wasmModul);
+            // console.log({stores})
+            // fetch('../assets/wasm/optimized.wasm')
+            //     .then(response => response.arrayBuffer())
+            //     .then(bytes => WebAssembly.instantiate(bytes, importObject))
+            //     .then((results) => {
+            //         console.error('WEB LOADED');
+            //         results.instance.exports.exported_func();
+            //     });
+            // wasmModul()
+            //     .then(response => response.arrayBuffer())
+            //     .then(bytes => WebAssembly.instantiate(bytes, importObject))
+            //     .then((results) => {
+            //         console.error('WEB LOADED');
+            //         const z = results.instance.exports.add(2,3);
+            //         console.log(z)
+            //     });
+            // const myImports = { };
+            // const myModule = await instantiateStreaming(
+            //     wasmModul(),
+            //     importObject
+            // );
+            // import wasmModul from '../assets/wasm/optimized.wasm';
+
+            // console.log(wasmModul)
+            // wasmModul().then(module => {
+            // console.log({ASUtil})
+
+            const fs = require('fs');
+            const file = `${__dirname}../assets/wasm/optimized.wasm`;
+            console.log({ file });
+            const arraybuffer = await fetch(file);
+            console.log({ arraybuffer });
+
+
+            import('../assets/wasm/optimized.wasm').then((Module) => {
+                const img = new ImageData([
+                    46, 38, 23, 255, 112, 103, 69, 255, 90, 79, 36, 255, 113,
+                    103, 68, 255, 125, 120, 100, 255, 134, 141, 90, 255, 142, 157, 60,
+                    255, 121, 131, 45, 255, 98, 107, 41, 255, 74, 86, 37,
+                    255, 71, 69, 35, 255, 132, 117, 94, 255, 103, 92, 52,
+                    255, 113, 105, 69, 255, 124, 115, 93, 255, 101, 103, 72,
+                    255, 75, 89, 36, 255, 62, 77, 31, 255, 56, 69, 32, 255, 54, 69, 32, 255,
+                    81, 81, 45, 255, 82, 68, 48, 255, 107, 110,
+                    74, 255, 115, 105, 73, 255, 82, 69, 42, 255, 85,
+                    78, 60, 255, 80, 79, 54, 255, 52, 72, 31, 255, 47, 70,
+                    28, 255, 47, 67, 27, 255, 76, 71, 42, 255, 63, 58, 43,
+                    255, 102, 108, 82, 255, 82, 93, 57, 255, 66, 58, 37, 255,
+                    96, 85, 56, 255, 123, 104, 75, 255, 86, 94,
+                    54, 255, 48, 77, 32, 255, 50, 69, 27, 255, 75, 69, 41,
+                    255, 78, 93, 67, 255, 72, 72, 58, 255, 73, 86, 51, 255, 77, 73, 37, 255,
+                    138, 127, 90, 255, 164, 152, 117, 255, 104, 110, 72, 255, 55, 79, 44,
+                    255, 55, 73, 37, 255, 81, 70, 43, 255, 74, 91, 57, 255, 40, 48, 30, 255,
+                    95, 93, 61, 255, 68, 70, 24, 255, 98, 94, 49, 255, 137, 130, 80, 255, 117, 123, 74, 255,
+                    54, 76, 41, 255, 54, 72, 36, 255, 87, 76, 50, 255, 55, 67, 35, 255, 6, 15, 0, 255, 85,
+                    85, 67, 255, 67, 68, 32, 255, 70, 68, 24, 255, 95, 87, 36, 255, 105, 107, 59, 255, 50, 70, 35, 255, 51, 67, 30, 255,
+                ], 7, 10);
+
+                console.log({ img });
+
+                function loadImg(imageData) {
+                    const startTime = new Date();
+                    // number off bytes: length is width*height*4 und BYTES_PER_ELEMENT = 1
+                    const numBytes = imageData.length * imageData.BYTES_PER_ELEMENT;
+                    console.log({ numBytes });
+                    const dataPtr = Module.__alloc(numBytes);
+                    console.log(Module);
+                    // docs: new Uint8Array(buffer [, byteOffset [, length]]);
+                    const dataOnHeap = new Uint8Array(Module.HEAPU8.buffer, dataPtr, numBytes);
+                    dataOnHeap.set(imageData);
+                    const didLoad = Module.addNode(dataOnHeap.byteOffset, imageData.length);
+                    Module.__free(dataPtr);
+                    console.log(`[Copy to Heap (Cwrap)] Time to load: ${new Date() - startTime}`);
+
+                    return didLoad;
+                }
+
+                console.log('INSIDE');
+
+                console.log(Module);
+                // console.log(Module.add(2, 3));
+                const test = Module.addNode(10, 8, img.data);
+                console.log(img.data);
+                console.log(img.data.length);
+                console.log({ test });
+
+                loadImg(img.data);
+            });
+            /* WebAssembly.instantiateStreaming(wasmModul({})).then(result => {
+                const exports = result.instance.exports;
+                document.getElementById("container").textContent = "Result: " + exports.add(19, 23);
+            }).catch(console.error); */
+        } catch (e) {
+            console.error('ERROR');
+            console.error(e);
+        }
+
         const socketIp = process.env.NODE_ENV === 'production' ? '/' : 'localhost:3000';
         const socketPath = process.env.NODE_ENV === 'production' ? '/visiexp/socket.io' : '';
 
