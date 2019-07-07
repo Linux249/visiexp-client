@@ -1088,20 +1088,15 @@ export default {
             */
 
             console.warn('INIT')
-            const canvasW = 10, canvasH = 20;
+            const canvasW = 30, canvasH = 30;
             let offset = 4000
             console.log({offset})
-            const init = exp.init(offset, canvasW, canvasH, offset)
+            const init = exp.init(0, canvasW, canvasH, offset)
             console.log({init})
             console.log(exp.__rtti_base.value)
             const pixelPuffer = new Uint8ClampedArray(new ArrayBuffer(canvasH * canvasW * 4))
 
-            // draw
-            let checkDraw = 0;
-            for(let i = offset; i < pixelPuffer.length + offset; i++) {
-                checkDraw += pixelPuffer[i]
-            }
-            console.log({checkDraw})
+
 
             const pixelView = new Uint8ClampedArray(memory.buffer);
             pixelView.set(pixelPuffer.buffer, 0)
@@ -1115,8 +1110,7 @@ export default {
             console.log({ offset })
 
 
-            const draw = exp.draw();
-            console.log({draw})
+
             // dummy img with own buffer
             const imgBuffer = new Uint8ClampedArray([
                 46, 38, 23, 255, 112, 103, 69, 255, 90, 79, 36, 255, 113,
@@ -1154,7 +1148,7 @@ export default {
 
             // console.log(exp.memory.buffer)
             console.log(img.width, img.height, offset)
-            const addNode1 = exp.addNode(img.width, img.height, offset);
+            const addNode1 = exp.addNode(img.width, img.height, offset, 5, 5);
             console.log({ addNode1 })
 
             const count1 = exp.count();
@@ -1182,13 +1176,26 @@ export default {
             pixelView.set(img2.data, offset);
             // console.log(exp.memory.buffer)
             console.log(img2.width, img2.height, offset)
-            const addNode2 = exp.addNode(img2.width, img2.height, offset);
+            const addNode2 = exp.addNode(img2.width, img2.height, offset, 15, 15);
             console.log({ addNode2 })
             const count2 = exp.count();
             console.log({ count2 })
             const realSum2 = exp.checkSum(1)
             console.log({ realSum2 })
             console.log({pixelView})
+
+            // draw
+            let checkDraw = 0;
+            for(let i = offset; i < (pixelPuffer.length + offset); i++) {
+                checkDraw += pixelView[i]
+            }
+            console.log({checkDraw})
+
+            const draw = exp.draw();
+            console.log({draw})
+            const count3 = exp.count();
+            console.log({ count3 })
+
 
             // OLD WAY
             /* const img = new ImageData(new Uint8ClampedArray([

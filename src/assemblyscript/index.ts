@@ -3,7 +3,7 @@
 // sayHello();
 
 //namespace console {
-//  export declare function log(int: f64): void;
+//  export declare function log(int: u32): void;
 //}
 
 
@@ -12,7 +12,7 @@
 // 1. Init mit out array verbinden,
 
 class State {
-    protected nodes: Node[] = new Array<Node>();
+    public nodes: Node[] = new Array<Node>();
 
     // protected pixel: Array<u8>;
     constructor(
@@ -29,11 +29,11 @@ class State {
     }
 
     // add a new node to the state and return actuly state size
-    public addNode(w: u8, h: u8, ptr: u32): u32 {
+    public addNode(w: u8, h: u8, ptr: u32, x: u32, y: u32): u32 {
 
         this.count += 1;
         // console.log(this.count)
-        const node: Node = new Node(w, h, ptr);
+        const node: Node = new Node(w, h, ptr, x, y);
         // this.nodes.push(new Node(w, h, ptr));
         this.nodes.push(node)
 
@@ -47,13 +47,25 @@ class State {
 
 
     public draw(): u32 {
+
+        let s: u32 = 0;
+        let c: u32 = this.count
+        for (let x: u32 = 0; x < c; x++) {
+            // s += this.nodes[x].checkSum()
+            // s += this.nodes[x].x
+            // s += this.nodes[x].y
+            // s += this.nodes[x].w
+            // s += this.nodes[x].h
+            s += this.nodes[x].draw()
+        }
+
         let v: u32 = 0;
         const size: u32 = 4 * this.canvasH * this.canvasW + this.offset;
         for (let i: u32 = this.offset; i < size; ++i) {
-            store<u8>(i, 1)
+            // store<u8>(i + 2, 1)
             v += load<u8>(i);
-
         };
+
         return v;
     }
 
@@ -67,8 +79,8 @@ class Node {
         public w: u8,
         public h: u8,
         public ptr: u32,    // max 2,147,483,64
-        public x: f64 = 0,
-        public y: f64 = 0,
+        public x: u32,
+        public y: u32,
     ) {
         // this.imgByteSize =
     }
@@ -87,11 +99,37 @@ class Node {
         return v;
     }
 
+    public draw(): u32 {
+        // my start of pixel in buffer
+        // const offset: u32 = state.offset + this.ptr
+        // loop through each row
+        let i: u32 = 0;
+        for (let r: u8 = 0; r < this.h; r++) {
+            // loop through each column/field
+            for (let c: u8 = 0; c < this.w; c++) {
+                i++
+
+                // in pixel
+                // #rows have each w pixel, 1 pixel 4 bytes, offset is start
+                // const p: u32 = (r * this.w + c) * 4 + offset
+
+                // out pixel
+                // const o: u32 = state.offset + (this.y*state.canvasW + this.x) * 4
+                state.count += 1
+                store<u8>(i*4 + state.offset, load<u8>(i*4 + (state.offset + this.ptr)))
+            }
+        }
+
+        return i;
+    }
+
+
+
 }
 
 // add a node extern, later export class State and use diretly
-export function addNode(w: u8, h: u8, ptr: u32): u32 {
-    return state.addNode(w, h, ptr)
+export function addNode(w: u8, h: u8, ptr: u32, x: u32, y: u32): u32 {
+    return state.addNode(w, h, ptr, x, y)
 }
 
 // checksum of node x
