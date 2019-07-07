@@ -122,6 +122,7 @@ class Node {
         const size: u32 = 4 * state.canvasH * state.canvasW + state.offset;
         let i: u32 = 0;
 
+        const startPixel = state.offset + (this.y * state.canvasW + this.x) * 4
         // loop through each row
         for (let r: u8 = 0; r < this.h; r++) {
             // loop through each column/field
@@ -134,7 +135,12 @@ class Node {
                 // out pixel
                 // const o: u32 = state.offset + (this.y*state.canvasW + this.x) * 4
                 state.count += 1
-                store<u32>((i * 4) + state.offset + (this.y * state.canvasW + this.x) * 4, load<u32>((i * 4) + this.ptr))
+                const outPixel: u32 = startPixel + (r * state.canvasW + c)*4
+                // store<u32>((i * 4) + outPixel, load<u32>((i * 4) + this.ptr))
+                store<u8>(outPixel, load<u8>((i) + this.ptr))
+                store<u8>(outPixel +1, load<u8>((i + 2) + this.ptr))
+                store<u8>(outPixel+2, load<u8>((i + 3) + this.ptr))
+                store<u8>(outPixel+3, load<u8>((i + 1) + this.ptr))
 
                 i++
             }

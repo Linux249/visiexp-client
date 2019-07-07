@@ -356,6 +356,8 @@
                     </div>
                 </div>
 
+                <canvas width="100" height="100" id="draw"></canvas>
+
                 <neighbours
                     v-if="neighbourMode"
                     :getStore="getStore"
@@ -1072,8 +1074,7 @@ export default {
             // console.log(result.instance)
             const { memory } = exp;
 
-            memory.grow(1);
-            console.log(memory);
+
             // console.log(exp)
 
             /*
@@ -1085,16 +1086,28 @@ export default {
     5. pixel array for return data and change via AS
     6. Add draw to state and nodes
     7. add test canvas for showing result
+    8. add variable memory based on canvasPixelSize and change cavnas size to 100, 100
+    Todo
+        9. add real pictures while streaming, first 10, handcrafted x,y, init memory 10 * 10 * 10 * 4 = 4000
+        10. init full downloaded memory
+        11. add all nodes with smallest img size to state
+
   */
 
             console.warn('INIT');
-            const canvasW = 30;
+            const canvasW = 100;
             const
-                canvasH = 30;
+                canvasH = 100;
             const canvasPixelSize = canvasH * canvasW * 4;
             const initOffset = 4000;
             let offset = initOffset;
             console.log({ offset });
+            const pagesNeeded = Math.ceil((canvasPixelSize + offset)/ (64 * 1024));
+            console.log({pagesNeeded})
+            memory.grow(pagesNeeded);
+            console.log(memory);
+
+
             const init = exp.init(0, canvasW, canvasH, offset);
             console.log({ init });
             console.log(exp.__rtti_base.value);
@@ -1199,7 +1212,7 @@ export default {
                 pixelView, pixelPuffer, initOffset, canvasPixelSize,
             });
 
-            const ctx = document.getElementById('heatmap').getContext('2d');
+            const ctx = document.getElementById('draw').getContext('2d');
             const drawBufferViewer = new Uint8ClampedArray(pixelView.buffer, initOffset, canvasPixelSize);
             console.log(drawBufferViewer);
             const drawImage = new ImageData(drawBufferViewer, canvasH, canvasW);
