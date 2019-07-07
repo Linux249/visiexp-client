@@ -1,5 +1,5 @@
 // declare function sayHello(): void;
-//
+
 // sayHello();
 
 //namespace console {
@@ -10,6 +10,14 @@
 // GEIL - Beliebig viele Knoten pushen°!
 // TODO
 // 1. Init mit out array verbinden,
+
+
+/*
+  MEMORY:
+  [offset] free memory, 400
+  [size] out pixel buffer = canvasW * vanvsH * 4
+  [imgBytes] each node hat a ptr to his pixels
+*/
 
 class State {
     public nodes: Node[] = new Array<Node>();
@@ -58,6 +66,13 @@ class State {
             // s += this.nodes[x].h
             s += this.nodes[x].draw()
         }
+        return this.checkOutArray()
+        // return s
+
+    }
+
+    public checkOutArray(): u32 {
+        let c = 0;
 
         let v: u32 = 0;
         const size: u32 = 4 * this.canvasH * this.canvasW + this.offset;
@@ -67,6 +82,7 @@ class State {
         };
 
         return v;
+
     }
 
 }
@@ -102,12 +118,14 @@ class Node {
     public draw(): u32 {
         // my start of pixel in buffer
         // const offset: u32 = state.offset + this.ptr
-        // loop through each row
+
+        const size: u32 = 4 * state.canvasH * state.canvasW + state.offset;
         let i: u32 = 0;
+
+        // loop through each row
         for (let r: u8 = 0; r < this.h; r++) {
             // loop through each column/field
             for (let c: u8 = 0; c < this.w; c++) {
-                i++
 
                 // in pixel
                 // #rows have each w pixel, 1 pixel 4 bytes, offset is start
@@ -116,11 +134,13 @@ class Node {
                 // out pixel
                 // const o: u32 = state.offset + (this.y*state.canvasW + this.x) * 4
                 state.count += 1
-                store<u8>(i*4 + state.offset, load<u8>(i*4 + (state.offset + this.ptr)))
+                store<u32>((i * 4) + state.offset + (this.y * state.canvasW + this.x) * 4, load<u32>((i * 4) + this.ptr))
+
+                i++
             }
         }
 
-        return i;
+        return size;
     }
 
 

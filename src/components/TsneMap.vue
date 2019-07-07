@@ -515,7 +515,7 @@ export default {
         cuttedNodes: [], // selected nodes through scissor
         // showOptions: false, // show options menu
         clusterGrowth: 0,
-        showHeatmap: false,
+        showHeatmap: true,
         heatmapRadius: 1,
         heatmapBlur: 5,
         showNavHeatmap: false,
@@ -1058,14 +1058,13 @@ export default {
             console.log({ arraybuffer });
 
 
-
             // src/assets/wasm/optimized.wasm
             // const Module = await import('../assets/wasm/optimized.wasm')({});
             // console.log(wa)
             // console.log({wasm})
             // const results = await WebAssembly.instantiateStreaming(fetch(wasm))
-                //.then(results => console.log(results.instance.exports.add_one(12)));
-            const Module = await import('../assets/wasm/optimized.wasm')
+            // .then(results => console.log(results.instance.exports.add_one(12)));
+            const Module = await import('../assets/wasm/optimized.wasm');
             console.warn('START');
             const exp = Module;
             // document.getElementById("container").textContent = "Result: " + exp.add(19, 23);
@@ -1073,42 +1072,45 @@ export default {
             // console.log(result.instance)
             const { memory } = exp;
 
-            memory.grow(1)
-            console.log(memory)
-            //console.log(exp)
+            memory.grow(1);
+            console.log(memory);
+            // console.log(exp)
 
             /*
-              ADDED:
-              1. cummincate between js and AS
-              2. pass buffer to AS
-              3. Add Node Class to save pointer and size => get acces to pixel data for each img
-              4. add Store for saving nodes and operation on multi nodes
-              5. pixel array for return data and change via AS
-              -- COMMIT --
-            */
+    ADDED:
+    1. cummincate between js and AS
+    2. pass buffer to AS
+    3. Add Node Class to save pointer and size => get acces to pixel data for each img
+    4. add Store for saving nodes and operation on multi nodes
+    5. pixel array for return data and change via AS
+    6. Add draw to state and nodes
+    7. add test canvas for showing result
+  */
 
-            console.warn('INIT')
-            const canvasW = 30, canvasH = 30;
-            let offset = 4000
-            console.log({offset})
-            const init = exp.init(0, canvasW, canvasH, offset)
-            console.log({init})
-            console.log(exp.__rtti_base.value)
-            const pixelPuffer = new Uint8ClampedArray(new ArrayBuffer(canvasH * canvasW * 4))
-
+            console.warn('INIT');
+            const canvasW = 30;
+            const
+                canvasH = 30;
+            const canvasPixelSize = canvasH * canvasW * 4;
+            const initOffset = 4000;
+            let offset = initOffset;
+            console.log({ offset });
+            const init = exp.init(0, canvasW, canvasH, offset);
+            console.log({ init });
+            console.log(exp.__rtti_base.value);
+            const pixelPuffer = new Uint8ClampedArray(new ArrayBuffer(canvasPixelSize));
 
 
             const pixelView = new Uint8ClampedArray(memory.buffer);
-            pixelView.set(pixelPuffer.buffer, 0)
-            console.log({pixelPuffer, pixelView})
+            pixelView.set(pixelPuffer.buffer, 0);
+            console.log({ pixelPuffer, pixelView });
             // new Uint8ClampedArray(memory.buffer, offset).set(pixelPuffer.buffer, offset)
-            console.log({pixelPuffer})
-            //console.log({pixel})
+            console.log({ pixelPuffer });
+            // console.log({pixel})
 
             // update offest
-            offset += pixelPuffer.length
-            console.log({ offset })
-
+            offset += pixelPuffer.length;
+            console.log({ offset });
 
 
             // dummy img with own buffer
@@ -1132,69 +1134,79 @@ export default {
                 95, 93, 61, 255, 68, 70, 24, 255, 98, 94, 49, 255, 137, 130, 80, 255, 117, 123, 74, 255,
                 54, 76, 41, 255, 54, 72, 36, 255, 87, 76, 50, 255, 55, 67, 35, 255, 6, 15, 0, 255, 85,
                 85, 67, 255, 67, 68, 32, 255, 70, 68, 24, 255, 95, 87, 36, 255, 105, 107, 59, 255, 50, 70, 35, 255, 51, 67, 30, 255,
-            ])
+            ]);
             const img = new ImageData(imgBuffer, 7, 10);
             console.log({ img });
             // size of img buffer
             // console.log(img.data)
-            console.log('IMG Bytes: ', img.data.byteLength)
+            console.log('IMG Bytes: ', img.data.byteLength);
 
-            const checkSum = img.data.reduce((a, e) => a + e, 0)
-            console.log({ checkSum, pixelView })
+            const checkSum = img.data.reduce((a, e) => a + e, 0);
+            console.log({ checkSum, pixelView });
 
             // console.log(exp.memory.buffer)
             // add img buffer to memory: Crete a view over the buffer and set use the viewer to set the data
             pixelView.set(img.data, offset);
 
             // console.log(exp.memory.buffer)
-            console.log(img.width, img.height, offset)
-            const addNode1 = exp.addNode(img.width, img.height, offset, 5, 5);
-            console.log({ addNode1 })
+            console.log(img.width, img.height, offset);
+            const addNode1 = exp.addNode(img.width, img.height, offset, 0, 0);
+            console.log({ addNode1 });
 
             const count1 = exp.count();
-            console.log({ count1 })
-            const realSum1 = exp.checkSum(0)
-            console.log({ realSum1 })
+            console.log({ count1 });
+            const realSum1 = exp.checkSum(0);
+            console.log({ realSum1 });
 
 
-            /// SECOND IMAGE
+            // / SECOND IMAGE
 
 
             // create 2. image
             const img2 = new ImageData(imgBuffer, 7, 10);
-            console.log({ img2 })
+            console.log({ img2 });
 
             // change first value (46) to 45
             // wichtig: img 1 wird auch verändert, da der selbe imgBuffer zugrunde liegt und der direkt über den view verändert wird
-            img2.data[0] = 45
-            console.log('IMG Bytes: ', img2.data.byteLength)
-            const checkSum2 = img2.data.reduce((a, e) => a + e, 0)
-            console.log({ checkSum2 })
+            img2.data[0] = 45;
+            console.log('IMG Bytes: ', img2.data.byteLength);
+            const checkSum2 = img2.data.reduce((a, e) => a + e, 0);
+            console.log({ checkSum2 });
 
             // update offset
-            offset += img2.data.byteLength
+            offset += img2.data.byteLength;
             pixelView.set(img2.data, offset);
             // console.log(exp.memory.buffer)
-            console.log(img2.width, img2.height, offset)
+            console.log(img2.width, img2.height, offset);
             const addNode2 = exp.addNode(img2.width, img2.height, offset, 15, 15);
-            console.log({ addNode2 })
+            console.log({ addNode2 });
             const count2 = exp.count();
-            console.log({ count2 })
-            const realSum2 = exp.checkSum(1)
-            console.log({ realSum2 })
-            console.log({pixelView})
+            console.log({ count2 });
+            const realSum2 = exp.checkSum(1);
+            console.log({ realSum2 });
+
+
+            const draw = exp.draw();
+            console.log({ draw });
 
             // draw
             let checkDraw = 0;
-            for(let i = offset; i < (pixelPuffer.length + offset); i++) {
-                checkDraw += pixelView[i]
+            for (let i = initOffset; i < (pixelPuffer.length + initOffset); i++) {
+                checkDraw += pixelView[i];
             }
-            console.log({checkDraw})
+            console.log({ checkDraw });
+            console.log({
+                pixelView, pixelPuffer, initOffset, canvasPixelSize,
+            });
 
-            const draw = exp.draw();
-            console.log({draw})
-            const count3 = exp.count();
-            console.log({ count3 })
+            const ctx = document.getElementById('heatmap').getContext('2d');
+            const drawBufferViewer = new Uint8ClampedArray(pixelView.buffer, initOffset, canvasPixelSize);
+            console.log(drawBufferViewer);
+            const drawImage = new ImageData(drawBufferViewer, canvasH, canvasW);
+            console.log(drawImage);
+            ctx.putImageData(drawImage, 0, 0);
+
+            console.warn('DRAWED');
 
 
             // OLD WAY
