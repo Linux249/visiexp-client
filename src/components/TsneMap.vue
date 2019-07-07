@@ -453,6 +453,8 @@ import Minus from '../icons/Minus';
 import Logs from './Logs';
 import Trash from '../icons/Trash';
 import { apiUrl } from '../config/apiUrl';
+// const wa = import('../assets/wasm/optimized.wasm')
+// import MyModule from "assemblyscript/webpack";
 
 export default {
     store: null,
@@ -1048,6 +1050,7 @@ export default {
             // wasmModul().then(module => {
             // console.log({ASUtil})
 
+            // Problem: will load from api/backend
             const fs = require('fs');
             const file = `${__dirname}../assets/wasm/optimized.wasm`;
             console.log({ file });
@@ -1055,8 +1058,140 @@ export default {
             console.log({ arraybuffer });
 
 
-            import('../assets/wasm/optimized.wasm').then((Module) => {
-                const img = new ImageData([
+
+            // src/assets/wasm/optimized.wasm
+            // const Module = await import('../assets/wasm/optimized.wasm')({});
+            // console.log(wa)
+            // console.log({wasm})
+            // const results = await WebAssembly.instantiateStreaming(fetch(wasm))
+                //.then(results => console.log(results.instance.exports.add_one(12)));
+            const Module = await import('../assets/wasm/optimized.wasm')
+            console.warn('START');
+            const exp = Module;
+            // document.getElementById("container").textContent = "Result: " + exp.add(19, 23);
+            // console.log(result)
+            // console.log(result.instance)
+            const { memory } = exp;
+
+            memory.grow(1)
+            console.log(memory)
+            //console.log(exp)
+
+            /*
+              ADDED:
+              1. cummincate between js and AS
+              2. pass buffer to AS
+              3. Add Node Class to save pointer and size => get acces to pixel data for each img
+              4. add Store for saving nodes and operation on multi nodes
+              5. pixel array for return data and change via AS
+              -- COMMIT --
+            */
+
+            console.warn('INIT')
+            const canvasW = 10, canvasH = 20;
+            let offset = 4000
+            console.log({offset})
+            const init = exp.init(offset, canvasW, canvasH, offset)
+            console.log({init})
+            console.log(exp.__rtti_base.value)
+            const pixelPuffer = new Uint8ClampedArray(new ArrayBuffer(canvasH * canvasW * 4))
+
+            // draw
+            let checkDraw = 0;
+            for(let i = offset; i < pixelPuffer.length + offset; i++) {
+                checkDraw += pixelPuffer[i]
+            }
+            console.log({checkDraw})
+
+            const pixelView = new Uint8ClampedArray(memory.buffer);
+            pixelView.set(pixelPuffer.buffer, 0)
+            console.log({pixelPuffer, pixelView})
+            // new Uint8ClampedArray(memory.buffer, offset).set(pixelPuffer.buffer, offset)
+            console.log({pixelPuffer})
+            //console.log({pixel})
+
+            // update offest
+            offset += pixelPuffer.length
+            console.log({ offset })
+
+
+            const draw = exp.draw();
+            console.log({draw})
+            // dummy img with own buffer
+            const imgBuffer = new Uint8ClampedArray([
+                46, 38, 23, 255, 112, 103, 69, 255, 90, 79, 36, 255, 113,
+                103, 68, 255, 125, 120, 100, 255, 134, 141, 90, 255, 142, 157, 60,
+                255, 121, 131, 45, 255, 98, 107, 41, 255, 74, 86, 37,
+                255, 71, 69, 35, 255, 132, 117, 94, 255, 103, 92, 52,
+                255, 113, 105, 69, 255, 124, 115, 93, 255, 101, 103, 72,
+                255, 75, 89, 36, 255, 62, 77, 31, 255, 56, 69, 32, 255, 54, 69, 32, 255,
+                81, 81, 45, 255, 82, 68, 48, 255, 107, 110,
+                74, 255, 115, 105, 73, 255, 82, 69, 42, 255, 85,
+                78, 60, 255, 80, 79, 54, 255, 52, 72, 31, 255, 47, 70,
+                28, 255, 47, 67, 27, 255, 76, 71, 42, 255, 63, 58, 43,
+                255, 102, 108, 82, 255, 82, 93, 57, 255, 66, 58, 37, 255,
+                96, 85, 56, 255, 123, 104, 75, 255, 86, 94,
+                54, 255, 48, 77, 32, 255, 50, 69, 27, 255, 75, 69, 41,
+                255, 78, 93, 67, 255, 72, 72, 58, 255, 73, 86, 51, 255, 77, 73, 37, 255,
+                138, 127, 90, 255, 164, 152, 117, 255, 104, 110, 72, 255, 55, 79, 44,
+                255, 55, 73, 37, 255, 81, 70, 43, 255, 74, 91, 57, 255, 40, 48, 30, 255,
+                95, 93, 61, 255, 68, 70, 24, 255, 98, 94, 49, 255, 137, 130, 80, 255, 117, 123, 74, 255,
+                54, 76, 41, 255, 54, 72, 36, 255, 87, 76, 50, 255, 55, 67, 35, 255, 6, 15, 0, 255, 85,
+                85, 67, 255, 67, 68, 32, 255, 70, 68, 24, 255, 95, 87, 36, 255, 105, 107, 59, 255, 50, 70, 35, 255, 51, 67, 30, 255,
+            ])
+            const img = new ImageData(imgBuffer, 7, 10);
+            console.log({ img });
+            // size of img buffer
+            // console.log(img.data)
+            console.log('IMG Bytes: ', img.data.byteLength)
+
+            const checkSum = img.data.reduce((a, e) => a + e, 0)
+            console.log({ checkSum, pixelView })
+
+            // console.log(exp.memory.buffer)
+            // add img buffer to memory: Crete a view over the buffer and set use the viewer to set the data
+            pixelView.set(img.data, offset);
+
+            // console.log(exp.memory.buffer)
+            console.log(img.width, img.height, offset)
+            const addNode1 = exp.addNode(img.width, img.height, offset);
+            console.log({ addNode1 })
+
+            const count1 = exp.count();
+            console.log({ count1 })
+            const realSum1 = exp.checkSum(0)
+            console.log({ realSum1 })
+
+
+            /// SECOND IMAGE
+
+
+            // create 2. image
+            const img2 = new ImageData(imgBuffer, 7, 10);
+            console.log({ img2 })
+
+            // change first value (46) to 45
+            // wichtig: img 1 wird auch verändert, da der selbe imgBuffer zugrunde liegt und der direkt über den view verändert wird
+            img2.data[0] = 45
+            console.log('IMG Bytes: ', img2.data.byteLength)
+            const checkSum2 = img2.data.reduce((a, e) => a + e, 0)
+            console.log({ checkSum2 })
+
+            // update offset
+            offset += img2.data.byteLength
+            pixelView.set(img2.data, offset);
+            // console.log(exp.memory.buffer)
+            console.log(img2.width, img2.height, offset)
+            const addNode2 = exp.addNode(img2.width, img2.height, offset);
+            console.log({ addNode2 })
+            const count2 = exp.count();
+            console.log({ count2 })
+            const realSum2 = exp.checkSum(1)
+            console.log({ realSum2 })
+            console.log({pixelView})
+
+            // OLD WAY
+            /* const img = new ImageData(new Uint8ClampedArray([
                     46, 38, 23, 255, 112, 103, 69, 255, 90, 79, 36, 255, 113,
                     103, 68, 255, 125, 120, 100, 255, 134, 141, 90, 255, 142, 157, 60,
                     255, 121, 131, 45, 255, 98, 107, 41, 255, 74, 86, 37,
@@ -1076,7 +1211,8 @@ export default {
                     95, 93, 61, 255, 68, 70, 24, 255, 98, 94, 49, 255, 137, 130, 80, 255, 117, 123, 74, 255,
                     54, 76, 41, 255, 54, 72, 36, 255, 87, 76, 50, 255, 55, 67, 35, 255, 6, 15, 0, 255, 85,
                     85, 67, 255, 67, 68, 32, 255, 70, 68, 24, 255, 95, 87, 36, 255, 105, 107, 59, 255, 50, 70, 35, 255, 51, 67, 30, 255,
-                ], 7, 10);
+                ]), 7, 10);
+
 
                 console.log({ img });
 
@@ -1097,17 +1233,13 @@ export default {
                     return didLoad;
                 }
 
-                console.log('INSIDE');
-
-                console.log(Module);
                 // console.log(Module.add(2, 3));
                 const test = Module.addNode(10, 8, img.data);
                 console.log(img.data);
                 console.log(img.data.length);
                 console.log({ test });
 
-                loadImg(img.data);
-            });
+                loadImg(img.data); */
             /* WebAssembly.instantiateStreaming(wasmModul({})).then(result => {
                 const exports = result.instance.exports;
                 document.getElementById("container").textContent = "Result: " + exports.add(19, 23);

@@ -32,6 +32,18 @@ module.exports = {
                     test: /\.wasm$/,
                     type: 'webassembly/experimental',
                 },
+                // {
+                //     test: /\.wasm$/,
+                //     type: 'javascript/auto',
+                //     use: [
+                //         {
+                //             loader: 'file-loader',
+                //             options: {
+                //                 name: 'wasm/[name].[hash].[ext]',
+                //             }
+                //         }
+                //     ]
+                // }
             ],
         },
         optimization: {

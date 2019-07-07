@@ -1,46 +1,120 @@
-// The entry file of your WebAssembly module.
-/*
+// declare function sayHello(): void;
+//
+// sayHello();
 
-export function add(a: i32, b: i32): i32 {
-    return a + b;
-}
-*/
-// import "allocator/tlsf";
-// export { memory };
+//namespace console {
+//  export declare function log(int: f64): void;
+//}
 
-export function addNode(w: i32, h: i32, buffer: Uint8ClampedArray): i32 {
-    let v = 0;
-    for (let i = 0, k = buffer.length; i < k; ++i) {
-        v+= 1
+
+// GEIL - Beliebig viele Knoten pushen°!
+// TODO
+// 1. Init mit out array verbinden,
+
+class State {
+    protected nodes: Node[] = new Array<Node>();
+
+    // protected pixel: Array<u8>;
+    constructor(
+        public count: u32, // default is 4
+        public canvasW: u32, // actual size if canvas
+        public canvasH: u32,
+        public offset: u32, // default is here
+    ) {
+        //pixel: Array<u8> = new Array<u8>(4* this.canvasW * this.canvasH).fill(0, 0, 4)
     }
 
-    return buffer.length;
-}
-
-// sending img data back: https://github.com/AssemblyScript/assemblyscript/issues/211
-
-/** Performs one step. */
-/*
-export function step(): void {
-    var hm1 = h - 1,
-        wm1 = w - 1;
-    for (var y: u32 = 0; y < h; ++y) {
-        var ym1 = select<u32>(hm1, y - 1, y == 0),
-            yp1 = select<u32>(0, y + 1, y == hm1);
-        for (var x: u32 = 0; x < w; ++x) {
-            var xm1 = select<u32>(wm1, x - 1, x == 0),
-                xp1 = select<u32>(0, x + 1, x == wm1);
-            var n = (
-                load<u8>(ym1 * w + xm1) + load<u8>(ym1 * w + x) + load<u8>(ym1 * w + xp1) +
-                load<u8>(y   * w + xm1)                         + load<u8>(y   * w + xp1) +
-                load<u8>(yp1 * w + xm1) + load<u8>(yp1 * w + x) + load<u8>(yp1 * w + xp1)
-            );
-            if (load<u8>(y * w + x)) {
-                if (n < 2 || n > 3)
-                    store<u8>(s + y * w + x, 0);
-            } else if (n == 3)
-                store<u8>(s + y * w + x, 1);
-        }
+    public get length(): u32 {
+        return this.nodes.length;
     }
+
+    // add a new node to the state and return actuly state size
+    public addNode(w: u8, h: u8, ptr: u32): u32 {
+
+        this.count += 1;
+        // console.log(this.count)
+        const node: Node = new Node(w, h, ptr);
+        // this.nodes.push(new Node(w, h, ptr));
+        this.nodes.push(node)
+
+        return node.imgByteSize;
+        //return 0;
+    }
+
+    public getCheckSum(x: u32): u32 {
+        return this.nodes[x].checkSum()
+    }
+
+
+    public draw(): u32 {
+        let v: u32 = 0;
+        const size: u32 = 4 * this.canvasH * this.canvasW + this.offset;
+        for (let i: u32 = this.offset; i < size; ++i) {
+            store<u8>(i, 1)
+            v += load<u8>(i);
+
+        };
+        return v;
+    }
+
 }
-*/
+
+let state: State;
+
+class Node {
+    //imgByteSize:  u32
+    constructor(
+        public w: u8,
+        public h: u8,
+        public ptr: u32,    // max 2,147,483,64
+        public x: f64 = 0,
+        public y: f64 = 0,
+    ) {
+        // this.imgByteSize =
+    }
+
+    get imgByteSize(): u32 {
+        return 4 * this.w * this.h
+    }
+
+
+
+    public checkSum(): u32 {
+        let v: u32 = 0;
+        for (let i: u32 = 0, k = this.imgByteSize; i < k; ++i) {
+            v += load<u8>(i + this.ptr);
+        };
+        return v;
+    }
+
+}
+
+// add a node extern, later export class State and use diretly
+export function addNode(w: u8, h: u8, ptr: u32): u32 {
+    return state.addNode(w, h, ptr)
+}
+
+// checksum of node x
+export function checkSum(x: u32): u32 {
+    return state.nodes[x].checkSum()
+}
+
+// checksum of node x
+export function count(): u32 {
+    return state.length;
+}
+
+export function init(count: u32, canvasW: u32, canvasH: u32, offset: u32): number {
+
+    // create state
+    state = new State(count, canvasW, canvasH, offset);
+
+    return state.offset;
+}
+
+// checksum of node x
+export function draw(): u32 {
+    return state.draw();
+}
+
+

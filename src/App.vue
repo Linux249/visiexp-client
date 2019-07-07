@@ -24,7 +24,7 @@ export default {
     data: () => ({
         dataset: '001',
         userId: null,
-        isAuth: false,
+        isAuth: true,
         selectedImgCount: 500, // default
     }),
     // TODO add key to TSNEMAP for changing all!
