@@ -356,7 +356,7 @@
                     </div>
                 </div>
 
-                <canvas width="100" height="100" id="draw"></canvas>
+                <canvas width="500" height="500" id="draw"></canvas>
 
                 <neighbours
                     v-if="neighbourMode"
@@ -433,6 +433,7 @@ import io from 'socket.io-client';
 import simpleheat from 'simpleheat';
 import { Slider } from 'vue-color';
 import { instantiateStreaming, ASUtil } from 'assemblyscript/lib/loader';
+import fs from 'fs';
 import Node from '../util/Node';
 import ExplorerState from '../util/ExplorerState';
 import groupColors from '../config/groupColors';
@@ -457,6 +458,7 @@ import Trash from '../icons/Trash';
 import { apiUrl } from '../config/apiUrl';
 // const wa = import('../assets/wasm/optimized.wasm')
 // import MyModule from "assemblyscript/webpack";
+import wasm from '../assets/wasm/optimized.wasm';
 
 export default {
     store: null,
@@ -582,9 +584,11 @@ export default {
         showInfo: true,
         state2: undefined,
         memory: undefined,
+        drawCtx: undefined,
         initOffset: 0,
         offset: 0,
         memoryView: undefined,
+        pixelView: undefined,
         canvasW: 0,
         canvasH: 0,
         canvasPixelSize: 0,
@@ -987,31 +991,79 @@ export default {
             this.store.testPerformance();
         },
 
+        addNode(node) {
+            //  console.warn(node);
+
+            const img = node.imageData[0];
+            console.warn(`IMG ${node.index}:`);
+            console.log(img.data.byteLength, img.width, img.height, this.offset, node.x, node.y);
+            // console.log({ img });
+            // size of img buffer
+            // console.log(img.data)
+
+
+            // add img buffer to memory: Crete a view over the buffer and set use the viewer to set the data
+            this.memoryView.set(img.data, this.offset);
+
+            // console.log(exp.memory.buffer)
+
+            const addNode1 = this.state2.addNode(img.width, img.height, this.offset, node.x, node.y);
+            console.log({ addNode1 });
+
+            const count = this.state2.count();
+            console.log({ count });
+
+            // const checkSum = img.data.reduce((a, e) => a + e, 0);
+            // const realSum = state.state2.checkSum(nodeId);
+            // const getNodeXY = state.state2.getNodeXY(nodeId);
+            // console.log({ checkSum, realSum, getNodeXY });
+
+            this.offset += img.data.byteLength;
+            // console.log({ offset: state.offset });
+
+            this.draw2();
+        },
+
         draw2() {
+            console.time('DRAW2');
             try {
                 console.warn('DRAW2');
-                const ctx = document.getElementById('draw').getContext('2d');
-                console.log(this.state2);
-                console.log(this.state2.count());
+
+                // console.log(this.state2);
+                // console.log(this.state2.count());
+                // console.log(this.emptyDrawPixel, this.memoryView, this.pixelView.data)
+                // this.memoryView.set(this.emptyDrawPixel.buffer, this.initOffset);
+                // const clear = this.state2.clear();
+                // console.log({ clear });
+                // console.log(`checksum draw empty: ${this.state2.checkSum()}`);
+
                 const draw = this.state2.draw();
                 console.log({ draw });
+                // console.log(`checksum draw after: ${this.state2.checkSum()}`);
 
-                console.log(this.memoryView);
-                const drawBufferViewer = new Uint8ClampedArray(this.memoryView.buffer, 4000, 100 * 100 * 4);
-                console.log({ drawBufferViewer });
-                const drawImage = new ImageData(drawBufferViewer, 100, 100);
-                console.log({ drawImage });
-                ctx.putImageData(drawImage, 0, 0);
-                const checkDraw = drawImage.data.reduce((a, e) => a + e, 0);
-                console.log({ checkDraw });
-                return draw;
+                // console.log(this.memoryView);
+                // const drawBufferViewer = new Uint8ClampedArray(this.memoryView.buffer, this.initOffset, this.canvasPixelSize);
+                // console.log({ drawBufferViewer });
+                // console.log({ drawImage });
+
+                // clear canvas
+                // this.drawCtx.clearRect(0, 0, this.canvasW, this.canvasH)
+                // clear old vies
+
+                // console.log(this.emptyDrawPixel, this.memoryView, this.pixelView.data)
+                this.drawCtx.putImageData(this.pixelView, 0, 0);
+                // const checkDraw = this.pixelView.data.reduce((a, e) => a + e, 0);
+                // console.log({ checkDraw });
             } catch (e) {
                 console.error(e);
             }
-            return -1;
+            console.timeEnd('DRAW2');
+
+            return 0;
         },
 
         growMemory(bytes) {
+            console.log(this.offset);
             console.log('%c growMemory(bytes)', 'background: #222; color: #bada55');
             if (!this.state2) new Error('Dont growMemory before init');
             const pagesNeeded = Math.ceil((bytes + this.initOffset) / (64 * 1024));
@@ -1019,6 +1071,7 @@ export default {
             console.log({ pagesNeeded, actualMemorySize });
             if (pagesNeeded > actualMemorySize) this.state2.memory.grow(pagesNeeded - actualMemorySize);
             this.memoryView = new Uint8ClampedArray(this.state2.memory.buffer);
+            this.pixelView = new ImageData(new Uint8ClampedArray(this.state2.memory.buffer, this.initOffset, this.canvasPixelSize), this.canvasW, this.canvasH);
             console.log(this.memoryView);
         },
     },
@@ -1054,19 +1107,6 @@ export default {
             }); */
 
 
-            // const importObject = { imports: { i: arg => console.log(arg) } };
-            const importObject = {
-                main: {
-                    sayHello() {
-                        console.log('Hello from WebAssembly!');
-                    },
-                },
-                env: {
-                    abort(_msg, _file, line, column) {
-                        console.error(`abort called at main.ts:${line}:${column}`);
-                    },
-                },
-            };
             // let stores = await extractModule(wasmModul);
             // console.log({stores})
             // fetch('../assets/wasm/optimized.wasm')
@@ -1109,9 +1149,29 @@ export default {
             // console.log({wasm})
             // const results = await WebAssembly.instantiateStreaming(fetch(wasm))
             // .then(results => console.log(results.instance.exports.add_one(12)));
-            const Module = await import('../assets/wasm/optimized.wasm');
+            this.drawCtx = document.getElementById('draw').getContext('2d');
+            const imports = {
+                env: {
+                    // import as @external("env", "logf")
+                    log1(value) {
+                        console.log(`%c from wasm: ${value}`, 'background: #222; color: #bada55');
+                    },
+                    abort(msg, file, line, column) {
+                        console.error(`abort called at main.ts:${line}:${column}`);
+                    },
+                },
+                console: {
+                    log2(value) {
+                        console.log(`%c from wasm: ${value}`, 'background: #222; color: #bada55');
+                    },
+                },
+            };
+
+            // const Module = await import('../assets/wasm/optimized.wasm');
             console.warn('START');
-            const exp = Module;
+            console.log({ wasm });
+            const Module = await instantiateStreaming(fetch(wasm), imports);
+            console.log(Module);
             const { memory } = Module;
 
             this.state2 = Module;
@@ -1136,66 +1196,48 @@ export default {
                 9. add real pictures while streaming, first 10, handcrafted x,y,
                     init memory 10 * 10 * 10 * 4 = 4000
                 10. init full downloaded memory
-            Todo next
                 11. add all nodes with smallest img size to state
+                11. add scale, transfer to node.draw(s, t) with functions to change them
                 13. resize full canvas to 500, 500
-                14. add scale, transfer to node.draw(s, t)
-                15. node.draw() checks if node should be drawed
-                    (inside the canvas, lookup in real code!)
-
+                14. node.draw() checks if node should be drawed
+                15. add new load wasm with webpack, imports add logging
+            Todo next
+                - add MouseMove + zoom trigger with change scale and tx, ty
+                - add 10 files of images to Node
+                - fix draw placing wrong pixel
             TODO Enhancment
                 - new Way in a worker
             */
 
             console.warn('INIT');
-            const canvasW = 100;
-            const canvasH = 100;
-            const initOffset = 4000;
-            const canvasPixelSize = canvasH * canvasW * 4;
-
-            this.initOffset = initOffset;
-            this.canvasW = canvasW;
-            this.canvasH = canvasH;
-            this.canvasPixelSize = canvasPixelSize;
-            this.offset = initOffset;
+            this.initOffset = 1024 * 64;
+            this.canvasW = 500;
+            this.canvasH = 500;
+            this.canvasPixelSize = this.canvasH * this.canvasW * 4;
+            this.offset = this.initOffset;
 
             console.log({
-                initOffset, canvasW, canvasH, canvasPixelSize,
+                initOffset: this.initOffset, canvasW: this.canvasW, canvasH: this.canvasH, canvasPixelSize: this.canvasPixelSize,
             });
 
             // get more memory
-            this.growMemory(canvasPixelSize);
+            this.growMemory(this.canvasPixelSize);
             // const pagesNeeded = Math.ceil((canvasPixelSize + this.offset) / (64 * 1024)) + 3;
             // const actualMemorySize = exp.memorySize();
             // console.log({ pagesNeeded, actualMemorySize });
             // if (pagesNeeded > actualMemorySize) memory.grow(pagesNeeded - actualMemorySize);
 
 
-            const init = exp.init(0, canvasW, canvasH, this.offset);
+            const init = this.state2.init(0, this.canvasW, this.canvasH, this.offset);
             console.log({ init });
-            console.log(exp.__rtti_base.value);
-            const emptyDrawPixel = new Uint8ClampedArray(new ArrayBuffer(canvasPixelSize));
-
-
-            // create 3 views, the free memory, the drawPixel and the images
-            // const emptyMemoryView = new Uint8ClampedArray(memory.buffer, 0, initOffset);
-            // const drawPixelView = new Uint8ClampedArray(memory.buffer, initOffset, canvasPixelSize);
-            // const allMemoryView = new Uint8ClampedArray(memory.buffer);
-
-            // console.log({
-            //     emptyMemoryView, drawPixelView, allMemoryView, emptyDrawPixel, memoryView,
-            // });
-
-            const { memoryView } = this;
-
-            memoryView.set(emptyDrawPixel.buffer, initOffset); // todo why 0?
-            // new Uint8ClampedArray(memory.buffer, this.offset).set(pixelPuffer.buffer, this.offset)
-
-            // console.log({pixel})
-
+            console.log(this.state2.__rtti_base.value);
             // update offset with canvasPixel size
-            this.offset += emptyDrawPixel.length;
-            console.log(`offset after draw pixel: ${this.offset}`);
+            this.offset += this.canvasPixelSize;
+            console.log('New Offset with canvasPixelSize: ', this.offset);
+
+
+            this.emptyDrawPixel = new Uint8ClampedArray(new ArrayBuffer(this.canvasPixelSize));
+
 
             /*
             // dummy img with own buffer
@@ -1510,42 +1552,12 @@ export default {
                                 size = 0;
                                 state.nodesRecived += 1;
                                 const node = new Node(nodes[nodeId]);
+                                // own js state
                                 store.addNode(node);
                                 store.triggerDraw();
-                                if (nodeId < 6) {
-                                    console.warn(node.imageData[0]);
-                                    const x = nodeId * 10 + 25;
-                                    const y = nodeId * 10 + 25;
+                                // vue state
+                                state.addNode(node);
 
-                                    const img = node.imageData[0];
-                                    console.warn(`IMG ${nodeId}:`);
-                                    console.log(img.data.byteLength, img.width, img.height, state.offset, x, y);
-                                    console.log({ img });
-                                    // size of img buffer
-                                    // console.log(img.data)
-
-
-                                    // add img buffer to memory: Crete a view over the buffer and set use the viewer to set the data
-                                    state.memoryView.set(img.data, state.offset);
-
-                                    // console.log(exp.memory.buffer)
-
-                                    const addNode1 = state.state2.addNode(img.width, img.height, state.offset, x, y);
-                                    console.log({ addNode1 });
-
-                                    const count = state.state2.count();
-                                    console.log({ count });
-
-                                    const checkSum = img.data.reduce((a, e) => a + e, 0);
-                                    const realSum = state.state2.checkSum(nodeId);
-                                    console.log({ checkSum, realSum });
-
-                                    state.offset += img.data.byteLength;
-                                    console.log({ offset: state.offset });
-                                }
-                                if (nodeId === 6) {
-                                    state.draw2();
-                                }
                                 nodeId += 1;
                                 // todo the node can now be established
                             }
@@ -1568,6 +1580,11 @@ export default {
                     console.log({ contentLength });
                     this.growMemory(this.canvasPixelSize + +contentLength);
                     await consume(res.body.getReader());
+
+                    // test
+                    this.state2.setScale(10);
+                    this.state2.setTxTy(150, 150);
+                    this.draw2();
                 })
                 .then((e) => {
                     console.log(e);
@@ -1576,6 +1593,7 @@ export default {
                 .catch((e) => {
                     console.error('something went wrong with reading img stream:');
                     console.log(e);
+                    console.log(this.state2.memory);
                 });
 
 
@@ -1679,7 +1697,7 @@ export default {
     position: relative;
     margin: 5px;
     height: calc(100% - 1rem); /* -double margin */
-    width: calc(100% - 25rem); /* -details width */
+    width: calc(80% - 25rem); /* -details width */
 }
 
 .details {
