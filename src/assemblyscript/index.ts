@@ -66,22 +66,22 @@ class State {
             // s += this.nodes[x].h
             s += this.nodes[x].draw()
         }
-        return this.checkOutArray()
-        // return s
+        // return this.checkOutArray()
+        return this.offset
 
     }
 
     public checkOutArray(): u32 {
-        let c = 0;
+        // let c = 0;
 
         let v: u32 = 0;
         const size: u32 = 4 * this.canvasH * this.canvasW + this.offset;
         for (let i: u32 = this.offset; i < size; ++i) {
             // store<u8>(i + 2, 1)
-            v += load<u8>(i);
-        };
+            //v += 1//load<u8>(i);
+        }
 
-        return v;
+        return this.offset;
 
     }
 
@@ -134,13 +134,13 @@ class Node {
 
                 // out pixel
                 // const o: u32 = state.offset + (this.y*state.canvasW + this.x) * 4
-                state.count += 1
+                // state.count += 1
                 const outPixel: u32 = startPixel + (r * state.canvasW + c)*4
                 // store<u32>((i * 4) + outPixel, load<u32>((i * 4) + this.ptr))
                 store<u8>(outPixel, load<u8>((i) + this.ptr))
-                store<u8>(outPixel +1, load<u8>((i + 2) + this.ptr))
-                store<u8>(outPixel+2, load<u8>((i + 3) + this.ptr))
-                store<u8>(outPixel+3, load<u8>((i + 1) + this.ptr))
+                store<u8>(outPixel +1, load<u8>((i + 1) + this.ptr))
+                store<u8>(outPixel+2, load<u8>((i + 2) + this.ptr))
+                store<u8>(outPixel+3, load<u8>((i + 3) + this.ptr))
 
                 i++
             }
@@ -179,6 +179,11 @@ export function init(count: u32, canvasW: u32, canvasH: u32, offset: u32): numbe
 // checksum of node x
 export function draw(): u32 {
     return state.draw();
+}
+
+// pages of memory
+export function memorySize(): u32 {
+    return memory.size();
 }
 
 
