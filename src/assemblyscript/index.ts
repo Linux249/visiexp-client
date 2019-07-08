@@ -21,15 +21,17 @@
 
 class State {
     public nodes: Node[] = new Array<Node>();
+    public size: u32;
+    public imgMemoryPtr: u32;
 
-    // protected pixel: Array<u8>;
     constructor(
         public count: u32, // default is 4
         public canvasW: u32, // actual size if canvas
         public canvasH: u32,
         public offset: u32, // default is here
     ) {
-        //pixel: Array<u8> = new Array<u8>(4* this.canvasW * this.canvasH).fill(0, 0, 4)
+        //todo add size
+        this.imgMemoryPtr = (4*  this.canvasW * this.canvasH) + this.offset;
     }
 
     public get length(): u32 {
@@ -75,8 +77,7 @@ class State {
         // let c = 0;
 
         let v: u32 = 0;
-        const size: u32 = 4 * this.canvasH * this.canvasW + this.offset;
-        for (let i: u32 = this.offset; i < size; ++i) {
+        for (let i: u32 = this.offset, size: u32 = this.imgMemoryPtr; i < size; ++i) {
             // store<u8>(i + 2, 1)
             //v += 1//load<u8>(i);
         }
@@ -119,7 +120,7 @@ class Node {
         // my start of pixel in buffer
         // const offset: u32 = state.offset + this.ptr
 
-        const size: u32 = 4 * state.canvasH * state.canvasW + state.offset;
+        const size: u32 = state.imgMemoryPtr;
         let i: u32 = 0;
 
         const startPixel = state.offset + (this.y * state.canvasW + this.x) * 4

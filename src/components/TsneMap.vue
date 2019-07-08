@@ -582,8 +582,12 @@ export default {
         showInfo: true,
         state2: undefined,
         memory: undefined,
+        initOffset: 0,
         offset: 0,
-        pixelView: undefined,
+        memoryView: undefined,
+        canvasW: 0,
+        canvasH: 0,
+        canvasPixelSize: 0,
     }),
     methods: {
         getNode(i) {
@@ -982,6 +986,7 @@ export default {
         testPerformance() {
             this.store.testPerformance();
         },
+
         draw2() {
             try {
                 console.warn('DRAW2');
@@ -991,8 +996,8 @@ export default {
                 const draw = this.state2.draw();
                 console.log({ draw });
 
-                console.log(this.pixelView);
-                const drawBufferViewer = new Uint8ClampedArray(this.pixelView.buffer, 4000, 100 * 100 * 4);
+                console.log(this.memoryView);
+                const drawBufferViewer = new Uint8ClampedArray(this.memoryView.buffer, 4000, 100 * 100 * 4);
                 console.log({ drawBufferViewer });
                 const drawImage = new ImageData(drawBufferViewer, 100, 100);
                 console.log({ drawImage });
@@ -1004,6 +1009,17 @@ export default {
                 console.error(e);
             }
             return -1;
+        },
+
+        growMemory(bytes) {
+            console.log('%c growMemory(bytes)', 'background: #222; color: #bada55');
+            if (!this.state2) new Error('Dont growMemory before init');
+            const pagesNeeded = Math.ceil((bytes + this.initOffset) / (64 * 1024));
+            const actualMemorySize = this.state2.memorySize();
+            console.log({ pagesNeeded, actualMemorySize });
+            if (pagesNeeded > actualMemorySize) this.state2.memory.grow(pagesNeeded - actualMemorySize);
+            this.memoryView = new Uint8ClampedArray(this.state2.memory.buffer);
+            console.log(this.memoryView);
         },
     },
 
@@ -1096,82 +1112,92 @@ export default {
             const Module = await import('../assets/wasm/optimized.wasm');
             console.warn('START');
             const exp = Module;
-            // document.getElementById("container").textContent = "Result: " + exp.add(19, 23);
+            const { memory } = Module;
+
+            this.state2 = Module;
+            this.memory = memory;
+            console.log(memory);
+
+
             // console.log(result)
             // console.log(result.instance)
-            const { memory } = exp;
-
-            this.state2 = exp;
-            this.memory = memory;
-
-
             // console.log(exp)
 
             /*
-    ADDED:
-    1. cummincate between js and AS
-    2. pass buffer to AS
-    3. Add Node Class to save pointer and size => get acces to pixel data for each img
-    4. add Store for saving nodes and operation on multi nodes
-    5. pixel array for return data and change via AS
-    6. Add draw to state and nodes
-    7. add test canvas for showing result
-    8. add variable memory based on canvasPixelSize and change cavnas size to 100, 100
-    9. add real pictures while streaming, first 10, handcrafted x,y, init memory 10 * 10 * 10 * 4 = 4000
-    Todo
-        10. init full downloaded memory
-        11. add all nodes with smallest img size to state
-        13. resize full canvas to 500, 500
-        14. add scale, transfer to node.draw(s, t)
-        15. node.draw() checks if node should be drawed (inside the canvas, lookup in real code!)
+            TODO ADDED:
+                1. cummincate between js and AS
+                2. pass buffer to AS
+                3. Add Node Class to save pointer and size => get acces to pixel data for each img
+                4. add Store for saving nodes and operation on multi nodes
+                5. pixel array for return data and change via AS
+                6. Add draw to state and nodes
+                7. add test canvas for showing result
+                8. add variable memory based on canvasPixelSize and change cavnas size to 100, 100
+                9. add real pictures while streaming, first 10, handcrafted x,y,
+                    init memory 10 * 10 * 10 * 4 = 4000
+                10. init full downloaded memory
+            Todo next
+                11. add all nodes with smallest img size to state
+                13. resize full canvas to 500, 500
+                14. add scale, transfer to node.draw(s, t)
+                15. node.draw() checks if node should be drawed
+                    (inside the canvas, lookup in real code!)
 
-    TODO Enhancment
-        - new Way in a worker
-  */
+            TODO Enhancment
+                - new Way in a worker
+            */
 
             console.warn('INIT');
             const canvasW = 100;
             const canvasH = 100;
             const initOffset = 4000;
             const canvasPixelSize = canvasH * canvasW * 4;
-            let offset = initOffset;
-            console.log({ initOffset, canvasPixelSize });
-            console.log(memory);
+
+            this.initOffset = initOffset;
+            this.canvasW = canvasW;
+            this.canvasH = canvasH;
+            this.canvasPixelSize = canvasPixelSize;
+            this.offset = initOffset;
+
+            console.log({
+                initOffset, canvasW, canvasH, canvasPixelSize,
+            });
 
             // get more memory
-            const pagesNeeded = Math.ceil((canvasPixelSize + offset) / (64 * 1024)) + 3;
-            const actualMemorySize = exp.memorySize();
-            console.log({ pagesNeeded, actualMemorySize });
-            if (pagesNeeded > actualMemorySize) memory.grow(pagesNeeded - actualMemorySize);
+            this.growMemory(canvasPixelSize);
+            // const pagesNeeded = Math.ceil((canvasPixelSize + this.offset) / (64 * 1024)) + 3;
+            // const actualMemorySize = exp.memorySize();
+            // console.log({ pagesNeeded, actualMemorySize });
+            // if (pagesNeeded > actualMemorySize) memory.grow(pagesNeeded - actualMemorySize);
 
 
-            const init = exp.init(0, canvasW, canvasH, offset);
+            const init = exp.init(0, canvasW, canvasH, this.offset);
             console.log({ init });
             console.log(exp.__rtti_base.value);
             const emptyDrawPixel = new Uint8ClampedArray(new ArrayBuffer(canvasPixelSize));
 
 
             // create 3 views, the free memory, the drawPixel and the images
-            const emptyMemoryView = new Uint8ClampedArray(memory.buffer, 0, initOffset);
-            const drawPixelView = new Uint8ClampedArray(memory.buffer, initOffset, canvasPixelSize);
-            const allMemoryView = new Uint8ClampedArray(memory.buffer);
-            const pixelView = new Uint8ClampedArray(memory.buffer);
-            console.log({
-                emptyMemoryView, drawPixelView, allMemoryView, emptyDrawPixel, pixelView,
-            });
+            // const emptyMemoryView = new Uint8ClampedArray(memory.buffer, 0, initOffset);
+            // const drawPixelView = new Uint8ClampedArray(memory.buffer, initOffset, canvasPixelSize);
+            // const allMemoryView = new Uint8ClampedArray(memory.buffer);
 
-            this.pixelView = pixelView;
+            // console.log({
+            //     emptyMemoryView, drawPixelView, allMemoryView, emptyDrawPixel, memoryView,
+            // });
 
-            pixelView.set(emptyDrawPixel.buffer, initOffset); // todo why 0?
-            // new Uint8ClampedArray(memory.buffer, offset).set(pixelPuffer.buffer, offset)
+            const { memoryView } = this;
+
+            memoryView.set(emptyDrawPixel.buffer, initOffset); // todo why 0?
+            // new Uint8ClampedArray(memory.buffer, this.offset).set(pixelPuffer.buffer, this.offset)
 
             // console.log({pixel})
 
             // update offset with canvasPixel size
-            offset += emptyDrawPixel.length;
-            console.log(`Offset after draw pixel: ${offset}`);
+            this.offset += emptyDrawPixel.length;
+            console.log(`offset after draw pixel: ${this.offset}`);
 
-
+            /*
             // dummy img with own buffer
             const imgBuffer = new Uint8ClampedArray([
                 46, 38, 23, 255, 112, 103, 69, 255, 90, 79, 36, 255, 113,
@@ -1203,10 +1229,10 @@ export default {
             console.log({ img });
 
 
-            // console.log({ pixelView });
+            // console.log({ memoryView });
 
             // add img buffer to memory: Crete a view over the buffer and set use the viewer to set the data
-            pixelView.set(img.data, offset);
+            memoryView.set(img.data, offset);
 
             const addNode1 = exp.addNode(img.width, img.height, offset, 0, 0);
             console.log({ addNode1 });
@@ -1233,7 +1259,7 @@ export default {
             img2.data[0] = 45;
 
             // load pixel to buffer
-            pixelView.set(img2.data, offset);
+            memoryView.set(img2.data, offset);
 
             const addNode2 = exp.addNode(img2.width, img2.height, offset, 15, 15);
             console.log({ addNode2 });
@@ -1253,12 +1279,12 @@ export default {
             // draw
             let checkDraw = 0;
             for (let i = initOffset; i < (emptyDrawPixel.length + initOffset); i++) {
-                checkDraw += pixelView[i];
+                checkDraw += memoryView[i];
             }
             console.log({ checkDraw });
-            // console.log({ pixelView, pixelPuffer: emptyDrawPixel });
+            // console.log({ memoryView, pixelPuffer: emptyDrawPixel });
 
-            console.log({ draw: this.draw2() });
+            console.log({ draw: this.draw2() }); */
 
 
             // OLD WAY
@@ -1492,7 +1518,7 @@ export default {
                                     const y = nodeId * 10 + 25;
 
                                     const img = node.imageData[0];
-                                    console.warn(`IMG ${nodeId + 2}:`);
+                                    console.warn(`IMG ${nodeId}:`);
                                     console.log(img.data.byteLength, img.width, img.height, state.offset, x, y);
                                     console.log({ img });
                                     // size of img buffer
@@ -1500,7 +1526,7 @@ export default {
 
 
                                     // add img buffer to memory: Crete a view over the buffer and set use the viewer to set the data
-                                    state.pixelView.set(img.data, state.offset);
+                                    state.memoryView.set(img.data, state.offset);
 
                                     // console.log(exp.memory.buffer)
 
@@ -1511,7 +1537,7 @@ export default {
                                     console.log({ count });
 
                                     const checkSum = img.data.reduce((a, e) => a + e, 0);
-                                    const realSum = state.state2.checkSum(nodeId + 2);
+                                    const realSum = state.state2.checkSum(nodeId);
                                     console.log({ checkSum, realSum });
 
                                     state.offset += img.data.byteLength;
@@ -1538,7 +1564,9 @@ export default {
                 .then(async (res) => {
                     console.log(res);
                     console.log(res.headers);
-                    console.log(res.headers.get('content-length'));
+                    const contentLength = res.headers.get('content-length');
+                    console.log({ contentLength });
+                    this.growMemory(this.canvasPixelSize + +contentLength);
                     await consume(res.body.getReader());
                 })
                 .then((e) => {
