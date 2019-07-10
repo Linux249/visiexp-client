@@ -9,7 +9,7 @@
             <div class="title" >Password</div>
             <input type="password" v-model="password">
         </label>
-        <div class="btn margin" @click="login">login</div>
+        <div class="btn margin" @click="login" :class="{ active: loading }">login</div>
         <div v-if="error" class="title" style="color: red">{{error}}</div>
         <div v-if="loading" class="title" style="color: red">Loading...</div>
     </div>
@@ -45,25 +45,34 @@ export default {
                     method: 'POST',
                     headers: { 'Content-type': 'application/json' },
                     body: JSON.stringify(body),
-                }).then(r => r.json());
-                console.log('response');
+                });
                 console.log(res);
-                if (res.status !== 200) {
-                    this.error = res.message;
-                }
-                this.loading = false;
+                if (!res.ok) throw Error(res.statusText);
+                const data = await res.json();
 
                 if (res.isAuth) {
                     this.setAuth(res.id);
+                    this.$notify({
+                        group: 'default',
+                        title: 'Login successful',
+                        type: 'success',
+                    });
+                } else {
+                    throw Error(data.message);
                 }
-                if (process.env.NODE_ENV === 'development') this.setAuth(0);
             } catch (e) {
-                this.loading = false;
                 this.error = e.message;
                 console.log(e);
                 console.log(e.message);
-                if (process.env.NODE_ENV === 'development') this.setAuth(0);
+                this.$notify({
+                    group: 'default',
+                    title: 'Error log in',
+                    type: 'error',
+                    text: e.message,
+                });
             }
+            this.loading = false;
+            if (process.env.NODE_ENV === 'development') this.setAuth(0);
         },
     },
 };

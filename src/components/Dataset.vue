@@ -56,12 +56,20 @@ export default {
         try {
             console.log('load dataset after mounting');
             this.loading = true;
-            const datasets = await fetch(`${apiUrl}/api/v1/dataset/all`).then(res => res.json());
+            const res = await fetch(`${apiUrl}/api/v1/dataset/all`);
+            if (!res.ok) throw Error(res.statusText);
+            const datasets = await res.json();
             console.log({ datasets });
             this.datasets = datasets;
             this.loading = false;
         } catch (e) {
             this.loading = false;
+            this.$notify({
+                group: 'default',
+                title: 'Error loading all datasets',
+                type: 'error',
+                text: e.message,
+            });
             // TODO bedder error handling!
             console.error(e);
         }

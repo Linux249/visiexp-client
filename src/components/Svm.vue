@@ -191,7 +191,7 @@ export default {
             await fetch(`${apiUrl}/api/v1/svm/stop`, {
                 method: 'POST',
                 headers: { 'Content-type': 'application/json' },
-                body: JSON.stringify({userId: this.$parent.userId})
+                body: JSON.stringify({ userId: this.$parent.userId }),
             })
                 .then(res => res.json())
                 .catch(e => console.error(e));

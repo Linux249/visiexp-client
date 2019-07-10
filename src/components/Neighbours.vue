@@ -44,8 +44,8 @@ export default {
     methods: {
         async getGroupNeighbours() {
             try {
-                console.log('getGroupNeighbours')
-                console.log(this.$parent.userId)
+                console.log('getGroupNeighbours');
+                console.log(this.$parent.userId);
                 this.loading = true;
                 const store = this.getStore();
                 const body = {
@@ -62,18 +62,13 @@ export default {
                     body.neighbours = groupNeighbours;
                 }
 
-                const data = await fetch(`${apiUrl}/api/v1/getGroupNeighbours`, {
+                const res = await fetch(`${apiUrl}/api/v1/getGroupNeighbours`, {
                     method: 'POST',
                     headers: { 'Content-type': 'application/json' },
                     body: JSON.stringify(body),
-                })
-                    .then(res => res.json())
-                    .catch((e) => {
-                        // TODO Errorhandling after loading is implemented
-                        // this.loading = false;
-                        console.error(e);
-                    });
-                const { neighbours, group } = data;
+                });
+                if (!res.ok) throw Error(res.statusText);
+                const { neighbours, group } = await res.json();
                 store.updateGroupNeighbours(neighbours);
                 store.addNodesToActiveGroup(group);
                 console.log({ neighbours, group });
@@ -81,6 +76,12 @@ export default {
             } catch (e) {
                 this.loading = false;
                 console.error(e);
+                this.$notify({
+                    group: 'default',
+                    title: 'Error loading proposals',
+                    type: 'error',
+                    text: e.message,
+                });
             }
         },
 
