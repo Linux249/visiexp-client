@@ -332,36 +332,40 @@ export default class ExplorerState {
     }
 
     testPerformance(n = 100) {
-        console.log('test performance: times from last one');
-        console.log(this.perfLogs.draw);
-        const sorted = this.perfLogs.draw.sort((a, b) => a - b);
-        console.log(sorted);
-        const min = sorted[0];
-        const max = sorted[n - 1];
-        const median = (sorted[49] + sorted[50]) / 2;
-        const firstQuantil = (sorted[24] + sorted[25]) / 2;
-        const thirdQuantil = (sorted[74] + sorted[74]) / 2;
-
-        const avrg = sorted.reduce((e, a) => a + e, 0) / sorted.length;
-
-        const data = {
-            nodes: Object.keys(this.nodes).length,
-            times: n,
-            min,
-            max,
-            '1. Q': firstQuantil,
-            '2. Q (M)': median,
-            '3. Q (M)': thirdQuantil,
-            avrg,
-        };
-        this.datas.push(data);
-        console.table(this.datas);
-
+        console.log('testPerformance');
         this.performanceTest = true;
         this.perfLogs.draw = [];
+
         for (let i = 0; i < n; i += 1) {
             window.requestAnimationFrame(() => this.draw());
         }
+        window.requestAnimationFrame(() => {
+            console.log(this.perfLogs);
+            const sorted = this.perfLogs.draw.sort((a, b) => a - b);
+            console.log(sorted);
+            const min = sorted[0];
+            const max = sorted[n - 1];
+            const median = (sorted[49] + sorted[50]) / 2;
+            const firstQuantil = (sorted[24] + sorted[25]) / 2;
+            const thirdQuantil = (sorted[74] + sorted[74]) / 2;
+
+            const avrg = sorted.reduce((e, a) => a + e, 0) / sorted.length;
+
+            const data = {
+                nodes: Object.keys(this.nodes).length,
+                times: n,
+                min,
+                max,
+                '1. Q': firstQuantil,
+                '2. Q (M)': median,
+                '3. Q (M)': thirdQuantil,
+                avrg,
+            };
+            this.datas.push(data);
+            console.table(this.datas);
+
+            this.performanceTest = false;
+        });
 
         // this.performanceTest = false;
         console.log('test performance end');
