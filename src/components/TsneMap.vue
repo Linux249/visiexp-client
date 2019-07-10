@@ -452,6 +452,7 @@ import Minus from '../icons/Minus';
 import Logs from './Logs';
 import Trash from '../icons/Trash';
 import { apiUrl } from '../config/apiUrl';
+import { logYellow } from '../util/logging';
 
 export default {
     store: null,
@@ -1042,6 +1043,7 @@ export default {
         this.socket = socket;
 
         socket.on('connect', () => {
+            logYellow('Socket: connect');
             this.connectedToSocket = true;
             // notification
             this.$notify({
@@ -1076,6 +1078,7 @@ export default {
         });
 
         socket.on('Error', (data) => {
+            logYellow('Socket: Error');
             console.error('Server response with error:');
             console.error(data.message);
             console.error(data);
@@ -1088,6 +1091,7 @@ export default {
         });
 
         socket.on('disconnect', (reason) => {
+            logYellow('Socket: disconnect');
             this.connectedToSocket = false;
             this.$notify({
                 group: 'default',
@@ -1100,6 +1104,7 @@ export default {
 
         // get a new node from server
         socket.on('node', (data) => {
+            logYellow('Socket: node');
             if (data.index % 100 === 0) {
                 console.log(`Socket: node ${data.index}`);
                 console.log(data);
@@ -1112,7 +1117,7 @@ export default {
         });
 
         socket.on('requestImage', (data) => {
-            // console.log('Socket: requestImage');
+            logYellow('Socket: requestImage');
             // console.log(data);
             const node = store.nodes[data.index];
             // console.log(node);
@@ -1120,19 +1125,19 @@ export default {
         });
 
         socket.on('totalNodesCount', (data) => {
-            console.log('Socket: totalNodesCount');
+            logYellow('Socket: totalNodesCount');
             console.log(data);
             this.nodesTotal = data.count;
         });
 
         socket.on('sendAllNodes', async (nodes) => {
+            logYellow('Socket: sendAllNodes');
             this.$notify({
                 group: 'default',
                 title: 'Finish loading data',
                 type: 'success',
                 text: 'all data loaded',
             });
-            console.log('Socket: sendAllNodes');
             console.log(nodes);
             const state = this;
 
@@ -1240,13 +1245,13 @@ export default {
         });
 
         socket.on('updateCategories', (data) => {
-            console.log('Socket: updateCategories');
+            logYellow('Socket: updateCategories');
             console.log(data);
             this.labels = data.labels;
         });
 
         socket.on('updateEmbedding', (data, cb) => {
-            console.log('Socket: updateEmbedding');
+            logYellow('Socket: updateEmbedding');
             console.log(data);
             // not every handler sends a cb
             if (cb) cb({ stopped: this.autoUpdateEmbedding });
@@ -1263,7 +1268,7 @@ export default {
         // this.updateCanvas();
 
         socket.on('connect_error', () => {
-            console.log('Socket: connect_error');
+            logYellow('Socket: connect_error');
             this.$notify({
                 group: 'default',
                 title: 'Error connecting to Server',
@@ -1273,31 +1278,31 @@ export default {
         });
 
         socket.on('connect_timeout', () => {
-            console.log('Socket: connect_timeout');
+            logYellow('Socket: connect_timeout');
         });
 
         socket.on('reconnect', () => {
-            console.log('Socket: reconnect');
+            logYellow('Socket: reconnect');
         });
 
         socket.on('connecting', () => {
-            console.log('Socket: connecting');
+            logYellow('Socket: connecting');
         });
 
         socket.on('Socket: reconnecting', () => {
-            console.log('reconnecting');
+            logYellow('reconnecting');
         });
 
         socket.on('connect_failed', () => {
-            console.log('Socket: connect_failed');
+            logYellow('Socket: connect_failed');
         });
 
         socket.on('reconnect_failed', () => {
-            console.log('Socket: reconnect_failed');
+            logYellow('Socket: reconnect_failed');
         });
 
         socket.on('close', () => {
-            console.log('Socket: close');
+            logYellow('Socket: close');
         });
     },
     beforeDestroy() {

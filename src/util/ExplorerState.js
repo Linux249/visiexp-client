@@ -1179,7 +1179,7 @@ export default class ExplorerState {
         const endTime = window.performance.now();
         const time = endTime - startTime;
         // console.log(`Draw: ${time}`);
-        if (this.ui.showLogs || this.performanceTest) this.perfLogs.draw.push(Math.round(time*1000)/1000);
+        if (this.ui.showLogs || this.performanceTest) this.perfLogs.draw.push(Math.round(time * 1000) / 1000);
         if (time > this.maxDrawTime) {
             this.maxDrawTime = time;
             console.warn('new max draw time');
