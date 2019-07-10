@@ -286,13 +286,12 @@
                     </div>
 
                     <!--<div class="row-btn">-->
-                        <!--<div>Cluster: tile: {{ clusterTile }}</div>-->
-                        <!--<div class="row">-->
-                            <!--<div @click="changeClusterTile(-1)" class="btn"><minus></minus></div>-->
-                            <!--<div @click="changeClusterTile(1)" class="btn"><plus></plus></div>-->
-                        <!--</div>-->
+                    <!--<div>Cluster: tile: {{ clusterTile }}</div>-->
+                    <!--<div class="row">-->
+                    <!--<div @click="changeClusterTile(-1)" class="btn"><minus></minus></div>-->
+                    <!--<div @click="changeClusterTile(1)" class="btn"><plus></plus></div>-->
                     <!--</div>-->
-
+                    <!--</div>-->
                 </div>
 
                 <div v-if="!neighbourMode" class="area">
@@ -397,9 +396,14 @@
 
                 <div v-if="showInfo && !neighbourMode" class="area info-box">
                     <div class="row v-center">
-                        1. mark images with <div class="btn">STRG+Click</div> / <scissors class="btn"></scissors>
+                        1. mark images with
+                        <div class="btn">STRG+Click</div>
+                        / <scissors class="btn"></scissors>
                     </div>
-                    <div class="row v-center">2. create groups with <div class="btn">save group</div></div>
+                    <div class="row v-center">
+                        2. create groups with
+                        <div class="btn">save group</div>
+                    </div>
                     <div class="row v-center">3. get proposals with <play class="btn"></play></div>
                     <!--<div class="row v-center">4. remove wrong with <div class="btn">Click</div></div>-->
                     <!--<div class="row v-center">5. update proposals and iterate</div>-->
@@ -409,11 +413,14 @@
                 </div>
                 <div v-if="showInfo && neighbourMode" class="area info-box">
                     <!--<div class="row v-center">-->
-                        <!--1. mark images with <div class="btn">STRG+Click</div> or <scissors class="btn"></scissors>-->
+                    <!--1. mark images with <div class="btn">STRG+Click</div> or <scissors class="btn"></scissors>-->
                     <!--</div>-->
                     <!--<div class="row v-center">2. create groups</div>-->
                     <!--<div class="row v-center">3. get proposals with <play class="btn"></play></div>-->
-                    <div class="row v-center">1. mark wrong with <div class="btn">Click</div></div>
+                    <div class="row v-center">
+                        1. mark wrong with
+                        <div class="btn">Click</div>
+                    </div>
                     <div class="row v-center">2. update proposals and iterate</div>
                     <div class="row v-center">3. stop with</div>
                     <!--<div class="row v-center">7. update embedding</div>-->
@@ -593,7 +600,10 @@ export default {
                 // this.store.resetStore();
                 this.loadingNodes = true;
                 this.socket.emit('updateEmbedding', {
-                    nodes, datasetId: this.dataset, userId: this.userId, count: this.selectedImgCount,
+                    nodes,
+                    datasetId: this.dataset,
+                    userId: this.userId,
+                    count: this.selectedImgCount,
                 });
                 this.$notify({
                     group: 'default',
@@ -657,7 +667,7 @@ export default {
             const { heatmap } = this;
 
             // data in form of [[x,y,v], [x,y,v], ...]
-            const data = Object.values(this.store.getNodes()).map((node) => {
+            const data = Object.values(this.store.getNodes()).map(node => {
                 const x = (node.x * this.store.scale + this.store.translateX) / 4;
                 const y = (node.y * this.store.scale + this.store.translateY) / 4;
                 return [x, y, 1];
@@ -681,7 +691,7 @@ export default {
             const h = this.navHeatmapRect.height;
 
             // data in form of [[x,y,v], [x,y,v], ...]
-            const data = Object.values(this.store.getNodes()).map((node) => {
+            const data = Object.values(this.store.getNodes()).map(node => {
                 const x = node.x * 5 + w / 2;
                 const y = node.y * 5 + h / 2;
                 return [x, y, 1];
@@ -1077,7 +1087,7 @@ export default {
             }
         });
 
-        socket.on('Error', (data) => {
+        socket.on('Error', data => {
             logYellow('Socket: Error');
             console.error('Server response with error:');
             console.error(data.message);
@@ -1090,7 +1100,7 @@ export default {
             });
         });
 
-        socket.on('disconnect', (reason) => {
+        socket.on('disconnect', reason => {
             logYellow('Socket: disconnect');
             this.connectedToSocket = false;
             this.$notify({
@@ -1103,7 +1113,7 @@ export default {
         });
 
         // get a new node from server
-        socket.on('node', (data) => {
+        socket.on('node', data => {
             logYellow('Socket: node');
             if (data.index % 100 === 0) {
                 console.log(`Socket: node ${data.index}`);
@@ -1116,7 +1126,7 @@ export default {
             store.triggerDraw();
         });
 
-        socket.on('requestImage', (data) => {
+        socket.on('requestImage', data => {
             logYellow('Socket: requestImage');
             // console.log(data);
             const node = store.nodes[data.index];
@@ -1124,13 +1134,13 @@ export default {
             node.image.src = `data:image/jpeg;base64,${data.buffer}`;
         });
 
-        socket.on('totalNodesCount', (data) => {
+        socket.on('totalNodesCount', data => {
             logYellow('Socket: totalNodesCount');
             console.log(data);
             this.nodesTotal = data.count;
         });
 
-        socket.on('sendAllNodes', async (nodes) => {
+        socket.on('sendAllNodes', async nodes => {
             logYellow('Socket: sendAllNodes');
             this.$notify({
                 group: 'default',
@@ -1151,7 +1161,6 @@ export default {
                 let nodeId = 0; // starting node id
                 let oldChunk = new Uint8Array(); // save the rest of the unused chunk
 
-
                 function pump() {
                     return reader.read().then(({ done, value }) => {
                         if (done) {
@@ -1167,12 +1176,13 @@ export default {
 
                         // check if a hole image is in the chunk or if the data are part of the next one
                         while (picByteLen <= chunk.byteLength - readFromChunk - 2) {
-                            if (!nodes[nodeId].imageData) nodes[nodeId].imageData = Object.create(null);
+                            if (!nodes[nodeId].imageData)
+                                nodes[nodeId].imageData = Object.create(null);
 
                             nodes[nodeId].imageData[size] = new ImageData(
                                 new Uint8ClampedArray(chunk.slice(h + 1, h + picByteLen + 1)),
                                 chunk[w],
-                                chunk[h],
+                                chunk[h]
                             );
 
                             // update vars for reading bytes
@@ -1209,7 +1219,7 @@ export default {
             });
 
             await fetch(`${apiUrl}/api/v1/dataset/images/${this.dataset}/${this.selectedImgCount}`)
-                .then(async (res) => {
+                .then(async res => {
                     console.log(res);
                     console.log(`content-length${res.headers.get('content-length')}`);
                     if (!res.ok) {
@@ -1226,9 +1236,11 @@ export default {
                         text: 'all images should be visible now',
                     });
                     this.activateClusterMode();
-                    console.log('consumed the entire body without keeping the whole thing in memory!');
+                    console.log(
+                        'consumed the entire body without keeping the whole thing in memory!'
+                    );
                 })
-                .catch((e) => {
+                .catch(e => {
                     this.$notify({
                         group: 'default',
                         title: 'Error loading images',
@@ -1239,12 +1251,11 @@ export default {
                     console.error(e);
                 });
 
-
             this.loadingNodes = false;
             console.timeEnd('loadAllNodes');
         });
 
-        socket.on('updateCategories', (data) => {
+        socket.on('updateCategories', data => {
             logYellow('Socket: updateCategories');
             console.log(data);
             this.labels = data.labels;
@@ -1330,7 +1341,6 @@ export default {
     height: 100%;
     /*margin: 0.5rem;*/
 }
-
 
 .header {
     display: flex;
@@ -1435,7 +1445,7 @@ export default {
     align-items: center;
     padding: 0 0.5rem;
 }
-.info-box{
+.info-box {
     padding: 0.5rem;
 }
 

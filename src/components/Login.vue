@@ -1,18 +1,18 @@
 <template>
     <div class="body">
-    <div class="area login">
-        <label>
-            <div class="title">Username</div>
-            <input type="text" v-model="user">
-        </label>
-        <label>
-            <div class="title" >Password</div>
-            <input type="password" v-model="password">
-        </label>
-        <div class="btn margin" @click="login" :class="{ active: loading }">login</div>
-        <div v-if="error" class="title" style="color: red">{{error}}</div>
-        <div v-if="loading" class="title" style="color: red">Loading...</div>
-    </div>
+        <div class="area login">
+            <label>
+                <div class="title">Username</div>
+                <input type="text" v-model="user" />
+            </label>
+            <label>
+                <div class="title">Password</div>
+                <input type="password" v-model="password" />
+            </label>
+            <div class="btn margin" @click="login" :class="{ active: loading }">login</div>
+            <div v-if="error" class="title" style="color: red">{{ error }}</div>
+            <div v-if="loading" class="title" style="color: red">Loading...</div>
+        </div>
     </div>
 </template>
 
@@ -79,26 +79,26 @@ export default {
 </script>
 
 <style scoped>
-    .body {
-        width: 100%;
-        height: 100%;
+.body {
+    width: 100%;
+    height: 100%;
 
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    .login {
-        width: 20rem;
-        padding-right: 8px;
-        padding-top: 0.5rem;
-    }
-    input {
-        width: 90%;
-        margin: 8px;
-    }
-    .margin {
-        width: min-content;
-        margin-top: 0.5rem;
-        margin-bottom: 0.5rem;
-    }
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.login {
+    width: 20rem;
+    padding-right: 8px;
+    padding-top: 0.5rem;
+}
+input {
+    width: 90%;
+    margin: 8px;
+}
+.margin {
+    width: min-content;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
 </style>

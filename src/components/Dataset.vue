@@ -6,24 +6,30 @@
         </div>
         <div v-for="set in datasets" :key="set.id" @click="selectDataset(set.id)">
             <div class="row v-center">
-                <div class="btn" :class="{ active: selectedDataset === set.id }">{{ `${set.name}` }}</div>
+                <div class="btn" :class="{ active: selectedDataset === set.id }">
+                    {{ `${set.name}` }}
+                </div>
             </div>
             <div class="description-small">{{ `Size: ${set.size}` }}</div>
-            <div class="description">{{ set.exists ? set.description : 'Dataset file does not exists'}}</div>
+            <div class="description">
+                {{ set.exists ? set.description : 'Dataset file does not exists' }}
+            </div>
         </div>
-        <div class="title">Amount</div>
-        <div class="between">
-            <range-slider
-                :value="imgCount"
-                :change="changeImgCount"
-                :step="500"
-                :min="500"
-                :max="10000"
-            ></range-slider>
-            <div class="btn">{{`${imgCount}#`}}</div>
-        </div>
-        <div class="flex">
-            <div class="btn" @click="triggerChangeDataset">load Dataset</div>
+        <div v-if="!loading">
+            <div class="title">Amount</div>
+            <div class="between">
+                <range-slider
+                    :value="imgCount"
+                    :change="changeImgCount"
+                    :step="500"
+                    :min="500"
+                    :max="10000"
+                ></range-slider>
+                <div class="btn">{{ `${imgCount}#` }}</div>
+            </div>
+            <div class="flex">
+                <div class="btn" @click="triggerChangeDataset">load Dataset</div>
+            </div>
         </div>
     </div>
 </template>
