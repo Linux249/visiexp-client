@@ -50,7 +50,7 @@ export default {
                 if (!res.ok) throw Error(res.statusText);
                 const data = await res.json();
 
-                if (res.isAuth) {
+                if (data.isAuth) {
                     this.setAuth(res.id);
                     this.$notify({
                         group: 'default',
