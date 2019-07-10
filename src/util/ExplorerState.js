@@ -1237,6 +1237,12 @@ export default class ExplorerState {
         this.translateX -= offsetX * scaleChange;
         this.translateY -= offsetY * scaleChange;
 
+        console.log(this.scale, this.translateX, this.translateY, this.zoomStage)
+        this.ui.state2.setScale(this.scale)
+        this.ui.state2.setTxTy(this.translateX, this.translateY)
+        this.ui.state2.setZoom(Math.floor(this.zoomStage))
+        this.ui.draw2()
+
         this.updateClustering();
         this.triggerDraw();
 
@@ -1326,6 +1332,8 @@ export default class ExplorerState {
                 // move the x/y
                 this.translateX += moveX;
                 this.translateY += moveY;
+                this.ui.state2.addTxTy(moveX, moveY)
+                this.ui.draw2()
             } else if (this.draggedNode) {
                 // console.log("draggeNode")
                 // scale the X/Y

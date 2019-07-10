@@ -459,6 +459,7 @@ import { apiUrl } from '../config/apiUrl';
 // const wa = import('../assets/wasm/optimized.wasm')
 // import MyModule from "assemblyscript/webpack";
 import wasm from '../assets/wasm/optimized.wasm';
+import {logYellow} from "../util/logging";
 
 export default {
     store: null,
@@ -519,7 +520,7 @@ export default {
         cuttedNodes: [], // selected nodes through scissor
         // showOptions: false, // show options menu
         clusterGrowth: 0,
-        showHeatmap: true,
+        showHeatmap: false,
         heatmapRadius: 1,
         heatmapBlur: 5,
         showNavHeatmap: false,
@@ -992,33 +993,38 @@ export default {
         },
 
         addNode(node) {
-            //  console.warn(node);
+            console.warn(node);
+            console.warn(`Add Node ${node.index}:`);
+            const addNode1 = this.state2.addNode(node.x, node.y, node.index);
+            // console.log({addNode1});
 
-            const img = node.imageData[0];
-            console.warn(`IMG ${node.index}:`);
-            console.log(img.data.byteLength, img.width, img.height, this.offset, node.x, node.y);
-            // console.log({ img });
-            // size of img buffer
-            // console.log(img.data)
+            for(let i = 0; i < 10; i += 1) {
+                const img = node.imageData[i];
+                // console.log(img.data.byteLength, img.width, img.height, this.offset, node.x, node.y);
+                // console.log({ img });
+                // size of img buffer
+                // console.log(img.data)
 
 
-            // add img buffer to memory: Crete a view over the buffer and set use the viewer to set the data
-            this.memoryView.set(img.data, this.offset);
+                // add img buffer to memory: Crete a view over the buffer and set use the viewer to set the data
+                this.memoryView.set(img.data, this.offset, img.data.buffer.length);
+                this.state2.addPic(node.index, img.width, img.height, this.offset)
 
-            // console.log(exp.memory.buffer)
+                // console.log(exp.memory.buffer)
 
-            const addNode1 = this.state2.addNode(img.width, img.height, this.offset, node.x, node.y);
-            console.log({ addNode1 });
+                // const addNode1 = this.state2.addNode(img.width, img.height, this.offset, node.x, node.y);
+                // console.log({addNode1});
 
-            const count = this.state2.count();
-            console.log({ count });
+                // const count = this.state2.count();
+                // console.log({count});
+                //
+                // const checkSum = img.data.reduce((a, e) => a + e, 0);
+                // const realSum = this.state2.checkSum(node.index);
+                // const getNodeXY = 0 // this.state2.getNodeXY(node.index);
+                // console.log({checkSum, realSum, getNodeXY});
 
-            // const checkSum = img.data.reduce((a, e) => a + e, 0);
-            // const realSum = state.state2.checkSum(nodeId);
-            // const getNodeXY = state.state2.getNodeXY(nodeId);
-            // console.log({ checkSum, realSum, getNodeXY });
-
-            this.offset += img.data.byteLength;
+                this.offset += img.data.byteLength;
+            }
             // console.log({ offset: state.offset });
 
             this.draw2();
@@ -1038,7 +1044,7 @@ export default {
                 // console.log(`checksum draw empty: ${this.state2.checkSum()}`);
 
                 const draw = this.state2.draw();
-                console.log({ draw });
+                // console.log({ draw });
                 // console.log(`checksum draw after: ${this.state2.checkSum()}`);
 
                 // console.log(this.memoryView);
@@ -1050,7 +1056,8 @@ export default {
                 // this.drawCtx.clearRect(0, 0, this.canvasW, this.canvasH)
                 // clear old vies
 
-                // console.log(this.emptyDrawPixel, this.memoryView, this.pixelView.data)
+                // console.log(this.emptyDrawPixel, this.memoryView, this.pixelView)
+
                 this.drawCtx.putImageData(this.pixelView, 0, 0);
                 // const checkDraw = this.pixelView.data.reduce((a, e) => a + e, 0);
                 // console.log({ checkDraw });
@@ -1072,7 +1079,7 @@ export default {
             if (pagesNeeded > actualMemorySize) this.state2.memory.grow(pagesNeeded - actualMemorySize);
             this.memoryView = new Uint8ClampedArray(this.state2.memory.buffer);
             this.pixelView = new ImageData(new Uint8ClampedArray(this.state2.memory.buffer, this.initOffset, this.canvasPixelSize), this.canvasW, this.canvasH);
-            console.log(this.memoryView);
+            // console.log(this.memoryView,  this.pixelView);
         },
     },
 
@@ -1201,16 +1208,23 @@ export default {
                 13. resize full canvas to 500, 500
                 14. node.draw() checks if node should be drawed
                 15. add new load wasm with webpack, imports add logging
+                16. add panning (MouseMove), scale/translate change (zoom)
+                17. add 10 files of images to Node and resize with zooming
+                18. fix draw placing wrong pixel and missing content after high zooming
+
             Todo next
-                - add MouseMove + zoom trigger with change scale and tx, ty
-                - add 10 files of images to Node
-                - fix draw placing wrong pixel
+                - add node.marked, node.groupId (default 0)
+                - add draw border
+                - add node move, groups move, marked moves
+                - add second array for getting pixel under mouse
+
+
             TODO Enhancment
                 - new Way in a worker
             */
 
             console.warn('INIT');
-            this.initOffset = 1024 * 64;
+            this.initOffset = 1024 * 64 * 5; // 5 pages
             this.canvasW = 500;
             this.canvasH = 500;
             this.canvasPixelSize = this.canvasH * this.canvasW * 4;
@@ -1236,7 +1250,7 @@ export default {
             console.log('New Offset with canvasPixelSize: ', this.offset);
 
 
-            this.emptyDrawPixel = new Uint8ClampedArray(new ArrayBuffer(this.canvasPixelSize));
+            // this.emptyDrawPixel = new Uint8ClampedArray(new ArrayBuffer(this.canvasPixelSize));
 
 
             /*
@@ -1444,8 +1458,8 @@ export default {
         this.socket = socket;
 
         socket.on('connect', () => {
+            logYellow('Socket: connect')
             this.connectedToSocket = true;
-            console.log('Socket: connect');
             console.log(`Socket id: ${socket.id}`);
             // console.log(socket);
             this.socketId = socket.id;
@@ -1465,18 +1479,21 @@ export default {
         });
 
         socket.on('Error', (data) => {
+            logYellow('Socket: Error')
             console.error('Server response with error:');
             console.error(data.message);
             console.error(data);
         });
 
         socket.on('disconnect', (reason) => {
+            logYellow('Socket: disconnect')
             this.connectedToSocket = false;
             console.log('Socket: disconnect', reason);
         });
 
         // get a new node from server
         socket.on('node', (data) => {
+            logYellow('Socket: node')
             if (data.index % 100 === 0) {
                 console.log(`Socket: node ${data.index}`);
                 console.log(data);
@@ -1489,21 +1506,21 @@ export default {
         });
 
         socket.on('requestImage', (data) => {
-            // console.log('Socket: requestImage');
-            // console.log(data);
+            logYellow('Socket: requestImage');
+            console.log(data);
             const node = store.nodes[data.index];
             // console.log(node);
             node.image.src = `data:image/jpeg;base64,${data.buffer}`;
         });
 
         socket.on('totalNodesCount', (data) => {
-            console.log('Socket: totalNodesCount');
+            logYellow('Socket: totalNodesCount');
             console.log(data);
             this.nodesTotal = data.count;
         });
 
         socket.on('sendAllNodes', async (nodes) => {
-            console.log('Socket: sendAllNodes');
+            logYellow('Socket: sendAllNodes');
             console.log(nodes);
             const state = this;
 
@@ -1552,11 +1569,16 @@ export default {
                                 size = 0;
                                 state.nodesRecived += 1;
                                 const node = new Node(nodes[nodeId]);
+
                                 // own js state
                                 store.addNode(node);
                                 store.triggerDraw();
                                 // vue state
+                                // if(nodeId < 90){
+                                // console.log(node)
                                 state.addNode(node);
+                                // }
+
 
                                 nodeId += 1;
                                 // todo the node can now be established
@@ -1603,13 +1625,13 @@ export default {
         });
 
         socket.on('updateCategories', (data) => {
-            console.log('Socket: updateCategories');
+            logYellow('Socket: updateCategories');
             console.log(data);
             this.labels = data.labels;
         });
 
         socket.on('updateEmbedding', (data, cb) => {
-            console.log('Socket: updateEmbedding');
+            logYellow('Socket: updateEmbedding');
             console.log(data);
             // not every handler sends a cb
             if (cb) cb({ stopped: this.autoUpdateEmbedding });
@@ -1621,35 +1643,35 @@ export default {
         // this.updateCanvas();
 
         socket.on('connect_error', () => {
-            console.log('Socket: connect_error');
+            logYellow('Socket: connect_error');
         });
 
         socket.on('connect_timeout', () => {
-            console.log('Socket: connect_timeout');
+            logYellow('Socket: connect_timeout');
         });
 
         socket.on('reconnect', () => {
-            console.log('Socket: reconnect');
+            logYellow('Socket: reconnect');
         });
 
         socket.on('connecting', () => {
-            console.log('Socket: connecting');
+            logYellow('Socket: connecting');
         });
 
         socket.on('Socket: reconnecting', () => {
-            console.log('reconnecting');
+            logYellow('reconnecting');
         });
 
         socket.on('connect_failed', () => {
-            console.log('Socket: connect_failed');
+            logYellow('Socket: connect_failed');
         });
 
         socket.on('reconnect_failed', () => {
-            console.log('Socket: reconnect_failed');
+            logYellow('Socket: reconnect_failed');
         });
 
         socket.on('close', () => {
-            console.log('Socket: close');
+            logYellow('Socket: close');
         });
     },
     beforeDestroy() {
