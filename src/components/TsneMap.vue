@@ -586,15 +586,25 @@ export default {
         sendData() {
             console.log('send data clicked');
             // console.log(this.store.nodes);
-            const nodes = this.store.getNodes();
             // console.log(nodes);
             if (!this.loadingNodes) {
+                const nodes = this.store.getNodes();
                 // this.store.resetStore();
                 this.loadingNodes = true;
                 this.socket.emit('updateEmbedding', {
                     nodes, datasetId: this.dataset, userId: this.userId, count: this.selectedImgCount,
                 });
+                this.$notify({
+                    group: 'default',
+                    title: 'Update embedding',
+                });
                 // this.reset();
+            } else {
+                this.$notify({
+                    group: 'default',
+                    title: 'update embedding still in progress',
+                    type: 'error',
+                });
             }
         },
 
@@ -1033,6 +1043,13 @@ export default {
 
         socket.on('connect', () => {
             this.connectedToSocket = true;
+            // notification
+            this.$notify({
+                group: 'default',
+                title: 'Connected',
+                type: 'success',
+                // text: 'Hello user! This is a notification!'
+            });
             console.log('Socket: connect');
             console.log(`Socket id: ${socket.id}`);
             // console.log(socket);
@@ -1049,6 +1066,12 @@ export default {
                     init: true,
                 });
                 this.reset();
+                this.$notify({
+                    group: 'default',
+                    title: 'Loading Data',
+                    type: 'success',
+                    text: `start loading data for ${this.selectedImgCount} images`,
+                });
             }
         });
 
@@ -1056,10 +1079,22 @@ export default {
             console.error('Server response with error:');
             console.error(data.message);
             console.error(data);
+            this.$notify({
+                group: 'default',
+                title: 'Error from server',
+                type: 'error',
+                text: data.message,
+            });
         });
 
         socket.on('disconnect', (reason) => {
             this.connectedToSocket = false;
+            this.$notify({
+                group: 'default',
+                title: 'Disconnect',
+                type: 'error',
+                text: reason,
+            });
             console.log('Socket: disconnect', reason);
         });
 
@@ -1091,6 +1126,12 @@ export default {
         });
 
         socket.on('sendAllNodes', async (nodes) => {
+            this.$notify({
+                group: 'default',
+                title: 'Finish loading data',
+                type: 'success',
+                text: 'all data loaded',
+            });
             console.log('Socket: sendAllNodes');
             console.log(nodes);
             const state = this;
@@ -1155,25 +1196,46 @@ export default {
                 return pump();
             }
 
+            this.$notify({
+                group: 'default',
+                title: 'Start loading images',
+                type: 'success',
+                // text: `all data loaded`,
+            });
+
             await fetch(`${apiUrl}/api/v1/dataset/images/${this.dataset}/${this.selectedImgCount}`)
                 .then(async (res) => {
                     console.log(res);
-                    console.log(res.headers);
-                    console.log(res.headers.get('content-length'));
-                    await consume(res.body.getReader());
+                    console.log(`content-length${res.headers.get('content-length')}`);
+                    if (!res.ok) {
+                        const err = await res.json();
+                        console.warn(err);
+                        throw Error(err.error.message);
+                    } else await consume(res.body.getReader());
                 })
-                .then((e) => {
-                    console.log(e);
+                .then(() => {
+                    this.$notify({
+                        group: 'default',
+                        title: 'Finish loading images',
+                        type: 'success',
+                        text: 'all images should be visible now',
+                    });
+                    this.activateClusterMode();
                     console.log('consumed the entire body without keeping the whole thing in memory!');
                 })
                 .catch((e) => {
+                    this.$notify({
+                        group: 'default',
+                        title: 'Error loading images',
+                        type: 'error',
+                        text: e.message,
+                    });
                     console.error('something went wrong with reading img stream:');
-                    console.log(e);
+                    console.error(e);
                 });
 
 
             this.loadingNodes = false;
-            this.activateClusterMode();
             console.timeEnd('loadAllNodes');
         });
 
@@ -1192,11 +1254,22 @@ export default {
             // todo check if necessary after have a good solution for best place for init clustering
             this.store.createCluster();
             this.loadingNodes = false;
+            this.$notify({
+                group: 'default',
+                title: 'Embedding updated', // todo add time maybe
+                type: 'success',
+            });
         });
         // this.updateCanvas();
 
         socket.on('connect_error', () => {
             console.log('Socket: connect_error');
+            this.$notify({
+                group: 'default',
+                title: 'Error connecting to Server',
+                type: 'error',
+                text: 'trying to reconnect',
+            });
         });
 
         socket.on('connect_timeout', () => {

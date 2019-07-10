@@ -9,6 +9,7 @@
             :selectedImgCount="selectedImgCount"
             :switchDataset="switchDataset" />
         <login v-if="!isAuth" :setAuth="setAuth"/>
+        <notifications group="default" position="bottom right"  :duration="5000" />
     </div>
 </template>
 
