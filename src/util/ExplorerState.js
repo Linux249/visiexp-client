@@ -351,7 +351,7 @@ export default class ExplorerState {
             const median = (sorted[49] + sorted[50]) / 2;
             const firstQuantil = (sorted[24] + sorted[25]) / 2;
             const thirdQuantil = (sorted[74] + sorted[74]) / 2;
-            const avrg = Math.round(sorted.reduce((e, a) => a + e, 0) / sorted.length*1000)/1000;
+            const avrg = Math.round(sorted.reduce((e, a) => a + e, 0) / sorted.length * 1000) / 1000;
             const size = Math.floor(this.zoomStage);
             let drawed = 0;
 

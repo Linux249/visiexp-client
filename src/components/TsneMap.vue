@@ -670,7 +670,7 @@ export default {
             const { heatmap } = this;
 
             // data in form of [[x,y,v], [x,y,v], ...]
-            const data = Object.values(this.store.getNodes()).map(node => {
+            const data = Object.values(this.store.getNodes()).map((node) => {
                 const x = (node.x * this.store.scale + this.store.translateX) / 4;
                 const y = (node.y * this.store.scale + this.store.translateY) / 4;
                 return [x, y, 1];
@@ -998,6 +998,13 @@ export default {
             this.store.testPerformance();
         },
 
+        handleResize(e) {
+            logYellow('resize');
+            console.log(e);
+            this.updateCanvasSize();
+            this.store.draw2();
+        },
+
         addNode(node) {
             console.warn(node);
             console.warn(`Add Node ${node.index}:`);
@@ -1064,9 +1071,21 @@ export default {
             this.pixelView = new ImageData(new Uint8ClampedArray(this.state2.memory.buffer, this.initOffset, this.canvasPixelSize), this.canvasW, this.canvasH);
             // console.log(this.memoryView,  this.pixelView);
         },
+
+        updateCanvasSize() {
+            console.log('');
+            const canvas = document.getElementById('canvas');
+            const parantWidth = canvas.parentNode.clientWidth;
+            const parantHeight = canvas.parentNode.clientHeight;
+            canvas.width = parantWidth;
+            canvas.height = parantHeight;
+        },
     },
 
     async mounted() {
+        // set resize event handler
+        window.addEventListener('resize', this.handleResize);
+
         console.error('START FETCH');
         if (this.wasmMode) {
             try {
@@ -1304,7 +1323,7 @@ export default {
             this.nodesTotal = data.count;
         });
 
-        socket.on('sendAllNodes', async nodes => {
+        socket.on('sendAllNodes', async (nodes) => {
             logYellow('Socket: sendAllNodes');
             this.$notify({
                 group: 'default',
@@ -1340,8 +1359,7 @@ export default {
 
                         // check if a hole image is in the chunk or if the data are part of the next one
                         while (picByteLen <= chunk.byteLength - readFromChunk - 2) {
-                            if (!nodes[nodeId].imageData)
-                                nodes[nodeId].imageData = Object.create(null);
+                            if (!nodes[nodeId].imageData) nodes[nodeId].imageData = Object.create(null);
 
                             nodes[nodeId].imageData[size] = new ImageData(
                                 new Uint8ClampedArray(chunk.slice(h + 1, h + picByteLen + 1)),
@@ -1362,7 +1380,7 @@ export default {
                                 const node = new Node(nodes[nodeId]);
 
                                 // own js state
-                                if (this.wasmMode) {
+                                if (state.wasmMode) {
                                     store.addNode(node);
                                     store.triggerDraw();
                                 }
@@ -1423,10 +1441,10 @@ export default {
                     });
                     this.activateClusterMode();
                     console.log(
-                        'consumed the entire body without keeping the whole thing in memory!'
+                        'consumed the entire body without keeping the whole thing in memory!',
                     );
                 })
-                .catch(e => {
+                .catch((e) => {
                     this.$notify({
                         group: 'default',
                         title: 'Error loading images',
@@ -1506,6 +1524,7 @@ export default {
     beforeDestroy() {
         // end connection with server socket
         if (this.socket) this.socket.disconnect();
+        window.removeEventListener('resize', this.handleResize);
     },
 };
 </script>
@@ -1547,7 +1566,7 @@ export default {
     position: relative;
     margin: 5px;
     height: calc(100% - 1rem); /* -double margin */
-    width: calc(80% - 25rem); /* -details width */
+    width: calc(100% - 25rem); /* -details width */
 }
 
 .details {
