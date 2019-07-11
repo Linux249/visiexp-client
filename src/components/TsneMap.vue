@@ -286,11 +286,11 @@
                     </div>
 
                     <!--<div class="row-btn">-->
-                    <!--<div>Cluster: tile: {{ clusterTile }}</div>-->
-                    <!--<div class="row">-->
-                    <!--<div @click="changeClusterTile(-1)" class="btn"><minus></minus></div>-->
-                    <!--<div @click="changeClusterTile(1)" class="btn"><plus></plus></div>-->
-                    <!--</div>-->
+                        <!--<div>Cluster: tile: {{ clusterTile }}</div>-->
+                        <!--<div class="row">-->
+                            <!--<div @click="changeClusterTile(-1)" class="btn"><minus></minus></div>-->
+                            <!--<div @click="changeClusterTile(1)" class="btn"><plus></plus></div>-->
+                        <!--</div>-->
                     <!--</div>-->
                 </div>
 
@@ -355,6 +355,8 @@
                     </div>
                 </div>
 
+                <canvas v-if="wasmMode" width="500" height="500" id="draw"></canvas>
+
                 <neighbours
                     v-if="neighbourMode"
                     :getStore="getStore"
@@ -405,26 +407,13 @@
                         <div class="btn">save group</div>
                     </div>
                     <div class="row v-center">3. get proposals with <play class="btn"></play></div>
-                    <!--<div class="row v-center">4. remove wrong with <div class="btn">Click</div></div>-->
-                    <!--<div class="row v-center">5. update proposals and iterate</div>-->
                     <div class="row v-center">4. repeat with other groups</div>
                     <div class="row v-center">5. update embedding</div>
-                    <!--<div class="btn" @click="showInfo = !showInfo">Close info</div>-->
                 </div>
                 <div v-if="showInfo && neighbourMode" class="area info-box">
-                    <!--<div class="row v-center">-->
-                    <!--1. mark images with <div class="btn">STRG+Click</div> or <scissors class="btn"></scissors>-->
-                    <!--</div>-->
-                    <!--<div class="row v-center">2. create groups</div>-->
-                    <!--<div class="row v-center">3. get proposals with <play class="btn"></play></div>-->
-                    <div class="row v-center">
-                        1. mark wrong with
-                        <div class="btn">Click</div>
-                    </div>
+                    <div class="row v-center">1. mark wrong with <div class="btn">Click</div></div>
                     <div class="row v-center">2. update proposals and iterate</div>
                     <div class="row v-center">3. stop with</div>
-                    <!--<div class="row v-center">7. update embedding</div>-->
-                    <!--<div class="btn" @click="showInfo = !showInfo">Close info</div>-->
                 </div>
 
                 <logs v-if="showLogs" :getStore="getStore" />
@@ -437,6 +426,8 @@
 import io from 'socket.io-client';
 import simpleheat from 'simpleheat';
 import { Slider } from 'vue-color';
+import { instantiateStreaming, ASUtil } from 'assemblyscript/lib/loader';
+import fs from 'fs';
 import Node from '../util/Node';
 import ExplorerState from '../util/ExplorerState';
 import groupColors from '../config/groupColors';
@@ -459,6 +450,7 @@ import Minus from '../icons/Minus';
 import Logs from './Logs';
 import Trash from '../icons/Trash';
 import { apiUrl } from '../config/apiUrl';
+import wasm from '../assets/wasm/optimized.wasm';
 import { logYellow } from '../util/logging';
 
 export default {
@@ -583,6 +575,17 @@ export default {
         groupColours: groupColors,
         showLogs: false,
         showInfo: true,
+        state2: undefined,
+        memory: undefined,
+        drawCtx: undefined,
+        initOffset: 0,
+        offset: 0,
+        memoryView: undefined,
+        pixelView: undefined,
+        canvasW: 0,
+        canvasH: 0,
+        canvasPixelSize: 0,
+        wasmMode: !(process.env.NODE_ENV === 'production'),
     }),
     methods: {
         getNode(i) {
@@ -691,7 +694,7 @@ export default {
             const h = this.navHeatmapRect.height;
 
             // data in form of [[x,y,v], [x,y,v], ...]
-            const data = Object.values(this.store.getNodes()).map(node => {
+            const data = Object.values(this.store.getNodes()).map((node) => {
                 const x = node.x * 5 + w / 2;
                 const y = node.y * 5 + h / 2;
                 return [x, y, 1];
@@ -994,9 +997,170 @@ export default {
         testPerformance() {
             this.store.testPerformance();
         },
+
+        addNode(node) {
+            console.warn(node);
+            console.warn(`Add Node ${node.index}:`);
+            const addNode1 = this.state2.addNode(node.x, node.y, node.index);
+            // console.log({addNode1});
+
+            for (let i = 0; i < 10; i += 1) {
+                const img = node.imageData[i];
+                // console.log(img.data.byteLength, img.width, img.height, this.offset, node.x, node.y);
+                // console.log({ img });
+
+                // add img buffer to memory: Crete a view over the buffer and set use the viewer to set the data
+                this.memoryView.set(img.data, this.offset, img.data.buffer.length);
+                this.state2.addPic(node.index, img.width, img.height, this.offset);
+
+                // const checkSum = img.data.reduce((a, e) => a + e, 0);
+                // const realSum = this.state2.checkSum(node.index);
+                // const getNodeXY = 0 // this.state2.getNodeXY(node.index);
+                // console.log({checkSum, realSum, getNodeXY});
+
+                this.offset += img.data.byteLength;
+            }
+            this.draw2();
+        },
+
+        draw2() {
+            console.time('DRAW2');
+            try {
+                console.warn('DRAW2');
+                // console.log(this.emptyDrawPixel, this.memoryView, this.pixelView.data)
+                // const clear = this.state2.clear();
+                // console.log({ clear });
+                // console.log(`checksum draw empty: ${this.state2.checkSum()}`);
+
+                const draw = this.state2.draw();
+                // console.log({ draw });
+                // console.log(`checksum draw after: ${this.state2.checkSum()}`);
+
+                // clear canvas
+                // this.drawCtx.clearRect(0, 0, this.canvasW, this.canvasH)
+
+                // console.log(this.emptyDrawPixel, this.memoryView, this.pixelView)
+
+                this.drawCtx.putImageData(this.pixelView, 0, 0);
+                // const checkDraw = this.pixelView.data.reduce((a, e) => a + e, 0);
+                // console.log({ checkDraw });
+            } catch (e) {
+                console.error(e);
+            }
+            console.timeEnd('DRAW2');
+
+            return 0;
+        },
+
+        growMemory(bytes) {
+            console.log(this.offset);
+            console.log('%c growMemory(bytes)', 'background: #222; color: #bada55');
+            if (!this.state2) new Error('Dont growMemory before init');
+            const pagesNeeded = Math.ceil((bytes + this.initOffset) / (64 * 1024));
+            const actualMemorySize = this.state2.memorySize();
+            console.log({ pagesNeeded, actualMemorySize });
+            if (pagesNeeded > actualMemorySize) this.state2.memory.grow(pagesNeeded - actualMemorySize);
+            this.memoryView = new Uint8ClampedArray(this.state2.memory.buffer);
+            this.pixelView = new ImageData(new Uint8ClampedArray(this.state2.memory.buffer, this.initOffset, this.canvasPixelSize), this.canvasW, this.canvasH);
+            // console.log(this.memoryView,  this.pixelView);
+        },
     },
 
-    mounted() {
+    async mounted() {
+        console.error('START FETCH');
+        if (this.wasmMode) {
+            try {
+                this.drawCtx = document.getElementById('draw').getContext('2d');
+                const imports = {
+                    env: {
+                        // import as @external("env", "logf")
+                        log1(value) {
+                            console.log(`%c from wasm: ${value}`, 'background: #222; color: #bada55');
+                        },
+                        abort(msg, file, line, column) {
+                            console.error(`abort called at main.ts:${line}:${column}`);
+                        },
+                    },
+                    console: {
+                        log2(value) {
+                            console.log(`%c from wasm: ${value}`, 'background: #222; color: #bada55');
+                        },
+                    },
+                };
+
+                // const Module = await import('../assets/wasm/optimized.wasm');
+                console.warn('START');
+                console.log({ wasm });
+                const Module = await instantiateStreaming(fetch(wasm), imports);
+                console.log(Module);
+                const { memory } = Module;
+
+                this.state2 = Module;
+                this.memory = memory;
+                console.log(memory);
+
+                /*
+            TODO ADDED:
+                1. cummincate between js and AS
+                2. pass buffer to AS
+                3. Add Node Class to save pointer and size => get acces to pixel data for each img
+                4. add Store for saving nodes and operation on multi nodes
+                5. pixel array for return data and change via AS
+                6. Add draw to state and nodes
+                7. add test canvas for showing result
+                8. add variable memory based on canvasPixelSize and change cavnas size to 100, 100
+                9. add real pictures while streaming, first 10, handcrafted x,y,
+                    init memory 10 * 10 * 10 * 4 = 4000
+                10. init full downloaded memory
+                11. add all nodes with smallest img size to state
+                11. add scale, transfer to node.draw(s, t) with functions to change them
+                13. resize full canvas to 500, 500
+                14. node.draw() checks if node should be drawed
+                15. add new load wasm with webpack, imports add logging
+                16. add panning (MouseMove), scale/translate change (zoom)
+                17. add 10 files of images to Node and resize with zooming
+                18. fix draw placing wrong pixel and missing content after high zooming
+
+            Todo next
+                - add node.marked, node.groupId (default 0)
+                - add draw border
+                - add node move, groups move, marked moves
+                - add second array for getting pixel under mouse
+
+
+            TODO Enhancment
+                - new Way in a worker
+            */
+
+                console.warn('INIT');
+                this.initOffset = 1024 * 64 * 5; // 5 pages
+                this.canvasW = 500;
+                this.canvasH = 500;
+                this.canvasPixelSize = this.canvasH * this.canvasW * 4;
+                this.offset = this.initOffset;
+
+                console.log({
+                    initOffset: this.initOffset,
+                    canvasW: this.canvasW,
+                    canvasH: this.canvasH,
+                    canvasPixelSize: this.canvasPixelSize,
+                });
+
+                // get more memory
+                this.growMemory(this.canvasPixelSize);
+
+                const init = this.state2.init(0, this.canvasW, this.canvasH, this.offset);
+                console.log({ init });
+                console.log(this.state2.__rtti_base.value);
+                // update offset with canvasPixel size
+                this.offset += this.canvasPixelSize;
+                console.log('New Offset with canvasPixelSize: ', this.offset);
+            } catch (e) {
+                console.error('ERROR');
+                console.error(e);
+            }
+        }
+
         const socketIp = process.env.NODE_ENV === 'production' ? '/' : 'localhost:3000';
         const socketPath = process.env.NODE_ENV === 'production' ? '/visiexp/socket.io' : '';
 
@@ -1087,7 +1251,7 @@ export default {
             }
         });
 
-        socket.on('Error', data => {
+        socket.on('Error', (data) => {
             logYellow('Socket: Error');
             console.error('Server response with error:');
             console.error(data.message);
@@ -1100,7 +1264,7 @@ export default {
             });
         });
 
-        socket.on('disconnect', reason => {
+        socket.on('disconnect', (reason) => {
             logYellow('Socket: disconnect');
             this.connectedToSocket = false;
             this.$notify({
@@ -1113,7 +1277,7 @@ export default {
         });
 
         // get a new node from server
-        socket.on('node', data => {
+        socket.on('node', (data) => {
             logYellow('Socket: node');
             if (data.index % 100 === 0) {
                 console.log(`Socket: node ${data.index}`);
@@ -1126,15 +1290,15 @@ export default {
             store.triggerDraw();
         });
 
-        socket.on('requestImage', data => {
+        socket.on('requestImage', (data) => {
             logYellow('Socket: requestImage');
-            // console.log(data);
+            console.log(data);
             const node = store.nodes[data.index];
             // console.log(node);
             node.image.src = `data:image/jpeg;base64,${data.buffer}`;
         });
 
-        socket.on('totalNodesCount', data => {
+        socket.on('totalNodesCount', (data) => {
             logYellow('Socket: totalNodesCount');
             console.log(data);
             this.nodesTotal = data.count;
@@ -1182,7 +1346,7 @@ export default {
                             nodes[nodeId].imageData[size] = new ImageData(
                                 new Uint8ClampedArray(chunk.slice(h + 1, h + picByteLen + 1)),
                                 chunk[w],
-                                chunk[h]
+                                chunk[h],
                             );
 
                             // update vars for reading bytes
@@ -1195,8 +1359,19 @@ export default {
                             } else {
                                 size = 0;
                                 state.nodesRecived += 1;
-                                store.addNode(new Node(nodes[nodeId]));
-                                store.triggerDraw();
+                                const node = new Node(nodes[nodeId]);
+
+                                // own js state
+                                if (this.wasmMode) {
+                                    store.addNode(node);
+                                    store.triggerDraw();
+                                }
+                                // vue state
+                                // if(nodeId < 90){
+                                // console.log(node)
+                                state.addNode(node);
+                                // }
+
                                 nodeId += 1;
                                 // todo the node can now be established
                             }
@@ -1219,14 +1394,25 @@ export default {
             });
 
             await fetch(`${apiUrl}/api/v1/dataset/images/${this.dataset}/${this.selectedImgCount}`)
-                .then(async res => {
+                .then(async (res) => {
                     console.log(res);
-                    console.log(`content-length${res.headers.get('content-length')}`);
+                    console.log(res.headers);
+                    const contentLength = res.headers.get('content-length');
+                    console.log({ contentLength });
                     if (!res.ok) {
                         const err = await res.json();
                         console.warn(err);
                         throw Error(err.error.message);
-                    } else await consume(res.body.getReader());
+                    }
+                    if (this.wasmMode) this.growMemory(this.canvasPixelSize + +contentLength);
+                    await consume(res.body.getReader());
+
+                    // test
+                    if (this.wasmMode) {
+                        this.state2.setScale(10);
+                        this.state2.setTxTy(150, 150);
+                        this.draw2();
+                    }
                 })
                 .then(() => {
                     this.$notify({
@@ -1248,14 +1434,15 @@ export default {
                         text: e.message,
                     });
                     console.error('something went wrong with reading img stream:');
-                    console.error(e);
+                    console.log(e);
+                    console.log(this.state2.memory);
                 });
 
             this.loadingNodes = false;
             console.timeEnd('loadAllNodes');
         });
 
-        socket.on('updateCategories', data => {
+        socket.on('updateCategories', (data) => {
             logYellow('Socket: updateCategories');
             console.log(data);
             this.labels = data.labels;
@@ -1360,7 +1547,7 @@ export default {
     position: relative;
     margin: 5px;
     height: calc(100% - 1rem); /* -double margin */
-    width: calc(100% - 25rem); /* -details width */
+    width: calc(80% - 25rem); /* -details width */
 }
 
 .details {

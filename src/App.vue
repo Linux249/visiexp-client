@@ -23,9 +23,9 @@ export default {
     components: { NavHeader, TsneMap, Login },
     // maybe here is a good place to reset component...
     data: () => ({
-        dataset: '001',
+        dataset: '002', // todo reset to 001
         userId: null,
-        isAuth: false,
+        isAuth: true, // todo reset to false
         selectedImgCount: 500, // default
     }),
     // TODO add key to TSNEMAP for changing all!
