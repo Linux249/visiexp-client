@@ -343,6 +343,7 @@ export default class ExplorerState {
             console.log(this.perfLogs);
             // round all numbers to xx.xxx
             this.perfLogs.draw = this.perfLogs.draw.map(x => Math.round(x * 1000) / 1000);
+            // sort values
             const sorted = this.perfLogs.draw.sort((a, b) => a - b);
             console.log(sorted);
             const min = sorted[0];
@@ -350,11 +351,48 @@ export default class ExplorerState {
             const median = (sorted[49] + sorted[50]) / 2;
             const firstQuantil = (sorted[24] + sorted[25]) / 2;
             const thirdQuantil = (sorted[74] + sorted[74]) / 2;
+            const avrg = Math.round(sorted.reduce((e, a) => a + e, 0) / sorted.length*1000)/1000;
+            const size = Math.floor(this.zoomStage);
+            let drawed = 0;
 
-            const avrg = sorted.reduce((e, a) => a + e, 0) / sorted.length;
+            const {
+                scale,
+                width: explorerW,
+                height: explorerH,
+                translateX: tx,
+                translateY: ty,
+                representImgSize,
+            } = this;
+
+            const { clusterMode } = this.ui;
+
+
+            // count nodes inside explorer todo that can be perform bedder
+            Object.values(this.nodes).forEach((node) => {
+                let imgSize = size;
+                // reps size higher
+                const isRepresent = (clusterMode && !node.isClusterd);
+                if (isRepresent) imgSize += representImgSize;
+
+                // check imgsize
+                if (imgSize < 0) imgSize = 0;
+                else if (imgSize > 9) imgSize = 9;
+
+
+                const imgW = node.imageData[imgSize].width;
+                const imgH = node.imageData[imgSize].height;
+
+                const imgX = Math.floor(node.x * scale + tx - imgW / 2);
+                const imgY = Math.floor(node.y * scale + ty - imgH / 2);
+
+                // test if the image is outside the explorer
+                if (imgX < (explorerW - imgW) && imgY < (explorerH - imgH) && imgX > 0 && imgY > 0) drawed += 1;
+            });
 
             const data = {
                 nodes: Object.keys(this.nodes).length,
+                drawed,
+                size,
                 times: n,
                 min,
                 max,
