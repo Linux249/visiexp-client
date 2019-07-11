@@ -459,7 +459,7 @@ import { apiUrl } from '../config/apiUrl';
 // const wa = import('../assets/wasm/optimized.wasm')
 // import MyModule from "assemblyscript/webpack";
 import wasm from '../assets/wasm/optimized.wasm';
-import {logYellow} from "../util/logging";
+import { logYellow } from '../util/logging';
 
 export default {
     store: null,
@@ -593,6 +593,7 @@ export default {
         canvasW: 0,
         canvasH: 0,
         canvasPixelSize: 0,
+        wasmMode: !(process.env.NODE_ENV === 'production'),
     }),
     methods: {
         getNode(i) {
@@ -998,26 +999,15 @@ export default {
             const addNode1 = this.state2.addNode(node.x, node.y, node.index);
             // console.log({addNode1});
 
-            for(let i = 0; i < 10; i += 1) {
+            for (let i = 0; i < 10; i += 1) {
                 const img = node.imageData[i];
                 // console.log(img.data.byteLength, img.width, img.height, this.offset, node.x, node.y);
                 // console.log({ img });
-                // size of img buffer
-                // console.log(img.data)
-
 
                 // add img buffer to memory: Crete a view over the buffer and set use the viewer to set the data
                 this.memoryView.set(img.data, this.offset, img.data.buffer.length);
-                this.state2.addPic(node.index, img.width, img.height, this.offset)
+                this.state2.addPic(node.index, img.width, img.height, this.offset);
 
-                // console.log(exp.memory.buffer)
-
-                // const addNode1 = this.state2.addNode(img.width, img.height, this.offset, node.x, node.y);
-                // console.log({addNode1});
-
-                // const count = this.state2.count();
-                // console.log({count});
-                //
                 // const checkSum = img.data.reduce((a, e) => a + e, 0);
                 // const realSum = this.state2.checkSum(node.index);
                 // const getNodeXY = 0 // this.state2.getNodeXY(node.index);
@@ -1025,8 +1015,6 @@ export default {
 
                 this.offset += img.data.byteLength;
             }
-            // console.log({ offset: state.offset });
-
             this.draw2();
         },
 
@@ -1034,11 +1022,7 @@ export default {
             console.time('DRAW2');
             try {
                 console.warn('DRAW2');
-
-                // console.log(this.state2);
-                // console.log(this.state2.count());
                 // console.log(this.emptyDrawPixel, this.memoryView, this.pixelView.data)
-                // this.memoryView.set(this.emptyDrawPixel.buffer, this.initOffset);
                 // const clear = this.state2.clear();
                 // console.log({ clear });
                 // console.log(`checksum draw empty: ${this.state2.checkSum()}`);
@@ -1047,14 +1031,8 @@ export default {
                 // console.log({ draw });
                 // console.log(`checksum draw after: ${this.state2.checkSum()}`);
 
-                // console.log(this.memoryView);
-                // const drawBufferViewer = new Uint8ClampedArray(this.memoryView.buffer, this.initOffset, this.canvasPixelSize);
-                // console.log({ drawBufferViewer });
-                // console.log({ drawImage });
-
                 // clear canvas
                 // this.drawCtx.clearRect(0, 0, this.canvasW, this.canvasH)
-                // clear old vies
 
                 // console.log(this.emptyDrawPixel, this.memoryView, this.pixelView)
 
@@ -1085,112 +1063,38 @@ export default {
 
     async mounted() {
         console.error('START FETCH');
-        try {
-            // import asmPromise from '../assemblyscript/index.ts';
-
-            // console.log(asmPromise)
-            // asmPromise().then((asmModule) => {
-            // fetch('../assemblyscript/index.ts').then((asmModule) => {
-            //     // here you can use the wasm.exports
-            //     console.log('WASM LOADED')
-            //     console.log(asmModule)
-            //     // asmModule.step();
-            //     const a = asmModule.add();
-            //     console.error({ a });
-            // });
-
-            /* Vue.prototype.$wasm = {
-                store: extractModule(wasmModul),
-            }; */
-            // const extractModule = async (module) => {
-            //     const { instance } = await module();
-            //     return instance.exports;
-            // };
-
-            /* const stores = wasmModul().then(({ instance }) => {
-                console.log('INSIDE WASM')
-                console.log(instance.exports.add(2,3))
-                return instance.exports
-            }); */
-
-
-            // let stores = await extractModule(wasmModul);
-            // console.log({stores})
-            // fetch('../assets/wasm/optimized.wasm')
-            //     .then(response => response.arrayBuffer())
-            //     .then(bytes => WebAssembly.instantiate(bytes, importObject))
-            //     .then((results) => {
-            //         console.error('WEB LOADED');
-            //         results.instance.exports.exported_func();
-            //     });
-            // wasmModul()
-            //     .then(response => response.arrayBuffer())
-            //     .then(bytes => WebAssembly.instantiate(bytes, importObject))
-            //     .then((results) => {
-            //         console.error('WEB LOADED');
-            //         const z = results.instance.exports.add(2,3);
-            //         console.log(z)
-            //     });
-            // const myImports = { };
-            // const myModule = await instantiateStreaming(
-            //     wasmModul(),
-            //     importObject
-            // );
-            // import wasmModul from '../assets/wasm/optimized.wasm';
-
-            // console.log(wasmModul)
-            // wasmModul().then(module => {
-            // console.log({ASUtil})
-
-            // Problem: will load from api/backend
-            // const fs = require('fs');
-            // const file = `${__dirname}../assets/wasm/optimized.wasm`;
-            // console.log({ file });
-            // const arraybuffer = await fetch(file);
-            // console.log({ arraybuffer });
-
-
-            // src/assets/wasm/optimized.wasm
-            // const Module = await import('../assets/wasm/optimized.wasm')({});
-            // console.log(wa)
-            // console.log({wasm})
-            // const results = await WebAssembly.instantiateStreaming(fetch(wasm))
-            // .then(results => console.log(results.instance.exports.add_one(12)));
-            this.drawCtx = document.getElementById('draw').getContext('2d');
-            const imports = {
-                env: {
-                    // import as @external("env", "logf")
-                    log1(value) {
-                        console.log(`%c from wasm: ${value}`, 'background: #222; color: #bada55');
+        if (this.wasmMode) {
+            try {
+                this.drawCtx = document.getElementById('draw').getContext('2d');
+                const imports = {
+                    env: {
+                        // import as @external("env", "logf")
+                        log1(value) {
+                            console.log(`%c from wasm: ${value}`, 'background: #222; color: #bada55');
+                        },
+                        abort(msg, file, line, column) {
+                            console.error(`abort called at main.ts:${line}:${column}`);
+                        },
                     },
-                    abort(msg, file, line, column) {
-                        console.error(`abort called at main.ts:${line}:${column}`);
+                    console: {
+                        log2(value) {
+                            console.log(`%c from wasm: ${value}`, 'background: #222; color: #bada55');
+                        },
                     },
-                },
-                console: {
-                    log2(value) {
-                        console.log(`%c from wasm: ${value}`, 'background: #222; color: #bada55');
-                    },
-                },
-            };
+                };
 
-            // const Module = await import('../assets/wasm/optimized.wasm');
-            console.warn('START');
-            console.log({ wasm });
-            const Module = await instantiateStreaming(fetch(wasm), imports);
-            console.log(Module);
-            const { memory } = Module;
+                // const Module = await import('../assets/wasm/optimized.wasm');
+                console.warn('START');
+                console.log({ wasm });
+                const Module = await instantiateStreaming(fetch(wasm), imports);
+                console.log(Module);
+                const { memory } = Module;
 
-            this.state2 = Module;
-            this.memory = memory;
-            console.log(memory);
+                this.state2 = Module;
+                this.memory = memory;
+                console.log(memory);
 
-
-            // console.log(result)
-            // console.log(result.instance)
-            // console.log(exp)
-
-            /*
+                /*
             TODO ADDED:
                 1. cummincate between js and AS
                 2. pass buffer to AS
@@ -1223,183 +1127,33 @@ export default {
                 - new Way in a worker
             */
 
-            console.warn('INIT');
-            this.initOffset = 1024 * 64 * 5; // 5 pages
-            this.canvasW = 500;
-            this.canvasH = 500;
-            this.canvasPixelSize = this.canvasH * this.canvasW * 4;
-            this.offset = this.initOffset;
+                console.warn('INIT');
+                this.initOffset = 1024 * 64 * 5; // 5 pages
+                this.canvasW = 500;
+                this.canvasH = 500;
+                this.canvasPixelSize = this.canvasH * this.canvasW * 4;
+                this.offset = this.initOffset;
 
-            console.log({
-                initOffset: this.initOffset, canvasW: this.canvasW, canvasH: this.canvasH, canvasPixelSize: this.canvasPixelSize,
-            });
+                console.log({
+                    initOffset: this.initOffset,
+                    canvasW: this.canvasW,
+                    canvasH: this.canvasH,
+                    canvasPixelSize: this.canvasPixelSize,
+                });
 
-            // get more memory
-            this.growMemory(this.canvasPixelSize);
-            // const pagesNeeded = Math.ceil((canvasPixelSize + this.offset) / (64 * 1024)) + 3;
-            // const actualMemorySize = exp.memorySize();
-            // console.log({ pagesNeeded, actualMemorySize });
-            // if (pagesNeeded > actualMemorySize) memory.grow(pagesNeeded - actualMemorySize);
+                // get more memory
+                this.growMemory(this.canvasPixelSize);
 
-
-            const init = this.state2.init(0, this.canvasW, this.canvasH, this.offset);
-            console.log({ init });
-            console.log(this.state2.__rtti_base.value);
-            // update offset with canvasPixel size
-            this.offset += this.canvasPixelSize;
-            console.log('New Offset with canvasPixelSize: ', this.offset);
-
-
-            // this.emptyDrawPixel = new Uint8ClampedArray(new ArrayBuffer(this.canvasPixelSize));
-
-
-            /*
-            // dummy img with own buffer
-            const imgBuffer = new Uint8ClampedArray([
-                46, 38, 23, 255, 112, 103, 69, 255, 90, 79, 36, 255, 113,
-                103, 68, 255, 125, 120, 100, 255, 134, 141, 90, 255, 142, 157, 60,
-                255, 121, 131, 45, 255, 98, 107, 41, 255, 74, 86, 37,
-                255, 71, 69, 35, 255, 132, 117, 94, 255, 103, 92, 52,
-                255, 113, 105, 69, 255, 124, 115, 93, 255, 101, 103, 72,
-                255, 75, 89, 36, 255, 62, 77, 31, 255, 56, 69, 32, 255, 54, 69, 32, 255,
-                81, 81, 45, 255, 82, 68, 48, 255, 107, 110,
-                74, 255, 115, 105, 73, 255, 82, 69, 42, 255, 85,
-                78, 60, 255, 80, 79, 54, 255, 52, 72, 31, 255, 47, 70,
-                28, 255, 47, 67, 27, 255, 76, 71, 42, 255, 63, 58, 43,
-                255, 102, 108, 82, 255, 82, 93, 57, 255, 66, 58, 37, 255,
-                96, 85, 56, 255, 123, 104, 75, 255, 86, 94,
-                54, 255, 48, 77, 32, 255, 50, 69, 27, 255, 75, 69, 41,
-                255, 78, 93, 67, 255, 72, 72, 58, 255, 73, 86, 51, 255, 77, 73, 37, 255,
-                138, 127, 90, 255, 164, 152, 117, 255, 104, 110, 72, 255, 55, 79, 44,
-                255, 55, 73, 37, 255, 81, 70, 43, 255, 74, 91, 57, 255, 40, 48, 30, 255,
-                95, 93, 61, 255, 68, 70, 24, 255, 98, 94, 49, 255, 137, 130, 80, 255, 117, 123, 74, 255,
-                54, 76, 41, 255, 54, 72, 36, 255, 87, 76, 50, 255, 55, 67, 35, 255, 6, 15, 0, 255, 85,
-                85, 67, 255, 67, 68, 32, 255, 70, 68, 24, 255, 95, 87, 36, 255, 105, 107, 59, 255, 50, 70, 35, 255, 51, 67, 30, 255,
-            ]);
-
-            const img = new ImageData(imgBuffer, 7, 10); // / buffer, width, height
-            // size of img buffer
-            // console.log(img.data)
-            console.warn('IMG 1: ');
-            console.log(img.data.byteLength, img.width, img.height, offset);
-            console.log({ img });
-
-
-            // console.log({ memoryView });
-
-            // add img buffer to memory: Crete a view over the buffer and set use the viewer to set the data
-            memoryView.set(img.data, offset);
-
-            const addNode1 = exp.addNode(img.width, img.height, offset, 0, 0);
-            console.log({ addNode1 });
-            const count1 = exp.count();
-            console.log({ count1 });
-
-            const checkSum = img.data.reduce((a, e) => a + e, 0);
-            const realSum1 = exp.checkSum(0);
-            console.log({ checkSum, realSum1 });
-
-            // update offset
-            offset += img.data.byteLength;
-
-            // / SECOND IMAGE
-
-
-            // create 2. image
-            const img2 = new ImageData(imgBuffer, 7, 10);
-            console.warn('IMG 2: ');
-            console.log(img2.data.byteLength, img2.width, img2.height, offset);
-            console.log({ img2 });
-
-            // change first value (46) to 45
-            img2.data[0] = 45;
-
-            // load pixel to buffer
-            memoryView.set(img2.data, offset);
-
-            const addNode2 = exp.addNode(img2.width, img2.height, offset, 15, 15);
-            console.log({ addNode2 });
-            const count2 = exp.count();
-            console.log({ count2 });
-
-            const realSum2 = exp.checkSum(1);
-            const checkSum2 = img2.data.reduce((a, e) => a + e, 0);
-            console.log({ checkSum2, realSum2 });
-
-            // udpate
-            offset += img2.data.byteLength;
-            this.offset = offset;
-            console.log({ offset });
-
-
-            // draw
-            let checkDraw = 0;
-            for (let i = initOffset; i < (emptyDrawPixel.length + initOffset); i++) {
-                checkDraw += memoryView[i];
+                const init = this.state2.init(0, this.canvasW, this.canvasH, this.offset);
+                console.log({ init });
+                console.log(this.state2.__rtti_base.value);
+                // update offset with canvasPixel size
+                this.offset += this.canvasPixelSize;
+                console.log('New Offset with canvasPixelSize: ', this.offset);
+            } catch (e) {
+                console.error('ERROR');
+                console.error(e);
             }
-            console.log({ checkDraw });
-            // console.log({ memoryView, pixelPuffer: emptyDrawPixel });
-
-            console.log({ draw: this.draw2() }); */
-
-
-            // OLD WAY
-            /* const img = new ImageData(new Uint8ClampedArray([
-                    46, 38, 23, 255, 112, 103, 69, 255, 90, 79, 36, 255, 113,
-                    103, 68, 255, 125, 120, 100, 255, 134, 141, 90, 255, 142, 157, 60,
-                    255, 121, 131, 45, 255, 98, 107, 41, 255, 74, 86, 37,
-                    255, 71, 69, 35, 255, 132, 117, 94, 255, 103, 92, 52,
-                    255, 113, 105, 69, 255, 124, 115, 93, 255, 101, 103, 72,
-                    255, 75, 89, 36, 255, 62, 77, 31, 255, 56, 69, 32, 255, 54, 69, 32, 255,
-                    81, 81, 45, 255, 82, 68, 48, 255, 107, 110,
-                    74, 255, 115, 105, 73, 255, 82, 69, 42, 255, 85,
-                    78, 60, 255, 80, 79, 54, 255, 52, 72, 31, 255, 47, 70,
-                    28, 255, 47, 67, 27, 255, 76, 71, 42, 255, 63, 58, 43,
-                    255, 102, 108, 82, 255, 82, 93, 57, 255, 66, 58, 37, 255,
-                    96, 85, 56, 255, 123, 104, 75, 255, 86, 94,
-                    54, 255, 48, 77, 32, 255, 50, 69, 27, 255, 75, 69, 41,
-                    255, 78, 93, 67, 255, 72, 72, 58, 255, 73, 86, 51, 255, 77, 73, 37, 255,
-                    138, 127, 90, 255, 164, 152, 117, 255, 104, 110, 72, 255, 55, 79, 44,
-                    255, 55, 73, 37, 255, 81, 70, 43, 255, 74, 91, 57, 255, 40, 48, 30, 255,
-                    95, 93, 61, 255, 68, 70, 24, 255, 98, 94, 49, 255, 137, 130, 80, 255, 117, 123, 74, 255,
-                    54, 76, 41, 255, 54, 72, 36, 255, 87, 76, 50, 255, 55, 67, 35, 255, 6, 15, 0, 255, 85,
-                    85, 67, 255, 67, 68, 32, 255, 70, 68, 24, 255, 95, 87, 36, 255, 105, 107, 59, 255, 50, 70, 35, 255, 51, 67, 30, 255,
-                ]), 7, 10);
-
-
-                console.log({ img });
-
-                function loadImg(imageData) {
-                    const startTime = new Date();
-                    // number off bytes: length is width*height*4 und BYTES_PER_ELEMENT = 1
-                    const numBytes = imageData.length * imageData.BYTES_PER_ELEMENT;
-                    console.log({ numBytes });
-                    const dataPtr = Module.__alloc(numBytes);
-                    console.log(Module);
-                    // docs: new Uint8Array(buffer [, byteOffset [, length]]);
-                    const dataOnHeap = new Uint8Array(Module.HEAPU8.buffer, dataPtr, numBytes);
-                    dataOnHeap.set(imageData);
-                    const didLoad = Module.addNode(dataOnHeap.byteOffset, imageData.length);
-                    Module.__free(dataPtr);
-                    console.log(`[Copy to Heap (Cwrap)] Time to load: ${new Date() - startTime}`);
-
-                    return didLoad;
-                }
-
-                // console.log(Module.add(2, 3));
-                const test = Module.addNode(10, 8, img.data);
-                console.log(img.data);
-                console.log(img.data.length);
-                console.log({ test });
-
-                loadImg(img.data); */
-            /* WebAssembly.instantiateStreaming(wasmModul({})).then(result => {
-                const exports = result.instance.exports;
-                document.getElementById("container").textContent = "Result: " + exports.add(19, 23);
-            }).catch(console.error); */
-        } catch (e) {
-            console.error('ERROR');
-            console.error(e);
         }
 
         const socketIp = process.env.NODE_ENV === 'production' ? '/' : 'localhost:3000';
@@ -1458,7 +1212,7 @@ export default {
         this.socket = socket;
 
         socket.on('connect', () => {
-            logYellow('Socket: connect')
+            logYellow('Socket: connect');
             this.connectedToSocket = true;
             console.log(`Socket id: ${socket.id}`);
             // console.log(socket);
@@ -1479,21 +1233,21 @@ export default {
         });
 
         socket.on('Error', (data) => {
-            logYellow('Socket: Error')
+            logYellow('Socket: Error');
             console.error('Server response with error:');
             console.error(data.message);
             console.error(data);
         });
 
         socket.on('disconnect', (reason) => {
-            logYellow('Socket: disconnect')
+            logYellow('Socket: disconnect');
             this.connectedToSocket = false;
             console.log('Socket: disconnect', reason);
         });
 
         // get a new node from server
         socket.on('node', (data) => {
-            logYellow('Socket: node')
+            logYellow('Socket: node');
             if (data.index % 100 === 0) {
                 console.log(`Socket: node ${data.index}`);
                 console.log(data);
@@ -1571,8 +1325,10 @@ export default {
                                 const node = new Node(nodes[nodeId]);
 
                                 // own js state
-                                store.addNode(node);
-                                store.triggerDraw();
+                                if (this.wasmMode) {
+                                    store.addNode(node);
+                                    store.triggerDraw();
+                                }
                                 // vue state
                                 // if(nodeId < 90){
                                 // console.log(node)
@@ -1600,13 +1356,15 @@ export default {
                     console.log(res.headers);
                     const contentLength = res.headers.get('content-length');
                     console.log({ contentLength });
-                    this.growMemory(this.canvasPixelSize + +contentLength);
+                    if (this.wasmMode) this.growMemory(this.canvasPixelSize + +contentLength);
                     await consume(res.body.getReader());
 
                     // test
-                    this.state2.setScale(10);
-                    this.state2.setTxTy(150, 150);
-                    this.draw2();
+                    if (this.wasmMode) {
+                        this.state2.setScale(10);
+                        this.state2.setTxTy(150, 150);
+                        this.draw2();
+                    }
                 })
                 .then((e) => {
                     console.log(e);

@@ -99,14 +99,18 @@ export default class ExplorerState {
         this.datas = [];
     }
 
+    get sizeRange() {
+        return this._sizeRange;
+    }
+
     set sizeRange(v) {
         if (v < 0) this._sizeRange = 0;
         else this._sizeRange = v;
         // this.triggerDraw();
     }
 
-    get sizeRange() {
-        return this._sizeRange;
+    get scale() {
+        return this._scale;
     }
 
     set scale(value) {
@@ -115,8 +119,8 @@ export default class ExplorerState {
         this.ui.scale = this.scale;
     }
 
-    get scale() {
-        return this._scale;
+    get zoomStage() {
+        return this._zoomStage;
     }
 
     set zoomStage(value) {
@@ -126,8 +130,8 @@ export default class ExplorerState {
         this.ui.zoomStage = this._zoomStage;
     }
 
-    get zoomStage() {
-        return this._zoomStage;
+    get scaleFaktor() {
+        return this._scaleFaktor;
     }
 
     set scaleFaktor(value) {
@@ -135,8 +139,8 @@ export default class ExplorerState {
         else this._scaleFaktor = value;
     }
 
-    get scaleFaktor() {
-        return this._scaleFaktor;
+    get translateX() {
+        return this._translateX;
     }
 
     set translateX(value) {
@@ -144,17 +148,13 @@ export default class ExplorerState {
         this.ui.translateX = value;
     }
 
-    get translateX() {
-        return this._translateX;
+    get translateY() {
+        return this._translateY;
     }
 
     set translateY(value) {
         this._translateY = Math.round(value);
         this.ui.translateY = value;
-    }
-
-    get translateY() {
-        return this._translateY;
     }
 
     /* set cluster(value) {
@@ -169,13 +169,17 @@ export default class ExplorerState {
         return this._cluster;
     } */
 
+    get clusterRadius() {
+        return this._clusterRadius;
+    }
+
     set clusterRadius(value) {
         if (value < 1) this._clusterRadius = 1;
         else this._clusterRadius = value;
     }
 
-    get clusterRadius() {
-        return this._clusterRadius;
+    get clusterTile() {
+        return this._clusterTile;
     }
 
     set clusterTile(value) {
@@ -183,8 +187,8 @@ export default class ExplorerState {
         else this._clusterTile = value;
     }
 
-    get clusterTile() {
-        return this._clusterTile;
+    get scissors() {
+        return this._scissors;
     }
 
     set scissors(value) {
@@ -192,8 +196,8 @@ export default class ExplorerState {
         this.explorer.style.cursor = value ? 'crosshair' : 'default';
     }
 
-    get scissors() {
-        return this._scissors;
+    get nodeUnderMouse() {
+        return this._nodeUnderMouse;
     }
 
     set nodeUnderMouse(value) {
@@ -201,8 +205,8 @@ export default class ExplorerState {
         this.explorer.style.cursor = value ? 'grab' : 'default';
     }
 
-    get nodeUnderMouse() {
-        return this._nodeUnderMouse;
+    get moveGroupToMousePosition() {
+        return this._moveGroupToMouse;
     }
 
     set moveGroupToMousePosition(value) {
@@ -211,10 +215,6 @@ export default class ExplorerState {
         // console.log({curser, value});
         // TODO check why this is not working
         // this.explorer.style.cursor = value ? curser : 'default';
-    }
-
-    get moveGroupToMousePosition() {
-        return this._moveGroupToMouse;
     }
 
     lngX(lng) {
@@ -1179,7 +1179,7 @@ export default class ExplorerState {
         const endTime = window.performance.now();
         const time = endTime - startTime;
         // console.log(`Draw: ${time}`);
-        if (this.ui.showLogs || this.performanceTest) this.perfLogs.draw.push(Math.round(time*1000)/1000);
+        if (this.ui.showLogs || this.performanceTest) this.perfLogs.draw.push(Math.round(time * 1000) / 1000);
         if (time > this.maxDrawTime) {
             this.maxDrawTime = time;
             console.warn('new max draw time');
@@ -1237,11 +1237,13 @@ export default class ExplorerState {
         this.translateX -= offsetX * scaleChange;
         this.translateY -= offsetY * scaleChange;
 
-        console.log(this.scale, this.translateX, this.translateY, this.zoomStage)
-        this.ui.state2.setScale(this.scale)
-        this.ui.state2.setTxTy(this.translateX, this.translateY)
-        this.ui.state2.setZoom(Math.floor(this.zoomStage))
-        this.ui.draw2()
+        console.log(this.scale, this.translateX, this.translateY, this.zoomStage);
+        if (this.ui.wasmMode) {
+            this.ui.state2.setScale(this.scale);
+            this.ui.state2.setTxTy(this.translateX, this.translateY);
+            this.ui.state2.setZoom(Math.floor(this.zoomStage));
+            this.ui.draw2();
+        }
 
         this.updateClustering();
         this.triggerDraw();
@@ -1332,8 +1334,10 @@ export default class ExplorerState {
                 // move the x/y
                 this.translateX += moveX;
                 this.translateY += moveY;
-                this.ui.state2.addTxTy(moveX, moveY)
-                this.ui.draw2()
+                if (this.ui.wasmMode) {
+                    this.ui.state2.addTxTy(moveX, moveY);
+                    this.ui.draw2();
+                }
             } else if (this.draggedNode) {
                 // console.log("draggeNode")
                 // scale the X/Y
