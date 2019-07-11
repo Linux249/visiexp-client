@@ -116,10 +116,10 @@ export default {
 
             // save nodes
             this.positives.forEach(
-                n => this.positivesAll.indexOf(n) === -1 && this.positivesAll.push(n)
+                n => this.positivesAll.indexOf(n) === -1 && this.positivesAll.push(n),
             );
             this.negatives.forEach(
-                n => this.negativesAll.indexOf(n) === -1 && this.negativesAll.push(n)
+                n => this.negativesAll.indexOf(n) === -1 && this.negativesAll.push(n),
             );
 
             const body = JSON.stringify({
@@ -134,7 +134,7 @@ export default {
                 body,
             })
                 .then(res => res.json())
-                .catch(e => {
+                .catch((e) => {
                     this.loading = false;
                     console.error(e);
                 });
@@ -143,38 +143,38 @@ export default {
             this.count += 1;
 
             this.positives = []; // reset
-            data.p.forEach(i => {
+            data.p.forEach((i) => {
                 const node = this.getNode(i);
                 if (node) this.positives.push(node);
                 else {
                     console.log(
                         new Error(
-                            'der zurückgegebene Index in trainSvm ist nicht als Knoten vorhanden'
-                        )
+                            'der zurückgegebene Index in trainSvm ist nicht als Knoten vorhanden',
+                        ),
                     );
                 }
             });
             this.negatives = []; // reset
-            data.n.forEach(i => {
+            data.n.forEach((i) => {
                 const node = this.getNode(i);
                 if (node) this.negatives.push(node);
                 else {
                     console.log(
                         new Error(
-                            'der zurückgegebene Index in trainSvm ist nicht als Knoten vorhanden'
-                        )
+                            'der zurückgegebene Index in trainSvm ist nicht als Knoten vorhanden',
+                        ),
                     );
                 }
             });
             this.topScored = []; // reset
-            data.t.forEach(i => {
+            data.t.forEach((i) => {
                 const node = this.getNode(i);
                 if (node) this.topScored.push(node);
                 else {
                     console.log(
                         new Error(
-                            'der zurückgegebene Index in trainSvm ist nicht als Knoten vorhanden'
-                        )
+                            'der zurückgegebene Index in trainSvm ist nicht als Knoten vorhanden',
+                        ),
                     );
                 }
             });

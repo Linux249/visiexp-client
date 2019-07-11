@@ -702,7 +702,7 @@ export default {
             const { heatmap } = this;
 
             // data in form of [[x,y,v], [x,y,v], ...]
-            const data = Object.values(this.store.getNodes()).map(node => {
+            const data = Object.values(this.store.getNodes()).map((node) => {
                 const x = (node.x * this.store.scale + this.store.translateX) / 4;
                 const y = (node.y * this.store.scale + this.store.translateY) / 4;
                 return [x, y, 1];
@@ -726,7 +726,7 @@ export default {
             const h = this.navHeatmapRect.height;
 
             // data in form of [[x,y,v], [x,y,v], ...]
-            const data = Object.values(this.store.getNodes()).map(node => {
+            const data = Object.values(this.store.getNodes()).map((node) => {
                 const x = node.x * 5 + w / 2;
                 const y = node.y * 5 + h / 2;
                 return [x, y, 1];
@@ -1098,17 +1098,16 @@ export default {
             const pagesNeeded = Math.ceil((bytes + this.initOffset) / (64 * 1024));
             const actualMemorySize = this.state2.memorySize();
             console.log({ pagesNeeded, actualMemorySize });
-            if (pagesNeeded > actualMemorySize)
-                this.state2.memory.grow(pagesNeeded - actualMemorySize);
+            if (pagesNeeded > actualMemorySize) this.state2.memory.grow(pagesNeeded - actualMemorySize);
             this.memoryView = new Uint8ClampedArray(this.state2.memory.buffer);
             this.pixelView = new ImageData(
                 new Uint8ClampedArray(
                     this.state2.memory.buffer,
                     this.initOffset,
-                    this.canvasPixelSize
+                    this.canvasPixelSize,
                 ),
                 this.canvasW,
-                this.canvasH
+                this.canvasH,
             );
             // console.log(this.memoryView,  this.pixelView);
         },
@@ -1137,7 +1136,7 @@ export default {
                         log1(value) {
                             console.log(
                                 `%c from wasm: ${value}`,
-                                'background: #222; color: #bada55'
+                                'background: #222; color: #bada55',
                             );
                         },
                         abort(msg, file, line, column) {
@@ -1148,7 +1147,7 @@ export default {
                         log2(value) {
                             console.log(
                                 `%c from wasm: ${value}`,
-                                'background: #222; color: #bada55'
+                                'background: #222; color: #bada55',
                             );
                         },
                     },
@@ -1317,7 +1316,7 @@ export default {
             }
         });
 
-        socket.on('Error', data => {
+        socket.on('Error', (data) => {
             logYellow('Socket: Error');
             console.error('Server response with error:');
             console.error(data.message);
@@ -1330,7 +1329,7 @@ export default {
             });
         });
 
-        socket.on('disconnect', reason => {
+        socket.on('disconnect', (reason) => {
             logYellow('Socket: disconnect');
             this.connectedToSocket = false;
             this.$notify({
@@ -1343,7 +1342,7 @@ export default {
         });
 
         // get a new node from server
-        socket.on('node', data => {
+        socket.on('node', (data) => {
             logYellow('Socket: node');
             if (data.index % 100 === 0) {
                 console.log(`Socket: node ${data.index}`);
@@ -1356,7 +1355,7 @@ export default {
             store.triggerDraw();
         });
 
-        socket.on('requestImage', data => {
+        socket.on('requestImage', (data) => {
             logYellow('Socket: requestImage');
             console.log(data);
             const node = store.nodes[data.index];
@@ -1364,13 +1363,13 @@ export default {
             node.image.src = `data:image/jpeg;base64,${data.buffer}`;
         });
 
-        socket.on('totalNodesCount', data => {
+        socket.on('totalNodesCount', (data) => {
             logYellow('Socket: totalNodesCount');
             console.log(data);
             this.nodesTotal = data.count;
         });
 
-        socket.on('sendAllNodes', async nodes => {
+        socket.on('sendAllNodes', async (nodes) => {
             logYellow('Socket: sendAllNodes');
             this.$notify({
                 group: 'default',
@@ -1406,13 +1405,12 @@ export default {
 
                         // check if a hole image is in the chunk or if the data are part of the next one
                         while (picByteLen <= chunk.byteLength - readFromChunk - 2) {
-                            if (!nodes[nodeId].imageData)
-                                nodes[nodeId].imageData = Object.create(null);
+                            if (!nodes[nodeId].imageData) nodes[nodeId].imageData = Object.create(null);
 
                             nodes[nodeId].imageData[size] = new ImageData(
                                 new Uint8ClampedArray(chunk.slice(h + 1, h + picByteLen + 1)),
                                 chunk[w],
-                                chunk[h]
+                                chunk[h],
                             );
 
                             // update vars for reading bytes
@@ -1461,7 +1459,7 @@ export default {
             });
 
             await fetch(`${apiUrl}/api/v1/dataset/images/${this.dataset}/${this.selectedImgCount}`)
-                .then(async res => {
+                .then(async (res) => {
                     console.log(res);
                     console.log(res.headers);
                     const contentLength = res.headers.get('content-length');
@@ -1490,10 +1488,10 @@ export default {
                     });
                     this.activateClusterMode();
                     console.log(
-                        'consumed the entire body without keeping the whole thing in memory!'
+                        'consumed the entire body without keeping the whole thing in memory!',
                     );
                 })
-                .catch(e => {
+                .catch((e) => {
                     this.$notify({
                         group: 'default',
                         title: 'Error loading images',
@@ -1509,7 +1507,7 @@ export default {
             console.timeEnd('loadAllNodes');
         });
 
-        socket.on('updateCategories', data => {
+        socket.on('updateCategories', (data) => {
             logYellow('Socket: updateCategories');
             console.log(data);
             this.labels = data.labels;

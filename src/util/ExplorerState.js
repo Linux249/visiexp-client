@@ -352,8 +352,7 @@ export default class ExplorerState {
             const median = (sorted[49] + sorted[50]) / 2;
             const firstQuantil = (sorted[24] + sorted[25]) / 2;
             const thirdQuantil = (sorted[74] + sorted[74]) / 2;
-            const avrg =
-                Math.round((sorted.reduce((e, a) => a + e, 0) / sorted.length) * 1000) / 1000;
+            const avrg = Math.round((sorted.reduce((e, a) => a + e, 0) / sorted.length) * 1000) / 1000;
             const size = Math.floor(this.zoomStage);
             let drawed = 0;
 
@@ -369,7 +368,7 @@ export default class ExplorerState {
             const { clusterMode } = this.ui;
 
             // count nodes inside explorer todo that can be perform bedder
-            Object.values(this.nodes).forEach(node => {
+            Object.values(this.nodes).forEach((node) => {
                 let imgSize = size;
                 // reps size higher
                 const isRepresent = clusterMode && !node.isClusterd;
@@ -386,8 +385,7 @@ export default class ExplorerState {
                 const imgY = Math.floor(node.y * scale + ty - imgH / 2);
 
                 // test if the image is outside the explorer
-                if (imgX < explorerW - imgW && imgY < explorerH - imgH && imgX > 0 && imgY > 0)
-                    drawed += 1;
+                if (imgX < explorerW - imgW && imgY < explorerH - imgH && imgX > 0 && imgY > 0) drawed += 1;
             });
 
             const data = {
@@ -480,7 +478,7 @@ export default class ExplorerState {
         // console.log({ cluster });
 
         // console.log(cluster);
-        cluster.forEach(c => {
+        cluster.forEach((c) => {
             const { index, cluster_id, point_count } = c.properties;
             // console.log({ index, cluster_id, point_count } )
             if (index) {
@@ -497,7 +495,7 @@ export default class ExplorerState {
                 let centroidId = null;
                 let min = Infinity;
                 // set all points in cluster to false + check distance
-                pointsInsideCluster.forEach(p => {
+                pointsInsideCluster.forEach((p) => {
                     const node = this.nodes[p.properties.index];
                     node.isClusterd = true;
                     if (log) console.log([node.x, node.y]);
@@ -519,7 +517,7 @@ export default class ExplorerState {
     }
 
     clearGroup() {
-        Object.values(this.nodes).forEach(node => {
+        Object.values(this.nodes).forEach((node) => {
             if (node.group) {
                 node.group = false;
             }
@@ -528,7 +526,7 @@ export default class ExplorerState {
     }
 
     deleteGroup(groupId) {
-        Object.values(this.nodes).forEach(node => {
+        Object.values(this.nodes).forEach((node) => {
             if (node.groupId === groupId) {
                 node.group = false;
                 node.groupId = null;
@@ -538,7 +536,7 @@ export default class ExplorerState {
     }
 
     loadGroupByGroupId(groupId) {
-        Object.values(this.nodes).forEach(node => {
+        Object.values(this.nodes).forEach((node) => {
             node.group = node.groupId === groupId ? groupId : null;
         });
         this.triggerDraw();
@@ -546,7 +544,7 @@ export default class ExplorerState {
 
     addLabeledToGroup(label) {
         Object.values(this.nodes).forEach(
-            node => node.labels.includes(label) && (node.group = true)
+            node => node.labels.includes(label) && (node.group = true),
         );
         this.triggerDraw();
     }
@@ -560,23 +558,19 @@ export default class ExplorerState {
 
     getGroupIdsByGroupId(id) {
         const ids = [];
-        Object.values(this.nodes).forEach(node =>
-            node.groupId === id ? ids.push(node.index) : null
-        );
+        Object.values(this.nodes).forEach(node => (node.groupId === id ? ids.push(node.index) : null));
         return ids;
     }
 
     // set to all als group marked items the group id
     // the groups are saved in the ui state
     saveGroup(groupId) {
-        Object.keys(this.nodes).forEach(i =>
-            this.nodes[i].group ? (this.nodes[i].groupId = groupId) : null
-        );
+        Object.keys(this.nodes).forEach(i => (this.nodes[i].group ? (this.nodes[i].groupId = groupId) : null));
         this.updateGroupCount();
     }
 
     addNodesToActiveGroup(ids) {
-        ids.forEach(id => {
+        ids.forEach((id) => {
             this.nodes[id].group = true;
             this.nodes[id].groupId = this.ui.activeGroupId;
         });
@@ -600,13 +594,12 @@ export default class ExplorerState {
         // TODO wie initaliseren ? https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Array/fill
 
         this.nodes[node.index] = node;
-        this.colorHash[`rgb(${node.colorKey[0]},${node.colorKey[1]},${node.colorKey[2]})`] =
-            node.index;
+        this.colorHash[`rgb(${node.colorKey[0]},${node.colorKey[1]},${node.colorKey[2]})`] = node.index;
         this.triggerDraw();
     }
 
     updateNodes(nodes) {
-        Object.values(nodes).forEach(node => {
+        Object.values(nodes).forEach((node) => {
             this.nodes[node.index].x = node.x;
             this.nodes[node.index].y = node.y;
             if (node.labels) this.nodes[node.index].labels = node.labels;
@@ -616,7 +609,9 @@ export default class ExplorerState {
 
     getNodes() {
         const nodes = {};
-        Object.values(this.nodes).forEach(({ index, x, y, name, labels, groupId }) => {
+        Object.values(this.nodes).forEach(({
+            index, x, y, name, labels, groupId,
+        }) => {
             nodes[index] = {
                 index,
                 x,
@@ -659,9 +654,7 @@ export default class ExplorerState {
             nodes have prop isClustered showing with false => rep
          */
         const repsBefore = mode === 1 ? -1 : 1; // isClustered === false first
-        return Object.values(this.nodes).sort((x, y) =>
-            x.isClusterd === y.isClusterd ? 0 : x.isClusterd ? repsBefore : repsBefore * -1
-        );
+        return Object.values(this.nodes).sort((x, y) => (x.isClusterd === y.isClusterd ? 0 : x.isClusterd ? repsBefore : repsBefore * -1));
     }
 
     changeScaleUp() {
@@ -698,7 +691,7 @@ export default class ExplorerState {
         const counter = {};
         this.ui.savedGroups.forEach(group => (counter[group.groupId] = 0));
         // count group members
-        Object.values(this.nodes).forEach(node => {
+        Object.values(this.nodes).forEach((node) => {
             if (node.groupId) counter[node.groupId] += 1;
         });
         // update groups in ui
@@ -752,10 +745,10 @@ export default class ExplorerState {
         const nodes = this.sorted
             ? this.sortedNodes
             : clusterMode && repsMode
-            ? this.sortNodesReps(repsMode)
-            : Object.values(this.nodes);
+                ? this.sortNodesReps(repsMode)
+                : Object.values(this.nodes);
 
-        nodes.forEach(node => {
+        nodes.forEach((node) => {
             let imgSize = sizeRankedMode
                 ? zoomStage + Math.floor(node.rank * this.sizeRange)
                 : zoomStage;
@@ -767,8 +760,7 @@ export default class ExplorerState {
 
             // asked here to not ask later again
             const neighbour = neighbourMode && !node.group && this.groupNeighbours[node.index];
-            const removedNeighbour =
-                neighbourMode && !node.group && this.removedGroupNeighbours[node.index];
+            const removedNeighbour = neighbourMode && !node.group && this.removedGroupNeighbours[node.index];
 
             if (neighbourMode && !node.group) {
                 // the node should not be in the neighbours list
@@ -789,8 +781,7 @@ export default class ExplorerState {
             const imgY = Math.floor(node.y * scale + ty - imgH / 2);
 
             // test if the image is outside the explorer
-            if (!(imgX < explorerW - imgW && imgY < explorerH - imgH && imgX > 0 && imgY > 0))
-                return;
+            if (!(imgX < explorerW - imgW && imgY < explorerH - imgH && imgX > 0 && imgY > 0)) return;
 
             // 1. Rule: some labels can be selected as "not show this"
             // check if the image is allowed to draw in certain rules
@@ -798,7 +789,7 @@ export default class ExplorerState {
             // TODO diese funktion wird nicht in der BA beschrieben da nicht klar ob noch erwünscht
             node.labels.forEach((nodeLabel, i) => {
                 if (nodeLabel && this.ui.labels[i]) {
-                    this.ui.labels[i].labels.forEach(e => {
+                    this.ui.labels[i].labels.forEach((e) => {
                         if (e && !e.show && e.name === nodeLabel) show = false;
                     });
                 }
@@ -879,10 +870,9 @@ export default class ExplorerState {
                         explorerPixel[c + 1] = imgData[p + 1]; // G
                         explorerPixel[c + 2] = imgData[p + 2]; // B
                         // special mode for represents // img over other img // white background
-                        explorerPixel[c + 3] =
-                            representMaxAlpha && isRepresent
-                                ? 255
-                                : explorerPixel[c + 3]
+                        explorerPixel[c + 3] = representMaxAlpha && isRepresent
+                            ? 255
+                            : explorerPixel[c + 3]
                                 ? explorerPixel[c + 3] + 10 * node.cliqueLength
                                 : alphaBase + zoomStage * alphaIncrease;
 
@@ -907,10 +897,9 @@ export default class ExplorerState {
                         explorerPixel[c + 1] = imgData[p + 1]; // G
                         explorerPixel[c + 2] = imgData[p + 2]; // B
                         // special mode for represents // img over other img // white background
-                        explorerPixel[c + 3] =
-                            representMaxAlpha && isRepresent
-                                ? 255
-                                : explorerPixel[c + 3]
+                        explorerPixel[c + 3] = representMaxAlpha && isRepresent
+                            ? 255
+                            : explorerPixel[c + 3]
                                 ? explorerPixel[c + 3] + 10 * node.cliqueLength
                                 : alphaBase + zoomStage * alphaIncrease;
 
@@ -974,13 +963,12 @@ export default class ExplorerState {
                 DRAW LABEL BORDER
              */
             // Todo get variables via this.ui
-            const labelBorder =
-                this.selectedCategory &&
-                this.selectedLabel &&
-                this.selectedLabel === node.labels[this.selectedCategory];
+            const labelBorder = this.selectedCategory
+                && this.selectedLabel
+                && this.selectedLabel === node.labels[this.selectedCategory];
             if (labelBorder) {
                 const { color } = this.ui.labels[this.selectedCategory].labels.find(
-                    e => e.name === this.selectedLabel
+                    e => e.name === this.selectedLabel,
                 );
                 // draw boarder
                 for (let imgRow = -2; imgRow <= imgH + 1; imgRow += 1) {
@@ -1031,19 +1019,18 @@ export default class ExplorerState {
 
             // draw only if group, label2 or neighbour
             if (
-                !node.group &&
-                !node.isNearly
+                !node.group
+                && !node.isNearly
                 // && (!neighbour)
-            )
-                return;
+            ) return;
 
             const lineColor = neighbour
                 ? neighbourColor
                 : node.isNearly
-                ? nearColor
-                : node.group
-                ? groupColor
-                : null;
+                    ? nearColor
+                    : node.group
+                        ? groupColor
+                        : null;
             if (lineColor) {
                 for (let imgRow = -2; imgRow <= imgH + 1; imgRow += 1) {
                     const explorerRow = ((imgY + imgRow) * explorerW + imgX) * 4;
@@ -1168,10 +1155,8 @@ export default class ExplorerState {
             DRAW SCISSORS
          */
         if (this.drawScissors) {
-            const explorerX =
-                this.scissorsStartX < this.scissorsEndX ? this.scissorsStartX : this.scissorsEndX;
-            const explorerY =
-                this.scissorsStartY < this.scissorsEndY ? this.scissorsStartY : this.scissorsEndY;
+            const explorerX = this.scissorsStartX < this.scissorsEndX ? this.scissorsStartX : this.scissorsEndX;
+            const explorerY = this.scissorsStartY < this.scissorsEndY ? this.scissorsStartY : this.scissorsEndY;
 
             const scissorW = Math.abs(this.scissorsEndX - this.scissorsStartX);
             const scissorH = Math.abs(this.scissorsEndY - this.scissorsStartY);
@@ -1228,8 +1213,7 @@ export default class ExplorerState {
         const endTime = window.performance.now();
         const time = endTime - startTime;
         // console.log(`Draw: ${time}`);
-        if (this.ui.showLogs || this.performanceTest)
-            this.perfLogs.draw.push(Math.round(time * 1000) / 1000);
+        if (this.ui.showLogs || this.performanceTest) this.perfLogs.draw.push(Math.round(time * 1000) / 1000);
         if (time > this.maxDrawTime) {
             this.maxDrawTime = time;
             console.warn('new max draw time');
@@ -1246,11 +1230,9 @@ export default class ExplorerState {
         // console.log('zoom event');
         // event can be a custom/dummy event
         if (wheelEvent.hasOwnProperty('preventDefault')) wheelEvent.preventDefault();
-        if (Object.prototype.hasOwnProperty.call(wheelEvent, 'preventDefault'))
-            wheelEvent.preventDefault();
+        if (Object.prototype.hasOwnProperty.call(wheelEvent, 'preventDefault')) wheelEvent.preventDefault();
         if (wheelEvent.hasOwnProperty('stopPropagation')) wheelEvent.stopPropagation();
-        if (Object.prototype.hasOwnProperty.call(wheelEvent, 'preventDefault'))
-            wheelEvent.stopPropagation();
+        if (Object.prototype.hasOwnProperty.call(wheelEvent, 'preventDefault')) wheelEvent.stopPropagation();
         // console.log(wheelEvent)
         // const { nodeUnderMouse } = this;
 
@@ -1398,7 +1380,7 @@ export default class ExplorerState {
 
                 // drag hole group
                 if (this.draggedNode.group) {
-                    Object.values(this.nodes).forEach(node => {
+                    Object.values(this.nodes).forEach((node) => {
                         if (node.group) {
                             node.x += imgX;
                             node.y += imgY;
@@ -1510,7 +1492,7 @@ export default class ExplorerState {
             const endY = (this.scissorsEndY - this.translateY) / this.scale;
             // console.log({startX, startY})
             // console.log({endX, endY})
-            Object.values(this.nodes).forEach(node => {
+            Object.values(this.nodes).forEach((node) => {
                 // console.log(node)
                 // check for all nodes if they are inside the rectangle
                 if ((node.x > startX && node.x < endX) || (node.x < startX && node.x > endX)) {
@@ -1540,7 +1522,7 @@ export default class ExplorerState {
             const x = (e.offsetX - this.translateX) / this.scale;
             const y = (e.offsetY - this.translateY) / this.scale;
             // move group members to mouse position
-            Object.values(this.nodes).forEach(node => {
+            Object.values(this.nodes).forEach((node) => {
                 if (node.group) {
                     node.x += (x - node.x) / 2;
                     node.y += (y - node.y) / 2;
@@ -1556,14 +1538,14 @@ export default class ExplorerState {
         // todo scale an zoomstufe anpassen da ja unterschiedliche trees?
         const r = (0.01 * 20) / this.scale;
         const nodes = tree.within(this.lngX(this.draggedNode.x), this.latY(this.draggedNode.y), r);
-        Object.values(this.nodes).forEach(node => {
+        Object.values(this.nodes).forEach((node) => {
             node.isNearly = !node.group && nodes.includes(node.index);
         });
         console.timeEnd('nodesInRange');
     }
 
     addNodesInRangeToGroup() {
-        Object.values(this.nodes).forEach(node => {
+        Object.values(this.nodes).forEach((node) => {
             if (node.isNearly) {
                 node.group = true;
                 node.groupId = this.draggedNode.groupId;

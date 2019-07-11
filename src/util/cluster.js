@@ -40,7 +40,7 @@ SuperCluster.prototype = {
             getX,
             getY,
             this.options.nodeSize,
-            Float32Array
+            Float32Array,
         );
 
         if (log) console.timeEnd(timerId);
@@ -226,7 +226,7 @@ SuperCluster.prototype = {
                         min = distance([pp.x, pp.y], [x, y]);
                         centroidId = pp.properties.index;
                     }
-                    all.forEach(poi => {
+                    all.forEach((poi) => {
                         const dist = distance([poi.x, poi.y], [x, y]);
                         if (dist < min) {
                             min = dist;
