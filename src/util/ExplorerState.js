@@ -341,6 +341,8 @@ export default class ExplorerState {
         }
         window.requestAnimationFrame(() => {
             console.log(this.perfLogs);
+            // round all numbers to xx.xxx
+            this.perfLogs.draw = this.perfLogs.draw.map(x => Math.round(x * 1000) / 1000);
             const sorted = this.perfLogs.draw.sort((a, b) => a - b);
             console.log(sorted);
             const min = sorted[0];
