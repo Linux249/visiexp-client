@@ -33,7 +33,6 @@ export default class Node {
         // this.pics = {};
         this.imageData = data.imageData;
 
-
         /* try {
             // this.icon = new Image();
             // this.icon.src = data.buffer;

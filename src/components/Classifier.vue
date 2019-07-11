@@ -1,94 +1,92 @@
 <template>
     <div class="area">
         <div class="title">Categories</div>
-        <div
-            v-for="(category, ii) in labels"
-            :key="ii"
-        >
+        <div :key="ii" v-for="(category, ii) in labels">
             <div class="option-title">{{ category.name }}</div>
-            <div class="row" v-for="(label, i) in category.labels" :key="label.name">
+            <div :key="label.name" class="row" v-for="(label, i) in category.labels">
                 <div
-                    class="btn"
                     :class="{ active: selectedLabel === label.name }"
                     @click="toogleLabel(label.name, ii)"
-                >
-                    {{label.name}}
-                </div>
-                <div
-                    v-on:click.stop="addLabeledToGroup(label.name)"
                     class="btn"
                 >
+                    {{ label.name }}
+                </div>
+                <div class="btn" v-on:click.stop="addLabeledToGroup(label.name)">
                     <grid></grid>
                 </div>
                 <div
-                    v-on:click.stop="toogleShowLabel(i)"
-                    class="btn"
                     :class="{ active: !label.show }"
+                    class="btn"
+                    v-on:click.stop="toogleShowLabel(i)"
                 >
                     <slash></slash>
                 </div>
-                <div
-                    class="btn"
-                >
+                <div class="btn">
                     <input
+                        :style="{
+                            backgroundColor: `rgb(${label.color[0]},${label.color[1]},${
+                                label.color[2]
+                            })`,
+                        }"
+                        :value="rgbToHex(label.color[0], label.color[1], label.color[2])"
                         class="color-box"
                         type="color"
                         v-on:change.prevent="changeLabelColor(i, $event)"
-                        :value="rgbToHex(label.color[0], label.color[1], label.color[2])"
-                        :style="{ backgroundColor:
-                            `rgb(${label.color[0]},${label.color[1]},${label.color[2]})`}"
                     />
                 </div>
             </div>
-    </div>
+        </div>
         <div class="row wrap">
             <div
+                :class="{ active: selectedCategory === i }"
+                :key="i"
+                @click="selectedCategory = i"
                 class="btn"
                 v-for="(cat, i) in labels"
-                :key="i"
-                :class="{active: selectedCategory === i}"
-                @click="selectedCategory = i"
             >
-                {{cat.name}}
+                {{ cat.name }}
             </div>
-            <div class="btn" @click="showAddCategory = !showAddCategory">
+            <div @click="showAddCategory = !showAddCategory" class="btn">
                 +
             </div>
         </div>
 
         <div class="row" v-if="showAddCategory">
-            <input type="text" v-model="category"/>
+            <input type="text" v-model="category" />
             <div @click="addCategory" class="btn">add</div>
         </div>
 
         <div class="imgArea">
-            <div class="image" v-for="(n, i) in selectedNodes" :key="i">
-                <img
-                    v-if="n.hasImage"
-                    :src="n.image.src"
-                    :alt="n.name"
-                    @click="removeNode(i)"
-                >
+            <div :key="i" class="image" v-for="(n, i) in selectedNodes">
+                <img :alt="n.name" :src="n.image.src" @click="removeNode(i)" v-if="n.hasImage" />
             </div>
         </div>
 
         <div class="row">
-            <input type="text" v-model="label" @focus="handleFocus" @blur="handleBlur"/>
+            <input @blur="handleBlur" @focus="handleFocus" type="text" v-model="label" />
             <div
-                v-if="showLabelOptions"
-                class="dropdown"
                 @mouseenter="mouseOver = true"
                 @mouseleave="mouseOver = false"
+                class="dropdown"
+                v-if="showLabelOptions"
             >
                 <div
-                    class="item"
-                    v-for="label in labelsFiltered"
                     :key="label.name"
                     @click="chooseLabel(label.name)"
-                >{{label.name}}</div>
+                    class="item"
+                    v-for="label in labelsFiltered"
+                >
+                    {{ label.name }}
+                </div>
             </div>
-            <div @click="addLabel" class="btn">add<hash></hash></div>
-            <div @click="clear" class="btn">clear<x></x></div>
+            <div @click="addLabel" class="btn">
+                add
+                <hash></hash>
+            </div>
+            <div @click="clear" class="btn">
+                clear
+                <x></x>
+            </div>
         </div>
         <div @click="update" class="btn">update labels</div>
     </div>
@@ -99,9 +97,7 @@ import Hash from '../icons/Hash';
 import X from '../icons/X';
 import Slash from '../icons/Slash';
 import Grid from '../icons/Grid';
-import {
-    hexToB, hexToG, hexToR, rgbToHex,
-} from '../util/colourConverter';
+import { hexToB, hexToG, hexToR, rgbToHex } from '../util/colourConverter';
 import { apiUrl } from '../config/apiUrl';
 
 export default {
@@ -164,7 +160,7 @@ export default {
             }
 
             // ad label to nodes after checking that is npot allready used at node
-            this.selectedNodes.forEach((node) => {
+            this.selectedNodes.forEach(node => {
                 node.labels[this.selectedCategory] = this.label;
             });
 
@@ -201,7 +197,7 @@ export default {
                 body,
             })
                 .then(res => res.text())
-                .catch((e) => {
+                .catch(e => {
                     // TODO Errorhandling after loading is implemented
                     // this.loading = false;
                     console.error(e);
@@ -240,7 +236,9 @@ export default {
     },
     computed: {
         labelsFiltered() {
-            return this.labels[this.selectedCategory].labels.filter(label => label.name.includes(this.label));
+            return this.labels[this.selectedCategory].labels.filter(label =>
+                label.name.includes(this.label)
+            );
         },
     },
 };

@@ -2,11 +2,11 @@
     <div class="area">
         <div class="title">Data sets</div>
         <div class="loading">
-            <div v-if="loading" class="loader"></div>
+            <div class="loader" v-if="loading"></div>
         </div>
-        <div v-for="set in datasets" :key="set.id" @click="selectDataset(set.id)">
+        <div :key="set.id" @click="selectDataset(set.id)" v-for="set in datasets">
             <div class="row v-center">
-                <div class="btn" :class="{ active: selectedDataset === set.id }">
+                <div :class="{ active: selectedDataset === set.id }" class="btn">
                     {{ `${set.name}` }}
                 </div>
             </div>
@@ -19,16 +19,16 @@
             <div class="title">Amount</div>
             <div class="between">
                 <range-slider
-                    :value="imgCount"
                     :change="changeImgCount"
-                    :step="500"
-                    :min="500"
                     :max="10000"
+                    :min="500"
+                    :step="500"
+                    :value="imgCount"
                 ></range-slider>
                 <div class="btn">{{ `${imgCount}#` }}</div>
             </div>
             <div class="flex">
-                <div class="btn" @click="triggerChangeDataset">load Dataset</div>
+                <div @click="triggerChangeDataset" class="btn">load Dataset</div>
             </div>
         </div>
     </div>
@@ -114,6 +114,7 @@ export default {
     transition: all 0.15s ease;
     margin-bottom: 0.3rem;
 }
+
 .description-small {
     width: auto;
     word-spacing: -1px;
@@ -127,6 +128,7 @@ export default {
     transition: all 0.15s ease;
     margin-bottom: 0.2rem;
 }
+
 .loading {
     display: flex;
     justify-content: center;

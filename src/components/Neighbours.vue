@@ -3,15 +3,21 @@
         <div class="title">Similars</div>
         <div class="between">
             <range-slider
-                :value="neighboursThreshold"
                 :change="changeNeighboursThreshold"
+                :value="neighboursThreshold"
             ></range-slider>
-            <div class="btn">{{`${neighboursThreshold}#`}}</div>
+            <div class="btn">{{ `${neighboursThreshold}#` }}</div>
         </div>
         <div class="row hint"># proposals in next iteration</div>
         <div class="row">
-            <div class="btn" @click="getGroupNeighbours" :class="{ active: loading }">Update<repeat></repeat></div>
-            <div class="btn" @click="stop" :class="{ active: loading }">Stop<stop></stop></div>
+            <div :class="{ active: loading }" @click="getGroupNeighbours" class="btn">
+                Update
+                <repeat></repeat>
+            </div>
+            <div :class="{ active: loading }" @click="stop" class="btn">
+                Stop
+                <stop></stop>
+            </div>
             <!--<div class="btn" @click="resetNeighbours">Reset<trash></trash></div>-->
         </div>
     </div>
@@ -25,7 +31,13 @@ import { apiUrl } from '../config/apiUrl';
 
 export default {
     name: 'Neighbours',
-    props: ['getStore', 'neighboursThreshold', 'changeNeighboursThreshold', 'activeGroupId', 'stop'],
+    props: [
+        'getStore',
+        'neighboursThreshold',
+        'changeNeighboursThreshold',
+        'activeGroupId',
+        'stop',
+    ],
     components: {
         RangeSlider,
         Repeat,

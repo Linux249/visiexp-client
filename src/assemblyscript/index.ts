@@ -6,18 +6,16 @@
 // }
 //
 // also you can do this
-@external("env", "log1")
+@external('env', 'log1')
 declare function log(val: f64): f64;
 
 //namespace console {
 //  export declare function log(int: u32): void;
 //}
 
-
 // GEIL - Beliebig viele Knoten pushen°!
 // TODO
 // 1. Init mit out array verbinden,
-
 
 /*
   MEMORY:
@@ -28,12 +26,13 @@ declare function log(val: f64): f64;
 
 class Pic {
     public size: u32;
+
     constructor(
         public w: u8,
         public h: u8,
-        public ptr: u32,    // max 2,147,483,647
+        public ptr: u32 // max 2,147,483,647
     ) {
-        this.size = 4 * w * h
+        this.size = 4 * w * h;
     }
 }
 
@@ -46,14 +45,9 @@ class State {
     public tx: i32;
     public ty: i32;
 
-    constructor(
-        public count: u32,
-        public canvasW: u32,
-        public canvasH: u32,
-        public offset: u32,
-    ) {
+    constructor(public count: u32, public canvasW: u32, public canvasH: u32, public offset: u32) {
         //todo add size
-        this.imgMemoryPtr = offset + (4 *  (canvasW * canvasH));
+        this.imgMemoryPtr = offset + 4 * (canvasW * canvasH);
         this.tx = Math.ceil(canvasW / 2) as i32;
         this.ty = Math.ceil(canvasH / 2) as i32;
     }
@@ -64,7 +58,6 @@ class State {
 
     // add a new node to the state and return actuly state size
     public addNode(x: f64, y: f64, id: u32): u32 {
-
         this.count += 1;
         // console.log1(this.count)
         // log(this.count)
@@ -75,7 +68,7 @@ class State {
         // log(y)
         const node: Node = new Node(x, y, id);
         // this.nodes.push(new Node(w, h, ptr));
-        this.nodes.push(node)
+        this.nodes.push(node);
         // log(node.x)
         // log(node.y)
 
@@ -84,9 +77,8 @@ class State {
     }
 
     public getCheckSum(x: u32): u32 {
-        return this.nodes[x].checkSum()
+        return this.nodes[x].checkSum();
     }
-
 
     public draw(): u32 {
         for (let i: u32 = this.offset, size: u32 = this.imgMemoryPtr; i < size; i++) {
@@ -104,7 +96,6 @@ class State {
         }
         // return this.checkOutArray()
         return this.imgMemoryPtr;
-
     }
 
     public clear(): u32 {
@@ -124,9 +115,7 @@ class State {
         }
 
         return v;
-
     }
-
 }
 
 let state: State;
@@ -134,6 +123,7 @@ let state: State;
 class Node {
     //imgByteSize:  u32
     public pics: Pic[] = new Array<Pic>();
+
     constructor(
         // public w: u8,
         // public h: u8,
@@ -151,11 +141,9 @@ class Node {
 
     public addPic(w: u8, h: u8, ptr: u32): u32 {
         const pic: Pic = new Pic(w, h, ptr);
-        this.pics.push(pic)
-        return ptr
+        this.pics.push(pic);
+        return ptr;
     }
-
-
 
     // public checkSum(): u32 {
     //     let v: u32 = 0;
@@ -177,27 +165,27 @@ class Node {
         // log(state.ty)
         // log(this.x)
         // log(this.y)
-        const x = Math.floor((this.x * state.scale) + state.tx)
-        const y = Math.floor((this.y *state.scale) + state.ty)
-        const w = this.pics[state.zoom].w
-        const h = this.pics[state.zoom].h
-        const ptr = this.pics[state.zoom].ptr
-        if(!this.id) {
-            log(state.scale)
-            log(state.tx)
-            log(state.ty)
-            log(x)
-            log(y)
+        const x = Math.floor(this.x * state.scale + state.tx);
+        const y = Math.floor(this.y * state.scale + state.ty);
+        const w = this.pics[state.zoom].w;
+        const h = this.pics[state.zoom].h;
+        const ptr = this.pics[state.zoom].ptr;
+        if (!this.id) {
+            log(state.scale);
+            log(state.tx);
+            log(state.ty);
+            log(x);
+            log(y);
         }
-        if(x < 0 || y < 0) return -1
-        if((x + w) > state.canvasW || (y + h) > state.canvasH) return -1
+        if (x < 0 || y < 0) return -1;
+        if (x + w > state.canvasW || y + h > state.canvasH) return -1;
 
-        const startPixel = state.offset + (y as u32 * state.canvasW + x as u32 ) * 4
+        const startPixel = state.offset + (((y as u32) * state.canvasW + x) as u32) * 4;
         // log(startPixel)
         // loop through each row
         for (let r: u32 = 0; r < h; r += 1) {
             for (let c: u32 = 0; c < w; c += 1) {
-            // loop through each column/field
+                // loop through each column/field
 
                 // in pixel
                 // #rows have each w pixel, 1 pixel 4 bytes, offset is start
@@ -206,9 +194,9 @@ class Node {
                 // out pixel
                 // const o: u32 = state.offset + (this.y*state.canvasW + this.x) * 4
                 // state.count += 1
-                const outPixel: u32 = startPixel + (r * state.canvasW + c)*4
-                const inPixel: u32 = 4 * ((r * w) + c) + ptr
-                store<u32>(outPixel, load<u32>(inPixel))
+                const outPixel: u32 = startPixel + (r * state.canvasW + c) * 4;
+                const inPixel: u32 = 4 * (r * w + c) + ptr;
+                store<u32>(outPixel, load<u32>(inPixel));
                 // const v = load<u8>(inPixel)
                 // if(r === c)log(outPixel)
                 // if(r === c)log(v)
@@ -223,33 +211,30 @@ class Node {
 
         return 1;
     }
-
-
-
 }
 
 // add a node extern, later export class State and use diretly
 export function addNode(x: f64, y: f64, id: u32): u32 {
-    log(x)
-    log(y)
-    const test = Math.round(x * 1000000)/1000000
-    const test2 = Math.round(y * 1000000)/1000000
-    log(test)
-    log(test2)
+    log(x);
+    log(y);
+    const test = Math.round(x * 1000000) / 1000000;
+    const test2 = Math.round(y * 1000000) / 1000000;
+    log(test);
+    log(test2);
     // log(<f64><u32>y)
     // log(y as u32)
-    return state.addNode(test, test2, id)
+    return state.addNode(test, test2, id);
 }
 
 export function addPic(id: u32, w: u8, h: u8, ptr: u32): u32 {
     // log(<f64><u32>y)
     // log(y as u32)
-    return state.nodes[id].addPic(w, h, ptr)
+    return state.nodes[id].addPic(w, h, ptr);
 }
 
 // checksum of node x
 export function checkSum(x: u32): u32 {
-    return state.checkOutArray()
+    return state.checkOutArray();
     // return state.nodes[x].checkSum()
 }
 
@@ -259,7 +244,6 @@ export function count(): u32 {
 }
 
 export function init(count: u32, canvasW: u32, canvasH: u32, offset: u32): number {
-
     // create state
     state = new State(count, canvasW, canvasH, offset);
 
@@ -288,28 +272,29 @@ export function getNodeXY(n: u32): u32 {
 }
 
 export function setScale(s: u32): u32 {
-    state.scale = s
-    log(state.scale)
-    return state.scale
+    state.scale = s;
+    log(state.scale);
+    return state.scale;
 }
+
 export function setTxTy(tx: u32, ty: u32): u32 {
-    state.tx = tx
-    state.ty = ty
-    log(state.tx)
-    log(state.ty)
-    return state.tx + state.ty
+    state.tx = tx;
+    state.ty = ty;
+    log(state.tx);
+    log(state.ty);
+    return state.tx + state.ty;
 }
 
 export function setZoom(z: u8): u8 {
     state.zoom = z < 10 ? z : 9;
-    log(state.zoom)
-    return state.zoom
+    log(state.zoom);
+    return state.zoom;
 }
 
 export function addTxTy(tx: i32, ty: i32): u32 {
-    state.tx += tx
-    state.ty += ty
-    log(state.tx)
-    log(state.ty)
-    return state.tx + state.ty
+    state.tx += tx;
+    state.ty += ty;
+    log(state.tx);
+    log(state.ty);
+    return state.tx + state.ty;
 }

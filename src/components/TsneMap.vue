@@ -12,12 +12,12 @@
                 <!--<div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">
                     Options
                 </div>-->
-                <div @click="sendData" class="btn" :class="{ active: loadingNodes }">
+                <div :class="{ active: loadingNodes }" @click="sendData" class="btn">
                     Update
                     <send v-if="!loadingNodes"></send>
-                    <div v-if="loadingNodes" class="loader"></div>
+                    <div class="loader" v-if="loadingNodes"></div>
                 </div>
-                <div @click="showInfo = !showInfo" class="btn" :class="{ active: showInfo }">
+                <div :class="{ active: showInfo }" @click="showInfo = !showInfo" class="btn">
                     <help></help>
                 </div>
                 <!--<div
@@ -33,13 +33,13 @@
         </div>
         <div class="row body">
             <div class="explorer">
-                <canvas ref="canvas" id="canvas" class="canvas" tabindex="0"></canvas>
+                <canvas class="canvas" id="canvas" ref="canvas" tabindex="0"></canvas>
                 <div class="box top right">
                     <div class="row">
-                        <div @click="selectTarget" :class="{ active: target }" class="btn">
+                        <div :class="{ active: target }" @click="selectTarget" class="btn">
                             <target></target>
                         </div>
-                        <div @click="selectScissors" :class="{ active: scissors }" class="btn">
+                        <div :class="{ active: scissors }" @click="selectScissors" class="btn">
                             <scissors></scissors>
                         </div>
                         <div @click="clearGroup" class="btn">
@@ -48,15 +48,15 @@
                     </div>
                     <div class="row-end">
                         <div
-                            @click="toggleShowHeatmap"
                             :class="{ active: showHeatmap }"
+                            @click="toggleShowHeatmap"
                             class="btn"
                         >
                             <navmap></navmap>
                         </div>
                         <div
-                            @click="toggleShowNavHeatmap"
                             :class="{ active: showNavHeatmap }"
+                            @click="toggleShowNavHeatmap"
                             class="btn"
                         >
                             <navmap></navmap>
@@ -64,21 +64,21 @@
                     </div>
                 </div>
                 <div class="box top left">
-                    <div class="btn" :if="nodesTotal">{{ nodesRecived + '/' + nodesTotal }}</div>
+                    <div :if="nodesTotal" class="btn">{{ nodesRecived + '/' + nodesTotal }}</div>
                 </div>
                 <div class="box bottom left">
                     <div :class="{ hide: !showHeatmap }">
                         <canvas
-                            id="heatmap"
                             class="canvas"
+                            id="heatmap"
                             style="margin: 0.5rem; border-radius: 4px"
                             tabindex="0"
                         ></canvas>
                     </div>
-                    <div class="navMap" :class="{ hide: !showNavHeatmap }">
+                    <div :class="{ hide: !showNavHeatmap }" class="navMap">
                         <canvas
-                            id="navHeatmap"
                             class="canvas"
+                            id="navHeatmap"
                             style="margin: 0.5rem; border-radius: 4px"
                             tabindex="0"
                         ></canvas>
@@ -91,20 +91,26 @@
                 </div>
                 <div class="box bottom right">
                     <div class="row">
-                        <div @click="changeScaleDown()" class="btn"><minimize></minimize></div>
-                        <div @click="changeScaleUp()" class="btn"><maximize></maximize></div>
+                        <div @click="changeScaleDown()" class="btn">
+                            <minimize></minimize>
+                        </div>
+                        <div @click="changeScaleUp()" class="btn">
+                            <maximize></maximize>
+                        </div>
                     </div>
                     <div class="row">
                         <div @click="changeImgSize(-1)" class="btn">
                             <img-size-down></img-size-down>
                         </div>
-                        <div @click="changeImgSize(1)" class="btn"><img-size-up></img-size-up></div>
+                        <div @click="changeImgSize(1)" class="btn">
+                            <img-size-up></img-size-up>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="details">
-                <div v-if="$route.path === '/options'" class="area">
+                <div class="area" v-if="$route.path === '/options'">
                     <div class="title">Options</div>
                     <!--<div class="option-title">Old cluster</div>
                     <div class="row-btn">
@@ -126,7 +132,9 @@
                     <div class="row-btn">
                         <div>Save:</div>
                         <div class="row">
-                            <div @click="saveCanvas" class="btn"><save></save></div>
+                            <div @click="saveCanvas" class="btn">
+                                <save></save>
+                            </div>
                         </div>
                     </div>
                     <div class="option-title">Image</div>
@@ -158,16 +166,16 @@
                     <div class="row-btn">
                         <div>Represent: alpha</div>
                         <div
+                            :class="{ active: representMaxAlpha }"
                             @click="togglerepresentMaxAlpha"
                             class="btn"
-                            :class="{ active: representMaxAlpha }"
                         >
                             {{ representMaxAlpha ? 'On' : 'Off' }}
                         </div>
                     </div>
                     <div class="row-btn">
                         <div>Represent: sort</div>
-                        <div @click="toogleRepsMode" class="btn" :class="{ active: repsMode }">
+                        <div :class="{ active: repsMode }" @click="toogleRepsMode" class="btn">
                             {{ repsMode === 0 ? 'normal' : repsMode === 1 ? 'before' : 'behind' }}
                         </div>
                     </div>
@@ -193,16 +201,16 @@
                     <div class="option-title">Rank/Clique</div>
                     <div class="row-btn">
                         <div>Sort</div>
-                        <div @click="sortNodes" class="btn" :class="{ active: sorted }">
+                        <div :class="{ active: sorted }" @click="sortNodes" class="btn">
                             {{ sorted ? 'On' : 'Off' }}
                         </div>
                     </div>
                     <div class="row-btn">
                         <div>Size</div>
                         <div
-                            class="btn"
                             :class="{ active: sizeRankedMode }"
                             @click="toggleSizeRankedMode"
+                            class="btn"
                         >
                             {{ sizeRankedMode ? 'On' : 'Off' }}
                         </div>
@@ -210,69 +218,85 @@
                     <div class="row-btn">
                         <div>Multiplier: {{ sizeRange }}</div>
                         <div class="row">
-                            <div @click="changeSizeRange(-1)" class="btn"><minus></minus></div>
-                            <div @click="changeSizeRange(1)" class="btn"><plus></plus></div>
+                            <div @click="changeSizeRange(-1)" class="btn">
+                                <minus></minus>
+                            </div>
+                            <div @click="changeSizeRange(1)" class="btn">
+                                <plus></plus>
+                            </div>
                         </div>
                     </div>
                     <div class="row-btn">
                         <div>Border</div>
                         <div
-                            class="btn"
                             :class="{ active: boarderRankedMode }"
                             @click="toggleBoarderRankedMode"
+                            class="btn"
                         >
                             {{ boarderRankedMode ? 'On' : 'Off' }}
                         </div>
                     </div>
                     <div class="row-btn">
                         <div
-                            class="color"
                             :class="{ activeColor: selectedGradient === i }"
-                            v-for="(color, i) in gradient"
                             :key="i"
+                            @click="changeGradientColor(i)"
+                            class="color"
                             v-bind:style="{
                                 backgroundColor: `rgb(${color[0]},${color[1]},${color[2]})`,
                             }"
-                            @click="changeGradientColor(i)"
+                            v-for="(color, i) in gradient"
                         >
                             {{ '.' + i }}
                         </div>
                     </div>
-                    <slider-picker style="width: inherit;" v-model="colors" @input="changeColor" />
+                    <slider-picker @input="changeColor" style="width: inherit;" v-model="colors" />
                     <div class="option-title">Heatmap</div>
                     <div class="row-btn">
                         <div>Radius: {{ heatmapRadius }}</div>
                         <div class="row">
-                            <div @click="changeHeatmapRadius(-1)" class="btn"><minus></minus></div>
-                            <div @click="changeHeatmapRadius(1)" class="btn"><plus></plus></div>
+                            <div @click="changeHeatmapRadius(-1)" class="btn">
+                                <minus></minus>
+                            </div>
+                            <div @click="changeHeatmapRadius(1)" class="btn">
+                                <plus></plus>
+                            </div>
                         </div>
                     </div>
                     <div class="row-btn">
                         <div>Blur: {{ heatmapBlur }}</div>
                         <div class="row">
-                            <div @click="changeHeatmapBlur(-1)" class="btn"><minus></minus></div>
-                            <div @click="changeHeatmapBlur(1)" class="btn"><plus></plus></div>
+                            <div @click="changeHeatmapBlur(-1)" class="btn">
+                                <minus></minus>
+                            </div>
+                            <div @click="changeHeatmapBlur(1)" class="btn">
+                                <plus></plus>
+                            </div>
                         </div>
                     </div>
                     <div class="option-title">Cluster</div>
                     <div class="row-btn">
                         <div>Cluster: radius: {{ clusterRadius }}</div>
                         <div class="row">
-                            <div @click="changeClusterRadius(-1)" class="btn"><minus></minus></div>
-                            <div @click="changeClusterRadius(1)" class="btn"><plus></plus></div>
+                            <div @click="changeClusterRadius(-1)" class="btn">
+                                <minus></minus>
+                            </div>
+                            <div @click="changeClusterRadius(1)" class="btn">
+                                <plus></plus>
+                            </div>
                             <div @click="updateCluster()" class="btn">update</div>
                         </div>
                     </div>
                     <div class="option-title">Performance</div>
                     <div class="row-btn">
                         <div>Monitor</div>
-                        <div @click="toggleShowLogs" class="btn" :class="{ active: showLogs }">
+                        <div :class="{ active: showLogs }" @click="toggleShowLogs" class="btn">
                             {{ showLogs ? 'On' : 'Off' }}
                         </div>
                     </div>
                     <div class="row-btn">
                         <div>Show Hitmap</div>
-                        <div @click="toggleShowHitmap" class="btn" :class="{ active: toggle }">
+                        <div :class="{ active: toggle }" @click="toggleShowHitmap" class="btn">
                             {{ toggle ? 'On' : 'Off' }}
                         </div>
                     </div>
@@ -282,36 +306,35 @@
                     </div>
                     <div class="row-btn">
                         <div>100xDraw</div>
-                        <div class="btn" @click="testPerformance">TODO</div>
+                        <div @click="testPerformance" class="btn">TODO</div>
                     </div>
 
                     <!--<div class="row-btn">-->
-                        <!--<div>Cluster: tile: {{ clusterTile }}</div>-->
-                        <!--<div class="row">-->
-                            <!--<div @click="changeClusterTile(-1)" class="btn"><minus></minus></div>-->
-                            <!--<div @click="changeClusterTile(1)" class="btn"><plus></plus></div>-->
-                        <!--</div>-->
+                    <!--<div>Cluster: tile: {{ clusterTile }}</div>-->
+                    <!--<div class="row">-->
+                    <!--<div @click="changeClusterTile(-1)" class="btn"><minus></minus></div>-->
+                    <!--<div @click="changeClusterTile(1)" class="btn"><plus></plus></div>-->
+                    <!--</div>-->
                     <!--</div>-->
                 </div>
 
-                <div v-if="!neighbourMode" class="area">
+                <div class="area" v-if="!neighbourMode">
                     <div class="title">Groups</div>
-                    <div v-if="this.savedGroups.length" class="group-list">
+                    <div class="group-list" v-if="this.savedGroups.length">
                         <div
+                            :key="i"
                             class="group-item row-between"
                             v-for="(group, i) in savedGroups"
-                            :key="i"
                         >
                             <div
-                                class="btn"
                                 :class="{ active: group.groupId === activeGroupId }"
                                 @click="selectGroup(i)"
+                                class="btn"
                             >
                                 {{ `${group.name}` }}
                             </div>
                             <div>{{ `#${group.count}` }}</div>
                             <select
-                                class="btn"
                                 :style="{
                                     width: '3rem',
                                     backgroundColor: `rgb(${groupColours[group.colorId][0]},${
@@ -319,25 +342,26 @@
                                     },${groupColours[group.colorId][2]})`,
                                 }"
                                 @change="changeGroupColor($event, i)"
+                                class="btn"
                             >
                                 <option
-                                    v-for="(color, id) in groupColours"
-                                    :selected="+group.colorId === +id"
                                     :id="group.colorId"
-                                    :value="id"
                                     :key="id"
+                                    :selected="+group.colorId === +id"
                                     :style="{
                                         backgroundColor: `rgb(${color[0]},${color[1]},${color[2]})`,
                                     }"
+                                    :value="id"
+                                    v-for="(color, id) in groupColours"
                                 >
                                 </option>
                             </select>
                             <div
-                                class="btn"
                                 :class="{
                                     active: neighbourMode && group.groupId === activeGroupId,
                                 }"
                                 @click="handleNeighbourMode(i)"
+                                class="btn"
                             >
                                 <play
                                     v-if="!(neighbourMode && group.groupId === activeGroupId)"
@@ -346,7 +370,9 @@
                                     v-if="neighbourMode && group.groupId === activeGroupId"
                                 ></stop>
                             </div>
-                            <div class="btn" @click="deleteGroup(i)"><trash></trash></div>
+                            <div @click="deleteGroup(i)" class="btn">
+                                <trash></trash>
+                            </div>
                         </div>
                     </div>
                     <div class="row v-center">
@@ -355,68 +381,75 @@
                     </div>
                 </div>
 
-                <canvas v-if="wasmMode" width="500" height="500" id="draw"></canvas>
+                <canvas height="500" id="draw" v-if="wasmMode" width="500"></canvas>
 
                 <neighbours
-                    v-if="neighbourMode"
-                    :getStore="getStore"
                     :activeGroupId="activeGroupId"
                     :changeNeighboursThreshold="changeNeighboursThreshold"
+                    :getStore="getStore"
                     :neighboursThreshold="neighboursThreshold"
                     :stop="stopNeighbourMode"
+                    v-if="neighbourMode"
                 />
 
                 <router-view
-                    :nodes="cuttedNodes"
+                    :changeActiveNode="changeActiveNode"
+                    :dataset="dataset"
+                    :getNode="getNode"
+                    :getStore="getStore"
+                    :handleChangeDataset="handleChangeDataset"
                     :labels="labels"
                     :node="clickedNode"
-                    :getNode="getNode"
-                    :changeActiveNode="changeActiveNode"
-                    :getStore="getStore"
-                    :dataset="dataset"
+                    :nodes="cuttedNodes"
                     :selectedImgCount="selectedImgCount"
-                    :handleChangeDataset="handleChangeDataset"
                 />
 
                 <div class="area padding" v-if="activeNode">
                     <img
+                        :alt="activeNode.name"
+                        :src="activeNode.image.src"
                         class="active-img"
                         v-if="activeNode.hasImage"
-                        :src="activeNode.image.src"
-                        :alt="activeNode.name"
                     />
-                    <div v-if="activeNode.imgLoading" class="loader"></div>
+                    <div class="loader" v-if="activeNode.imgLoading"></div>
                     <div>Name: {{ activeNode.name }}</div>
                     <!--<div>X:Y: {{activeNode.x + ":" + activeNode.y}}</div>-->
                     <div class="row">
                         Labels:
-                        <div class="label" v-for="label in activeNode.labels" :key="label">
+                        <div :key="label" class="label" v-for="label in activeNode.labels">
                             {{ label }}
                         </div>
                     </div>
                 </div>
 
-                <div v-if="showInfo && !neighbourMode" class="area info-box">
+                <div class="area info-box" v-if="showInfo && !neighbourMode">
                     <div class="row v-center">
                         1. mark images with
                         <div class="btn">STRG+Click</div>
-                        / <scissors class="btn"></scissors>
+                        /
+                        <scissors class="btn"></scissors>
                     </div>
                     <div class="row v-center">
                         2. create groups with
                         <div class="btn">save group</div>
                     </div>
-                    <div class="row v-center">3. get proposals with <play class="btn"></play></div>
+                    <div class="row v-center">
+                        3. get proposals with
+                        <play class="btn"></play>
+                    </div>
                     <div class="row v-center">4. repeat with other groups</div>
                     <div class="row v-center">5. update embedding</div>
                 </div>
-                <div v-if="showInfo && neighbourMode" class="area info-box">
-                    <div class="row v-center">1. mark wrong with <div class="btn">Click</div></div>
+                <div class="area info-box" v-if="showInfo && neighbourMode">
+                    <div class="row v-center">
+                        1. mark wrong with
+                        <div class="btn">Click</div>
+                    </div>
                     <div class="row v-center">2. update proposals and iterate</div>
                     <div class="row v-center">3. stop with</div>
                 </div>
 
-                <logs v-if="showLogs" :getStore="getStore" />
+                <logs :getStore="getStore" v-if="showLogs" />
             </div>
         </div>
     </div>
@@ -426,8 +459,7 @@
 import io from 'socket.io-client';
 import simpleheat from 'simpleheat';
 import { Slider } from 'vue-color';
-import { instantiateStreaming, ASUtil } from 'assemblyscript/lib/loader';
-import fs from 'fs';
+import { instantiateStreaming } from 'assemblyscript/lib/loader';
 import Node from '../util/Node';
 import ExplorerState from '../util/ExplorerState';
 import groupColors from '../config/groupColors';
@@ -670,7 +702,7 @@ export default {
             const { heatmap } = this;
 
             // data in form of [[x,y,v], [x,y,v], ...]
-            const data = Object.values(this.store.getNodes()).map((node) => {
+            const data = Object.values(this.store.getNodes()).map(node => {
                 const x = (node.x * this.store.scale + this.store.translateX) / 4;
                 const y = (node.y * this.store.scale + this.store.translateY) / 4;
                 return [x, y, 1];
@@ -694,7 +726,7 @@ export default {
             const h = this.navHeatmapRect.height;
 
             // data in form of [[x,y,v], [x,y,v], ...]
-            const data = Object.values(this.store.getNodes()).map((node) => {
+            const data = Object.values(this.store.getNodes()).map(node => {
                 const x = node.x * 5 + w / 2;
                 const y = node.y * 5 + h / 2;
                 return [x, y, 1];
@@ -1066,9 +1098,18 @@ export default {
             const pagesNeeded = Math.ceil((bytes + this.initOffset) / (64 * 1024));
             const actualMemorySize = this.state2.memorySize();
             console.log({ pagesNeeded, actualMemorySize });
-            if (pagesNeeded > actualMemorySize) this.state2.memory.grow(pagesNeeded - actualMemorySize);
+            if (pagesNeeded > actualMemorySize)
+                this.state2.memory.grow(pagesNeeded - actualMemorySize);
             this.memoryView = new Uint8ClampedArray(this.state2.memory.buffer);
-            this.pixelView = new ImageData(new Uint8ClampedArray(this.state2.memory.buffer, this.initOffset, this.canvasPixelSize), this.canvasW, this.canvasH);
+            this.pixelView = new ImageData(
+                new Uint8ClampedArray(
+                    this.state2.memory.buffer,
+                    this.initOffset,
+                    this.canvasPixelSize
+                ),
+                this.canvasW,
+                this.canvasH
+            );
             // console.log(this.memoryView,  this.pixelView);
         },
 
@@ -1094,7 +1135,10 @@ export default {
                     env: {
                         // import as @external("env", "logf")
                         log1(value) {
-                            console.log(`%c from wasm: ${value}`, 'background: #222; color: #bada55');
+                            console.log(
+                                `%c from wasm: ${value}`,
+                                'background: #222; color: #bada55'
+                            );
                         },
                         abort(msg, file, line, column) {
                             console.error(`abort called at main.ts:${line}:${column}`);
@@ -1102,7 +1146,10 @@ export default {
                     },
                     console: {
                         log2(value) {
-                            console.log(`%c from wasm: ${value}`, 'background: #222; color: #bada55');
+                            console.log(
+                                `%c from wasm: ${value}`,
+                                'background: #222; color: #bada55'
+                            );
                         },
                     },
                 };
@@ -1119,37 +1166,37 @@ export default {
                 console.log(memory);
 
                 /*
-            TODO ADDED:
-                1. cummincate between js and AS
-                2. pass buffer to AS
-                3. Add Node Class to save pointer and size => get acces to pixel data for each img
-                4. add Store for saving nodes and operation on multi nodes
-                5. pixel array for return data and change via AS
-                6. Add draw to state and nodes
-                7. add test canvas for showing result
-                8. add variable memory based on canvasPixelSize and change cavnas size to 100, 100
-                9. add real pictures while streaming, first 10, handcrafted x,y,
-                    init memory 10 * 10 * 10 * 4 = 4000
-                10. init full downloaded memory
-                11. add all nodes with smallest img size to state
-                11. add scale, transfer to node.draw(s, t) with functions to change them
-                13. resize full canvas to 500, 500
-                14. node.draw() checks if node should be drawed
-                15. add new load wasm with webpack, imports add logging
-                16. add panning (MouseMove), scale/translate change (zoom)
-                17. add 10 files of images to Node and resize with zooming
-                18. fix draw placing wrong pixel and missing content after high zooming
+                TODO ADDED:
+                    1. cummincate between js and AS
+                    2. pass buffer to AS
+                    3. Add Node Class to save pointer and size => get acces to pixel data for each img
+                    4. add Store for saving nodes and operation on multi nodes
+                    5. pixel array for return data and change via AS
+                    6. Add draw to state and nodes
+                    7. add test canvas for showing result
+                    8. add variable memory based on canvasPixelSize and change cavnas size to 100, 100
+                    9. add real pictures while streaming, first 10, handcrafted x,y,
+                        init memory 10 * 10 * 10 * 4 = 4000
+                    10. init full downloaded memory
+                    11. add all nodes with smallest img size to state
+                    11. add scale, transfer to node.draw(s, t) with functions to change them
+                    13. resize full canvas to 500, 500
+                    14. node.draw() checks if node should be drawed
+                    15. add new load wasm with webpack, imports add logging
+                    16. add panning (MouseMove), scale/translate change (zoom)
+                    17. add 10 files of images to Node and resize with zooming
+                    18. fix draw placing wrong pixel and missing content after high zooming
 
-            Todo next
-                - add node.marked, node.groupId (default 0)
-                - add draw border
-                - add node move, groups move, marked moves
-                - add second array for getting pixel under mouse
+                Todo next
+                    - add node.marked, node.groupId (default 0)
+                    - add draw border
+                    - add node move, groups move, marked moves
+                    - add second array for getting pixel under mouse
 
 
-            TODO Enhancment
-                - new Way in a worker
-            */
+                TODO Enhancment
+                    - new Way in a worker
+                */
 
                 console.warn('INIT');
                 this.initOffset = 1024 * 64 * 5; // 5 pages
@@ -1270,7 +1317,7 @@ export default {
             }
         });
 
-        socket.on('Error', (data) => {
+        socket.on('Error', data => {
             logYellow('Socket: Error');
             console.error('Server response with error:');
             console.error(data.message);
@@ -1283,7 +1330,7 @@ export default {
             });
         });
 
-        socket.on('disconnect', (reason) => {
+        socket.on('disconnect', reason => {
             logYellow('Socket: disconnect');
             this.connectedToSocket = false;
             this.$notify({
@@ -1296,7 +1343,7 @@ export default {
         });
 
         // get a new node from server
-        socket.on('node', (data) => {
+        socket.on('node', data => {
             logYellow('Socket: node');
             if (data.index % 100 === 0) {
                 console.log(`Socket: node ${data.index}`);
@@ -1309,7 +1356,7 @@ export default {
             store.triggerDraw();
         });
 
-        socket.on('requestImage', (data) => {
+        socket.on('requestImage', data => {
             logYellow('Socket: requestImage');
             console.log(data);
             const node = store.nodes[data.index];
@@ -1317,13 +1364,13 @@ export default {
             node.image.src = `data:image/jpeg;base64,${data.buffer}`;
         });
 
-        socket.on('totalNodesCount', (data) => {
+        socket.on('totalNodesCount', data => {
             logYellow('Socket: totalNodesCount');
             console.log(data);
             this.nodesTotal = data.count;
         });
 
-        socket.on('sendAllNodes', async (nodes) => {
+        socket.on('sendAllNodes', async nodes => {
             logYellow('Socket: sendAllNodes');
             this.$notify({
                 group: 'default',
@@ -1359,12 +1406,13 @@ export default {
 
                         // check if a hole image is in the chunk or if the data are part of the next one
                         while (picByteLen <= chunk.byteLength - readFromChunk - 2) {
-                            if (!nodes[nodeId].imageData) nodes[nodeId].imageData = Object.create(null);
+                            if (!nodes[nodeId].imageData)
+                                nodes[nodeId].imageData = Object.create(null);
 
                             nodes[nodeId].imageData[size] = new ImageData(
                                 new Uint8ClampedArray(chunk.slice(h + 1, h + picByteLen + 1)),
                                 chunk[w],
-                                chunk[h],
+                                chunk[h]
                             );
 
                             // update vars for reading bytes
@@ -1401,6 +1449,7 @@ export default {
                         return pump();
                     });
                 }
+
                 return pump();
             }
 
@@ -1412,7 +1461,7 @@ export default {
             });
 
             await fetch(`${apiUrl}/api/v1/dataset/images/${this.dataset}/${this.selectedImgCount}`)
-                .then(async (res) => {
+                .then(async res => {
                     console.log(res);
                     console.log(res.headers);
                     const contentLength = res.headers.get('content-length');
@@ -1441,10 +1490,10 @@ export default {
                     });
                     this.activateClusterMode();
                     console.log(
-                        'consumed the entire body without keeping the whole thing in memory!',
+                        'consumed the entire body without keeping the whole thing in memory!'
                     );
                 })
-                .catch((e) => {
+                .catch(e => {
                     this.$notify({
                         group: 'default',
                         title: 'Error loading images',
@@ -1460,7 +1509,7 @@ export default {
             console.timeEnd('loadAllNodes');
         });
 
-        socket.on('updateCategories', (data) => {
+        socket.on('updateCategories', data => {
             logYellow('Socket: updateCategories');
             console.log(data);
             this.labels = data.labels;
@@ -1651,6 +1700,7 @@ export default {
     align-items: center;
     padding: 0 0.5rem;
 }
+
 .info-box {
     padding: 0.5rem;
 }
@@ -1778,8 +1828,8 @@ a:hover {
 }
 
 /*
-Custom scrollbar style
-*/
+    Custom scrollbar style
+    */
 /* width */
 ::-webkit-scrollbar {
     width: 10px;

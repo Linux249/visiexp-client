@@ -35,7 +35,13 @@ SuperCluster.prototype = {
             // each point needs the geometry propertie
             clusters.push(createPointCluster(points[i], i));
         }
-        this.trees[this.options.maxZoom + 1] = new Kdbush(clusters, getX, getY, this.options.nodeSize, Float32Array);
+        this.trees[this.options.maxZoom + 1] = new Kdbush(
+            clusters,
+            getX,
+            getY,
+            this.options.nodeSize,
+            Float32Array
+        );
 
         if (log) console.timeEnd(timerId);
 
@@ -94,7 +100,7 @@ SuperCluster.prototype = {
         const origin = index.points[originId];
         if (!origin) throw new Error(errorMsg);
 
-        const r = this.options.radius / (this.options.extent * (2 ** (originZoom - 1)));
+        const r = this.options.radius / (this.options.extent * 2 ** (originZoom - 1));
         const ids = index.within(origin.x, origin.y, r);
         const children = [];
         for (let i = 0; i < ids.length; i += 1) {
@@ -163,7 +169,7 @@ SuperCluster.prototype = {
         const clusters = [];
         // const r = this.options.radius / (this.options.extent * (2 ** zoom));
         // todo radius should maybe behave like scale
-        const r = this.options.radius / (this.options.extent * (2 ** zoom));
+        const r = this.options.radius / (this.options.extent * 2 ** zoom);
 
         // console.log(r);
         // loop through each point
@@ -203,7 +209,6 @@ SuperCluster.prototype = {
             }
             // console.log({all})
 
-
             if (numPoints === 1) {
                 p.isClusterd = true;
                 clusters.push(p);
@@ -221,7 +226,7 @@ SuperCluster.prototype = {
                         min = distance([pp.x, pp.y], [x, y]);
                         centroidId = pp.properties.index;
                     }
-                    all.forEach((poi) => {
+                    all.forEach(poi => {
                         const dist = distance([poi.x, poi.y], [x, y]);
                         if (dist < min) {
                             min = dist;
@@ -240,9 +245,7 @@ SuperCluster.prototype = {
         // console.log(clusters.length);
         return clusters;
     },
-
 };
-
 
 function distance(v1, v2) {
     return Math.hypot(v2[0] - v1[0], v2[1] - v1[1]);
@@ -301,6 +304,7 @@ function extend(dest, src) {
 function getX(p) {
     return p.x;
 }
+
 function getY(p) {
     return p.y;
 }

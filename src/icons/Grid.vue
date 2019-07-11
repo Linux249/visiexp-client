@@ -1,19 +1,19 @@
 <template>
     <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
         fill="none"
+        height="20"
         stroke="currentColor"
-        stroke-width="2"
         stroke-linecap="round"
         stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="20"
+        xmlns="http://www.w3.org/2000/svg"
     >
-        <rect x="3" y="3" width="7" height="7"></rect>
-        <rect x="14" y="3" width="7" height="7"></rect>
-        <rect x="14" y="14" width="7" height="7"></rect>
-        <rect x="3" y="14" width="7" height="7"></rect>
+        <rect height="7" width="7" x="3" y="3"></rect>
+        <rect height="7" width="7" x="14" y="3"></rect>
+        <rect height="7" width="7" x="14" y="14"></rect>
+        <rect height="7" width="7" x="3" y="14"></rect>
     </svg>
 </template>
 
@@ -26,8 +26,8 @@ export default {
 
 <style scoped>
 /*.grid-icon{
-        border: 1px solid transparent;
-    }*/
+            border: 1px solid transparent;
+        }*/
 /*.grid-icon:hover{*/
 /*border: 1px solid grey;*/
 /*}*/

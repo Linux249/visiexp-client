@@ -1,63 +1,60 @@
 <template>
     <div class="areas">
-        <div v-if="loading" class="loading"><div class="loading-wheel"></div></div>
+        <div class="loading" v-if="loading">
+            <div class="loading-wheel"></div>
+        </div>
         <div
-            class="imgArea"
-            :class="{activePositiv: selectPositives}"
+            :class="{ activePositiv: selectPositives }"
             @click="toggleActive(true)"
+            class="imgArea"
         >
             <div
-                class="image"
-                v-for="(node, i) in positives"
                 :key="i"
                 @mouseover="handleMouseOver(node)"
+                class="image"
+                v-for="(node, i) in positives"
             >
                 <img
-                    v-if="node.hasImage"
-                    :src="node.image.src"
                     :alt="node.name"
+                    :src="node.image.src"
                     @click="switchPositivs(i)"
                     @contextmenu.prevent="removePositives(i)"
-                >
+                    v-if="node.hasImage"
+                />
             </div>
         </div>
         <div
-            class="imgArea"
-            :class="{activeNegativ: !selectPositives}"
+            :class="{ activeNegativ: !selectPositives }"
             @click="toggleActive(false)"
+            class="imgArea"
         >
             <div
-                class="image"
-                v-for="(node, i) in negatives"
                 :key="i"
                 @mouseover="handleMouseOver(node)"
+                class="image"
+                v-for="(node, i) in negatives"
             >
                 <img
-                    v-if="node.hasImage"
-                    :src="node.image.src"
                     :alt="node.name"
+                    :src="node.image.src"
                     @click="switchNegatives(i)"
                     @contextmenu.prevent="removeNegatives(i)"
-                >
+                    v-if="node.hasImage"
+                />
             </div>
         </div>
         <div class="imgArea">
-            <div class="image" v-for="(n, i) in topScored" :key="i">
-                <img
-                    v-if="node.hasImage"
-                    :src="node.image.src"
-                    :alt="node.name"
-                >
+            <div :key="i" class="image" v-for="(n, i) in topScored">
+                <img :alt="node.name" :src="node.image.src" v-if="node.hasImage" />
             </div>
         </div>
         <div class="row">
-            <div class="btn" @click="trainSvm">train</div>
-            <div class="btn" @click="stopSvm">stop</div>
-            <div class="btn" @click="clearSvm">clear</div>
-            <div class="btn" @click="clearSvm">{{count}}</div>
+            <div @click="trainSvm" class="btn">train</div>
+            <div @click="stopSvm" class="btn">stop</div>
+            <div @click="clearSvm" class="btn">clear</div>
+            <div @click="clearSvm" class="btn">{{ count }}</div>
         </div>
     </div>
-
 </template>
 
 <script>
@@ -119,10 +116,10 @@ export default {
 
             // save nodes
             this.positives.forEach(
-                n => this.positivesAll.indexOf(n) === -1 && this.positivesAll.push(n),
+                n => this.positivesAll.indexOf(n) === -1 && this.positivesAll.push(n)
             );
             this.negatives.forEach(
-                n => this.negativesAll.indexOf(n) === -1 && this.negativesAll.push(n),
+                n => this.negativesAll.indexOf(n) === -1 && this.negativesAll.push(n)
             );
 
             const body = JSON.stringify({
@@ -137,7 +134,7 @@ export default {
                 body,
             })
                 .then(res => res.json())
-                .catch((e) => {
+                .catch(e => {
                     this.loading = false;
                     console.error(e);
                 });
@@ -146,38 +143,38 @@ export default {
             this.count += 1;
 
             this.positives = []; // reset
-            data.p.forEach((i) => {
+            data.p.forEach(i => {
                 const node = this.getNode(i);
                 if (node) this.positives.push(node);
                 else {
                     console.log(
                         new Error(
-                            'der zurückgegebene Index in trainSvm ist nicht als Knoten vorhanden',
-                        ),
+                            'der zurückgegebene Index in trainSvm ist nicht als Knoten vorhanden'
+                        )
                     );
                 }
             });
             this.negatives = []; // reset
-            data.n.forEach((i) => {
+            data.n.forEach(i => {
                 const node = this.getNode(i);
                 if (node) this.negatives.push(node);
                 else {
                     console.log(
                         new Error(
-                            'der zurückgegebene Index in trainSvm ist nicht als Knoten vorhanden',
-                        ),
+                            'der zurückgegebene Index in trainSvm ist nicht als Knoten vorhanden'
+                        )
                     );
                 }
             });
             this.topScored = []; // reset
-            data.t.forEach((i) => {
+            data.t.forEach(i => {
                 const node = this.getNode(i);
                 if (node) this.topScored.push(node);
                 else {
                     console.log(
                         new Error(
-                            'der zurückgegebene Index in trainSvm ist nicht als Knoten vorhanden',
-                        ),
+                            'der zurückgegebene Index in trainSvm ist nicht als Knoten vorhanden'
+                        )
                     );
                 }
             });
@@ -230,7 +227,7 @@ export default {
     left: 0;
     width: 100%;
     height: 100%;
-    //background-color: rgba(0, 0, 0, 0.1);
+    // background-color: rgba(0, 0, 0, 0.1);
 }
 
 .loading-wheel {
@@ -250,6 +247,7 @@ export default {
     border-style: double;
     border-color: #ccc transparent;
 }
+
 /*http://jsfiddle.net/8k2NV/2/*/
 
 @-webkit-keyframes spin {
@@ -275,11 +273,11 @@ export default {
 }
 
 .activePositiv {
-    box-shadow: 0 7px 14px rgba(10, 255, 0, 0.2), 0 3px 6px rgba(0,0,0,.2);
+    box-shadow: 0 7px 14px rgba(10, 255, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.2);
 }
 
 .activeNegativ {
-    box-shadow: 0 7px 14px rgba(255, 0, 66, 0.2), 0 3px 6px rgba(0,0,0,.2);
+    box-shadow: 0 7px 14px rgba(255, 0, 66, 0.2), 0 3px 6px rgba(0, 0, 0, 0.2);
 }
 
 img {

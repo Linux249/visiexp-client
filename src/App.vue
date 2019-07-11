@@ -2,14 +2,15 @@
     <div id="app">
         <nav-header />
         <tsne-map
-            v-if="isAuth"
-            :key="dataset + selectedImgCount"
-            :userId="userId"
             :dataset="dataset"
+            :key="dataset + selectedImgCount"
             :selectedImgCount="selectedImgCount"
-            :switchDataset="switchDataset" />
-        <login v-if="!isAuth" :setAuth="setAuth"/>
-        <notifications group="default" position="bottom right"  :duration="5000" />
+            :switchDataset="switchDataset"
+            :userId="userId"
+            v-if="isAuth"
+        />
+        <login :setAuth="setAuth" v-if="!isAuth" />
+        <notifications :duration="5000" group="default" position="bottom right" />
     </div>
 </template>
 
@@ -153,24 +154,28 @@ input {
     display: flex;
     justify-content: space-between;
 }
+
 .v-center {
     display: flex;
     align-items: center;
 }
+
 .input {
     margin-left: 0.5rem;
 }
+
 .color-box {
     /*width: 30px;*/
     /*height: 20px;*/
     border: 0;
     padding: 0;
 }
+
 .padding {
     padding: 0.5rem;
 }
+
 .flex {
     display: flex;
 }
-
 </style>

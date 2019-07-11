@@ -4,26 +4,16 @@
             Draw performance
         </div>
         <div class="row">
-            <div class="btn" @click="calcChartData">start</div>
-            <div class="btn" @click="resetChartData">reset</div>
+            <div @click="calcChartData" class="btn">start</div>
+            <div @click="resetChartData" class="btn">reset</div>
         </div>
-        <trend
-            :data="drawData"
-            :gradient="['#6fa8dc', '#42b983', '#2c3e50']"
-            auto-draw
-        >
-        </trend>
+        <trend :data="drawData" :gradient="['#6fa8dc', '#42b983', '#2c3e50']" auto-draw></trend>
         <div class="row-btn">
-            {{maxDrawTime()}}
+            {{ maxDrawTime() }}
         </div>
-        <trend
-            :data="hitMapData"
-            :gradient="['#6fa8dc', '#42b983', '#2c3e50']"
-            auto-draw
-        >
-        </trend>
+        <trend :data="hitMapData" :gradient="['#6fa8dc', '#42b983', '#2c3e50']" auto-draw></trend>
         <div class="row-btn">
-            {{maxHitMapTime()}}
+            {{ maxHitMapTime() }}
         </div>
     </div>
 </template>

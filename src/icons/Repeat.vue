@@ -1,14 +1,14 @@
 <template>
     <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
         fill="none"
+        height="20"
         stroke="currentColor"
-        stroke-width="2"
         stroke-linecap="round"
         stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="20"
+        xmlns="http://www.w3.org/2000/svg"
     >
         <polyline points="17 1 21 5 17 9"></polyline>
         <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
@@ -23,5 +23,4 @@ export default {
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
