@@ -51,7 +51,7 @@ export default {
                 const data = await res.json();
 
                 if (data.isAuth) {
-                    this.setAuth(res.id);
+                    this.setAuth(data.id);
                     this.$notify({
                         group: 'default',
                         title: 'Login successful',
