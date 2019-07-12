@@ -1427,14 +1427,15 @@ export default {
                                 const node = new Node(nodes[nodeId]);
 
                                 // own js state
+                                store.addNode(node);
+                                store.triggerDraw();
+
                                 if (state.wasmMode) {
-                                    store.addNode(node);
-                                    store.triggerDraw();
+                                    state.addNode(node);
                                 }
                                 // vue state
                                 // if(nodeId < 90){
                                 // console.log(node)
-                                state.addNode(node);
                                 // }
 
                                 nodeId += 1;
