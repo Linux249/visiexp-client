@@ -30,7 +30,7 @@ class Pic {
     constructor(
         public w: u8,
         public h: u8,
-        public ptr: u32 // max 2,147,483,647
+        public ptr: usize // max 2,147,483,647
     ) {
         this.size = 4 * w * h;
     }
@@ -39,7 +39,7 @@ class Pic {
 class State {
     public nodes: Node[] = new Array<Node>();
     public size: u32;
-    public imgMemoryPtr: u32;
+    public imgMemoryPtr: usize;
     public scale: u32 = 20;
     public zoom: u8 = 0;
     public tx: i32;
@@ -139,7 +139,7 @@ class Node {
     //     return 4 * this.w * this.h
     // }
 
-    public addPic(w: u8, h: u8, ptr: u32): u32 {
+    public addPic(w: u8, h: u8, ptr: usize): u32 {
         const pic: Pic = new Pic(w, h, ptr);
         this.pics.push(pic);
         return ptr;
@@ -226,7 +226,7 @@ export function addNode(x: f64, y: f64, id: u32): u32 {
     return state.addNode(test, test2, id);
 }
 
-export function addPic(id: u32, w: u8, h: u8, ptr: u32): u32 {
+export function addPic(id: u32, w: u8, h: u8, ptr: usize): u32 {
     // log(<f64><u32>y)
     // log(y as u32)
     return state.nodes[id].addPic(w, h, ptr);
