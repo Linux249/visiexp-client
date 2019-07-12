@@ -1034,7 +1034,7 @@ export default {
             logYellow('resize');
             console.log(e);
             this.updateCanvasSize();
-            this.store.draw2();
+            this.store.draw();
         },
 
         addNode(node) {
@@ -1042,6 +1042,7 @@ export default {
             console.warn(`Add Node ${node.index}:`);
             const addNode1 = this.state2.addNode(node.x, node.y, node.index);
             // console.log({addNode1});
+            console.log(this.offset);
 
             for (let i = 0; i < 10; i += 1) {
                 const img = node.imageData[i];
@@ -1198,7 +1199,7 @@ export default {
                 */
 
                 console.warn('INIT');
-                this.initOffset = 1024 * 64 * 5; // 5 pages
+                this.initOffset = 1024 * 64 * 50; // 20 pages
                 this.canvasW = 500;
                 this.canvasH = 500;
                 this.canvasPixelSize = this.canvasH * this.canvasW * 4;
