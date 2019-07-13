@@ -8,7 +8,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "deploy": "asbuild && git pull && npm run build && npm run deploy:del && npm run deploy:move",
+    "deploy": "npm run asbuild && git pull && npm run build && npm run deploy:del && npm run deploy:move",
     "deploy:del": "rm -rf /media/dataDrive/www/html/visiexp",
     "deploy:move": "mv ./dist /media/dataDrive/www/html/visiexp",
     "asbuild:untouched": "asc src/assemblyscript/index.ts -b src/assets/wasm/untouched.wasm -t src/assets/wasm/untouched.wat --sourceMap --validate --debug",
