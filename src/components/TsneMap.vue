@@ -9,9 +9,9 @@
                 <router-link to="/options">Options</router-link>
             </div>
             <div class="right-header">
-                <!--<div @click="toggleShowOptions" class="btn" :class="{ active: showOptions }">
-                    Options
-                </div>-->
+                <div class="btn" @click="toggleWasmMode" :class="{ active: wasmMode }">
+                    wasm
+                </div>
                 <div :class="{ active: loadingNodes }" @click="sendData" class="btn">
                     Update
                     <send v-if="!loadingNodes"></send>
@@ -381,7 +381,7 @@
                     </div>
                 </div>
 
-                <canvas height="500" id="draw" v-if="wasmMode" width="500"></canvas>
+<!--                <canvas height="500" id="draw" v-if="wasmMode" width="500"></canvas>-->
 
                 <neighbours
                     :activeGroupId="activeGroupId"
@@ -491,8 +491,10 @@ export default {
     props: {
         dataset: String,
         switchDataset: Function,
+        toggleWasmMode: Function,
         userId: Number,
         selectedImgCount: Number,
+        wasmMode: Boolean,
     },
     components: {
         Scissors,
@@ -617,7 +619,6 @@ export default {
         canvasW: 0,
         canvasH: 0,
         canvasPixelSize: 0,
-        wasmMode: !(process.env.NODE_ENV === 'production'),
     }),
     methods: {
         getNode(i) {
@@ -1130,7 +1131,7 @@ export default {
         console.error('START FETCH');
         if (this.wasmMode) {
             try {
-                this.drawCtx = document.getElementById('draw').getContext('2d');
+
                 const imports = {
                     env: {
                         // import as @external("env", "logf")
@@ -1199,9 +1200,11 @@ export default {
                 */
 
                 console.warn('INIT');
+                const wasmCanvas = document.getElementById('canvas')
+                this.drawCtx = wasmCanvas.getContext('2d');
                 this.initOffset = 1024 * 64 * 50; // 20 pages
-                this.canvasW = 500;
-                this.canvasH = 500;
+                this.canvasW = wasmCanvas.parentNode.clientWidth;
+                this.canvasH = wasmCanvas.parentNode.clientHeight;
                 this.canvasPixelSize = this.canvasH * this.canvasW * 4;
                 this.offset = this.initOffset;
 
@@ -1476,8 +1479,8 @@ export default {
 
                     // test
                     if (this.wasmMode) {
-                        this.state2.setScale(10);
-                        this.state2.setTxTy(150, 150);
+                        // this.state2.setScale(10);
+                        // this.state2.setTxTy(150, 150);
                         this.draw2();
                     }
                 })

@@ -3,10 +3,12 @@
         <nav-header />
         <tsne-map
             :dataset="dataset"
-            :key="dataset + selectedImgCount"
+            :key="dataset + selectedImgCount + wasmMode"
             :selectedImgCount="selectedImgCount"
             :switchDataset="switchDataset"
             :userId="userId"
+            :wasmMode="wasmMode"
+            :toggleWasmMode="toggleWasmMode"
             v-if="isAuth"
         />
         <login :setAuth="setAuth" v-if="!isAuth" />
@@ -28,6 +30,7 @@ export default {
         userId: null,
         isAuth: false, // todo reset to false
         selectedImgCount: 500, // default
+        wasmMode: false,
     }),
     // TODO add key to TSNEMAP for changing all!
     methods: {
@@ -40,6 +43,9 @@ export default {
         setAuth(userId) {
             this.isAuth = true;
             this.userId = userId;
+        },
+        toggleWasmMode() {
+            this.wasmMode = !this.wasmMode
         },
     },
 };

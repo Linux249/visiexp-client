@@ -699,6 +699,7 @@ export default class ExplorerState {
     }
 
     draw() {
+        if (this.ui.wasmMode) return;
         // console.log('start draw')
         // console.time('draw');
         const startTime = window.performance.now();
