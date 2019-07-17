@@ -232,6 +232,16 @@ export default class ExplorerState {
         return y < 0 ? 0 : y > 1 ? 1 : y;
     }
 
+    resetScaleTranslate() {
+        this._scale = this.initScale;
+        this._scaleFaktor = 0;
+        this._zoomStage = 0;
+        this.translateX = this.width / 2;
+        this.translateY = this.height / 2;
+        this.updateClustering();
+        this.draw();
+    }
+
     save() {
         console.log('save');
         const dataUrl = this.explorer
@@ -645,7 +655,6 @@ export default class ExplorerState {
     draw() {
         if (this.ui.wasmMode) return;
         // console.log('start draw')
-        // console.time('draw');
         const startTime = window.performance.now();
 
         // TODO Performance tests
@@ -1144,17 +1153,9 @@ export default class ExplorerState {
         const pic = new ImageData(explorerPixel, explorerW, explorerH);
         const hitmap = new ImageData(hitmapPixel, explorerW, explorerH);
         const hitmapCtx = this.ui.toggle ? this.ctx : this.hitCtx;
-        // this.ctx.resetTransform();
-        // this.ctx.clearRect(0, 0, this.width, this.height);
         this.ctx.putImageData(pic, 0, 0);
-        // hitmapCtx.resetTransform();
-        // hitmapCtx.clearRect(0, 0, this.width, this.height);
         hitmapCtx.putImageData(hitmap, 0, 0);
-        // console.log(pic);
-        // console.log(explorerPixel);
 
-        // console.log({ w, h, tx, ty, pixel });
-        // console.timeEnd('draw');
         const endTime = window.performance.now();
         const time = endTime - startTime;
         // console.log(`Draw: ${time}`);
