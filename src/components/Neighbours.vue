@@ -61,7 +61,7 @@ export default {
                 this.loading = true;
                 const store = this.getStore();
                 store.resetScaleTranslate();
-                console.error(store.zoomStage)
+
                 const body = {
                     group: store.getGroupIdsByGroupId(this.activeGroupId),
                     threshold: this.neighboursThreshold,

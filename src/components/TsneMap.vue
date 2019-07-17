@@ -1039,8 +1039,17 @@ export default {
             // the button is accessibly even if the group is not active
             if (groupId !== this.activeGroupId) this.selectGroup(i);
             // switch to neighbourmode
-            this.neighbourMode = !this.neighbourMode;
-            this.store.triggerDraw();
+            if(this.savedGroups[i].count !== 0) {
+                this.neighbourMode = !this.neighbourMode;
+                this.store.triggerDraw();
+            } else {
+                this.$notify({
+                    group: 'default',
+                    title: 'Group empty',
+                    type: 'error',
+                    text: 'Please select some images before'
+                })
+            }
         },
 
         stopNeighbourMode() {
