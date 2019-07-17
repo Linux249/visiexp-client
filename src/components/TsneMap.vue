@@ -423,7 +423,7 @@
                 <div class="area info-box" v-if="showInfo && !neighbourMode">
                     <div class="row v-center">
                         1. mark images with
-                        <div class="btn">STRG+Click</div>
+                        <div class="btn">Click</div>
                         /
                         <scissors class="btn"></scissors>
                     </div>

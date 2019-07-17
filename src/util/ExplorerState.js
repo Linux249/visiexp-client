@@ -44,7 +44,7 @@ export default class ExplorerState {
         this._clusterTile = 5;
         this.supercluster = supercluster(); // TODO check best init for this var
 
-        this.initScale = 20
+        this.initScale = 20;
         this._scale = this.initScale;
         this._scaleFaktor = 0;
         this._zoomStage = 0; // default zoom stage, 0 is the smallest pic
@@ -66,8 +66,13 @@ export default class ExplorerState {
         this.translateX = this.width / 2;
         this.translateY = this.height / 2;
 
+        // save the mouse position for
         this.startX = null;
         this.startY = null;
+
+        // save the last mouse position in while mouseMove
+        this.lastX = null;
+        this.lastY = null;
 
         // add event listener
         this.explorer.onmousedown = e => this.handleMouseDown(e);
@@ -1259,6 +1264,8 @@ export default class ExplorerState {
         // save start position
         this.startX = e.offsetX;
         this.startY = e.offsetY;
+        this.lastX = e.offsetX;
+        this.lastY = e.offsetY;
 
         // if there is no mouse under mouse then move everything
         if (nodeUnderMouse) {
@@ -1295,13 +1302,13 @@ export default class ExplorerState {
         // DRAG AND DROP
         if (this.draggedNode || this.panning) {
             // get mouse movement based on the last triggered event
-            const moveX = mouseX - this.startX; // +80 means move 80px to right
-            const moveY = mouseY - this.startY; // -50 means move 50 to top
+            const moveX = mouseX - this.lastX; // +80 means move 80px to right
+            const moveY = mouseY - this.lastY; // -50 means move 50 to top
             // console.log({ moveX, moveY });
 
             // save new mouse position for next event
-            this.startX = mouseX;
-            this.startY = mouseY;
+            this.lastX = mouseX;
+            this.lastY = mouseY;
 
             if (this.panning) {
                 // console.log("dragging")
@@ -1362,51 +1369,57 @@ export default class ExplorerState {
             return;
         }
         const { nodeUnderMouse } = this;
-        const ctrlKeyPressed = e.ctrlKey;
         // const shiftKeyPressed = e.shiftKey;
         // const altKeyPressed = e.altKey;
 
         if (nodeUnderMouse && nodeUnderMouse === this.nodeOnMouseDown) {
             // click event on a special node - do something
-            console.log('click on node:');
-            console.log(nodeUnderMouse);
 
-            // used for components for adding nodes to special cases
-            this.ui.clickedNode = nodeUnderMouse;
+            // check if mouse move just a small delta => click
+            if (
+                this.startX <= e.offsetX + 2
+                && this.startX >= e.offsetX - 2
+                && this.startY <= e.offsetY + 2
+                && this.startY >= e.offsetY - 2
+            ) {
+                console.warn('click on node:');
+                console.log(nodeUnderMouse);
 
-            // flag/unflag node as and add/remove from group
-            if (ctrlKeyPressed && !this.ui.neighbourMode) {
-                if (nodeUnderMouse.group) {
-                    nodeUnderMouse.group = false;
-                    nodeUnderMouse.groupId = 0;
+                // used for components for adding nodes to special cases
+                this.ui.clickedNode = nodeUnderMouse;
+
+                // flag/unflag node as and add/remove from group
+                if (!this.ui.neighbourMode) {
+                    if (nodeUnderMouse.group) {
+                        nodeUnderMouse.group = false;
+                        nodeUnderMouse.groupId = 0;
+                    } else {
+                        nodeUnderMouse.group = true;
+                        nodeUnderMouse.groupId = this.ui.activeGroupId;
+                    }
+                    this.updateGroupCount();
                 } else {
-                    nodeUnderMouse.group = true;
-                    nodeUnderMouse.groupId = this.ui.activeGroupId;
-                }
-                this.updateGroupCount();
-            }
-
-            if (this.ui.neighbourMode) {
-                // if user removes a neighbour
-                if (this.groupNeighbours[nodeUnderMouse.index]) {
-                    // add node to removed neighbours
-                    console.log('remove node from neighbours');
-                    this.removedGroupNeighbours[nodeUnderMouse.index] = this.groupNeighbours[
-                        nodeUnderMouse.index
-                    ];
-                    // remove node from neighbours
-                    this.groupNeighbours[nodeUnderMouse.index] = undefined;
-                } else if (this.removedGroupNeighbours[nodeUnderMouse.index]) {
-                    // remove node from removed nodes and add it back again to neighbours
-                    console.log('add removed node from neighbours back to neighbours');
-                    this.groupNeighbours[nodeUnderMouse.index] = this.removedGroupNeighbours[
-                        nodeUnderMouse.index
-                    ];
-                    this.removedGroupNeighbours[nodeUnderMouse.index] = undefined;
-                } else if (nodeUnderMouse.group) {
-                    // nodeUnderMouse.group = false;
-                    // nodeUnderMouse.groupId = 0;
-                    // this.removedGroupNeighbours[nodeUnderMouse.index] = 1; // 1 is default threshold - isn't uses
+                    // if user removes a neighbour
+                    if (this.groupNeighbours[nodeUnderMouse.index]) {
+                        // add node to removed neighbours
+                        console.log('remove node from neighbours');
+                        this.removedGroupNeighbours[nodeUnderMouse.index] = this.groupNeighbours[
+                            nodeUnderMouse.index
+                        ];
+                        // remove node from neighbours
+                        this.groupNeighbours[nodeUnderMouse.index] = undefined;
+                    } else if (this.removedGroupNeighbours[nodeUnderMouse.index]) {
+                        // remove node from removed nodes and add it back again to neighbours
+                        console.log('add removed node from neighbours back to neighbours');
+                        this.groupNeighbours[nodeUnderMouse.index] = this.removedGroupNeighbours[
+                            nodeUnderMouse.index
+                        ];
+                        this.removedGroupNeighbours[nodeUnderMouse.index] = undefined;
+                    } else if (nodeUnderMouse.group) {
+                        // nodeUnderMouse.group = false;
+                        // nodeUnderMouse.groupId = 0;
+                        // this.removedGroupNeighbours[nodeUnderMouse.index] = 1; // 1 is default threshold - isn't uses
+                    }
                 }
             }
 
