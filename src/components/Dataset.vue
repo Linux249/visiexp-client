@@ -28,7 +28,8 @@
                 <div class="btn">{{ `${imgCount}#` }}</div>
             </div>
             <div class="flex">
-                <div @click="triggerChangeDataset" class="btn">load Dataset</div>
+                <div @click="triggerChangeDataset(false)" class="btn">load new</div>
+                <div @click="triggerChangeDataset(true)" class="btn">resume old</div>
             </div>
         </div>
     </div>
@@ -93,9 +94,9 @@ export default {
             // console.log(size, this.selectedDataset);
             this.imgCount = +target.value <= size ? +target.value : size; // < 500 ? 500 : +target.value;
         },
-        triggerChangeDataset() {
+        triggerChangeDataset(old) {
             this.error = '';
-            this.handleChangeDataset(this.selectedDataset, this.imgCount);
+            this.handleChangeDataset(this.selectedDataset, this.imgCount, old);
         },
     },
 };

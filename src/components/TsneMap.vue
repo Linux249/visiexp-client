@@ -395,7 +395,7 @@
                     :dataset="dataset"
                     :getNode="getNode"
                     :getStore="getStore"
-                    :handleChangeDataset="handleChangeDataset"
+                    :handleChangeDataset="switchDataset"
                     :labels="labels"
                     :node="clickedNode"
                     :nodes="cuttedNodes"
@@ -493,6 +493,7 @@ export default {
         userId: Number,
         selectedImgCount: Number,
         wasmMode: Boolean,
+        loadOldDataset: Boolean,
     },
     components: {
         Scissors,
@@ -596,7 +597,7 @@ export default {
             a: 1,
         },
         selectedGradient: 0, // default is the first
-        autoUpdateEmbedding: false,
+        // autoUpdateEmbedding: false,
         socketId: '',
         // dataset: '001', // defualt value is 001
         neighboursThreshold: 15,
@@ -618,6 +619,7 @@ export default {
         canvasW: 0,
         canvasH: 0,
         canvasPixelSize: 0,
+        cachedNodes: undefined, // cache the nodes if 'updateEmbedding is faster than loading nodes
     }),
     methods: {
         getNode(i) {
@@ -650,6 +652,33 @@ export default {
                     group: 'default',
                     title: 'update embedding still in progress',
                     type: 'error',
+                });
+            }
+        },
+
+        // called from socket.on('updateEmbedding')
+        updateEmbedding(data) {
+            logYellow('Socket: updateEmbedding');
+            console.log(data);
+            // not every handler sends a cb
+            // if (cb) cb({ stopped: this.autoUpdateEmbedding });
+            if (!this.loadingNodes) {
+                this.store.updateNodes(data.nodes);
+                // todo check if necessary after have a good solution for best place for init clustering
+                this.store.createCluster();
+                this.loadingNodes = false;
+                this.$notify({
+                    group: 'default',
+                    title: 'Embedding updated', // todo add time maybe
+                    type: 'success',
+                });
+            } else {
+                this.cachedNodes = data;
+                this.$notify({
+                    group: 'default',
+                    title: 'Embedding updated but nodes still loading', // todo add time maybe
+                    type: 'success',
+                    text: 'Nodes will be updated after finishing loading',
                 });
             }
         },
@@ -911,7 +940,7 @@ export default {
             this.gradient.splice(this.selectedGradient, 1, [rgba.r, rgba.g, rgba.b]);
         },
 
-        async toggleUpdateEmbedding() {
+        /* async toggleUpdateEmbedding() {
             this.autoUpdateEmbedding = !this.autoUpdateEmbedding;
             if (this.autoUpdateEmbedding) {
                 console.log('startUpdateEmbedding');
@@ -934,11 +963,7 @@ export default {
             } else {
                 console.log('stopUpdateEmbedding');
             }
-        },
-
-        handleChangeDataset(dataset, count) {
-            this.switchDataset(dataset, count);
-        },
+        }, */
 
         updateCluster() {
             this.store.createCluster();
@@ -1306,7 +1331,7 @@ export default {
                     datasetId: this.dataset,
                     userId: this.userId,
                     count: this.selectedImgCount,
-                    init: true,
+                    init: this.loadOldDataset ? 'resume' : 'new',
                 });
                 this.reset();
                 this.$notify({
@@ -1377,7 +1402,7 @@ export default {
                 group: 'default',
                 title: 'Finish loading data',
                 type: 'success',
-                text: 'all data loaded',
+                text: 'Start loading images',
             });
             console.log(nodes);
             const state = this;
@@ -1454,12 +1479,6 @@ export default {
                 return pump();
             }
 
-            this.$notify({
-                group: 'default',
-                title: 'Start loading images',
-                type: 'success',
-                // text: `all data loaded`,
-            });
 
             await fetch(`${apiUrl}/api/v1/dataset/images/${this.dataset}/${this.selectedImgCount}`)
                 .then(async (res) => {
@@ -1489,7 +1508,12 @@ export default {
                         type: 'success',
                         text: 'all images should be visible now',
                     });
-                    this.activateClusterMode();
+                    if (this.cachedNodes) {
+                        logYellow('update embedding with cached nodes');
+                        console.log(this.cachedNodes);
+                        this.updateEmbedding(this.cachedNodes);
+                        this.cachedNodes = undefined;
+                    } else this.activateClusterMode();
                     console.log(
                         'consumed the entire body without keeping the whole thing in memory!',
                     );
@@ -1516,30 +1540,16 @@ export default {
             this.labels = data.labels;
         });
 
-        socket.on('updateEmbedding', (data, cb) => {
-            logYellow('Socket: updateEmbedding');
-            console.log(data);
-            // not every handler sends a cb
-            if (cb) cb({ stopped: this.autoUpdateEmbedding });
-            this.store.updateNodes(data.nodes);
-            // todo check if necessary after have a good solution for best place for init clustering
-            this.store.createCluster();
-            this.loadingNodes = false;
-            this.$notify({
-                group: 'default',
-                title: 'Embedding updated', // todo add time maybe
-                type: 'success',
-            });
-        });
+        socket.on('updateEmbedding', this.updateEmbedding);
 
         socket.on('initPython', (data) => {
             if (data.done) {
-                this.initPython = data.done
+                this.initPython = data.done;
                 this.$notify({
                     group: 'default',
                     title: 'Initialising features finished',
                     type: 'success',
-                    text: 'You can now update the embedding',
+                    text: this.loadingNodes ? 'Please wait updating embedding until loading finished ' : 'You can now update the embedding',
                 });
             }
         });

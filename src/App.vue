@@ -3,16 +3,17 @@
         <nav-header />
         <tsne-map
             :dataset="dataset"
-            :key="dataset + selectedImgCount + wasmMode"
+            :key="dataset + selectedImgCount + wasmMode + loadOldDataset"
             :selectedImgCount="selectedImgCount"
             :switchDataset="switchDataset"
             :userId="userId"
             :wasmMode="wasmMode"
             :toggleWasmMode="toggleWasmMode"
+            :loadOldDataset="loadOldDataset"
             v-if="isAuth"
         />
         <login :setAuth="setAuth" v-if="!isAuth" />
-        <notifications :duration="5000" group="default" position="bottom right" />
+        <notifications :duration="5000" group="default" position="bottom right"></notifications>
     </div>
 </template>
 
@@ -31,13 +32,15 @@ export default {
         isAuth: false, // todo reset to false
         selectedImgCount: 500, // default
         wasmMode: false,
+        loadOldDataset: false,
     }),
     // TODO add key to TSNEMAP for changing all!
     methods: {
-        switchDataset(newDataset, count) {
+        switchDataset(newDataset, count, old) {
             console.log('switchDataset');
             console.log(newDataset, count);
             this.dataset = newDataset;
+            this.loadOldDataset = old;
             this.selectedImgCount = count;
         },
         setAuth(userId) {
@@ -45,7 +48,7 @@ export default {
             this.userId = userId;
         },
         toggleWasmMode() {
-            this.wasmMode = !this.wasmMode
+            this.wasmMode = !this.wasmMode;
         },
     },
 };
