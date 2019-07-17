@@ -381,8 +381,6 @@
                     </div>
                 </div>
 
-<!--                <canvas height="500" id="draw" v-if="wasmMode" width="500"></canvas>-->
-
                 <neighbours
                     :activeGroupId="activeGroupId"
                     :changeNeighboursThreshold="changeNeighboursThreshold"
@@ -525,6 +523,7 @@ export default {
         loadingNodes: false,
         nodesTotal: 0,
         nodesRecived: 0,
+        initPython: false,
         scale: 0, // default - will update later
         labels: [],
         selectedLabel: null, // save the selected label
@@ -631,7 +630,7 @@ export default {
             console.log('send data clicked');
             // console.log(this.store.nodes);
             // console.log(nodes);
-            if (!this.loadingNodes) {
+            if (!this.loadingNodes && this.initPython) {
                 const nodes = this.store.getNodes();
                 // this.store.resetStore();
                 this.loadingNodes = true;
@@ -1125,13 +1124,23 @@ export default {
     },
 
     async mounted() {
+        console.error('START FETCH');
         // set resize event handler
         window.addEventListener('resize', this.handleResize);
 
-        console.error('START FETCH');
+        // set width/height responsive
+        const canvas = document.getElementById('canvas');
+        const parantWidth = canvas.parentNode.clientWidth;
+        const parantHeight = canvas.parentNode.clientHeight;
+        canvas.width = parantWidth;
+        canvas.height = parantHeight;
+
+        this.drawCtx = canvas.getContext('2d');
+        this.canvasW = parantWidth;
+        this.canvasH = parantHeight;
+
         if (this.wasmMode) {
             try {
-
                 const imports = {
                     env: {
                         // import as @external("env", "logf")
@@ -1200,11 +1209,7 @@ export default {
                 */
 
                 console.warn('INIT');
-                const wasmCanvas = document.getElementById('canvas')
-                this.drawCtx = wasmCanvas.getContext('2d');
                 this.initOffset = 1024 * 64 * 50; // 20 pages
-                this.canvasW = wasmCanvas.parentNode.clientWidth;
-                this.canvasH = wasmCanvas.parentNode.clientHeight;
                 this.canvasPixelSize = this.canvasH * this.canvasW * 4;
                 this.offset = this.initOffset;
 
@@ -1240,13 +1245,6 @@ export default {
             reconnectionDelayMax: 1000,
             path: socketPath,
         });
-
-        // set width/height responsive
-        const canvas = document.getElementById('canvas');
-        const parantWidth = canvas.parentNode.clientWidth;
-        const parantHeight = canvas.parentNode.clientHeight;
-        canvas.width = parantWidth;
-        canvas.height = parantHeight;
 
         const hitCanvas = document.createElement('canvas');
         hitCanvas.width = parantWidth;
@@ -1533,7 +1531,18 @@ export default {
                 type: 'success',
             });
         });
-        // this.updateCanvas();
+
+        socket.on('initPython', (data) => {
+            if (data.done) {
+                this.initPython = data.done
+                this.$notify({
+                    group: 'default',
+                    title: 'Initialising features finished',
+                    type: 'success',
+                    text: 'You can now update the embedding',
+                });
+            }
+        });
 
         socket.on('connect_error', () => {
             logYellow('Socket: connect_error');
@@ -1541,7 +1550,7 @@ export default {
                 group: 'default',
                 title: 'Error connecting to Server',
                 type: 'error',
-                text: 'trying to reconnect',
+                text: 'Trying to reconnect',
             });
         });
 

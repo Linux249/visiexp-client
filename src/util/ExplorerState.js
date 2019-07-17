@@ -44,7 +44,8 @@ export default class ExplorerState {
         this._clusterTile = 5;
         this.supercluster = supercluster(); // TODO check best init for this var
 
-        this._scale = 20;
+        this.initScale = 20
+        this._scale = this.initScale;
         this._scaleFaktor = 0;
         this._zoomStage = 0; // default zoom stage, 0 is the smallest pic
         this.maxZoomLvl = 20; // granite the max zoom lvl
@@ -113,7 +114,7 @@ export default class ExplorerState {
     }
 
     set scale(value) {
-        if (value < 20) this._scale = 20;
+        if (value < this.initScale) this._scale = this.initScale;
         else this._scale = value; // Math.round(value);
         this.ui.scale = this.scale;
     }
@@ -245,68 +246,6 @@ export default class ExplorerState {
             this.clusteringOnZoomStages[z] = false;
         }
     }
-
-    /*
-    set scale2(value) {
-        if (value < 0) this._scale2 = 0;
-        else if (value > 9) this._scale2 = 9;
-        else this._scale2 = value;
-        this.triggerDraw();
-        this.ui.scale2 = this.scale2;
-    }
-
-    get scale2() {
-        return this._scale2;
-    }
-    */
-
-    /* set activeImgScale(value) {
-        if (value < 1) this._activeImgScale = 1;
-        else this._activeImgScale = value;
-        this.triggerDraw();
-    }
-
-    get activeImgScale() {
-        return this._activeImgScale;
-    } */
-
-    /* set borderWidth(value) {
-        if (value < 0) this._borderWidth = 0;
-        else this._borderWidth = value;
-        this.triggerDraw();
-    }
-
-    get borderWidth() {
-        return this._borderWidth;
-    } */
-
-    /* set scrollGrowth(v) {
-        if (v <= 1) this._scrollGrowth = 1.01;
-        else this._scrollGrowth = v;
-    }
-
-    get scrollGrowth() {
-        return this._scrollGrowth;
-    } */
-
-    /* set scrollImgGrowth(v) {
-        if (v <= 1) this._scrollImgGrowth = 1.01;
-        else this._scrollImgGrowth = v;
-    }
-
-    get scrollImgGrowth() {
-        return this._scrollImgGrowth;
-    } */
-
-    /* get clusterGrowth() {
-        return this._clusterGrowth;
-    }
-
-    set clusterGrowth(v) {
-        if (v <= 1) this._clusterGrowth = 1.01;
-        else this._clusterGrowth = v;
-        this.ui.clusterGrowth = this.clusterGrowth;
-    } */
 
     triggerDraw() {
         if (this.valid) window.requestAnimationFrame(() => this.draw());
@@ -660,13 +599,13 @@ export default class ExplorerState {
     changeScaleUp() {
         this.scaleFaktor += 0.2;
         // this.scale += 20 * this.scaleFaktor;
-        this.scale += 1 + this.scaleFaktor ** 2;
+        this.scale += 1 + (this.scaleFaktor ** 2);
         this.ui.scale = this.scale; // update ui (options)
     }
 
     changeScaleDown() {
         // this.scale -= 20 * this.scaleFaktor;
-        this.scale -= 1 + this.scaleFaktor ** 2;
+        this.scale -= 1 + (this.scaleFaktor ** 2);
         this.scaleFaktor -= 0.2;
         this.ui.scale = this.scale; // update ui (options)
     }
