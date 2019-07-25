@@ -12,10 +12,10 @@
                 <div class="btn" @click="toggleWasmMode" :class="{ active: wasmMode }">
                     wasm
                 </div>
-                <div :class="{ active: loadingNodes || !initPython }" @click="sendData" class="btn">
+                <div :class="{ active: updateNodes || !initPython }" @click="sendData" class="btn">
                     Update
-                    <send v-if="!loadingNodes"></send>
-                    <div class="loader" v-if="loadingNodes"></div>
+                    <send v-if="!updateNodes"></send>
+                    <div class="loader" v-if="updateNodes"></div>
                 </div>
                 <div :class="{ active: showInfo }" @click="showInfo = !showInfo" class="btn">
                     <help></help>
@@ -521,7 +521,8 @@ export default {
         // store: null,
         socket: null,
         connectedToSocket: false,
-        loadingNodes: false,
+        updateNodes: false,
+        loadingImgs: false,
         nodesTotal: 0,
         nodesRecived: 0,
         initPython: false,
@@ -632,7 +633,7 @@ export default {
             console.log('send data clicked');
             // console.log(this.store.nodes);
             // console.log(nodes);
-            if (!this.loadingNodes && this.initPython) {
+            if (!this.updateNodes && this.initPython) {
                 const count = this.savedGroups.reduce((a, c) => a + c.count, 0);
                 if (!count) {
                     // there must be at least one group with a member
@@ -646,7 +647,7 @@ export default {
 
                 const nodes = this.store.getNodes();
                 // this.store.resetStore();
-                this.loadingNodes = true;
+                this.updateNodes = true;
                 this.socket.emit('updateEmbedding', {
                     nodes,
                     datasetId: this.dataset,
@@ -672,11 +673,11 @@ export default {
             console.log(data);
             // not every handler sends a cb
             // if (cb) cb({ stopped: this.autoUpdateEmbedding });
-            if (!this.loadingNodes) {
+            if (!this.loadingImgs) {
                 this.store.updateNodes(data.nodes);
                 // todo check if necessary after have a good solution for best place for init clustering
                 this.store.createCluster();
-                this.loadingNodes = false;
+                this.updateNodes = false;
                 this.$notify({
                     group: 'default',
                     title: 'Embedding updated', // todo add time maybe
@@ -1314,7 +1315,7 @@ export default {
             const nodes = this.store.getNodes();
             console.log('nodes in store while connect (its maybe just a reconnect)');
             console.log(nodes);
-            if (!Object.keys(nodes).length && !this.loadingNodes) {
+            if (!Object.keys(nodes).length && !this.updateNodes) {
                 socket.emit('getNodes', {
                     datasetId: this.dataset,
                     userId: this.userId,
@@ -1467,6 +1468,7 @@ export default {
                 return pump();
             }
 
+            this.loadingImgs = true;
             await fetch(`${apiUrl}/api/v1/dataset/images/${this.dataset}/${this.selectedImgCount}`)
                 .then(async (res) => {
                     console.log(res);
@@ -1517,7 +1519,8 @@ export default {
                     console.log(this.state2.memory);
                 });
 
-            this.loadingNodes = false;
+            this.updateNodes = false;
+            this.loadingImgs = false;
             console.timeEnd('loadAllNodes');
         });
 
@@ -1536,7 +1539,7 @@ export default {
                     group: 'default',
                     title: 'Initialising features finished',
                     type: 'success',
-                    text: this.loadingNodes
+                    text: this.updateNodes
                         ? 'Please wait updating embedding until loading finished '
                         : 'You can now update the embedding',
                 });
