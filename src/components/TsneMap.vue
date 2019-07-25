@@ -12,7 +12,7 @@
                 <div class="btn" @click="toggleWasmMode" :class="{ active: wasmMode }">
                     wasm
                 </div>
-                <div :class="{ active: loadingNodes }" @click="sendData" class="btn">
+                <div :class="{ active: loadingNodes || !initPython }" @click="sendData" class="btn">
                     Update
                     <send v-if="!loadingNodes"></send>
                     <div class="loader" v-if="loadingNodes"></div>
@@ -633,6 +633,18 @@ export default {
             // console.log(this.store.nodes);
             // console.log(nodes);
             if (!this.loadingNodes && this.initPython) {
+                const count = this.savedGroups.reduce((a, c) => a + c.count, 0)
+                if (!count) {
+                    // there must be at least one group with a member
+                    return this.$notify({
+                            group: 'default',
+                            title: 'Group missing',
+                            type: 'error',
+                            text: 'Create a non-empty group first',
+                        }
+                    );
+                }
+
                 const nodes = this.store.getNodes();
                 // this.store.resetStore();
                 this.loadingNodes = true;
@@ -642,18 +654,17 @@ export default {
                     userId: this.userId,
                     count: this.selectedImgCount,
                 });
-                this.$notify({
+                return this.$notify({
                     group: 'default',
                     title: 'Update embedding',
                 });
                 // this.reset();
-            } else {
-                this.$notify({
-                    group: 'default',
-                    title: 'update embedding still in progress',
-                    type: 'error',
-                });
             }
+            return this.$notify({
+                group: 'default',
+                title: 'update embedding still in progress',
+                type: 'error',
+            });
         },
 
         // called from socket.on('updateEmbedding')
@@ -1039,7 +1050,7 @@ export default {
             // the button is accessibly even if the group is not active
             if (groupId !== this.activeGroupId) this.selectGroup(i);
             // switch to neighbourmode
-            if(this.savedGroups[i].count !== 0) {
+            if (this.savedGroups[i].count !== 0) {
                 this.neighbourMode = !this.neighbourMode;
                 this.store.triggerDraw();
             } else {
@@ -1047,8 +1058,8 @@ export default {
                     group: 'default',
                     title: 'Group empty',
                     type: 'error',
-                    text: 'Please select some images before'
-                })
+                    text: 'Please select some images before',
+                });
             }
         },
 
@@ -1208,39 +1219,6 @@ export default {
                 this.state2 = Module;
                 this.memory = memory;
                 console.log(memory);
-
-                /*
-                TODO ADDED:
-                    1. cummincate between js and AS
-                    2. pass buffer to AS
-                    3. Add Node Class to save pointer and size => get acces to pixel data for each img
-                    4. add Store for saving nodes and operation on multi nodes
-                    5. pixel array for return data and change via AS
-                    6. Add draw to state and nodes
-                    7. add test canvas for showing result
-                    8. add variable memory based on canvasPixelSize and change cavnas size to 100, 100
-                    9. add real pictures while streaming, first 10, handcrafted x,y,
-                        init memory 10 * 10 * 10 * 4 = 4000
-                    10. init full downloaded memory
-                    11. add all nodes with smallest img size to state
-                    11. add scale, transfer to node.draw(s, t) with functions to change them
-                    13. resize full canvas to 500, 500
-                    14. node.draw() checks if node should be drawed
-                    15. add new load wasm with webpack, imports add logging
-                    16. add panning (MouseMove), scale/translate change (zoom)
-                    17. add 10 files of images to Node and resize with zooming
-                    18. fix draw placing wrong pixel and missing content after high zooming
-
-                Todo next
-                    - add node.marked, node.groupId (default 0)
-                    - add draw border
-                    - add node move, groups move, marked moves
-                    - add second array for getting pixel under mouse
-
-
-                TODO Enhancment
-                    - new Way in a worker
-                */
 
                 console.warn('INIT');
                 this.initOffset = 1024 * 64 * 50; // 20 pages
@@ -1488,7 +1466,6 @@ export default {
                 return pump();
             }
 
-
             await fetch(`${apiUrl}/api/v1/dataset/images/${this.dataset}/${this.selectedImgCount}`)
                 .then(async (res) => {
                     console.log(res);
@@ -1558,7 +1535,9 @@ export default {
                     group: 'default',
                     title: 'Initialising features finished',
                     type: 'success',
-                    text: this.loadingNodes ? 'Please wait updating embedding until loading finished ' : 'You can now update the embedding',
+                    text: this.loadingNodes
+                        ? 'Please wait updating embedding until loading finished '
+                        : 'You can now update the embedding',
                 });
             }
         });

@@ -71,3 +71,43 @@ Guides:
 - Using WebGL in a wasm Modul: https://www.freecodecamp.org/news/how-to-use-webgl-shaders-in-webassembly-1e6c5effc813/
 - zoomable image viewer using OpenGL, C++ and WebAssembly: https://github.com/svoisen/wasm-imageviewer
 - german introduction in the wasm topic with general thoughts: https://tech.thalia.de/frontend-spielereien-mit-webassembly/
+
+
+# WASM with AssemblyScript
+    TODO ADDED:
+        1. cummincate between js and AS
+        2. pass buffer to AS
+        3. Add Node Class to save pointer and size => get acces to pixel data for each img
+        4. add Store for saving nodes and operation on multi nodes
+        5. pixel array for return data and change via AS
+        6. Add draw to state and nodes
+        7. add test canvas for showing result
+        8. add variable memory based on canvasPixelSize and change cavnas size to 100, 100
+        9. add real pictures while streaming, first 10, handcrafted x,y,
+            init memory 10 * 10 * 10 * 4 = 4000
+        10. init full downloaded memory
+        11. add all nodes with smallest img size to state
+        11. add scale, transfer to node.draw(s, t) with functions to change them
+        13. resize full canvas to 500, 500
+        14. node.draw() checks if node should be drawed
+        15. add new load wasm with webpack, imports add logging
+        16. add panning (MouseMove), scale/translate change (zoom)
+        17. add 10 files of images to Node and resize with zooming
+        18. fix draw placing wrong pixel and missing content after high zooming
+
+    Missing: 
+    Memory: 
+        - add dynamic alloc memory (1) (actuall is overwriting) 
+    Scissior:
+        - add drawRectangle(x, y, w, h) + integrate with drawScissior (2)
+    Marks/Groups
+        - add node.mark flag, mark them on click and draw marked rectangle (1)  
+        - add node.groupId (default 0), .setGroupId(newId, r, g, b, a)
+        - add draw border around group with color if groupId !== 0 (1)
+        - add getGroupCount(groupId) (test this with 10k imgs and 10 groups)
+        - add changeGroupColor(groupid, r, g, b, a) 
+        - add node move, groups move, marked moves
+        - add second array for getting pixel under mouse
+
+    TODO Enhancment
+        - new Way in a worker
