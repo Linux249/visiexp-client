@@ -681,8 +681,10 @@ export default {
                     group: 'default',
                     title: 'Embedding updated', // todo add time maybe
                     type: 'success',
+                    text: `Update took ${data.time} seconds`,
                 });
             } else {
+                logYellow('Cache nodes');
                 this.cachedNodes = data;
                 this.$notify({
                     group: 'default',
@@ -1382,7 +1384,7 @@ export default {
             this.nodesTotal = data.count;
         });
 
-        socket.on('sendAllNodes', async (nodes) => {
+        socket.on('sendAllNodes', async ({ nodes, time }) => {
             logYellow('Socket: sendAllNodes');
             this.$notify({
                 group: 'default',
@@ -1390,7 +1392,7 @@ export default {
                 type: 'success',
                 text: 'Start loading images',
             });
-            console.log(nodes);
+            console.log({ nodes, time });
             const state = this;
 
             async function consume(reader) {
