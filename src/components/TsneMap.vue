@@ -633,16 +633,15 @@ export default {
             // console.log(this.store.nodes);
             // console.log(nodes);
             if (!this.loadingNodes && this.initPython) {
-                const count = this.savedGroups.reduce((a, c) => a + c.count, 0)
+                const count = this.savedGroups.reduce((a, c) => a + c.count, 0);
                 if (!count) {
                     // there must be at least one group with a member
                     return this.$notify({
-                            group: 'default',
-                            title: 'Group missing',
-                            type: 'error',
-                            text: 'Create a non-empty group first',
-                        }
-                    );
+                        group: 'default',
+                        title: 'Group missing',
+                        type: 'error',
+                        text: 'Create a non-empty group first',
+                    });
                 }
 
                 const nodes = this.store.getNodes();
@@ -1590,7 +1589,7 @@ export default {
 
 <style>
 .tsne-map {
-    height: calc(100% - 40px);
+    height: 100%;
     display: flex;
     flex-flow: column;
     /*background-color: rgb(255, 90, 75);*/
@@ -1634,7 +1633,7 @@ export default {
     padding: 3px;
     margin: 2px;
     background-color: white;
-    height: calc(100% - 2rem);
+    height: calc(100% - 18px);
     overflow-y: auto;
     overflow-x: hidden;
     /*z-index: -1;*/
