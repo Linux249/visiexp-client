@@ -1167,6 +1167,8 @@ export default {
             const parantHeight = canvas.parentNode.clientHeight;
             canvas.width = parantWidth;
             canvas.height = parantHeight;
+            this.store.width = parantWidth;
+            this.store.height = parantHeight;
         },
     },
 
