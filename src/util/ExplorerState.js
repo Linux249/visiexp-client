@@ -752,11 +752,9 @@ export default class ExplorerState {
 
             const imgData = img.data;
 
-            const neighbourColor = [250, 208, 44]; // yellow
-            // const groupColor = [100, 100, 100]; // black
             // NOTE bedder performance in draw if grouColourId would be saved in node
             const group = this.ui.savedGroups.find(e => e.groupId === node.groupId);
-            const groupColor = (group && this.groupColours[group.colorId]) || [100, 100, 100]; // black
+            const groupColor = (group && this.groupColours[group.colorId]) || [50, 50, 50]; // black
             const nearColor = [0, 127, 0]; // green
 
             /*
@@ -944,13 +942,7 @@ export default class ExplorerState {
                 // && (!proposal)
             ) return;
 
-            const lineColor = proposal
-                ? neighbourColor
-                : node.isNearly
-                    ? nearColor
-                    : node.group
-                        ? groupColor
-                        : null;
+            const lineColor = node.isNearly ? nearColor : node.group ? groupColor : null;
             if (lineColor) {
                 for (let imgRow = -2; imgRow <= imgH + 1; imgRow += 1) {
                     const explorerRow = ((imgY + imgRow) * explorerW + imgX) * 4;
@@ -1134,7 +1126,6 @@ export default class ExplorerState {
         console.log('mousedown');
         // console.log(e.offsetX);
         // console.log(e.offsetY);
-
 
         // saving for checking if node was clicked in handleMouseUp
         const { nodeUnderMouse } = this;

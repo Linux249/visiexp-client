@@ -377,7 +377,7 @@
                     </div>
                     <div class="row v-center">
                         <input class="input" type="text" v-model="groupName" />
-                        <div @click="saveGroup" class="btn">save group</div>
+                        <div @click="saveGroup" class="btn">new group</div>
                     </div>
                 </div>
 
