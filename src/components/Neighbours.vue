@@ -68,12 +68,12 @@ export default {
                     groupId: this.activeGroupId,
                     userId: this.$parent.userId,
                 };
-                const { groupNeighbours, removedGroupNeighbours } = store;
+                const { proposals, removedProposals } = store;
                 // add neighbours to body depending on existing
                 // neighbours to show init getNeighbours or update
-                if (Object.keys(groupNeighbours).length) {
-                    body.removedNeighbours = removedGroupNeighbours;
-                    body.neighbours = groupNeighbours;
+                if (Object.keys(proposals).length) {
+                    body.removedNeighbours = removedProposals;
+                    body.neighbours = proposals;
                 }
 
                 const res = await fetch(`${apiUrl}/api/v1/getGroupNeighbours`, {

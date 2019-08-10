@@ -88,8 +88,8 @@ export default class ExplorerState {
         this._moveGroupToMouse = false;
 
         // array of node index's
-        this.groupNeighbours = {};
-        this.removedGroupNeighbours = {};
+        this.proposals = {};
+        this.removedProposals = {};
         this.groupColours = groupColors;
         this.nonActiveGroupAplha = 50;
 
@@ -532,14 +532,14 @@ export default class ExplorerState {
     }
 
     updateGroupNeighbours(neighbours) {
-        this.groupNeighbours = neighbours;
-        this.removedGroupNeighbours = {};
+        this.proposals = neighbours;
+        this.removedProposals = {};
         this.triggerDraw();
     }
 
     resetGroupNeighbours() {
-        this.groupNeighbours = {};
-        this.removedGroupNeighbours = {};
+        this.proposals = {};
+        this.removedProposals = {};
         this.triggerDraw();
     }
 
@@ -614,13 +614,13 @@ export default class ExplorerState {
     changeScaleUp() {
         this.scaleFaktor += 0.2;
         // this.scale += 20 * this.scaleFaktor;
-        this.scale += 1 + (this.scaleFaktor ** 2);
+        this.scale += 1 + this.scaleFaktor ** 2;
         this.ui.scale = this.scale; // update ui (options)
     }
 
     changeScaleDown() {
         // this.scale -= 20 * this.scaleFaktor;
-        this.scale -= 1 + (this.scaleFaktor ** 2);
+        this.scale -= 1 + this.scaleFaktor ** 2;
         this.scaleFaktor -= 0.2;
         this.ui.scale = this.scale; // update ui (options)
     }
@@ -694,8 +694,6 @@ export default class ExplorerState {
             alphaIncrease,
         } = this.ui;
 
-        // if (clusterMode) this.updateClustering();
-
         const nodes = this.sorted
             ? this.sortedNodes
             : clusterMode && repsMode
@@ -713,14 +711,15 @@ export default class ExplorerState {
             // || (oldClusterMode && node.cluster < this.cluster);
 
             // asked here to not ask later again
-            const neighbour = neighbourMode && !node.group && this.groupNeighbours[node.index];
-            const removedNeighbour = neighbourMode && !node.group && this.removedGroupNeighbours[node.index];
+            const proposal = neighbourMode && this.proposals[node.index];
 
-            if (neighbourMode && !node.group) {
-                // the node should not be in the neighbours list
-                if (neighbour || removedNeighbour) imgSize += this.neighbourImgSize;
-                else return;
+            // make image larger because zoom is reset
+            if (neighbourMode) {
+                if (proposal) imgSize += this.neighbourImgSize;
+                else if (node.group) imgSize += 4;
+                else return; // don't draw image anyway
             }
+
             // check imgsize
             if (imgSize < 0) imgSize = 0;
             else if (imgSize > 9) imgSize = 9;
@@ -751,18 +750,14 @@ export default class ExplorerState {
 
             if (!show) return;
 
-            // 2. if neighbours mode:  check if node is not groupd
-
-            // cluster
-            // if (node.cluster < this.cluster) {
             const imgData = img.data;
 
             const neighbourColor = [250, 208, 44]; // yellow
             // const groupColor = [100, 100, 100]; // black
-            // NOTE bedder perfomance in draw if grouColourId whould be saved in node
+            // NOTE bedder performance in draw if grouColourId would be saved in node
             const group = this.ui.savedGroups.find(e => e.groupId === node.groupId);
             const groupColor = (group && this.groupColours[group.colorId]) || [100, 100, 100]; // black
-            const nearColor = [0, 127, 0]; // gren
+            const nearColor = [0, 127, 0]; // green
 
             /*
                 DRAW not active Groups
@@ -812,57 +807,28 @@ export default class ExplorerState {
             /*
                 DRAW IMAGE
              */
-            if (!removedNeighbour) {
-                // loop through rows in img
-                for (let imgRow = 0; imgRow < imgH; imgRow += 1) {
-                    const explorerRow = ((imgY + imgRow) * explorerW + imgX) * 4;
-                    // loop through column in img
-                    for (let imgCol = 0; imgCol < imgW; imgCol += 1) {
-                        const c = explorerRow + imgCol * 4;
-                        const p = (imgRow * imgW + imgCol) * 4;
-                        explorerPixel[c] = imgData[p]; // R
-                        explorerPixel[c + 1] = imgData[p + 1]; // G
-                        explorerPixel[c + 2] = imgData[p + 2]; // B
-                        // special mode for represents // img over other img // white background
-                        explorerPixel[c + 3] = representMaxAlpha && isRepresent
-                            ? 255
-                            : explorerPixel[c + 3]
-                                ? explorerPixel[c + 3] + 10 * node.cliqueLength
-                                : alphaBase + zoomStage * alphaIncrease;
+            // loop through rows in img
+            for (let imgRow = 0; imgRow < imgH; imgRow += 1) {
+                const explorerRow = ((imgY + imgRow) * explorerW + imgX) * 4;
+                // loop through column in img
+                for (let imgCol = 0; imgCol < imgW; imgCol += 1) {
+                    const c = explorerRow + imgCol * 4;
+                    const p = (imgRow * imgW + imgCol) * 4;
+                    explorerPixel[c] = imgData[p]; // R
+                    explorerPixel[c + 1] = imgData[p + 1]; // G
+                    explorerPixel[c + 2] = imgData[p + 2]; // B
+                    // special mode for represents // img over other img // white background
+                    explorerPixel[c + 3] = representMaxAlpha && isRepresent
+                        ? 255
+                        : explorerPixel[c + 3]
+                            ? explorerPixel[c + 3] + 10 * node.cliqueLength
+                            : alphaBase + zoomStage * alphaIncrease;
 
-                        // draw hitmap
-                        hitmapPixel[c] = node.colorKey[0]; // R
-                        hitmapPixel[c + 1] = node.colorKey[1]; // G
-                        hitmapPixel[c + 2] = node.colorKey[2]; // B
-                        hitmapPixel[c + 3] = 255; //
-                    }
-                }
-            } else {
-                // loop through rows in img
-                for (let imgRow = 0; imgRow < imgH; imgRow += 1) {
-                    const explorerRow = ((imgY + imgRow) * explorerW + imgX) * 4;
-                    // loop through column in img
-                    for (let imgCol = 0; imgCol < imgW; imgCol += 1) {
-                        const c = explorerRow + imgCol * 4;
-                        const p = (imgRow * imgW + imgCol) * 4;
-
-                        // red cast
-                        explorerPixel[c] = 255; // imgData[p]; // R
-                        explorerPixel[c + 1] = imgData[p + 1]; // G
-                        explorerPixel[c + 2] = imgData[p + 2]; // B
-                        // special mode for represents // img over other img // white background
-                        explorerPixel[c + 3] = representMaxAlpha && isRepresent
-                            ? 255
-                            : explorerPixel[c + 3]
-                                ? explorerPixel[c + 3] + 10 * node.cliqueLength
-                                : alphaBase + zoomStage * alphaIncrease;
-
-                        // draw hitmap
-                        hitmapPixel[c] = node.colorKey[0]; // R
-                        hitmapPixel[c + 1] = node.colorKey[1]; // G
-                        hitmapPixel[c + 2] = node.colorKey[2]; // B
-                        hitmapPixel[c + 3] = 255; //
-                    }
+                    // draw hitmap
+                    hitmapPixel[c] = node.colorKey[0]; // R
+                    hitmapPixel[c + 1] = node.colorKey[1]; // G
+                    hitmapPixel[c + 2] = node.colorKey[2]; // B
+                    hitmapPixel[c + 3] = 255; //
                 }
             }
 
@@ -971,14 +937,14 @@ export default class ExplorerState {
              */
             // TODO Perfomance is maybe bedder without another loop
 
-            // draw only if group, label2 or neighbour
+            // draw only if group, label2 or proposal
             if (
                 !node.group
                 && !node.isNearly
-                // && (!neighbour)
+                // && (!proposal)
             ) return;
 
-            const lineColor = neighbour
+            const lineColor = proposal
                 ? neighbourColor
                 : node.isNearly
                     ? nearColor
@@ -1027,83 +993,6 @@ export default class ExplorerState {
                 }
             }
         });
-
-        /*
-            DRAW UNDLINE FOR GROUPED NODES
-         */
-        // TODO use color user can choose in UI + add choose color in UI
-        // const groupColor = [225, 225, 115];
-        // const neighbourColor = [225, 225, 115];
-
-        // const groupColor = [195,230,203];  // bootstrap green
-        // const label2Color = [153, 0, 51];
-
-        /* nodes.forEach((node) => {
-            const neighbour = this.groupNeighbours[node.index];
-            // TODO Perfomance is maybe bedder without another loop
-
-            // draw only if group, label2 or neighbour
-            if (
-                !node.group
-                && !node.isNearly
-                && (!neighbour || neighbour > this.ui.neighboursThreshold)
-            ) return;
-
-            const lineColor = neighbour ? neighbourColor : node.isNearly ? nearColor : groupColor;
-
-            let imgSize = sizeRankedMode
-                ? zoomStage + Math.floor(node.rank * this.sizeRange)
-                : zoomStage;
-            imgSize += this.imgSize;
-            const isRepresent = (clusterMode && !node.isClusterd)
-                || (oldClusterMode && node.cluster < this.cluster);
-
-            if (neighbourMode && !node.group) {
-                // the node should not be in the neighbours list
-                const neighbour = this.groupNeighbours[node.index];
-                if (neighbour && neighbour <= this.ui.neighboursThreshold) {
-                    imgSize += this.neighbourImgSize;
-                } else return;
-            } else if (isRepresent) imgSize += representImgSize;
-
-            if (imgSize < 0) imgSize = 0;
-            if (imgSize > 14) imgSize = 14;
-
-            const img = node.imageData[imgSize];
-            if (!img) return console.error(`no image for node: ${node.id}exists`);
-
-            const iw = img.width;
-            const ih = img.height;
-
-            const imgX = Math.floor(node.x * scale + tx - iw / 2);
-            const imgY = Math.floor(node.y * scale + ty - ih / 2);
-
-            const inside = imgX > borderW
-                && imgY > borderW
-                && imgX < explorerW - iw - borderW
-                && imgY < explorerH - ih - borderW;
-
-            if (inside) {
-                const h = Math.ceil(ih / 10);
-                const w = Math.ceil(iw / 10);
-                // wir gehen durch alle reihen des bildes
-                for (let imgRow = 0; imgRow < h; imgRow += 1) {
-                    const explorerRow = ((imgY + ih + h + imgRow) * explorerW + imgX - w) * 4;
-                    // copy imgRow to pixel
-                    // wir laufen durch alle spalten des bildes und betrachten dann 4 werte im array
-                    for (let imgCol = 0; imgCol < iw + 2 * w; imgCol += 1) {
-                        const c = explorerRow + imgCol * 4;
-                        // if(c > explorerW * explorerH * 4) console.error("CRY")
-                        explorerPixel[c] = lineColor[0]; // R
-                        explorerPixel[c + 1] = lineColor[1]; // G
-                        explorerPixel[c + 2] = lineColor[2]; // B
-                        explorerPixel[c + 3] = neighbour ? 200 : 255;
-                    }
-                }
-            }
-
-            // test if image obj exists
-        }); */
 
         /*
             DRAW SCISSORS
@@ -1165,40 +1054,35 @@ export default class ExplorerState {
             console.warn('new max draw time');
             console.warn(this.maxDrawTime);
         }
-        // requestAnimationFrame(() => this.drawHitmap());
         this.valid = true;
         if (this.ui.showHeatmap) requestAnimationFrame(this.ui.drawHeatmap);
-        // if (this.ui.showNavMap) requestAnimationFrame(this.ui.drawNavMapRect);
         if (this.ui.showNavHeatmap) requestAnimationFrame(this.ui.drawNavHeatmapRect);
     }
 
     zoom(wheelEvent) {
         // console.log('zoom event');
-        // event can be a custom/dummy event
         if (wheelEvent.hasOwnProperty('preventDefault')) wheelEvent.preventDefault();
         if (Object.prototype.hasOwnProperty.call(wheelEvent, 'preventDefault')) wheelEvent.preventDefault();
         if (wheelEvent.hasOwnProperty('stopPropagation')) wheelEvent.stopPropagation();
         if (Object.prototype.hasOwnProperty.call(wheelEvent, 'preventDefault')) wheelEvent.stopPropagation();
         // console.log(wheelEvent)
-        // const { nodeUnderMouse } = this;
 
         const oldScale = this.scale;
         const mouseX = wheelEvent.offsetX;
         const mouseY = wheelEvent.offsetY;
-        // console.log({ mouseX, mouseY });
+
         // get mouse movement based on the last triggered event
         const offsetX = (mouseX - this.translateX) / oldScale; // +80 means move 80px to right
         const offsetY = (mouseY - this.translateY) / oldScale; // -50 means move 50 to top
-        // console.log({ offsetX, offsetY });
+        // console.log({ mouseX, mouseY, offsetX, offsetY });
 
-        // Zoom in = increase = wheel up = negativ delta Y
+        // Zoom in = increase = wheel up = negative delta Y
         if (wheelEvent.deltaY < 0) {
             console.log('zoom in');
             // this.scale2 += 1;
             // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
             this.zoomStage += 0.2;
             this.changeScaleUp();
-            // this.cluster *= this.clusterGrowth;
         }
 
         // Zoom out = decrease = wheel down = positiv delta Y
@@ -1208,7 +1092,6 @@ export default class ExplorerState {
             // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
             this.zoomStage -= 0.2;
             this.changeScaleDown();
-            // this.cluster /= this.clusterGrowth;
         }
         // console.log(this.zoomStage);
         // console.log(this.scale);
@@ -1235,8 +1118,7 @@ export default class ExplorerState {
         const pixel = this.hitCtx.getImageData(x, y, 1, 1).data;
         const color = `rgb(${pixel[0]},${pixel[1]},${pixel[2]})`;
         const nodeId = this.colorHash[color];
-        // console.log({ x, y });
-        // console.log(pixel);
+        // console.log({ pixel, x, y });
         if (nodeId >= 0) {
             return this.nodes[nodeId];
         }
@@ -1253,10 +1135,6 @@ export default class ExplorerState {
         // console.log(e.offsetX);
         // console.log(e.offsetY);
 
-        // console.log(this.hitCanvas.width);
-        // console.log(this.hitCtx.width);
-        // console.log(this.explorer.width);
-        // console.log(this.ctx.width);
 
         // saving for checking if node was clicked in handleMouseUp
         const { nodeUnderMouse } = this;
@@ -1312,7 +1190,6 @@ export default class ExplorerState {
             this.lastY = mouseY;
 
             if (this.panning) {
-                // console.log("dragging")
                 // move the x/y
                 this.translateX += moveX;
                 this.translateY += moveY;
@@ -1366,60 +1243,48 @@ export default class ExplorerState {
         console.log('mouseup');
         if (this.panning) {
             this.panning = false;
-            this.triggerDraw();
-            return;
+            return this.triggerDraw();
         }
         const { nodeUnderMouse } = this;
-        // const shiftKeyPressed = e.shiftKey;
-        // const altKeyPressed = e.altKey;
 
         if (nodeUnderMouse && nodeUnderMouse === this.nodeOnMouseDown) {
-            // click event on a special node - do something
-
-            // check if mouse move just a small delta => click
+            // check if mouse move just a small delta
+            // => click on a image
             if (
                 this.startX <= e.offsetX + 2
                 && this.startX >= e.offsetX - 2
                 && this.startY <= e.offsetY + 2
                 && this.startY >= e.offsetY - 2
             ) {
-                console.warn('click on node:');
+                console.warn('click on:');
                 console.log(nodeUnderMouse);
 
-                // used for components for adding nodes to special cases
+                // used in vue components
                 this.ui.clickedNode = nodeUnderMouse;
 
                 // flag/unflag node as and add/remove from group
-                if (!this.ui.neighbourMode) {
-                    if (nodeUnderMouse.group) {
-                        nodeUnderMouse.group = false;
-                        nodeUnderMouse.groupId = 0;
-                    } else {
-                        nodeUnderMouse.group = true;
-                        nodeUnderMouse.groupId = this.ui.activeGroupId;
-                    }
-                    this.updateGroupCount();
+                if (nodeUnderMouse.group) {
+                    nodeUnderMouse.group = false;
+                    nodeUnderMouse.groupId = 0;
                 } else {
-                    // if user removes a neighbour
-                    if (this.groupNeighbours[nodeUnderMouse.index]) {
-                        // add node to removed neighbours
-                        console.log('remove node from neighbours');
-                        this.removedGroupNeighbours[nodeUnderMouse.index] = this.groupNeighbours[
+                    nodeUnderMouse.group = true;
+                    nodeUnderMouse.groupId = this.ui.activeGroupId;
+                }
+                this.updateGroupCount();
+                if (this.ui.neighbourMode) {
+                    // if user adds a proposal
+                    if (this.proposals[nodeUnderMouse.index]) {
+                        // remove node from proposals
+                        console.log('add proposal to group');
+                        this.removedProposals[nodeUnderMouse.index] = this.proposals[
                             nodeUnderMouse.index
                         ];
-                        // remove node from neighbours
-                        this.groupNeighbours[nodeUnderMouse.index] = undefined;
-                    } else if (this.removedGroupNeighbours[nodeUnderMouse.index]) {
-                        // remove node from removed nodes and add it back again to neighbours
-                        console.log('add removed node from neighbours back to neighbours');
-                        this.groupNeighbours[nodeUnderMouse.index] = this.removedGroupNeighbours[
-                            nodeUnderMouse.index
-                        ];
-                        this.removedGroupNeighbours[nodeUnderMouse.index] = undefined;
-                    } else if (nodeUnderMouse.group) {
-                        // nodeUnderMouse.group = false;
-                        // nodeUnderMouse.groupId = 0;
-                        // this.removedGroupNeighbours[nodeUnderMouse.index] = 1; // 1 is default threshold - isn't uses
+                        this.proposals[nodeUnderMouse.index] = undefined;
+                    } else {
+                        // node is removed from group
+                        console.log('remove group and add to proposals');
+                        this.proposals[nodeUnderMouse.index] = 1; // dummy threshold
+                        this.removedProposals[nodeUnderMouse.index] = undefined;
                     }
                 }
             }
@@ -1432,8 +1297,7 @@ export default class ExplorerState {
                 }
                 this.draggedNode = false;
                 // update clustering after move one or more nodes
-                this.createCluster();
-                return; // draw triggers in create cluster
+                return this.createCluster(); // draw triggers in create cluster
             }
 
             // todo update instead of recreate supercluster here maybe bedder? how?
@@ -1444,16 +1308,21 @@ export default class ExplorerState {
             const startY = (this.scissorsStartY - this.translateY) / this.scale;
             const endX = (this.scissorsEndX - this.translateX) / this.scale;
             const endY = (this.scissorsEndY - this.translateY) / this.scale;
-            // console.log({startX, startY})
-            // console.log({endX, endY})
+            // console.log({startX, startY, endX, endY})
             Object.values(this.nodes).forEach((node) => {
                 // console.log(node)
                 // check for all nodes if they are inside the rectangle
-                if ((node.x > startX && node.x < endX) || (node.x < startX && node.x > endX)) {
-                    if ((node.y < startY && node.y > endY) || (node.y > startY && node.y < endY)) {
-                        this.ui.cuttedNodes.push(node);
-                        node.group = true;
-                        node.groupId = this.ui.activeGroupId;
+                if (
+                    (!this.ui.neighbourMode || this.proposals[node.index])
+                    && ((node.x > startX && node.x < endX) || (node.x < startX && node.x > endX))
+                    && ((node.y < startY && node.y > endY) || (node.y > startY && node.y < endY))
+                ) {
+                    this.ui.cuttedNodes.push(node);
+                    node.group = true;
+                    node.groupId = this.ui.activeGroupId;
+                    if (this.ui.neighbourMode && this.proposals[node.index]) {
+                        this.removedProposals[node.index] = this.proposals[node.index];
+                        this.proposals[node.index] = undefined;
                     }
                 }
             });
@@ -1464,14 +1333,16 @@ export default class ExplorerState {
             this.ui.scissors = false;
             this.drawScissors = false;
         }
-        this.triggerDraw();
+        return this.triggerDraw();
     }
+
+    /**
+     * move all nodes in a group/marked half the way to a point
+     * @param e
+     */
 
     handleDoubleClick(e) {
         console.log('Double click');
-        /* if (this.nodeUnderMouse && this.nodeUnderMouse !== this.selection) {
-            this.selection = this.nodeUnderMouse;
-        } else this.selection = null; */
         if (this.moveGroupToMousePosition) {
             const x = (e.offsetX - this.translateX) / this.scale;
             const y = (e.offsetY - this.translateY) / this.scale;
