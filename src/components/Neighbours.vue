@@ -45,7 +45,6 @@ export default {
     },
     data: () => ({
         loading: false,
-        neighbours: [],
     }),
     mounted() {
         this.$nextTick(this.getGroupNeighbours);
@@ -63,17 +62,15 @@ export default {
                 store.resetScaleTranslate();
 
                 const body = {
-                    group: store.getGroupIdsByGroupId(this.activeGroupId),
+                    positives: store.getNodeIdsByGroupId(this.activeGroupId),
                     threshold: this.neighboursThreshold,
                     groupId: this.activeGroupId,
                     userId: this.$parent.userId,
                 };
-                const { proposals, removedProposals } = store;
-                // add neighbours to body depending on existing
-                // neighbours to show init getNeighbours or update
-                if (Object.keys(proposals).length) {
-                    body.removedNeighbours = removedProposals;
-                    body.neighbours = proposals;
+
+                // both objects are empty on init
+                if (Object.keys(store.proposals).length || Object.keys(store.removedProposals).length) {
+                    body.negatives = Object.keys(store.proposals).map(key => +key);
                 }
 
                 const res = await fetch(`${apiUrl}/api/v1/getGroupNeighbours`, {
@@ -83,7 +80,7 @@ export default {
                 });
                 if (!res.ok) throw Error(res.statusText);
                 const { neighbours, group } = await res.json();
-                store.updateGroupNeighbours(neighbours);
+                store.updateGroupProposals(neighbours);
                 store.addNodesToActiveGroup(group);
                 console.log({ neighbours, group });
                 this.loading = false;

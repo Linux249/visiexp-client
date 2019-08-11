@@ -510,7 +510,7 @@ export default class ExplorerState {
         return ids;
     }
 
-    getGroupIdsByGroupId(id) {
+    getNodeIdsByGroupId(id) {
         const ids = [];
         Object.values(this.nodes).forEach(node => (node.groupId === id ? ids.push(node.index) : null));
         return ids;
@@ -531,7 +531,7 @@ export default class ExplorerState {
         this.updateGroupCount();
     }
 
-    updateGroupNeighbours(neighbours) {
+    updateGroupProposals(neighbours) {
         this.proposals = neighbours;
         this.removedProposals = {};
         this.triggerDraw();
