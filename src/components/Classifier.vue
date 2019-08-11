@@ -36,6 +36,18 @@
                 </div>
             </div>
         </div>
+
+        <div class="row">
+            <input type="text" v-model="category" />
+            <div @click="addCategory" class="btn">add category</div>
+        </div>
+
+        <div class="imgArea">
+            <div :key="i" class="image" v-for="(n, i) in selectedNodes">
+                <img :alt="n.name" :src="n.image.src" @click="removeNode(i)" v-if="n.hasImage" />
+            </div>
+        </div>
+
         <div class="row wrap">
             <div
                 :class="{ active: selectedCategory === i }"
@@ -45,20 +57,6 @@
                 v-for="(cat, i) in labels"
             >
                 {{ cat.name }}
-            </div>
-            <div @click="showAddCategory = !showAddCategory" class="btn">
-                +
-            </div>
-        </div>
-
-        <div class="row" v-if="showAddCategory">
-            <input type="text" v-model="category" />
-            <div @click="addCategory" class="btn">add</div>
-        </div>
-
-        <div class="imgArea">
-            <div :key="i" class="image" v-for="(n, i) in selectedNodes">
-                <img :alt="n.name" :src="n.image.src" @click="removeNode(i)" v-if="n.hasImage" />
             </div>
         </div>
 
@@ -118,7 +116,6 @@ export default {
         mouseOver: false,
         selectedCategory: '0',
         selectedLabel: '0',
-        showAddCategory: false,
         category: '',
         rgbToHex,
     }),
@@ -146,7 +143,6 @@ export default {
             this.labels[newKey] = { name: this.category, labels: [] };
 
             this.category = ''; // clear input
-            this.showAddCategory = false; // remove input
         },
         addLabel() {
             console.log('addLabel clicked');
@@ -245,10 +241,6 @@ export default {
 </script>
 
 <style scoped>
-.classifier {
-    width: 100%;
-}
-
 .row {
     display: flex;
     position: relative;
@@ -261,7 +253,7 @@ export default {
 
     box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
     display: flex;
-    /*justify-content: center;*/
+
     align-items: center;
     flex-flow: wrap;
     flex-direction: row;

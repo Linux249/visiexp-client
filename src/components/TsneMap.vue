@@ -3,7 +3,7 @@
         <div class="header">
             <div class="left-header">
                 <router-link to="/">t-SNE</router-link>
-                <router-link to="/svm">SVM</router-link>
+            <!--<router-link to="/svm">SVM</router-link>-->
                 <router-link to="/classifier">Classifier</router-link>
                 <router-link to="/dataset">Dataset</router-link>
                 <router-link to="/options">Options</router-link>
@@ -1749,7 +1749,7 @@ export default {
     font-size: 15px;
     font-weight: 600;
     border-bottom: 0.05rem solid grey;
-    padding: 0 0.5rem;
+    margin: 0 0.5rem;
 }
 
 .color {

@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import { apiUrl } from '../config/apiUrl';
+import { apiUrl } from '../src/config/apiUrl';
 
 export default {
     name: 'Svm',
