@@ -1,6 +1,6 @@
 <template>
     <div class="area">
-        <div class="title">Data sets</div>
+        <div class="title">Data set: {{dataset.name}}</div>
         <div class="loading">
             <div class="loader" v-if="loading"></div>
         </div>
@@ -60,26 +60,22 @@ export default {
         };
     },
     async mounted() {
+        this.loading = true;
         try {
             console.log('load dataset after mounting');
-            this.loading = true;
             const res = await fetch(`${apiUrl}/api/v1/dataset/all`);
             if (!res.ok) throw Error(res.statusText);
-            const datasets = await res.json();
-            console.log({ datasets });
-            this.datasets = datasets;
-            this.loading = false;
+            this.datasets = await res.json();
         } catch (e) {
-            this.loading = false;
+            console.error(e);
             this.$notify({
                 group: 'default',
                 title: 'Error loading all datasets',
                 type: 'error',
                 text: e.message,
             });
-            // TODO bedder error handling!
-            console.error(e);
         }
+        this.loading = false;
     },
     methods: {
         selectDataset(id) {

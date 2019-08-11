@@ -42,6 +42,7 @@ export default {
             this.dataset = newDataset;
             this.loadOldDataset = old;
             this.selectedImgCount = count;
+            this.$router.push('/');
         },
         setAuth(userId) {
             this.isAuth = true;
