@@ -97,6 +97,7 @@ export default {
 input {
     width: 90%;
     margin: 8px;
+    padding: 4px;
 }
 
 .margin {

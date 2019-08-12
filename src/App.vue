@@ -151,6 +151,14 @@ input {
     padding: 0.5rem 0.5rem 0.2rem;
 }
 
+.title2 {
+    font-weight: bold;
+    color: #767676;
+    padding: 0.5rem 10px;
+    margin: -8px -8px 0;
+    background-color: #d1d6ff;
+}
+
 .area {
     background-color: white;
     outline: none;

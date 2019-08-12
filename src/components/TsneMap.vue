@@ -17,7 +17,7 @@
                     <send v-if="!updateNodes"></send>
                     <div class="loader" v-if="updateNodes"></div>
                 </div>
-                <div :class="{ active: showInfo }" @click="showInfo = !showInfo" class="btn">
+                <div :class="{ active: showHelp }" @click="showHelp = !showHelp" class="btn">
                     <help></help>
                 </div>
                 <!--<div
@@ -420,7 +420,8 @@
                     </div>
                 </div>
 
-                <div class="area info-box" v-if="showInfo && !neighbourMode">
+                <div class="area info-box" v-if="showHelp && !neighbourMode">
+                    <div class="title2">Help: Groups</div>
                     <div class="row v-center">
                         1. mark images with
                         <div class="btn">Click</div>
@@ -429,24 +430,33 @@
                     </div>
                     <div class="row v-center">
                         2. create groups with
-                        <div class="btn">save group</div>
+                        <div class="btn">new group</div>
                     </div>
                     <div class="row v-center">
                         3. get proposals with
                         <play class="btn"></play>
                     </div>
                     <div class="row v-center">4. repeat with other groups</div>
-                    <div class="row v-center">5. update embedding</div>
+                    <div class="row v-center">5. <div class="btn">
+                        Update
+                        <send></send>
+                    </div> embedding</div>
                 </div>
-                <div class="area info-box" v-if="showInfo && neighbourMode">
+                <div class="area info-box" v-if="showHelp && neighbourMode">
+                    <div class="title2">Help: Proposals</div>
                     <div class="row v-center">
                         1. mark wrong with
                         <div class="btn">Click</div>
                     </div>
-                    <div class="row v-center">2. update proposals and iterate</div>
-                    <div class="row v-center">3. stop with</div>
+                    <div class="row v-center">2. <div class="btn">
+                        Update
+                        <repeat></repeat>
+                    </div> proposals and iterate</div>
+                    <div class="row v-center">3. <div class="btn">
+                        Stop
+                        <stop></stop>
+                    </div> anytime</div>
                 </div>
-
                 <logs :getStore="getStore" v-if="showLogs" />
             </div>
         </div>
@@ -465,6 +475,7 @@ import Neighbours from './Neighbours';
 import Scissors from '../icons/Scissors';
 import X from '../icons/X';
 import Play from '../icons/Play';
+import Repeat from '../icons/Repeat';
 import Stop from '../icons/Stop';
 import Save from '../icons/Save';
 import Send from '../icons/Send';
@@ -516,6 +527,7 @@ export default {
         Plus,
         Minus,
         Trash,
+        Repeat,
     },
     data: () => ({
         // store: null,
@@ -609,7 +621,7 @@ export default {
         groupCounter: 0, // 0 is no group, counter inc for first use
         groupColours: groupColors,
         showLogs: false,
-        showInfo: true,
+        showHelp: true,
         state2: undefined,
         memory: undefined,
         drawCtx: undefined,
