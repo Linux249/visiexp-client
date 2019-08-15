@@ -84,6 +84,7 @@ input {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
 }
 
 .row-end {

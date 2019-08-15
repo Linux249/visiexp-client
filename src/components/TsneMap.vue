@@ -9,11 +9,8 @@
                 <router-link to="/options">Options</router-link>
             </div>
             <div class="right-header">
-                <div class="btn" @click="toggleWasmMode" :class="{ active: wasmMode }">
-                    wasm
-                </div>
                 <div :class="{ active: updateNodes || !initPython }" @click="sendData" class="btn">
-                    Update
+                    Update embedding
                     <send v-if="!updateNodes"></send>
                     <div class="loader" v-if="updateNodes"></div>
                 </div>
@@ -112,23 +109,6 @@
             <div class="details">
                 <div class="area" v-if="$route.path === '/options'">
                     <div class="title">Options</div>
-                    <!--<div class="option-title">Old cluster</div>
-                    <div class="row-btn">
-                        <div>Cluster: {{ Math.round(cluster) }}</div>
-                        <div class="row">
-                            <div @click="changeCluster(-10)" class="btn">-10</div>
-                            <div @click="changeCluster(-100)" class="btn">-100</div>
-                            <div @click="changeCluster(100)" class="btn">+100</div>
-                            <div @click="changeCluster(10)" class="btn">+10</div>
-                        </div>
-                    </div>-->
-                    <!--<div class="row-btn">
-                        <div>Cluster: growth: {{ clusterGrowth }}</div>
-                        <div class="row">
-                            <div @click="changeClusterGrowth(-0.01)" class="btn">-0.1</div>
-                            <div @click="changeClusterGrowth(0.01)" class="btn">+0.1</div>
-                        </div>
-                    </div>-->
                     <div class="row-btn">
                         <div>Save:</div>
                         <div class="row">
@@ -363,9 +343,9 @@
                                 @click="handleNeighbourMode(i)"
                                 class="btn"
                             >
-                                <play
+                                <plus-circle
                                     v-if="!(neighbourMode && group.groupId === activeGroupId)"
-                                ></play>
+                                ></plus-circle>
                                 <stop
                                     v-if="neighbourMode && group.groupId === activeGroupId"
                                 ></stop>
@@ -377,7 +357,7 @@
                     </div>
                     <div class="row v-center">
                         <input class="input" type="text" v-model="groupName" />
-                        <div @click="saveGroup" class="btn">new group</div>
+                        <div @click="saveGroup" class="btn">new</div>
                     </div>
                 </div>
 
@@ -421,39 +401,42 @@
                 </div>
 
                 <div class="area info-box" v-if="showHelp && !neighbourMode">
-                    <div class="title2">Help: Groups</div>
+                    <div class="title2">Help: Create groups</div>
                     <div class="row v-center">
-                        1. mark images with
+                        1. Select images with
                         <div class="btn">Click</div>
                         /
                         <scissors class="btn"></scissors>
                     </div>
                     <div class="row v-center">
-                        2. create groups with
-                        <div class="btn">new group</div>
+                        2. Create groups with
+                        <div class="btn">new</div>
                     </div>
                     <div class="row v-center">
-                        3. get proposals with
-                        <play class="btn"></play>
+                        3. Get proposals with
+                        <plus-circle class="btn"></plus-circle>
                     </div>
-                    <div class="row v-center">4. repeat with other groups</div>
+                    <div class="row v-center">4. Repeat with different groups</div>
                     <div class="row v-center">5. <div class="btn">
-                        Update
+                        Update embedding
                         <send></send>
-                    </div> embedding</div>
+                    </div>
+                    </div>
                 </div>
                 <div class="area info-box" v-if="showHelp && neighbourMode">
-                    <div class="title2">Help: Proposals</div>
+                    <div class="title2">Help: Generate proposals</div>
                     <div class="row v-center">
-                        1. mark wrong with
+                        1. Add proposal with
                         <div class="btn">Click</div>
+                        /
+                        <scissors class="btn"></scissors>
                     </div>
                     <div class="row v-center">2. <div class="btn">
                         Update
                         <repeat></repeat>
                     </div> proposals and iterate</div>
                     <div class="row v-center">3. <div class="btn">
-                        Stop
+                        Quit
                         <stop></stop>
                     </div> anytime</div>
                 </div>
@@ -474,7 +457,7 @@ import groupColors from '../config/groupColors';
 import Neighbours from './Neighbours';
 import Scissors from '../icons/Scissors';
 import X from '../icons/X';
-import Play from '../icons/Play';
+import PlusCircle from '../icons/PlusCircle';
 import Repeat from '../icons/Repeat';
 import Stop from '../icons/Stop';
 import Save from '../icons/Save';
@@ -509,7 +492,7 @@ export default {
     components: {
         Scissors,
         X,
-        Play,
+        PlusCircle,
         Stop,
         Save,
         Send,
@@ -1232,12 +1215,14 @@ export default {
                 console.log(Module);
                 const { memory } = Module;
 
+                // reserve static memory for images (aka init later?)
+
                 this.state2 = Module;
                 this.memory = memory;
                 console.log(memory);
 
                 console.warn('INIT');
-                this.initOffset = 1024 * 64 * 50; // 20 pages
+                this.initOffset = 1024 * 64 * 50; // 50 pages
                 this.canvasPixelSize = this.canvasH * this.canvasW * 4;
                 this.offset = this.initOffset;
 
