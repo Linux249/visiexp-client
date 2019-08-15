@@ -1,6 +1,6 @@
 <template>
     <div class="area">
-        <div class="title">Similars</div>
+        <div class="title">Proposals</div>
         <div class="between">
             <range-slider
                 :change="changeNeighboursThreshold"
@@ -12,10 +12,11 @@
         <div class="row">
             <div :class="{ active: loading }" @click="getGroupNeighbours" class="btn">
                 Update
-                <repeat></repeat>
+                <repeat v-if="!loading"></repeat>
+                <div class="loader" v-if="loading"></div>
             </div>
             <div :class="{ active: loading }" @click="stop" class="btn">
-                Stop
+                quit
                 <stop></stop>
             </div>
             <!--<div class="btn" @click="resetNeighbours">Reset<trash></trash></div>-->

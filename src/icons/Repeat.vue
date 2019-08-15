@@ -1,13 +1,13 @@
 <template>
     <svg
         fill="none"
-        height="20"
+        height="18"
+        width="18"
         stroke="currentColor"
         stroke-linecap="round"
         stroke-linejoin="round"
         stroke-width="2"
         viewBox="0 0 24 24"
-        width="20"
         xmlns="http://www.w3.org/2000/svg"
     >
         <polyline points="17 1 21 5 17 9"></polyline>
@@ -23,4 +23,8 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+    svg {
+        padding-left: 7px;
+    }
+</style>

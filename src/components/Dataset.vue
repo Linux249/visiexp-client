@@ -16,7 +16,7 @@
             </div>
         </div>
         <div v-if="!loading">
-            <div class="title">Amount</div>
+            <div class="title">No. of images</div>
             <div class="between">
                 <range-slider
                     :change="changeImgCount"
@@ -28,9 +28,10 @@
                 <div class="btn">{{ `${imgCount}#` }}</div>
             </div>
             <div class="flex">
-                <div @click="triggerChangeDataset(false)" class="btn">load new</div>
-                <div @click="triggerChangeDataset(true)" class="btn">resume old</div>
+                <div @click="triggerChangeDataset(false)" class="btn">start new</div>
+                <div @click="triggerChangeDataset(true)" class="btn">load old</div>
             </div>
+            <div class="description-small">You can load your trained features or start with new</div>
         </div>
     </div>
 </template>
