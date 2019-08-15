@@ -3,12 +3,15 @@
         <div class="header">
             <div class="left-header">
                 <router-link to="/">t-SNE</router-link>
-            <!--<router-link to="/svm">SVM</router-link>-->
+                <!--<router-link to="/svm">SVM</router-link>-->
                 <router-link to="/classifier">Classifier</router-link>
                 <router-link to="/dataset">Dataset</router-link>
                 <router-link to="/options">Options</router-link>
             </div>
             <div class="right-header">
+                <div class="btn" @click="toggleWasmMode" :class="{ active: wasmMode }">
+                    wasm
+                </div>
                 <div :class="{ active: updateNodes || !initPython }" @click="sendData" class="btn">
                     Update embedding
                     <send v-if="!updateNodes"></send>
@@ -33,13 +36,18 @@
                 <canvas class="canvas" id="canvas" ref="canvas" tabindex="0"></canvas>
                 <div class="box top right">
                     <div class="row">
-                        <div :class="{ active: target }" @click="selectTarget" class="btn">
+                        <div
+                            :class="{ active: target }"
+                            @click="selectTarget"
+                            class="btn"
+                            v-tooltip="'double click to move marked/group'"
+                        >
                             <target></target>
                         </div>
-                        <div :class="{ active: scissors }" @click="selectScissors" class="btn">
+                        <div :class="{ active: scissors }" @click="selectScissors" class="btn" v-tooltip="'select many'">
                             <scissors></scissors>
                         </div>
-                        <div @click="clearGroup" class="btn">
+                        <div @click="clearGroup" class="btn" v-tooltip="'reset selections'">
                             <x></x>
                         </div>
                     </div>
@@ -88,18 +96,18 @@
                 </div>
                 <div class="box bottom right">
                     <div class="row">
-                        <div @click="changeScaleDown()" class="btn">
+                        <div @click="changeScaleDown()" class="btn" v-tooltip="'scale positions down'">
                             <minimize></minimize>
                         </div>
-                        <div @click="changeScaleUp()" class="btn">
+                        <div @click="changeScaleUp()" class="btn" v-tooltip="'scale positions up'">
                             <maximize></maximize>
                         </div>
                     </div>
                     <div class="row">
-                        <div @click="changeImgSize(-1)" class="btn">
+                        <div @click="changeImgSize(-1)" class="btn" v-tooltip="'images smaller'">
                             <img-size-down></img-size-down>
                         </div>
-                        <div @click="changeImgSize(1)" class="btn">
+                        <div @click="changeImgSize(1)" class="btn" v-tooltip="'images larger'">
                             <img-size-up></img-size-up>
                         </div>
                     </div>
@@ -404,41 +412,51 @@
                     <div class="title2">Help: Create groups</div>
                     <div class="row v-center">
                         1. Select images with
-                        <div class="btn">Click</div>
+                        <div class="btn dummy">Click</div>
                         /
-                        <scissors class="btn"></scissors>
+                        <scissors class="btn dummy"></scissors>
                     </div>
                     <div class="row v-center">
                         2. Create groups with
-                        <div class="btn">new</div>
+                        <div class="btn dummy">new</div>
                     </div>
                     <div class="row v-center">
                         3. Get proposals with
-                        <plus-circle class="btn"></plus-circle>
+                        <plus-circle class="btn dummy"></plus-circle>
                     </div>
                     <div class="row v-center">4. Repeat with different groups</div>
-                    <div class="row v-center">5. <div class="btn">
-                        Update embedding
-                        <send></send>
-                    </div>
+                    <div class="row v-center">
+                        5.
+                        <div class="btn dummy">
+                            Update embedding
+                            <send></send>
+                        </div>
                     </div>
                 </div>
                 <div class="area info-box" v-if="showHelp && neighbourMode">
                     <div class="title2">Help: Generate proposals</div>
                     <div class="row v-center">
                         1. Add proposal with
-                        <div class="btn">Click</div>
+                        <div class="btn dummy">Click</div>
                         /
-                        <scissors class="btn"></scissors>
+                        <scissors class="btn dummy"></scissors>
                     </div>
-                    <div class="row v-center">2. <div class="btn">
-                        Update
-                        <repeat></repeat>
-                    </div> proposals and iterate</div>
-                    <div class="row v-center">3. <div class="btn">
-                        Quit
-                        <stop></stop>
-                    </div> anytime</div>
+                    <div class="row v-center">
+                        2.
+                        <div class="btn dummy">
+                            Update
+                            <repeat></repeat>
+                        </div>
+                        proposals and iterate
+                    </div>
+                    <div class="row v-center">
+                        3.
+                        <div class="btn dummy">
+                            Quit
+                            <stop></stop>
+                        </div>
+                        anytime
+                    </div>
                 </div>
                 <logs :getStore="getStore" v-if="showLogs" />
             </div>
@@ -545,7 +563,7 @@ export default {
         showHeatmap: false,
         heatmapRadius: 1,
         heatmapBlur: 5,
-        showNavHeatmap: false,
+        showNavHeatmap: true,
         sizeRankedMode: false,
         boarderRankedMode: false,
         clusterMode: false, // flag if first clustering was calculated
@@ -696,10 +714,17 @@ export default {
             return null;
         },
 
+        /**
+         * reset the most used ui buttons, active groups + neighbourmode
+         */
         clearGroup() {
             this.store.clearGroup();
             this.activeGroupId = null;
             this.neighbourMode = false;
+            this.target = false;
+            this.store.moveGroupToMousePosition = false;
+            this.scissors = false;
+            this.store.scissors = false;
         },
 
         setActiveGroup(id) {
@@ -777,7 +802,7 @@ export default {
 
             // draw heatmap
             navHeatmap.draw(/* this.heatmapMinOpacity */);
-            requestAnimationFrame(() => console.timeEnd('drawNavHeatmap'));
+            console.timeEnd('drawNavHeatmap');
         },
 
         drawNavHeatmapRect() {

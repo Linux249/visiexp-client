@@ -12,7 +12,8 @@
         <div class="row">
             <div :class="{ active: loading }" @click="getGroupNeighbours" class="btn">
                 Update
-                <repeat></repeat>
+                <repeat v-if="!loading"></repeat>
+                <div class="loader" v-if="loading"></div>
             </div>
             <div :class="{ active: loading }" @click="stop" class="btn">
                 quit
