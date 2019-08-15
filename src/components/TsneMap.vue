@@ -52,13 +52,13 @@
                         </div>
                     </div>
                     <div class="row-end">
-                        <div
+                        <!--<div
                             :class="{ active: showHeatmap }"
                             @click="toggleShowHeatmap"
                             class="btn"
                         >
                             <navmap></navmap>
-                        </div>
+                        </div>-->
                         <div
                             :class="{ active: showNavHeatmap }"
                             @click="toggleShowNavHeatmap"
@@ -72,14 +72,14 @@
                     <div :if="nodesTotal" class="btn">{{ nodesRecived + '/' + nodesTotal }}</div>
                 </div>
                 <div class="box bottom left">
-                    <div :class="{ hide: !showHeatmap }">
+                    <!--<div :class="{ hide: !showHeatmap }">
                         <canvas
                             class="canvas"
                             id="heatmap"
                             style="margin: 0.5rem; border-radius: 4px"
                             tabindex="0"
                         ></canvas>
-                    </div>
+                    </div>-->
                     <div :class="{ hide: !showNavHeatmap }" class="navMap">
                         <canvas
                             class="canvas"
@@ -306,6 +306,57 @@
                     <!--</div>-->
                 </div>
 
+                <div class="area info-box" v-if="showHelp && !neighbourMode">
+                    <div class="title2">Help: Create groups</div>
+                    <div class="row v-center">
+                        1. Select images with
+                        <div class="btn dummy">Click</div>
+                        /
+                        <scissors class="btn dummy"></scissors>
+                    </div>
+                    <div class="row v-center">
+                        2. Create groups with
+                        <div class="btn dummy">new</div>
+                    </div>
+                    <div class="row v-center">
+                        3. Get proposals with
+                        <plus-circle class="btn dummy"></plus-circle>
+                    </div>
+                    <div class="row v-center">4. Repeat with different groups</div>
+                    <div class="row v-center">
+                        5.
+                        <div class="btn dummy">
+                            Update embedding
+                            <send></send>
+                        </div>
+                    </div>
+                </div>
+                <div class="area info-box" v-if="showHelp && neighbourMode">
+                    <div class="title2">Help: Generate proposals</div>
+                    <div class="row v-center">
+                        1. Add proposal with
+                        <div class="btn dummy">Click</div>
+                        /
+                        <scissors class="btn dummy"></scissors>
+                    </div>
+                    <div class="row v-center">
+                        2.
+                        <div class="btn dummy">
+                            Update
+                            <repeat></repeat>
+                        </div>
+                        proposals and iterate
+                    </div>
+                    <div class="row v-center">
+                        3.
+                        <div class="btn dummy">
+                            Quit
+                            <stop></stop>
+                        </div>
+                        anytime
+                    </div>
+                </div>
+
                 <div class="area" v-if="!neighbourMode">
                     <div class="title">Groups</div>
                     <div class="group-list" v-if="this.savedGroups.length">
@@ -408,56 +459,7 @@
                     </div>
                 </div>
 
-                <div class="area info-box" v-if="showHelp && !neighbourMode">
-                    <div class="title2">Help: Create groups</div>
-                    <div class="row v-center">
-                        1. Select images with
-                        <div class="btn dummy">Click</div>
-                        /
-                        <scissors class="btn dummy"></scissors>
-                    </div>
-                    <div class="row v-center">
-                        2. Create groups with
-                        <div class="btn dummy">new</div>
-                    </div>
-                    <div class="row v-center">
-                        3. Get proposals with
-                        <plus-circle class="btn dummy"></plus-circle>
-                    </div>
-                    <div class="row v-center">4. Repeat with different groups</div>
-                    <div class="row v-center">
-                        5.
-                        <div class="btn dummy">
-                            Update embedding
-                            <send></send>
-                        </div>
-                    </div>
-                </div>
-                <div class="area info-box" v-if="showHelp && neighbourMode">
-                    <div class="title2">Help: Generate proposals</div>
-                    <div class="row v-center">
-                        1. Add proposal with
-                        <div class="btn dummy">Click</div>
-                        /
-                        <scissors class="btn dummy"></scissors>
-                    </div>
-                    <div class="row v-center">
-                        2.
-                        <div class="btn dummy">
-                            Update
-                            <repeat></repeat>
-                        </div>
-                        proposals and iterate
-                    </div>
-                    <div class="row v-center">
-                        3.
-                        <div class="btn dummy">
-                            Quit
-                            <stop></stop>
-                        </div>
-                        anytime
-                    </div>
-                </div>
+
                 <logs :getStore="getStore" v-if="showLogs" />
             </div>
         </div>
@@ -560,7 +562,7 @@ export default {
         cuttedNodes: [], // selected nodes through scissor
         // showOptions: false, // show options menu
         clusterGrowth: 0,
-        showHeatmap: false,
+        // showHeatmap: false,
         heatmapRadius: 1,
         heatmapBlur: 5,
         showNavHeatmap: true,
@@ -759,27 +761,27 @@ export default {
             this.sorted = this.store.sorted;
         },
 
-        drawHeatmap() {
-            console.time('drawHeatmap');
-            const { heatmap } = this;
-
-            // data in form of [[x,y,v], [x,y,v], ...]
-            const data = Object.values(this.store.getNodes()).map((node) => {
-                const x = (node.x * this.store.scale + this.store.translateX) / 4;
-                const y = (node.y * this.store.scale + this.store.translateY) / 4;
-                return [x, y, 1];
-            });
-
-            // refresh radius before drawing
-            heatmap.radius(this.heatmapRadius, this.heatmapBlur);
-
-            // add data
-            heatmap.data(data); // setting data clear the old one
-
-            // draw heatmap
-            heatmap.draw(/* this.heatmapMinOpacity */);
-            requestAnimationFrame(() => console.timeEnd('drawHeatmap'));
-        },
+        // drawHeatmap() {
+        //     console.time('drawHeatmap');
+        //     const { heatmap } = this;
+        //
+        //     // data in form of [[x,y,v], [x,y,v], ...]
+        //     const data = Object.values(this.store.getNodes()).map((node) => {
+        //         const x = (node.x * this.store.scale + this.store.translateX) / 4;
+        //         const y = (node.y * this.store.scale + this.store.translateY) / 4;
+        //         return [x, y, 1];
+        //     });
+        //
+        //     // refresh radius before drawing
+        //     heatmap.radius(this.heatmapRadius, this.heatmapBlur);
+        //
+        //     // add data
+        //     heatmap.data(data); // setting data clear the old one
+        //
+        //     // draw heatmap
+        //     heatmap.draw(/* this.heatmapMinOpacity */);
+        //     console.timeEnd('drawHeatmap');
+        // },
 
         drawNavHeatmap() {
             console.time('drawNavHeatmap');
@@ -833,10 +835,10 @@ export default {
             }
         },
 
-        toggleShowHeatmap() {
-            this.showHeatmap = !this.showHeatmap;
-            if (this.showHeatmap) requestAnimationFrame(this.drawHeatmap);
-        },
+        // toggleShowHeatmap() {
+        //     this.showHeatmap = !this.showHeatmap;
+        //     if (this.showHeatmap) requestAnimationFrame(this.drawHeatmap);
+        // },
 
         toggleSizeRankedMode() {
             this.sizeRankedMode = !this.sizeRankedMode;
@@ -900,12 +902,13 @@ export default {
 
         changeHeatmapRadius(v) {
             this.heatmapRadius += v;
-            this.drawHeatmap();
+            // this.drawHeatmap();
             this.drawNavHeatmap();
         },
+
         changeHeatmapBlur(v) {
             this.heatmapBlur += v;
-            this.drawHeatmap();
+            // this.drawHeatmap();
             this.drawNavHeatmap();
         },
 
@@ -1288,10 +1291,10 @@ export default {
         hitCanvas.width = parantWidth;
         hitCanvas.height = parantHeight;
 
-        const heatmapCanvas = document.getElementById('heatmap');
-        heatmapCanvas.width = parantWidth / 4;
-        heatmapCanvas.height = parantHeight / 4;
-        this.heatmap = simpleheat(heatmapCanvas); // todo why is it grey/unused?
+        // const heatmapCanvas = document.getElementById('heatmap');
+        // heatmapCanvas.width = parantWidth / 4;
+        // heatmapCanvas.height = parantHeight / 4;
+        // this.heatmap = simpleheat(heatmapCanvas); // todo why is it grey/unused?
 
         const navHeatmapCanvas = document.getElementById('navHeatmap');
         navHeatmapCanvas.width = parantWidth / 4;
@@ -1755,6 +1758,7 @@ export default {
     width: 15px;
     height: 15px;
     animation: spin 2s linear infinite;
+    padding-left: 7px;
 }
 
 @keyframes spin {

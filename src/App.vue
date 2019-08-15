@@ -146,6 +146,7 @@ input {
 }
 
 .btn.dummy:hover {
+    cursor: default;
     transform: none;
     box-shadow: 0 2px 2px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
 }
