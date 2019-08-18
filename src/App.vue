@@ -1,30 +1,38 @@
 <template>
     <div id="app">
-        <nav-header />
-        <tsne-map
-            :dataset="dataset"
-            :key="dataset + selectedImgCount + wasmMode + loadOldDataset"
-            :selectedImgCount="selectedImgCount"
-            :switchDataset="switchDataset"
-            :userId="userId"
+        <nav-header
+            :isAuth="isAuth"
             :wasmMode="wasmMode"
             :toggleWasmMode="toggleWasmMode"
-            :loadOldDataset="loadOldDataset"
-            v-if="isAuth"
+
         />
+
         <login :setAuth="setAuth" v-if="!isAuth" />
+
+        <router-view
+            v-if="isAuth"
+            ref="router"
+            :dataset="dataset"
+            :key="dataset + selectedImgCount + wasmMode + loadOldDataset"
+            :userId="userId"
+            :wasmMode="wasmMode"
+            :loadOldDataset="loadOldDataset"
+            :handleChangeDataset="switchDataset"
+            :selectedImgCount="selectedImgCount"
+        />
+
+
         <notifications :duration="5000" group="default" position="bottom right"></notifications>
     </div>
 </template>
 
 <script>
 import NavHeader from './components/NavHeader';
-import TsneMap from './components/TsneMap';
 import Login from './components/Login';
 
 export default {
     name: 'App',
-    components: { NavHeader, TsneMap, Login },
+    components: { NavHeader, Login, },
     // maybe here is a good place to reset component...
     data: () => ({
         dataset: '001', // todo reset to 001
@@ -33,6 +41,7 @@ export default {
         selectedImgCount: 500, // default
         wasmMode: false,
         loadOldDataset: false,
+        showExplorer: false,
     }),
     // TODO add key to TSNEMAP for changing all!
     methods: {
@@ -42,15 +51,19 @@ export default {
             this.dataset = newDataset;
             this.loadOldDataset = old;
             this.selectedImgCount = count;
-            this.$router.push('/');
+            this.$router.push('/explorer');
         },
         setAuth(userId) {
             this.isAuth = true;
             this.userId = userId;
+            this.$router.push('/dataset');
         },
         toggleWasmMode() {
             this.wasmMode = !this.wasmMode;
         },
+        callInExplorer(func) {
+
+        }
     },
 };
 </script>

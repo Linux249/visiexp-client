@@ -1,6 +1,6 @@
 <template>
     <div class="area">
-        <div class="title">Data set: {{dataset.name}}</div>
+        <div class="title">Data set: {{dataset && dataset.name}}</div>
         <div class="loading">
             <div class="loader" v-if="loading"></div>
         </div>
