@@ -65,4 +65,17 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.header {
+    display: flex;
+    justify-content: space-between;
+    height: 40px;
+    box-shadow: 0 2px 3px rgba(32, 33, 36, 0.28);
+    margin-bottom: 3px;
+}
+.left-header,
+.right-header {
+    display: flex;
+    align-items: center;
+}
+</style>

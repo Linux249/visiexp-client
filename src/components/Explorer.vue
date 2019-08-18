@@ -1,6 +1,5 @@
 <template>
-    <div class="tsne-map">
-        <div class="row body">
+    <div class="row body">
             <div class="explorer">
                 <canvas class="canvas" id="canvas" ref="canvas" tabindex="0"></canvas>
                 <div class="box top right">
@@ -420,7 +419,6 @@
 
                 <logs :getStore="getStore" v-if="showLogs" />
             </div>
-        </div>
     </div>
 </template>
 
@@ -1630,42 +1628,11 @@ export default {
 </script>
 
 <style>
-.tsne-map {
-    height: 100%;
-    display: flex;
-    flex-flow: column;
-    /*background-color: rgb(255, 90, 75);*/
-}
-
-.mode-header {
-    display: flex;
-    justify-content: space-between;
-    box-shadow: 0 5px 8px -3px rgba(32, 33, 36, 0.28);
-}
-
-.body {
-    height: 100%;
-    /*margin: 0.5rem;*/
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    height: 40px;
-    box-shadow: 0 2px 3px rgba(32, 33, 36, 0.28);
-    margin-bottom: 3px;
-}
-
-.left-header,
-.right-header {
-    display: flex;
-    align-items: center;
-}
 
 .explorer {
     position: relative;
     margin: 5px;
-    height: calc(100% - 1rem); /* -double margin */
+    height: 99%; /* -double margin */
     width: calc(100% - 25rem); /* -details width */
 }
 

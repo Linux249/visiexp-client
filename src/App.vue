@@ -32,7 +32,7 @@ import Login from './components/Login';
 
 export default {
     name: 'App',
-    components: { NavHeader, Login, },
+    components: { NavHeader, Login },
     // maybe here is a good place to reset component...
     data: () => ({
         dataset: '001', // todo reset to 001
@@ -41,9 +41,7 @@ export default {
         selectedImgCount: 500, // default
         wasmMode: false,
         loadOldDataset: false,
-        showExplorer: false,
     }),
-    // TODO add key to TSNEMAP for changing all!
     methods: {
         switchDataset(newDataset, count, old) {
             console.log('switchDataset');
@@ -61,9 +59,6 @@ export default {
         toggleWasmMode() {
             this.wasmMode = !this.wasmMode;
         },
-        callInExplorer(func) {
-
-        }
     },
 };
 </script>
@@ -86,6 +81,10 @@ input {
     height: 100%;
     width: 100%;
     margin: 0;
+}
+
+.body {
+    height: calc(100% - 45px);
 }
 
 .row {
@@ -224,6 +223,11 @@ input {
 
 .flex {
     display: flex;
+}
+
+.flex-center {
+    display: flex;
+    justify-content: center;
 }
 .tooltip {
     display: block !important;

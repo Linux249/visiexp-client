@@ -81,7 +81,7 @@ export default {
 <style scoped>
 .body {
     width: 100%;
-    height: 100%;
+    height: calc(100% - 45px);
 
     display: flex;
     justify-content: center;
