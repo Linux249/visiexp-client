@@ -545,7 +545,6 @@ export default {
         cluster: 5, // default - set on mount from CanvasStore class
         clusterRadius: 0, // default - set on mount from CanvasStore class
         clusterTile: 0, // default - set on mount from CanvasStore class
-        imgSize: 0, // default - set on mount from CanvasStore class
         representImgSize: 0, // default - set on mount from CanvasStore class
         neighbourImgSize: 0, // default - set on mount from CanvasStore class
         alphaBase: 100,
@@ -775,6 +774,10 @@ export default {
         //     console.timeEnd('drawHeatmap');
         // },
 
+        /*
+         *  HEAT MAP
+         */
+
         drawNavHeatmap() {
             console.time('drawNavHeatmap');
             const { navHeatmap } = this;
@@ -863,8 +866,7 @@ export default {
         },
 
         changeImgSize(v) {
-            this.store.imgSize += v;
-            this.imgSize = this.store.imgSize;
+            this.store.zoomStage += v;
             this.store.triggerDraw();
         },
 
@@ -875,36 +877,40 @@ export default {
         doubleNodes() {
             this.store.doubleNodes();
         },
-        changeClusterGrowth(v) {
-            this.store.clusterGrowth = Math.round((this.store.clusterGrowth + v) * 100) / 100;
-            // this.clusterGrowth = this.store.clusterGrowth;
-        },
-        changeZoomStage(v) {
-            this.store.zoomStage += v;
-            // this.zoomStage = this.store.zoomStage;
-            this.store.triggerDraw();
-        },
+
+        // changeClusterGrowth(v) {
+        //     this.store.clusterGrowth = Math.round((this.store.clusterGrowth + v) * 100) / 100;
+        //     // this.clusterGrowth = this.store.clusterGrowth;
+        // },
+
+        // changeZoomStage(v) {
+        //     this.store.zoomStage += v;
+        //     // this.zoomStage = this.store.zoomStage;
+        //     this.store.triggerDraw();
+        // },
 
         changeScaleUp() {
-            const canvas = document.getElementById('canvas');
-            this.store.zoomStage -= 1; // undoing image resize
-            const event = {
-                deltaY: -1,
-                offsetX: Math.round(canvas.width / 2),
-                offsetY: Math.round(canvas.height / 2),
-            };
-            this.store.zoom(event);
+            // const canvas = document.getElementById('canvas');
+            // this.store.zoomStage -= 1; // undoing image resize
+            // const event = {
+            //     deltaY: -1,
+            //     offsetX: Math.round(canvas.width / 2),
+            //     offsetY: Math.round(canvas.height / 2),
+            // };
+            this.store.changeScaleUp();
+            this.store.draw();
         },
 
         changeScaleDown() {
-            const canvas = document.getElementById('canvas');
-            this.store.zoomStage += 1; // undoing image resize
-            const event = {
-                deltaY: 1,
-                offsetX: Math.round(canvas.width / 2),
-                offsetY: Math.round(canvas.height / 2),
-            };
-            this.store.zoom(event);
+            // const canvas = document.getElementById('canvas');
+            // this.store.zoomStage += 1; // undoing image resize
+            // const event = {
+            //     deltaY: 1,
+            //     offsetX: Math.round(canvas.width / 2),
+            //     offsetY: Math.round(canvas.height / 2),
+            // };
+            this.store.changeScaleDown();
+            this.store.draw();
         },
 
         changeHeatmapRadius(v) {
