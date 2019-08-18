@@ -239,7 +239,7 @@ export default class ExplorerState {
         this.translateX = this.width / 2;
         this.translateY = this.height / 2;
         this.updateClustering();
-        this.draw();
+        this.triggerDraw();
     }
 
     save() {
