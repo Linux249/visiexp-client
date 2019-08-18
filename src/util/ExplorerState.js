@@ -675,8 +675,10 @@ export default class ExplorerState {
             translateY: ty,
             representImgSize,
             nonActiveGroupAplha,
+            nodeUnderMouse,
         } = this;
         const zoomStage = Math.floor(this.zoomStage);
+
         const explorerPixel = new Uint8ClampedArray(explorerW * explorerH * 4);
         const hitmapPixel = new Uint8ClampedArray(explorerW * explorerH * 4);
         // console.log({ explorerW, explorerH, tx, ty, scale });
@@ -757,6 +759,8 @@ export default class ExplorerState {
             const groupColor = (group && this.groupColours[group.colorId]) || [50, 50, 50]; // black
             const nearColor = [0, 127, 0]; // green
 
+            const nodeIdUnderMouse = (nodeUnderMouse && nodeUnderMouse.index === node.index);
+
             /*
                 DRAW not active Groups
              */
@@ -816,7 +820,7 @@ export default class ExplorerState {
                     explorerPixel[c + 1] = imgData[p + 1]; // G
                     explorerPixel[c + 2] = imgData[p + 2]; // B
                     // special mode for represents // img over other img // white background
-                    explorerPixel[c + 3] = representMaxAlpha && isRepresent
+                    explorerPixel[c + 3] = (representMaxAlpha && isRepresent) || nodeIdUnderMouse
                         ? 255
                         : explorerPixel[c + 3]
                             ? explorerPixel[c + 3] + 10 * node.cliqueLength
@@ -1106,10 +1110,12 @@ export default class ExplorerState {
     }
 
     findNodeByMousePosition(x, y) {
+        // console.time('findNodeByMousePosition');
         const pixel = this.hitCtx.getImageData(x, y, 1, 1).data;
         const color = `rgb(${pixel[0]},${pixel[1]},${pixel[2]})`;
         const nodeId = this.colorHash[color];
         // console.log({ pixel, x, y });
+        // console.timeEnd('findNodeByMousePosition');
         if (nodeId >= 0) {
             return this.nodes[nodeId];
         }
@@ -1215,8 +1221,15 @@ export default class ExplorerState {
         }
         // different interaction based ob if a node is active or node
         const nodeUnderMouse = this.findNodeByMousePosition(mouseX, mouseY);
-        this.nodeUnderMouse = nodeUnderMouse;
-        this.ui.activeNode = nodeUnderMouse;
+        const oldnodeUnderMouse = this.nodeUnderMouse;
+        if ((!nodeUnderMouse && oldnodeUnderMouse) || (!oldnodeUnderMouse && nodeUnderMouse) || (nodeUnderMouse && oldnodeUnderMouse && oldnodeUnderMouse.index !== nodeUnderMouse.index)
+        ) {
+            console.error('CHANGE NODE');
+            this.nodeUnderMouse = nodeUnderMouse;
+            this.ui.activeNode = nodeUnderMouse;
+            this.triggerDraw()
+        }
+
         // trigger load high resolution img
         if (nodeUnderMouse && !nodeUnderMouse.hasImage && !nodeUnderMouse.imgLoading) {
             nodeUnderMouse.imgLoading = true;
@@ -1226,6 +1239,7 @@ export default class ExplorerState {
                 datasetId: this.ui.dataset,
             });
         }
+
         return null;
     }
 
