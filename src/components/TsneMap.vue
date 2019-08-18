@@ -44,27 +44,16 @@
                         >
                             <target></target>
                         </div>
-                        <div :class="{ active: scissors }" @click="selectScissors" class="btn" v-tooltip="'select many'">
+                        <div
+                            :class="{ active: scissors }"
+                            @click="selectScissors"
+                            class="btn"
+                            v-tooltip="'select many'"
+                        >
                             <scissors></scissors>
                         </div>
                         <div @click="clearGroup" class="btn" v-tooltip="'reset selections'">
                             <x></x>
-                        </div>
-                    </div>
-                    <div class="row-end">
-                        <!--<div
-                            :class="{ active: showHeatmap }"
-                            @click="toggleShowHeatmap"
-                            class="btn"
-                        >
-                            <navmap></navmap>
-                        </div>-->
-                        <div
-                            :class="{ active: showNavHeatmap }"
-                            @click="toggleShowNavHeatmap"
-                            class="btn"
-                        >
-                            <navmap></navmap>
                         </div>
                     </div>
                 </div>
@@ -72,31 +61,35 @@
                     <div :if="nodesTotal" class="btn">{{ nodesRecived + '/' + nodesTotal }}</div>
                 </div>
                 <div class="box bottom left">
-                    <!--<div :class="{ hide: !showHeatmap }">
-                        <canvas
-                            class="canvas"
-                            id="heatmap"
-                            style="margin: 0.5rem; border-radius: 4px"
-                            tabindex="0"
-                        ></canvas>
-                    </div>-->
+                    <div
+                        :class="{ active: showNavHeatmap }"
+                        @click="toggleShowNavHeatmap"
+                        class="btn"
+                        v-if="!showNavHeatmap"
+                    >
+                        <navmap></navmap>
+                    </div>
                     <div :class="{ hide: !showNavHeatmap }" class="navMap">
-                        <canvas
-                            class="canvas"
-                            id="navHeatmap"
-                            style="margin: 0.5rem; border-radius: 4px"
-                            tabindex="0"
-                        ></canvas>
-                        <canvas
-                            id="navHeatmapRect"
-                            style="margin: 0.5rem; border-radius: 4px"
-                            tabindex="0"
-                        ></canvas>
+                        <canvas class="canvas" id="navHeatmap" tabindex="0"></canvas>
+                        <canvas id="navHeatmapRect" tabindex="0"></canvas>
+                        <div class="box top right">
+                            <div class="btn small" @click="toggleShowNavHeatmap">x</div>
+                        </div>
+                        <div class="box bottom right">
+                            <div class="row">
+                                <div class="btn small" @click="scaleHeatMapUp">+</div>
+                                <div class="btn small" @click="scaleHeatMapDown">-</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="box bottom right">
                     <div class="row">
-                        <div @click="changeScaleDown()" class="btn" v-tooltip="'scale positions down'">
+                        <div
+                            @click="changeScaleDown()"
+                            class="btn"
+                            v-tooltip="'scale positions down'"
+                        >
                             <minimize></minimize>
                         </div>
                         <div @click="changeScaleUp()" class="btn" v-tooltip="'scale positions up'">
@@ -459,7 +452,6 @@
                     </div>
                 </div>
 
-
                 <logs :getStore="getStore" v-if="showLogs" />
             </div>
         </div>
@@ -562,10 +554,10 @@ export default {
         cuttedNodes: [], // selected nodes through scissor
         // showOptions: false, // show options menu
         clusterGrowth: 0,
-        // showHeatmap: false,
+        showNavHeatmap: false,
         heatmapRadius: 1,
         heatmapBlur: 5,
-        showNavHeatmap: true,
+        navMapScale: 1,
         sizeRankedMode: false,
         boarderRankedMode: false,
         clusterMode: false, // flag if first clustering was calculated
@@ -741,11 +733,11 @@ export default {
             this.store.triggerDraw();
         },
 
-        changeCluster(v) {
-            // console.log("cluster more clicked")
-            this.store.cluster += v; // update explorerState
-            this.cluster = this.store.cluster; // update ui
-        },
+        // changeCluster(v) {
+        //     // console.log("cluster more clicked")
+        //     this.store.cluster += v; // update explorerState
+        //     this.cluster = this.store.cluster; // update ui
+        // },
 
         changeClusterRadius(v) {
             this.store.clusterRadius += v; // update ui
@@ -789,10 +781,11 @@ export default {
             const w = this.navHeatmapRect.width;
             const h = this.navHeatmapRect.height;
 
+            // todo es sollte eigentlich besser skaliert werden mit
             // data in form of [[x,y,v], [x,y,v], ...]
-            const data = Object.values(this.store.getNodes()).map((node) => {
-                const x = node.x * 5 + w / 2;
-                const y = node.y * 5 + h / 2;
+            const data = Object.values(this.store.nodes).map((node) => {
+                const x = node.x * 5 * this.navMapScale + w / 2;
+                const y = node.y * 5 * this.navMapScale + h / 2;
                 return [x, y, 1];
             });
 
@@ -808,9 +801,9 @@ export default {
         },
 
         drawNavHeatmapRect() {
-            console.time('drawNavHeatmapRect');
+            // console.time('drawNavHeatmapRect');
             const ctx = this.navHeatmapRect.getContext('2d');
-            const scale = 20 / this.store.scale;
+            const scale = 20 / this.store.scale * this.navMapScale;
             const tx = this.store.translateX / 4;
             const ty = this.store.translateY / 4;
 
@@ -824,13 +817,27 @@ export default {
 
             ctx.clearRect(0, 0, this.navHeatmapRect.width, this.navHeatmapRect.height);
             ctx.strokeRect(x, y, w * scale, h * scale);
-            requestAnimationFrame(() => console.timeEnd('drawNavHeatmapRect'));
+            // console.timeEnd('drawNavHeatmapRect');
         },
 
         toggleShowNavHeatmap() {
             this.showNavHeatmap = !this.showNavHeatmap;
             if (this.showNavHeatmap) requestAnimationFrame(this.drawNavHeatmap);
-            if (this.showNavHeatmap) {
+            if (this.showNavHeatmap) requestAnimationFrame(this.drawNavHeatmapRect);
+        },
+
+        scaleHeatMapUp() {
+            if (this.navMapScale < 8) {
+                this.navMapScale *= 2;
+                requestAnimationFrame(this.drawNavHeatmap);
+                requestAnimationFrame(this.drawNavHeatmapRect);
+            }
+        },
+
+        scaleHeatMapDown() {
+            if (this.navMapScale > 0.125) {
+                this.navMapScale /= 2;
+                requestAnimationFrame(this.drawNavHeatmap);
                 requestAnimationFrame(this.drawNavHeatmapRect);
             }
         },
@@ -1105,6 +1112,7 @@ export default {
             console.log(e);
             this.updateCanvasSize();
             this.store.draw();
+            if (this.showNavHeatmap) requestAnimationFrame(this.drawNavHeatmap);
         },
 
         addNode(node) {
@@ -1184,7 +1192,7 @@ export default {
         },
 
         updateCanvasSize() {
-            console.log('');
+            // update explorer
             const canvas = document.getElementById('canvas');
             const parantWidth = canvas.parentNode.clientWidth;
             const parantHeight = canvas.parentNode.clientHeight;
@@ -1192,6 +1200,14 @@ export default {
             canvas.height = parantHeight;
             this.store.width = parantWidth;
             this.store.height = parantHeight;
+
+            // update heatmap
+            this.navHeatmapRect.width = parantWidth / 4;
+            this.navHeatmapRect.height = parantHeight / 4;
+
+            const navHeatmap = document.getElementById('navHeatmap');
+            navHeatmap.width = parantWidth / 4;
+            navHeatmap.height = parantHeight / 4;
         },
     },
 
@@ -1516,6 +1532,9 @@ export default {
                         // this.state2.setTxTy(150, 150);
                         this.draw2();
                     }
+
+                    // show heatmap
+                    this.toggleShowNavHeatmap();
                 })
                 .then(() => {
                     this.$notify({
@@ -1713,21 +1732,19 @@ export default {
 
 .navMap {
     position: relative;
+    margin: 0.5rem;
 }
 
 #navHeatmap {
-    position: absolute;
-    bottom: 0;
-    left: 0;
     z-index: 10;
 }
 
 #navHeatmapRect {
     position: absolute;
-    bottom: 0;
+    bottom: 4px;
     left: 0;
     z-index: 20;
-    /*margin: 0.5rem;*/
+    /*padding: 0.5rem;*/
     outline: none;
 }
 

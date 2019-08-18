@@ -1047,7 +1047,6 @@ export default class ExplorerState {
             console.warn(this.maxDrawTime);
         }
         this.valid = true;
-        // if (this.ui.showHeatmap) requestAnimationFrame(this.ui.drawHeatmap);
         if (this.ui.showNavHeatmap) requestAnimationFrame(this.ui.drawNavHeatmapRect);
     }
 
@@ -1279,6 +1278,8 @@ export default class ExplorerState {
                     }
                 }
             }
+
+            if (this.ui.showNavHeatmap) requestAnimationFrame(this.ui.drawNavHeatmap);
 
             if (this.draggedNode) {
                 // merge all "nearby nodes" to group

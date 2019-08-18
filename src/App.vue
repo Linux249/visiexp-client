@@ -151,6 +151,15 @@ input {
     box-shadow: 0 2px 2px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
+
+.btn.small {
+    z-index: 30;
+    margin: 4px 6px 10px 0px ;
+    padding: 2px 8px;
+    text-transform: none !important;
+}
+
+
 .title {
     width: 100%;
     font-weight: bold;
