@@ -6,7 +6,7 @@
                 <!--<router-link to="/svm">SVM</router-link>-->
                 <router-link to="/classifier">Classifier</router-link>
                 <router-link to="/dataset">Dataset</router-link>
-                <router-link to="/options">Options</router-link>
+                <router-link to="/settings">Settings</router-link>
             </div>
             <div class="right-header">
                 <div class="btn" @click="toggleWasmMode" :class="{ active: wasmMode }">
@@ -107,9 +107,62 @@
                 </div>
             </div>
 
+
+
             <div class="details">
-                <div class="area" v-if="$route.path === '/options'">
-                    <div class="title">Options</div>
+                <div class="area info-box" v-if="showHelp && !neighbourMode">
+                    <div class="title2">Help: Create groups</div>
+                    <div class="row v-center">
+                        1. Select images with
+                        <div class="btn dummy">Click</div>
+                        /
+                        <scissors class="btn dummy"></scissors>
+                    </div>
+                    <div class="row v-center">
+                        2. Create groups with
+                        <div class="btn dummy">new</div>
+                    </div>
+                    <div class="row v-center">
+                        3. Get proposals with
+                        <plus-circle class="btn dummy"></plus-circle>
+                    </div>
+                    <div class="row v-center">4. Repeat with different groups</div>
+                    <div class="row v-center">
+                        5.
+                        <div class="btn dummy">
+                            Update embedding
+                            <send></send>
+                        </div>
+                    </div>
+                </div>
+                <div class="area info-box" v-if="showHelp && neighbourMode">
+                    <div class="title2">Help: Generate proposals</div>
+                    <div class="row v-center">
+                        1. Add proposal with
+                        <div class="btn dummy">Click</div>
+                        /
+                        <scissors class="btn dummy"></scissors>
+                    </div>
+                    <div class="row v-center">
+                        2.
+                        <div class="btn dummy">
+                            Update
+                            <repeat></repeat>
+                        </div>
+                        proposals and iterate
+                    </div>
+                    <div class="row v-center">
+                        3.
+                        <div class="btn dummy">
+                            Quit
+                            <stop></stop>
+                        </div>
+                        anytime
+                    </div>
+                </div>
+
+                <div class="area" v-if="$route.path === '/settings'">
+                    <div class="title">Settings</div>
                     <div class="row-btn">
                         <div>Save:</div>
                         <div class="row">
@@ -299,57 +352,6 @@
                     <!--</div>-->
                 </div>
 
-                <div class="area info-box" v-if="showHelp && !neighbourMode">
-                    <div class="title2">Help: Create groups</div>
-                    <div class="row v-center">
-                        1. Select images with
-                        <div class="btn dummy">Click</div>
-                        /
-                        <scissors class="btn dummy"></scissors>
-                    </div>
-                    <div class="row v-center">
-                        2. Create groups with
-                        <div class="btn dummy">new</div>
-                    </div>
-                    <div class="row v-center">
-                        3. Get proposals with
-                        <plus-circle class="btn dummy"></plus-circle>
-                    </div>
-                    <div class="row v-center">4. Repeat with different groups</div>
-                    <div class="row v-center">
-                        5.
-                        <div class="btn dummy">
-                            Update embedding
-                            <send></send>
-                        </div>
-                    </div>
-                </div>
-                <div class="area info-box" v-if="showHelp && neighbourMode">
-                    <div class="title2">Help: Generate proposals</div>
-                    <div class="row v-center">
-                        1. Add proposal with
-                        <div class="btn dummy">Click</div>
-                        /
-                        <scissors class="btn dummy"></scissors>
-                    </div>
-                    <div class="row v-center">
-                        2.
-                        <div class="btn dummy">
-                            Update
-                            <repeat></repeat>
-                        </div>
-                        proposals and iterate
-                    </div>
-                    <div class="row v-center">
-                        3.
-                        <div class="btn dummy">
-                            Quit
-                            <stop></stop>
-                        </div>
-                        anytime
-                    </div>
-                </div>
-
                 <div class="area" v-if="!neighbourMode">
                     <div class="title">Groups</div>
                     <div class="group-list" v-if="this.savedGroups.length">
@@ -454,6 +456,7 @@
 
                 <logs :getStore="getStore" v-if="showLogs" />
             </div>
+
         </div>
     </div>
 </template>
@@ -786,7 +789,7 @@ export default {
 
             // todo es sollte eigentlich besser skaliert werden mit
             // data in form of [[x,y,v], [x,y,v], ...]
-            const data = Object.values(this.store.nodes).map((node) => {
+            const data = Object.values(this.store.nodes).map(node => {
                 const x = node.x * 5 * this.navMapScale + w / 2;
                 const y = node.y * 5 * this.navMapScale + h / 2;
                 return [x, y, 1];
@@ -806,7 +809,7 @@ export default {
         drawNavHeatmapRect() {
             // console.time('drawNavHeatmapRect');
             const ctx = this.navHeatmapRect.getContext('2d');
-            const scale = 20 / this.store.scale * this.navMapScale;
+            const scale = (20 / this.store.scale) * this.navMapScale;
             const tx = this.store.translateX / 4;
             const ty = this.store.translateY / 4;
 
@@ -1183,16 +1186,17 @@ export default {
             const pagesNeeded = Math.ceil((bytes + this.initOffset) / (64 * 1024));
             const actualMemorySize = this.state2.memorySize();
             console.log({ pagesNeeded, actualMemorySize });
-            if (pagesNeeded > actualMemorySize) this.state2.memory.grow(pagesNeeded - actualMemorySize);
+            if (pagesNeeded > actualMemorySize)
+                this.state2.memory.grow(pagesNeeded - actualMemorySize);
             this.memoryView = new Uint8ClampedArray(this.state2.memory.buffer);
             this.pixelView = new ImageData(
                 new Uint8ClampedArray(
                     this.state2.memory.buffer,
                     this.initOffset,
-                    this.canvasPixelSize,
+                    this.canvasPixelSize
                 ),
                 this.canvasW,
-                this.canvasH,
+                this.canvasH
             );
             // console.log(this.memoryView,  this.pixelView);
         },
@@ -1241,7 +1245,7 @@ export default {
                         log1(value) {
                             console.log(
                                 `%c from wasm: ${value}`,
-                                'background: #222; color: #bada55',
+                                'background: #222; color: #bada55'
                             );
                         },
                         abort(msg, file, line, column) {
@@ -1252,7 +1256,7 @@ export default {
                         log2(value) {
                             console.log(
                                 `%c from wasm: ${value}`,
-                                'background: #222; color: #bada55',
+                                'background: #222; color: #bada55'
                             );
                         },
                     },
@@ -1381,7 +1385,7 @@ export default {
             }
         });
 
-        socket.on('Error', (data) => {
+        socket.on('Error', data => {
             logYellow('Socket: Error');
             console.error('Server response with error:');
             console.error(data.message);
@@ -1394,7 +1398,7 @@ export default {
             });
         });
 
-        socket.on('disconnect', (reason) => {
+        socket.on('disconnect', reason => {
             logYellow('Socket: disconnect');
             this.connectedToSocket = false;
             this.$notify({
@@ -1407,7 +1411,7 @@ export default {
         });
 
         // get a new node from server
-        socket.on('node', (data) => {
+        socket.on('node', data => {
             logYellow('Socket: node');
             if (data.index % 100 === 0) {
                 console.log(`Socket: node ${data.index}`);
@@ -1420,7 +1424,7 @@ export default {
             store.triggerDraw();
         });
 
-        socket.on('requestImage', (data) => {
+        socket.on('requestImage', data => {
             logYellow('Socket: requestImage');
             console.log(data);
             const node = store.nodes[data.index];
@@ -1428,7 +1432,7 @@ export default {
             node.image.src = `data:image/jpeg;base64,${data.buffer}`;
         });
 
-        socket.on('totalNodesCount', (data) => {
+        socket.on('totalNodesCount', data => {
             logYellow('Socket: totalNodesCount');
             console.log(data);
             this.nodesTotal = data.count;
@@ -1470,12 +1474,13 @@ export default {
 
                         // check if a hole image is in the chunk or if the data are part of the next one
                         while (picByteLen <= chunk.byteLength - readFromChunk - 2) {
-                            if (!nodes[nodeId].imageData) nodes[nodeId].imageData = Object.create(null);
+                            if (!nodes[nodeId].imageData)
+                                nodes[nodeId].imageData = Object.create(null);
 
                             nodes[nodeId].imageData[size] = new ImageData(
                                 new Uint8ClampedArray(chunk.slice(h + 1, h + picByteLen + 1)),
                                 chunk[w],
-                                chunk[h],
+                                chunk[h]
                             );
 
                             // update vars for reading bytes
@@ -1519,7 +1524,7 @@ export default {
 
             this.loadingImgs = true;
             await fetch(`${apiUrl}/api/v1/dataset/images/${this.dataset}/${this.selectedImgCount}`)
-                .then(async (res) => {
+                .then(async res => {
                     console.log(res);
                     console.log(res.headers);
                     const contentLength = res.headers.get('content-length');
@@ -1556,10 +1561,10 @@ export default {
                         this.cachedNodes = undefined;
                     } else this.activateClusterMode();
                     console.log(
-                        'consumed the entire body without keeping the whole thing in memory!',
+                        'consumed the entire body without keeping the whole thing in memory!'
                     );
                 })
-                .catch((e) => {
+                .catch(e => {
                     this.$notify({
                         group: 'default',
                         title: 'Error loading images',
@@ -1576,7 +1581,7 @@ export default {
             console.timeEnd('loadAllNodes');
         });
 
-        socket.on('updateCategories', (data) => {
+        socket.on('updateCategories', data => {
             logYellow('Socket: updateCategories');
             console.log(data);
             this.labels = data.labels;
@@ -1584,7 +1589,7 @@ export default {
 
         socket.on('updateEmbedding', this.updateEmbedding);
 
-        socket.on('initPython', (data) => {
+        socket.on('initPython', data => {
             if (data.done) {
                 this.initPython = data.done;
                 this.$notify({

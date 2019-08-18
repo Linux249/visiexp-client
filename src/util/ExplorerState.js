@@ -759,7 +759,7 @@ export default class ExplorerState {
             const groupColor = (group && this.groupColours[group.colorId]) || [50, 50, 50]; // black
             const nearColor = [0, 127, 0]; // green
 
-            const nodeIdUnderMouse = (nodeUnderMouse && nodeUnderMouse.index === node.index);
+            const nodeIdUnderMouse = nodeUnderMouse && nodeUnderMouse.index === node.index;
 
             /*
                 DRAW not active Groups
@@ -1222,12 +1222,17 @@ export default class ExplorerState {
         // different interaction based ob if a node is active or node
         const nodeUnderMouse = this.findNodeByMousePosition(mouseX, mouseY);
         const oldnodeUnderMouse = this.nodeUnderMouse;
-        if ((!nodeUnderMouse && oldnodeUnderMouse) || (!oldnodeUnderMouse && nodeUnderMouse) || (nodeUnderMouse && oldnodeUnderMouse && oldnodeUnderMouse.index !== nodeUnderMouse.index)
+        if (
+            (oldnodeUnderMouse && !nodeUnderMouse)
+            || (!oldnodeUnderMouse && nodeUnderMouse)
+            || (nodeUnderMouse
+                && oldnodeUnderMouse
+                && oldnodeUnderMouse.index !== nodeUnderMouse.index)
         ) {
             console.error('CHANGE NODE');
             this.nodeUnderMouse = nodeUnderMouse;
             this.ui.activeNode = nodeUnderMouse;
-            this.triggerDraw()
+            this.triggerDraw();
         }
 
         // trigger load high resolution img
