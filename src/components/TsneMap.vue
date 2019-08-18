@@ -898,7 +898,7 @@ export default {
             //     offsetY: Math.round(canvas.height / 2),
             // };
             this.store.changeScaleUp();
-            this.store.draw();
+            this.store.triggerDraw();
         },
 
         changeScaleDown() {
@@ -910,7 +910,7 @@ export default {
             //     offsetY: Math.round(canvas.height / 2),
             // };
             this.store.changeScaleDown();
-            this.store.draw();
+            this.store.triggerDraw();
         },
 
         changeHeatmapRadius(v) {
@@ -1117,7 +1117,7 @@ export default {
             logYellow('resize');
             console.log(e);
             this.updateCanvasSize();
-            this.store.draw();
+            this.store.triggerDraw();
             if (this.showNavHeatmap) requestAnimationFrame(this.drawNavHeatmap);
         },
 
@@ -1781,7 +1781,7 @@ export default {
     width: 15px;
     height: 15px;
     animation: spin 2s linear infinite;
-    padding-left: 7px;
+    margin-left: 7px;
 }
 
 @keyframes spin {
