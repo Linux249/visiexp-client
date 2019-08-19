@@ -1,11 +1,13 @@
 <template>
     <div class="header">
         <div class="left-header">
-            <router-link to="/explorer">Explorer</router-link>
-            <router-link to="/dataset">Dataset</router-link>
+            <router-link v-if="!isAuth" to="/login">Login</router-link>
+            <router-link v-if="isAuth" to="/explorer">Explorer</router-link>
+            <router-link v-if="isAuth" to="/dataset">Dataset</router-link>
             <!--<router-link to="/svm">SVM</router-link>-->
-            <router-link to="/explorer/classifier">Classifier</router-link>
-            <router-link to="/explorer/settings">Settings</router-link>
+            <router-link v-if="isAuth && explorer" to="/explorer/classifier">Classifier</router-link>
+            <router-link v-if="isAuth && explorer" to="/explorer/settings">Settings</router-link>
+            <router-link v-if="isAuth" to="/logout">Logout</router-link>
         </div>
         <div class="right-header" v-if="explorer">
             <div class="btn" @click="toggleWasmMode" :class="{ active: wasmMode }">
@@ -41,6 +43,7 @@ export default {
     props: {
         wasmMode: Boolean,
         toggleWasmMode: Function,
+        isAuth: Boolean
     },
     data: () => ({
         loading: false,

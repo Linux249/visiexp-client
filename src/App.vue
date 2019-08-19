@@ -2,15 +2,14 @@
     <div id="app">
         <nav-header :isAuth="isAuth" :wasmMode="wasmMode" :toggleWasmMode="toggleWasmMode" />
 
-        <login :setAuth="setAuth" v-if="!isAuth" />
-
         <router-view
-            v-if="isAuth"
             ref="router"
-            :dataset="dataset"
             :key="dataset + selectedImgCount + wasmMode + loadOldDataset"
+            :setAuth="setAuth"
+            :logout="logout"
             :userId="userId"
             :wasmMode="wasmMode"
+            :dataset="dataset"
             :loadOldDataset="loadOldDataset"
             :handleChangeDataset="switchDataset"
             :selectedImgCount="selectedImgCount"
@@ -23,6 +22,7 @@
 <script>
 import NavHeader from './components/NavHeader';
 import Login from './components/Login';
+import { DATASET, LOGIN } from './util/modes';
 
 export default {
     name: 'App',
@@ -46,13 +46,30 @@ export default {
             this.$router.push('/explorer');
         },
         setAuth(userId) {
+            // console.log('logged in')
             this.isAuth = true;
             this.userId = userId;
-            this.$router.push('/dataset');
+            this.$router.push(`/${DATASET}`);
         },
         toggleWasmMode() {
             this.wasmMode = !this.wasmMode;
         },
+        logout() {
+            console.log('Logout');
+            this.isAuth = false;
+            this.userId = null;
+            this.$router.push({ name: LOGIN });
+        },
+        checkRoute(to, from, next) {
+            console.error('checkRoute');
+            console.log({ auth: this.isAuth, to, from });
+            this.isAuth || to.name === LOGIN ? next() : next({ name: LOGIN });
+        },
+    },
+    mounted() {
+        // if (!this.isAuth && this.$route.path !== `/${LOGIN}`) this.$router.push({ name: LOGIN });
+        // add auth checker for route
+        this.$router.beforeHooks.push(this.checkRoute);
     },
 };
 </script>

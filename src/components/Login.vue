@@ -30,12 +30,10 @@ export default {
     }),
     methods: {
         async login() {
-            this.loading = true;
-            console.log('Login clicked');
-            console.log(this.user);
-            console.log(this.password);
-            // reset error
-            this.error = '';
+            this.loading = true; // start loading
+            // console.log('Login :', this.user, this.password);
+            this.error = ''; // reset error
+
             try {
                 const body = {
                     user: this.user,

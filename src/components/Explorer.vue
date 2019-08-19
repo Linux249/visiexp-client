@@ -1,196 +1,192 @@
 <template>
     <div class="row body">
-            <div class="explorer">
-                <canvas class="canvas" id="canvas" ref="canvas" tabindex="0"></canvas>
-                <div class="box top right">
-                    <div class="row">
-                        <div
-                            :class="{ active: target }"
-                            @click="selectTarget"
-                            class="btn"
-                            v-tooltip="'double click to move marked/group'"
-                        >
-                            <target></target>
-                        </div>
-                        <div
-                            :class="{ active: scissors }"
-                            @click="selectScissors"
-                            class="btn"
-                            v-tooltip="'select many'"
-                        >
-                            <scissors></scissors>
-                        </div>
-                        <div @click="clearGroup" class="btn" v-tooltip="'reset selections'">
-                            <x></x>
-                        </div>
-                    </div>
-                </div>
-                <div class="box top left">
-                    <div :if="nodesTotal" class="btn">{{ nodesRecived + '/' + nodesTotal }}</div>
-                </div>
-                <div class="box bottom left">
+        <div class="explorer">
+            <canvas class="canvas" id="canvas" ref="canvas" tabindex="0"></canvas>
+            <div class="box top right">
+                <div class="row">
                     <div
-                        :class="{ active: showNavHeatmap }"
-                        @click="toggleShowNavHeatmap"
+                        :class="{ active: target }"
+                        @click="selectTarget"
                         class="btn"
-                        v-if="!showNavHeatmap"
+                        v-tooltip="'double click to move marked/group'"
                     >
-                        <navmap></navmap>
+                        <target></target>
                     </div>
-                    <div :class="{ hide: !showNavHeatmap }" class="navMap">
-                        <canvas class="canvas" id="navHeatmap" tabindex="0"></canvas>
-                        <canvas id="navHeatmapRect" tabindex="0"></canvas>
-                        <div class="box top right">
-                            <div class="btn small" @click="toggleShowNavHeatmap">x</div>
-                        </div>
-                        <div class="box bottom right">
-                            <div class="row">
-                                <div class="btn small" @click="scaleHeatMapUp">+</div>
-                                <div class="btn small" @click="scaleHeatMapDown">-</div>
-                            </div>
-                        </div>
+                    <div
+                        :class="{ active: scissors }"
+                        @click="selectScissors"
+                        class="btn"
+                        v-tooltip="'select many'"
+                    >
+                        <scissors></scissors>
+                    </div>
+                    <div @click="clearGroup" class="btn" v-tooltip="'reset selections'">
+                        <x></x>
                     </div>
                 </div>
-                <div class="box bottom right">
-                    <div class="row">
-                        <div
-                            @click="changeScaleDown()"
-                            class="btn"
-                            v-tooltip="'scale positions down'"
-                        >
-                            <minimize></minimize>
-                        </div>
-                        <div @click="changeScaleUp()" class="btn" v-tooltip="'scale positions up'">
-                            <maximize></maximize>
-                        </div>
+            </div>
+            <div class="box top left">
+                <div :if="nodesTotal" class="btn">{{ nodesRecived + '/' + nodesTotal }}</div>
+            </div>
+            <div class="box bottom left">
+                <div
+                    :class="{ active: showNavHeatmap }"
+                    @click="toggleShowNavHeatmap"
+                    class="btn"
+                    v-if="!showNavHeatmap"
+                >
+                    <navmap></navmap>
+                </div>
+                <div :class="{ hide: !showNavHeatmap }" class="navMap">
+                    <canvas class="canvas" id="navHeatmap" tabindex="0"></canvas>
+                    <canvas id="navHeatmapRect" tabindex="0"></canvas>
+                    <div class="box top right">
+                        <div class="btn small" @click="toggleShowNavHeatmap">x</div>
                     </div>
-                    <div class="row">
-                        <div @click="changeImgSize(-1)" class="btn" v-tooltip="'images smaller'">
-                            <img-size-down></img-size-down>
-                        </div>
-                        <div @click="changeImgSize(1)" class="btn" v-tooltip="'images larger'">
-                            <img-size-up></img-size-up>
+                    <div class="box bottom right">
+                        <div class="row">
+                            <div class="btn small" @click="scaleHeatMapUp">+</div>
+                            <div class="btn small" @click="scaleHeatMapDown">-</div>
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="box bottom right">
+                <div class="row">
+                    <div @click="changeScaleDown()" class="btn" v-tooltip="'scale positions down'">
+                        <minimize></minimize>
+                    </div>
+                    <div @click="changeScaleUp()" class="btn" v-tooltip="'scale positions up'">
+                        <maximize></maximize>
+                    </div>
+                </div>
+                <div class="row">
+                    <div @click="changeImgSize(-1)" class="btn" v-tooltip="'images smaller'">
+                        <img-size-down></img-size-down>
+                    </div>
+                    <div @click="changeImgSize(1)" class="btn" v-tooltip="'images larger'">
+                        <img-size-up></img-size-up>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            <div class="details">
-                <div class="area info-box" v-if="showHelp && !neighbourMode">
-                    <div class="title2">Help: Create groups</div>
-                    <div class="row v-center">
-                        1. Select images with
-                        <div class="btn dummy">Click</div>
-                        /
-                        <scissors class="btn dummy"></scissors>
+        <div class="details">
+            <div class="area info-box" v-if="showHelp && !neighbourMode">
+                <div class="title2">Help: Create groups</div>
+                <div class="row v-center">
+                    1. Select images with
+                    <div class="btn dummy">Click</div>
+                    /
+                    <scissors class="btn dummy"></scissors>
+                </div>
+                <div class="row v-center">
+                    2. Create groups with
+                    <div class="btn dummy">new</div>
+                </div>
+                <div class="row v-center">
+                    3. Get proposals with
+                    <plus-circle class="btn dummy"></plus-circle>
+                </div>
+                <div class="row v-center">4. Repeat with different groups</div>
+                <div class="row v-center">
+                    5.
+                    <div class="btn dummy">
+                        Update embedding
+                        <send></send>
                     </div>
-                    <div class="row v-center">
-                        2. Create groups with
-                        <div class="btn dummy">new</div>
+                </div>
+            </div>
+            <div class="area info-box" v-if="showHelp && neighbourMode">
+                <div class="title2">Help: Generate proposals</div>
+                <div class="row v-center">
+                    1. Add proposal with
+                    <div class="btn dummy">Click</div>
+                    /
+                    <scissors class="btn dummy"></scissors>
+                </div>
+                <div class="row v-center">
+                    2.
+                    <div class="btn dummy">
+                        Update
+                        <repeat></repeat>
                     </div>
-                    <div class="row v-center">
-                        3. Get proposals with
-                        <plus-circle class="btn dummy"></plus-circle>
+                    proposals and iterate
+                </div>
+                <div class="row v-center">
+                    3.
+                    <div class="btn dummy">
+                        Quit
+                        <stop></stop>
                     </div>
-                    <div class="row v-center">4. Repeat with different groups</div>
-                    <div class="row v-center">
-                        5.
-                        <div class="btn dummy">
-                            Update embedding
-                            <send></send>
+                    anytime
+                </div>
+            </div>
+
+            <div class="area" v-if="$route.params.setup === 'settings'">
+                <div class="title">Settings</div>
+                <div class="row-btn">
+                    <div>Save:</div>
+                    <div class="row">
+                        <div @click="saveCanvas" class="btn">
+                            <save></save>
                         </div>
                     </div>
                 </div>
-                <div class="area info-box" v-if="showHelp && neighbourMode">
-                    <div class="title2">Help: Generate proposals</div>
-                    <div class="row v-center">
-                        1. Add proposal with
-                        <div class="btn dummy">Click</div>
-                        /
-                        <scissors class="btn dummy"></scissors>
-                    </div>
-                    <div class="row v-center">
-                        2.
-                        <div class="btn dummy">
-                            Update
-                            <repeat></repeat>
-                        </div>
-                        proposals and iterate
-                    </div>
-                    <div class="row v-center">
-                        3.
-                        <div class="btn dummy">
-                            Quit
-                            <stop></stop>
-                        </div>
-                        anytime
+                <div class="option-title">Image</div>
+                <div class="row-btn">
+                    <div>Alpha (base): {{ alphaBase }}</div>
+                    <div class="row">
+                        <div @click="changeAlphaBase(-10)" class="btn">-10</div>
+                        <div @click="changeAlphaBase(10)" class="btn">+10</div>
                     </div>
                 </div>
-
-                <div class="area" v-if="$route.params.setup === 'settings'">
-                    <div class="title">Settings</div>
-                    <div class="row-btn">
-                        <div>Save:</div>
-                        <div class="row">
-                            <div @click="saveCanvas" class="btn">
-                                <save></save>
-                            </div>
+                <div class="row-btn">
+                    <div>Aplha (increase): {{ alphaIncrease }}</div>
+                    <div class="row">
+                        <div @click="changeAlphaIncrease(-10)" class="btn">-10</div>
+                        <div @click="changeAlphaIncrease(10)" class="btn">+10</div>
+                    </div>
+                </div>
+                <div class="row-btn">
+                    <div>Represent: size: {{ representImgSize }}</div>
+                    <div class="row">
+                        <div @click="changeRepresentImgSize(-1)" class="btn">
+                            <img-size-down></img-size-down>
+                        </div>
+                        <div @click="changeRepresentImgSize(1)" class="btn">
+                            <img-size-up></img-size-up>
                         </div>
                     </div>
-                    <div class="option-title">Image</div>
-                    <div class="row-btn">
-                        <div>Alpha (base): {{ alphaBase }}</div>
-                        <div class="row">
-                            <div @click="changeAlphaBase(-10)" class="btn">-10</div>
-                            <div @click="changeAlphaBase(10)" class="btn">+10</div>
+                </div>
+                <div class="row-btn">
+                    <div>Represent: alpha</div>
+                    <div
+                        :class="{ active: representMaxAlpha }"
+                        @click="togglerepresentMaxAlpha"
+                        class="btn"
+                    >
+                        {{ representMaxAlpha ? 'On' : 'Off' }}
+                    </div>
+                </div>
+                <div class="row-btn">
+                    <div>Represent: sort</div>
+                    <div :class="{ active: repsMode }" @click="toogleRepsMode" class="btn">
+                        {{ repsMode === 0 ? 'normal' : repsMode === 1 ? 'before' : 'behind' }}
+                    </div>
+                </div>
+                <div class="row-btn">
+                    <div>Similar: size: {{ neighbourImgSize }}</div>
+                    <div class="row">
+                        <div @click="changeNeighbourImgSize(-1)" class="btn">
+                            <img-size-down></img-size-down>
+                        </div>
+                        <div @click="changeNeighbourImgSize(1)" class="btn">
+                            <img-size-up></img-size-up>
                         </div>
                     </div>
-                    <div class="row-btn">
-                        <div>Aplha (increase): {{ alphaIncrease }}</div>
-                        <div class="row">
-                            <div @click="changeAlphaIncrease(-10)" class="btn">-10</div>
-                            <div @click="changeAlphaIncrease(10)" class="btn">+10</div>
-                        </div>
-                    </div>
-                    <div class="row-btn">
-                        <div>Represent: size: {{ representImgSize }}</div>
-                        <div class="row">
-                            <div @click="changeRepresentImgSize(-1)" class="btn">
-                                <img-size-down></img-size-down>
-                            </div>
-                            <div @click="changeRepresentImgSize(1)" class="btn">
-                                <img-size-up></img-size-up>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row-btn">
-                        <div>Represent: alpha</div>
-                        <div
-                            :class="{ active: representMaxAlpha }"
-                            @click="togglerepresentMaxAlpha"
-                            class="btn"
-                        >
-                            {{ representMaxAlpha ? 'On' : 'Off' }}
-                        </div>
-                    </div>
-                    <div class="row-btn">
-                        <div>Represent: sort</div>
-                        <div :class="{ active: repsMode }" @click="toogleRepsMode" class="btn">
-                            {{ repsMode === 0 ? 'normal' : repsMode === 1 ? 'before' : 'behind' }}
-                        </div>
-                    </div>
-                    <div class="row-btn">
-                        <div>Similar: size: {{ neighbourImgSize }}</div>
-                        <div class="row">
-                            <div @click="changeNeighbourImgSize(-1)" class="btn">
-                                <img-size-down></img-size-down>
-                            </div>
-                            <div @click="changeNeighbourImgSize(1)" class="btn">
-                                <img-size-up></img-size-up>
-                            </div>
-                        </div>
-                    </div>
-                    <!--<div class="option-title">Other</div>
+                </div>
+                <!--<div class="option-title">Other</div>
                     <div class="row-btn">
                         <div>zoomStage: {{ zoomStage }}</div>
                         <div class="row">
@@ -198,227 +194,220 @@
                             <div @click="changeZoomStage(1)" class="btn"><plus></plus></div>
                         </div>
                     </div>-->
-                    <div class="option-title">Rank/Clique</div>
-                    <div class="row-btn">
-                        <div>Sort</div>
-                        <div :class="{ active: sorted }" @click="sortNodes" class="btn">
-                            {{ sorted ? 'On' : 'Off' }}
-                        </div>
-                    </div>
-                    <div class="row-btn">
-                        <div>Size</div>
-                        <div
-                            :class="{ active: sizeRankedMode }"
-                            @click="toggleSizeRankedMode"
-                            class="btn"
-                        >
-                            {{ sizeRankedMode ? 'On' : 'Off' }}
-                        </div>
-                    </div>
-                    <div class="row-btn">
-                        <div>Multiplier: {{ sizeRange }}</div>
-                        <div class="row">
-                            <div @click="changeSizeRange(-1)" class="btn">
-                                <minus></minus>
-                            </div>
-                            <div @click="changeSizeRange(1)" class="btn">
-                                <plus></plus>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row-btn">
-                        <div>Border</div>
-                        <div
-                            :class="{ active: boarderRankedMode }"
-                            @click="toggleBoarderRankedMode"
-                            class="btn"
-                        >
-                            {{ boarderRankedMode ? 'On' : 'Off' }}
-                        </div>
-                    </div>
-                    <div class="row-btn">
-                        <div
-                            :class="{ activeColor: selectedGradient === i }"
-                            :key="i"
-                            @click="changeGradientColor(i)"
-                            class="color"
-                            v-bind:style="{
-                                backgroundColor: `rgb(${color[0]},${color[1]},${color[2]})`,
-                            }"
-                            v-for="(color, i) in gradient"
-                        >
-                            {{ '.' + i }}
-                        </div>
-                    </div>
-                    <slider-picker @input="changeColor" style="width: inherit;" v-model="colors" />
-                    <div class="option-title">Heatmap</div>
-                    <div class="row-btn">
-                        <div>Radius: {{ heatmapRadius }}</div>
-                        <div class="row">
-                            <div @click="changeHeatmapRadius(-1)" class="btn">
-                                <minus></minus>
-                            </div>
-                            <div @click="changeHeatmapRadius(1)" class="btn">
-                                <plus></plus>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row-btn">
-                        <div>Blur: {{ heatmapBlur }}</div>
-                        <div class="row">
-                            <div @click="changeHeatmapBlur(-1)" class="btn">
-                                <minus></minus>
-                            </div>
-                            <div @click="changeHeatmapBlur(1)" class="btn">
-                                <plus></plus>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="option-title">Cluster</div>
-                    <div class="row-btn">
-                        <div>Cluster: radius: {{ clusterRadius }}</div>
-                        <div class="row">
-                            <div @click="changeClusterRadius(-1)" class="btn">
-                                <minus></minus>
-                            </div>
-                            <div @click="changeClusterRadius(1)" class="btn">
-                                <plus></plus>
-                            </div>
-                            <div @click="updateCluster()" class="btn">update</div>
-                        </div>
-                    </div>
-                    <div class="option-title">Performance</div>
-                    <div class="row-btn">
-                        <div>Monitor</div>
-                        <div :class="{ active: showLogs }" @click="toggleShowLogs" class="btn">
-                            {{ showLogs ? 'On' : 'Off' }}
-                        </div>
-                    </div>
-                    <div class="row-btn">
-                        <div>Show Hitmap</div>
-                        <div :class="{ active: toggle }" @click="toggleShowHitmap" class="btn">
-                            {{ toggle ? 'On' : 'Off' }}
-                        </div>
-                    </div>
-                    <div class="row-btn">
-                        <div>Double Nodes</div>
-                        <div @click="doubleNodes" class="btn">double</div>
-                    </div>
-                    <div class="row-btn">
-                        <div>100xDraw</div>
-                        <div @click="testPerformance" class="btn">TODO</div>
-                    </div>
-
-                    <!--<div class="row-btn">-->
-                    <!--<div>Cluster: tile: {{ clusterTile }}</div>-->
-                    <!--<div class="row">-->
-                    <!--<div @click="changeClusterTile(-1)" class="btn"><minus></minus></div>-->
-                    <!--<div @click="changeClusterTile(1)" class="btn"><plus></plus></div>-->
-                    <!--</div>-->
-                    <!--</div>-->
-                </div>
-
-                <classifier
-                    v-if="$route.params.setup === 'classifier'"
-                    :getStore="getStore"
-                    :labels="labels"
-                    :node="clickedNode"
-                    :nodes="cuttedNodes"
-                >
-                </classifier>
-
-                <div class="area">
-                    <div class="title">Groups</div>
-                    <div class="group-list" v-if="this.savedGroups.length">
-                        <div
-                            :key="i"
-                            class="group-item row-between"
-                            v-for="(group, i) in savedGroups"
-                        >
-                            <div
-                                :class="{ active: group.groupId === activeGroupId }"
-                                @click="selectGroup(i)"
-                                class="btn"
-                            >
-                                {{ `${group.name}` }}
-                            </div>
-                            <div>{{ `#${group.count}` }}</div>
-                            <select
-                                :style="{
-                                    width: '3rem',
-                                    backgroundColor: `rgb(${groupColours[group.colorId][0]},${
-                                        groupColours[group.colorId][1]
-                                    },${groupColours[group.colorId][2]})`,
-                                }"
-                                @change="changeGroupColor($event, i)"
-                                class="btn"
-                            >
-                                <option
-                                    :id="group.colorId"
-                                    :key="id"
-                                    :selected="+group.colorId === +id"
-                                    :style="{
-                                        backgroundColor: `rgb(${color[0]},${color[1]},${color[2]})`,
-                                    }"
-                                    :value="id"
-                                    v-for="(color, id) in groupColours"
-                                >
-                                </option>
-                            </select>
-                            <div
-                                :class="{
-                                    active: neighbourMode && group.groupId === activeGroupId,
-                                }"
-                                @click="handleNeighbourMode(i)"
-                                class="btn"
-                            >
-                                <plus-circle
-                                    v-if="!(neighbourMode && group.groupId === activeGroupId)"
-                                ></plus-circle>
-                                <stop
-                                    v-if="neighbourMode && group.groupId === activeGroupId"
-                                ></stop>
-                            </div>
-                            <div @click="deleteGroup(i)" class="btn">
-                                <trash></trash>
-                            </div>
-                            <neighbours
-                                :activeGroupId="activeGroupId"
-                                :changeNeighboursThreshold="changeNeighboursThreshold"
-                                :getStore="getStore"
-                                :neighboursThreshold="neighboursThreshold"
-                                :stop="stopNeighbourMode"
-                                v-if="neighbourMode && group.groupId === activeGroupId"
-                            />
-                        </div>
-                    </div>
-                    <div class="row v-center">
-                        <input class="input" type="text" v-model="groupName" />
-                        <div @click="saveGroup" class="btn">new</div>
+                <div class="option-title">Rank/Clique</div>
+                <div class="row-btn">
+                    <div>Sort</div>
+                    <div :class="{ active: sorted }" @click="sortNodes" class="btn">
+                        {{ sorted ? 'On' : 'Off' }}
                     </div>
                 </div>
-
-
-                <div class="area padding" v-if="activeNode">
-                    <img
-                        :alt="activeNode.name"
-                        :src="activeNode.image.src"
-                        class="active-img"
-                        v-if="activeNode.hasImage"
-                    />
-                    <div class="loader" v-if="activeNode.imgLoading"></div>
-                    <div>Name: {{ activeNode.name }}</div>
-                    <!--<div>X:Y: {{activeNode.x + ":" + activeNode.y}}</div>-->
+                <div class="row-btn">
+                    <div>Size</div>
+                    <div
+                        :class="{ active: sizeRankedMode }"
+                        @click="toggleSizeRankedMode"
+                        class="btn"
+                    >
+                        {{ sizeRankedMode ? 'On' : 'Off' }}
+                    </div>
+                </div>
+                <div class="row-btn">
+                    <div>Multiplier: {{ sizeRange }}</div>
                     <div class="row">
-                        Labels:
-                        <div :key="label" class="label" v-for="label in activeNode.labels">
-                            {{ label }}
+                        <div @click="changeSizeRange(-1)" class="btn">
+                            <minus></minus>
+                        </div>
+                        <div @click="changeSizeRange(1)" class="btn">
+                            <plus></plus>
                         </div>
                     </div>
                 </div>
+                <div class="row-btn">
+                    <div>Border</div>
+                    <div
+                        :class="{ active: boarderRankedMode }"
+                        @click="toggleBoarderRankedMode"
+                        class="btn"
+                    >
+                        {{ boarderRankedMode ? 'On' : 'Off' }}
+                    </div>
+                </div>
+                <div class="row-btn">
+                    <div
+                        :class="{ activeColor: selectedGradient === i }"
+                        :key="i"
+                        @click="changeGradientColor(i)"
+                        class="color"
+                        v-bind:style="{
+                            backgroundColor: `rgb(${color[0]},${color[1]},${color[2]})`,
+                        }"
+                        v-for="(color, i) in gradient"
+                    >
+                        {{ '.' + i }}
+                    </div>
+                </div>
+                <slider-picker @input="changeColor" style="width: inherit;" v-model="colors" />
+                <div class="option-title">Heatmap</div>
+                <div class="row-btn">
+                    <div>Radius: {{ heatmapRadius }}</div>
+                    <div class="row">
+                        <div @click="changeHeatmapRadius(-1)" class="btn">
+                            <minus></minus>
+                        </div>
+                        <div @click="changeHeatmapRadius(1)" class="btn">
+                            <plus></plus>
+                        </div>
+                    </div>
+                </div>
+                <div class="row-btn">
+                    <div>Blur: {{ heatmapBlur }}</div>
+                    <div class="row">
+                        <div @click="changeHeatmapBlur(-1)" class="btn">
+                            <minus></minus>
+                        </div>
+                        <div @click="changeHeatmapBlur(1)" class="btn">
+                            <plus></plus>
+                        </div>
+                    </div>
+                </div>
+                <div class="option-title">Cluster</div>
+                <div class="row-btn">
+                    <div>Cluster: radius: {{ clusterRadius }}</div>
+                    <div class="row">
+                        <div @click="changeClusterRadius(-1)" class="btn">
+                            <minus></minus>
+                        </div>
+                        <div @click="changeClusterRadius(1)" class="btn">
+                            <plus></plus>
+                        </div>
+                        <div @click="updateCluster()" class="btn">update</div>
+                    </div>
+                </div>
+                <div class="option-title">Performance</div>
+                <div class="row-btn">
+                    <div>Monitor</div>
+                    <div :class="{ active: showLogs }" @click="toggleShowLogs" class="btn">
+                        {{ showLogs ? 'On' : 'Off' }}
+                    </div>
+                </div>
+                <div class="row-btn">
+                    <div>Show Hitmap</div>
+                    <div :class="{ active: toggle }" @click="toggleShowHitmap" class="btn">
+                        {{ toggle ? 'On' : 'Off' }}
+                    </div>
+                </div>
+                <div class="row-btn">
+                    <div>Double Nodes</div>
+                    <div @click="doubleNodes" class="btn">double</div>
+                </div>
+                <div class="row-btn">
+                    <div>100xDraw</div>
+                    <div @click="testPerformance" class="btn">TODO</div>
+                </div>
 
-                <logs :getStore="getStore" v-if="showLogs" />
+                <!--<div class="row-btn">-->
+                <!--<div>Cluster: tile: {{ clusterTile }}</div>-->
+                <!--<div class="row">-->
+                <!--<div @click="changeClusterTile(-1)" class="btn"><minus></minus></div>-->
+                <!--<div @click="changeClusterTile(1)" class="btn"><plus></plus></div>-->
+                <!--</div>-->
+                <!--</div>-->
             </div>
+
+            <classifier
+                v-if="$route.params.setup === 'classifier'"
+                :getStore="getStore"
+                :labels="labels"
+                :node="clickedNode"
+                :nodes="cuttedNodes"
+            >
+            </classifier>
+
+            <div class="area">
+                <div class="title">Groups</div>
+                <div class="group-list" v-if="this.savedGroups.length">
+                    <div :key="i" class="group-item row-between" v-for="(group, i) in savedGroups">
+                        <div
+                            :class="{ active: group.groupId === activeGroupId }"
+                            @click="selectGroup(i)"
+                            class="btn"
+                        >
+                            {{ `${group.name}` }}
+                        </div>
+                        <div>{{ `#${group.count}` }}</div>
+                        <select
+                            :style="{
+                                width: '3rem',
+                                backgroundColor: `rgb(${groupColours[group.colorId][0]},${
+                                    groupColours[group.colorId][1]
+                                },${groupColours[group.colorId][2]})`,
+                            }"
+                            @change="changeGroupColor($event, i)"
+                            class="btn"
+                        >
+                            <option
+                                :id="group.colorId"
+                                :key="id"
+                                :selected="+group.colorId === +id"
+                                :style="{
+                                    backgroundColor: `rgb(${color[0]},${color[1]},${color[2]})`,
+                                }"
+                                :value="id"
+                                v-for="(color, id) in groupColours"
+                            >
+                            </option>
+                        </select>
+                        <div
+                            :class="{
+                                active: neighbourMode && group.groupId === activeGroupId,
+                            }"
+                            @click="handleNeighbourMode(i)"
+                            class="btn"
+                        >
+                            <plus-circle
+                                v-if="!(neighbourMode && group.groupId === activeGroupId)"
+                            ></plus-circle>
+                            <stop v-if="neighbourMode && group.groupId === activeGroupId"></stop>
+                        </div>
+                        <div @click="deleteGroup(i)" class="btn">
+                            <trash></trash>
+                        </div>
+                        <neighbours
+                            :activeGroupId="activeGroupId"
+                            :changeNeighboursThreshold="changeNeighboursThreshold"
+                            :getStore="getStore"
+                            :neighboursThreshold="neighboursThreshold"
+                            :stop="stopNeighbourMode"
+                            v-if="neighbourMode && group.groupId === activeGroupId"
+                        />
+                    </div>
+                </div>
+                <div class="row v-center">
+                    <input class="input" type="text" v-model="groupName" />
+                    <div @click="saveGroup" class="btn">new</div>
+                </div>
+            </div>
+
+            <div class="area padding" v-if="activeNode">
+                <img
+                    :alt="activeNode.name"
+                    :src="activeNode.image.src"
+                    class="active-img"
+                    v-if="activeNode.hasImage"
+                />
+                <div class="loader" v-if="activeNode.imgLoading"></div>
+                <div>Name: {{ activeNode.name }}</div>
+                <!--<div>X:Y: {{activeNode.x + ":" + activeNode.y}}</div>-->
+                <div class="row">
+                    Labels:
+                    <div :key="label" class="label" v-for="label in activeNode.labels">
+                        {{ label }}
+                    </div>
+                </div>
+            </div>
+
+            <logs :getStore="getStore" v-if="showLogs" />
+        </div>
     </div>
 </template>
 
@@ -1197,11 +1186,10 @@ export default {
         // set resize event handler
         window.addEventListener('resize', this.handleResize);
 
+        // store state global
         this.$root.explorer = this;
+        // update state in navheader that shows explorer is online
         this.$root.navheader.explorer = true;
-        // setUp EventBus Listener
-        // Listen to the event.
-        // EventBus.$on('update', this.sendData);
 
         // set width/height responsive
         const canvas = document.getElementById('canvas');
@@ -1628,7 +1616,6 @@ export default {
 </script>
 
 <style>
-
 .explorer {
     position: relative;
     margin: 5px;
