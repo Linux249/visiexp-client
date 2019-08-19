@@ -1,11 +1,6 @@
 <template>
     <div id="app">
-        <nav-header
-            :isAuth="isAuth"
-            :wasmMode="wasmMode"
-            :toggleWasmMode="toggleWasmMode"
-
-        />
+        <nav-header :isAuth="isAuth" :wasmMode="wasmMode" :toggleWasmMode="toggleWasmMode" />
 
         <login :setAuth="setAuth" v-if="!isAuth" />
 
@@ -20,7 +15,6 @@
             :handleChangeDataset="switchDataset"
             :selectedImgCount="selectedImgCount"
         />
-
 
         <notifications :duration="5000" group="default" position="bottom right"></notifications>
     </div>
@@ -163,14 +157,12 @@ input {
     box-shadow: 0 2px 2px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-
 .btn.small {
     z-index: 30;
-    margin: 4px 6px 10px 0px ;
+    margin: 4px 6px 10px 0px;
     padding: 2px 8px;
     text-transform: none !important;
 }
-
 
 .title {
     width: 100%;
@@ -236,7 +228,7 @@ input {
 
 .tooltip .tooltip-inner {
     background: rgba(97, 97, 97, 0.9);
-    color: #FFFFFF;
+    color: #ffffff;
     border-radius: 4px;
     padding: 5px 10px 4px;
 }
@@ -251,11 +243,11 @@ input {
     z-index: 1;
 }
 
-.tooltip[x-placement^="top"] {
+.tooltip[x-placement^='top'] {
     margin-bottom: 5px;
 }
 
-.tooltip[x-placement^="top"] .tooltip-arrow {
+.tooltip[x-placement^='top'] .tooltip-arrow {
     border-width: 5px 5px 0 5px;
     border-left-color: transparent !important;
     border-right-color: transparent !important;
@@ -266,11 +258,11 @@ input {
     margin-bottom: 0;
 }
 
-.tooltip[x-placement^="bottom"] {
+.tooltip[x-placement^='bottom'] {
     margin-top: 5px;
 }
 
-.tooltip[x-placement^="bottom"] .tooltip-arrow {
+.tooltip[x-placement^='bottom'] .tooltip-arrow {
     border-width: 0 5px 5px 5px;
     border-left-color: transparent !important;
     border-right-color: transparent !important;
@@ -281,11 +273,11 @@ input {
     margin-bottom: 0;
 }
 
-.tooltip[x-placement^="right"] {
+.tooltip[x-placement^='right'] {
     margin-left: 5px;
 }
 
-.tooltip[x-placement^="right"] .tooltip-arrow {
+.tooltip[x-placement^='right'] .tooltip-arrow {
     border-width: 5px 5px 5px 0;
     border-left-color: transparent !important;
     border-top-color: transparent !important;
@@ -296,11 +288,11 @@ input {
     margin-right: 0;
 }
 
-.tooltip[x-placement^="left"] {
+.tooltip[x-placement^='left'] {
     margin-right: 5px;
 }
 
-.tooltip[x-placement^="left"] .tooltip-arrow {
+.tooltip[x-placement^='left'] .tooltip-arrow {
     border-width: 5px 0 5px 5px;
     border-top-color: transparent !important;
     border-right-color: transparent !important;
@@ -316,7 +308,7 @@ input {
     color: black;
     padding: 24px;
     border-radius: 5px;
-    box-shadow: 0 5px 30px rgba(black, .1);
+    box-shadow: 0 5px 30px rgba(black, 0.1);
 }
 
 .tooltip.popover .popover-arrow {
@@ -326,12 +318,12 @@ input {
 .tooltip[aria-hidden='true'] {
     visibility: hidden;
     opacity: 0;
-    transition: opacity .15s, visibility .15s;
+    transition: opacity 0.15s, visibility 0.15s;
 }
 
 .tooltip[aria-hidden='false'] {
     visibility: visible;
     opacity: 1;
-    transition: opacity .15s;
+    transition: opacity 0.15s;
 }
 </style>

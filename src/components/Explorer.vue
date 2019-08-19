@@ -327,7 +327,7 @@
                 >
                 </classifier>
 
-                <div class="area" v-if="!neighbourMode">
+                <div class="area">
                     <div class="title">Groups</div>
                     <div class="group-list" v-if="this.savedGroups.length">
                         <div
@@ -382,6 +382,14 @@
                             <div @click="deleteGroup(i)" class="btn">
                                 <trash></trash>
                             </div>
+                            <neighbours
+                                :activeGroupId="activeGroupId"
+                                :changeNeighboursThreshold="changeNeighboursThreshold"
+                                :getStore="getStore"
+                                :neighboursThreshold="neighboursThreshold"
+                                :stop="stopNeighbourMode"
+                                v-if="neighbourMode && group.groupId === activeGroupId"
+                            />
                         </div>
                     </div>
                     <div class="row v-center">
@@ -390,14 +398,6 @@
                     </div>
                 </div>
 
-                <neighbours
-                    :activeGroupId="activeGroupId"
-                    :changeNeighboursThreshold="changeNeighboursThreshold"
-                    :getStore="getStore"
-                    :neighboursThreshold="neighboursThreshold"
-                    :stop="stopNeighbourMode"
-                    v-if="neighbourMode"
-                />
 
                 <div class="area padding" v-if="activeNode">
                     <img

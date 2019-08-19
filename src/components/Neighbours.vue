@@ -1,5 +1,5 @@
 <template>
-    <div class="area">
+    <div class="">
         <div class="title">Proposals</div>
         <div class="between">
             <range-slider
