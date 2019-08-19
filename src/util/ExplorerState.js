@@ -1097,9 +1097,9 @@ export default class ExplorerState {
 
         console.log(this.scale, this.translateX, this.translateY, this.zoomStage);
         if (this.ui.wasmMode) {
-            this.ui.state2.setScale(this.scale);
-            this.ui.state2.setTxTy(this.translateX, this.translateY);
-            this.ui.state2.setZoom(Math.floor(this.zoomStage));
+            this.ui.wasm.setScale(this.scale);
+            this.ui.wasm.setTxTy(this.translateX, this.translateY);
+            this.ui.wasm.setZoom(Math.floor(this.zoomStage));
             this.ui.draw2();
         }
 
@@ -1190,7 +1190,7 @@ export default class ExplorerState {
                 this.translateX += moveX;
                 this.translateY += moveY;
                 if (this.ui.wasmMode) {
-                    this.ui.state2.addTxTy(moveX, moveY);
+                    this.ui.wasm.addTxTy(moveX, moveY);
                     this.ui.draw2();
                 }
             } else if (this.draggedNode) {
