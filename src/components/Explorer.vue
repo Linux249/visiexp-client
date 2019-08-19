@@ -452,6 +452,7 @@ export default {
         userId: Number,
         selectedImgCount: Number,
         wasmMode: Boolean,
+        isAuth: Boolean,
         loadOldDataset: Boolean,
     },
     components: {
@@ -1182,7 +1183,8 @@ export default {
     },
 
     async mounted() {
-        console.error('START FETCH');
+        console.error('Mounted Explorer');
+        if(!this.isAuth) return console.error('EXPLORER WITHOUT AUTH')
         // set resize event handler
         window.addEventListener('resize', this.handleResize);
 

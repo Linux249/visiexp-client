@@ -6,6 +6,7 @@
             ref="router"
             :key="dataset + selectedImgCount + wasmMode + loadOldDataset"
             :setAuth="setAuth"
+            :isAuth="isAuth"
             :logout="logout"
             :userId="userId"
             :wasmMode="wasmMode"
@@ -49,6 +50,7 @@ export default {
             // console.log('logged in')
             this.isAuth = true;
             this.userId = userId;
+            console.log('Auth set: ', this.isAuth);
             this.$router.push(`/${DATASET}`);
         },
         toggleWasmMode() {
@@ -61,15 +63,18 @@ export default {
             this.$router.push({ name: LOGIN });
         },
         checkRoute(to, from, next) {
-            console.error('checkRoute');
-            console.log({ auth: this.isAuth, to, from });
-            this.isAuth || to.name === LOGIN ? next() : next({ name: LOGIN });
+            this.$nextTick(function () {
+                console.error('checkRoute');
+                console.log({ auth: this.isAuth, to, from });
+                this.isAuth || to.name === LOGIN ? next() : next({ name: LOGIN });
+            });
         },
     },
     mounted() {
-        // if (!this.isAuth && this.$route.path !== `/${LOGIN}`) this.$router.push({ name: LOGIN });
         // add auth checker for route
         this.$router.beforeHooks.push(this.checkRoute);
+        // the init route isn't checked, so do it yourself
+        if (!this.isAuth && this.$route.path !== `/${LOGIN}`) this.$router.push({ name: LOGIN });
     },
 };
 </script>
