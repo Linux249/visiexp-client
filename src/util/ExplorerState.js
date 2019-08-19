@@ -1111,6 +1111,18 @@ export default class ExplorerState {
 
     findNodeByMousePosition(x, y) {
         // console.time('findNodeByMousePosition');
+        if (this.ui.wasmMode) {
+            // console.log('wasmPixel', this.colorHash);
+            const i = ((this.ui.hitMapPixel.width * y) + x) * 4;
+            const r = this.ui.hitMapPixel.data[i];
+            const g = this.ui.hitMapPixel.data[(i + 1)];
+            const b = this.ui.hitMapPixel.data[(i + 2)];
+            const color = `rgb(${r},${g},${b})`;
+            const id = this.colorHash[color] || null;
+            // console.log('wasmPixel',i, x, y, this.ui.hitMapPixel.width, r, g, b, nodeId, color, this.ui.hitMapPixel);
+            return id
+        }
+        // else {
         const pixel = this.hitCtx.getImageData(x, y, 1, 1).data;
         const color = `rgb(${pixel[0]},${pixel[1]},${pixel[2]})`;
         const nodeId = this.colorHash[color];
@@ -1120,6 +1132,8 @@ export default class ExplorerState {
             return this.nodes[nodeId];
         }
         return null;
+
+        // }
     }
 
     handleMouseDown(e) {

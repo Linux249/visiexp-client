@@ -573,8 +573,8 @@ export default {
         showHelp: true,
         wasm: undefined,
         memory: undefined,
-        drawCtx: undefined,
-        offset: 0,  // save actual memory position
+        explorerCtx: undefined,
+        offset: 0, // save actual memory position
         explorerPixelStart: 0,
         explorerPixelSize: 0,
         hitMapPixelStart: 0,
@@ -1082,8 +1082,8 @@ export default {
 
         addNode(node) {
             console.warn(node);
-            console.warn(`Add Node ${node.index}:`);
-            const addNode1 = this.wasm.addNode(node.x, node.y, node.index);
+            console.warn(`Add Node ${node.index}:`, node);
+            const addNode1 = this.wasm.addNode(node.x, node.y, node.index, node.colorKey[0], node.colorKey[1], node.colorKey[2]);
             // console.log({addNode1});
             // console.log(this.offset);
 
@@ -1120,12 +1120,13 @@ export default {
                 // console.log(`checksum draw after: ${this.wasm.checkSum()}`);
 
                 // clear canvas
-                // this.drawCtx.clearRect(0, 0, this.canvasW, this.canvasH)
+                // this.explorerCtx.clearRect(0, 0, this.canvasW, this.canvasH)
 
                 // console.log(this.emptyDrawPixel, this.memoryView, this.explorerPixel)
 
 
-                this.drawCtx.putImageData(this.explorerPixel, 0, 0);
+                this.explorerCtx.putImageData(this.explorerPixel, 0, 0);
+                // this.explorerCtx.putImageData(this.hitMapPixel, 0, 0);
                 // const checkDraw = this.explorerPixel.data.reduce((a, e) => a + e, 0);
                 // console.log({ checkDraw });
             } catch (e) {
@@ -1139,7 +1140,7 @@ export default {
         allocNewMemory(size) {
             // alloc the request memory
             const ptr = this.wasm.__alloc(size, 2);
-            console.log('allocNewMemory: ', ptr, size)
+            console.log('allocNewMemory: ', ptr, size);
 
             // create new view on buffer cause buffer changes everytime
             this.explorerPixel = new ImageData(
@@ -1151,9 +1152,34 @@ export default {
                 this.canvasW,
                 this.canvasH,
             );
+            this.hitMapPixel = new ImageData(
+                new Uint8ClampedArray(
+                    this.wasm.U8.buffer,
+                    this.hitMapPixelStart,
+                    this.explorerPixelSize,
+                ),
+                this.canvasW,
+                this.canvasH,
+            );
 
             // return pointer where new memory starts
             return ptr;
+        },
+
+        checkSumExplorer() {
+            let checksum = 0;
+            for (let i = this.explorerPixelStart, size = this.explorerPixelStart + this.explorerPixelSize; i < size; i++) {
+                checksum += this.wasm.U8[i];
+            }
+            console.log('checkSumExplorer: ', checksum);
+        },
+
+        checkSumHitMap() {
+            let checksum = 0;
+            for (let i = this.hitMapPixelStart, size = this.hitMapPixelStart + this.explorerPixelSize; i < size; i++) {
+                checksum += this.wasm.U8[i];
+            }
+            console.log('checkSumHitMap: ', checksum);
         },
 
         updateCanvasSize() {
@@ -1202,7 +1228,7 @@ export default {
         canvas.width = parantWidth;
         canvas.height = parantHeight;
 
-        this.drawCtx = canvas.getContext('2d');
+        this.explorerCtx = canvas.getContext('2d');
         this.canvasW = parantWidth;
         this.canvasH = parantHeight;
 
@@ -1300,6 +1326,9 @@ export default {
                 this.wasm = Module;
                 this.memory = memory;
                 console.log(memory);
+                console.log(this);
+
+                // gearbeitet von 15:00 - 16:00 ++
 
                 console.warn('INIT');
                 this.explorerPixelSize = this.canvasH * this.canvasW * 4;
@@ -1473,7 +1502,7 @@ export default {
             const state = this;
 
             async function consume(reader) {
-                console.error('CONSUM')
+                console.error('CONSUM');
                 // let total = 0;
                 let w = 0;
                 let h = 1; // point to w/h positions in the buffer
@@ -1522,7 +1551,7 @@ export default {
                                 store.addNode(node);
                                 store.triggerDraw();
 
-                                if (state.wasmMode) {
+                                if (state.wasmMode && nodeId <= 10) {
                                     state.addNode(node);
                                 }
                                 // vue state
@@ -1589,6 +1618,7 @@ export default {
                     console.log(
                         'consumed the entire body without keeping the whole thing in memory!',
                     );
+                    console.log(this)
                 })
                 .catch((e) => {
                     this.$notify({
