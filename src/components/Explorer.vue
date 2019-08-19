@@ -571,16 +571,18 @@ export default {
         groupColours: groupColors,
         showLogs: false,
         showHelp: true,
-        state2: undefined,
+        wasm: undefined,
         memory: undefined,
         drawCtx: undefined,
-        initOffset: 0,
-        offset: 0,
+        offset: 0,  // save actual memory position
+        explorerPixelStart: 0,
+        explorerPixelSize: 0,
+        hitMapPixelStart: 0,
         memoryView: undefined,
-        pixelView: undefined,
+        explorerPixel: undefined,
+        hitMapPixel: undefined,
         canvasW: 0,
         canvasH: 0,
-        canvasPixelSize: 0,
         cachedNodes: undefined, // cache the nodes if 'updateEmbedding is faster than loading nodes
     }),
     methods: {
@@ -1081,9 +1083,9 @@ export default {
         addNode(node) {
             console.warn(node);
             console.warn(`Add Node ${node.index}:`);
-            const addNode1 = this.state2.addNode(node.x, node.y, node.index);
+            const addNode1 = this.wasm.addNode(node.x, node.y, node.index);
             // console.log({addNode1});
-            console.log(this.offset);
+            // console.log(this.offset);
 
             for (let i = 0; i < 10; i += 1) {
                 const img = node.imageData[i];
@@ -1091,12 +1093,12 @@ export default {
                 // console.log({ img });
 
                 // add img buffer to memory: Crete a view over the buffer and set use the viewer to set the data
-                this.memoryView.set(img.data, this.offset, img.data.buffer.length);
-                this.state2.addPic(node.index, img.width, img.height, this.offset);
+                this.wasm.U8.set(img.data, this.offset, img.data.buffer.length);
+                this.wasm.addPic(node.index, img.width, img.height, this.offset);
 
                 // const checkSum = img.data.reduce((a, e) => a + e, 0);
-                // const realSum = this.state2.checkSum(node.index);
-                // const getNodeXY = 0 // this.state2.getNodeXY(node.index);
+                // const realSum = this.wasm.checkSum(node.index);
+                // const getNodeXY = 0 // this.wasm.getNodeXY(node.index);
                 // console.log({checkSum, realSum, getNodeXY});
 
                 this.offset += img.data.byteLength;
@@ -1108,22 +1110,23 @@ export default {
             console.time('DRAW2');
             try {
                 console.warn('DRAW2');
-                // console.log(this.emptyDrawPixel, this.memoryView, this.pixelView.data)
-                // const clear = this.state2.clear();
+                // console.log(this.emptyDrawPixel, this.memoryView, this.explorerPixel.data)
+                // const clear = this.wasm.clear();
                 // console.log({ clear });
-                // console.log(`checksum draw empty: ${this.state2.checkSum()}`);
+                // console.log(`checksum draw empty: ${this.wasm.checkSum()}`);
 
-                const draw = this.state2.draw();
+                const draw = this.wasm.draw();
                 // console.log({ draw });
-                // console.log(`checksum draw after: ${this.state2.checkSum()}`);
+                // console.log(`checksum draw after: ${this.wasm.checkSum()}`);
 
                 // clear canvas
                 // this.drawCtx.clearRect(0, 0, this.canvasW, this.canvasH)
 
-                // console.log(this.emptyDrawPixel, this.memoryView, this.pixelView)
+                // console.log(this.emptyDrawPixel, this.memoryView, this.explorerPixel)
 
-                this.drawCtx.putImageData(this.pixelView, 0, 0);
-                // const checkDraw = this.pixelView.data.reduce((a, e) => a + e, 0);
+
+                this.drawCtx.putImageData(this.explorerPixel, 0, 0);
+                // const checkDraw = this.explorerPixel.data.reduce((a, e) => a + e, 0);
                 // console.log({ checkDraw });
             } catch (e) {
                 console.error(e);
@@ -1133,25 +1136,24 @@ export default {
             return 0;
         },
 
-        growMemory(bytes) {
-            console.log(this.offset);
-            console.log('%c growMemory(bytes)', 'background: #222; color: #bada55');
-            if (!this.state2) new Error('Dont growMemory before init');
-            const pagesNeeded = Math.ceil((bytes + this.initOffset) / (64 * 1024));
-            const actualMemorySize = this.state2.memorySize();
-            console.log({ pagesNeeded, actualMemorySize });
-            if (pagesNeeded > actualMemorySize) this.state2.memory.grow(pagesNeeded - actualMemorySize);
-            this.memoryView = new Uint8ClampedArray(this.state2.memory.buffer);
-            this.pixelView = new ImageData(
+        allocNewMemory(size) {
+            // alloc the request memory
+            const ptr = this.wasm.__alloc(size, 2);
+            console.log('allocNewMemory: ', ptr, size)
+
+            // create new view on buffer cause buffer changes everytime
+            this.explorerPixel = new ImageData(
                 new Uint8ClampedArray(
-                    this.state2.memory.buffer,
-                    this.initOffset,
-                    this.canvasPixelSize,
+                    this.wasm.U8.buffer,
+                    this.explorerPixelStart,
+                    this.explorerPixelSize,
                 ),
                 this.canvasW,
                 this.canvasH,
             );
-            // console.log(this.memoryView,  this.pixelView);
+
+            // return pointer where new memory starts
+            return ptr;
         },
 
         updateCanvasSize() {
@@ -1184,7 +1186,7 @@ export default {
 
     async mounted() {
         console.error('Mounted Explorer');
-        if(!this.isAuth) return console.error('EXPLORER WITHOUT AUTH')
+        if (!this.isAuth) return console.error('EXPLORER WITHOUT AUTH');
         // set resize event handler
         window.addEventListener('resize', this.handleResize);
 
@@ -1203,6 +1205,63 @@ export default {
         this.drawCtx = canvas.getContext('2d');
         this.canvasW = parantWidth;
         this.canvasH = parantHeight;
+
+        // Test wasm
+        // try {
+        //     const imports = {
+        //         env: {
+        //             // import as @external("env", "logf")
+        //             log1(value) {
+        //                 console.log(`%c from wasm: ${value}`, 'background: #222; color: #bada55');
+        //             },
+        //             abort(msg, file, line, column) {
+        //                 console.error(`abort called at main.ts:${line}:${column}`);
+        //             },
+        //         },
+        //         console: {
+        //             log2(value) {
+        //                 console.log(`%c from wasm: ${value}`, 'background: #222; color: #bada55');
+        //             },
+        //         },
+        //     };
+        //
+        //     // const Module = await import('../assets/wasm/optimized.wasm');
+        //     console.warn('START');
+        //     console.log({ wasm });
+        //     const Module = await instantiateStreaming(fetch(wasm), imports);
+        //     console.log({ Module });
+        //     const { memory } = Module;
+        //
+        //     // reserve static memory for images (aka init later?)
+        //
+        //     /**
+        //      *  What das __alloc do?
+        //      *  __alloc() return a adresse
+        //      *  @param size in bytes
+        //      *  alloc thinks in 32 bytes, each page is 32 normaly and __alloc(33) gives 2 pages
+        //      */
+        //
+        //     // 1. alloc size of canvas to share pixel
+        //     this.canvasPixelSize = this.canvasH * this.canvasW * 4;
+        //     const canvasStart = Module.__alloc(this.canvasPixelSize, 2);
+        //     console.log(canvasStart, this.canvasPixelSize);
+        //     console.log(Module.I32);
+        //     console.log(Module.U8);
+        //
+        //     // checksum should be 0
+        //     let check0 = 0;
+        //     for (let i = canvasStart + 32; i < this.canvasPixelSize - 32; i++) {
+        //         check0 += Module.U8[i];
+        //         if (Module.U8[i] !== 0) console.log(i, Module.U8[i]);
+        //     }
+        //     console.log('Checksum on empty array: ', check0);
+        //
+        //     this.wasm = Module;
+        //     this.memory = memory;
+        //     console.log(memory);
+        //
+        //     console.warn('INIT');
+        // } catch (e) {}
 
         if (this.wasmMode) {
             try {
@@ -1238,31 +1297,28 @@ export default {
 
                 // reserve static memory for images (aka init later?)
 
-                this.state2 = Module;
+                this.wasm = Module;
                 this.memory = memory;
                 console.log(memory);
 
                 console.warn('INIT');
-                this.initOffset = 1024 * 64 * 50; // 50 pages
-                this.canvasPixelSize = this.canvasH * this.canvasW * 4;
-                this.offset = this.initOffset;
+                this.explorerPixelSize = this.canvasH * this.canvasW * 4;
+
+                // get memory for both canvas
+                this.explorerPixelStart = this.allocNewMemory(this.explorerPixelSize);
+                this.hitMapPixelStart = this.allocNewMemory(this.explorerPixelSize);
 
                 console.log({
-                    initOffset: this.initOffset,
                     canvasW: this.canvasW,
                     canvasH: this.canvasH,
-                    canvasPixelSize: this.canvasPixelSize,
+                    explorerPixelSize: this.explorerPixelSize,
+                    offset: this.explorerPixelStart,
                 });
 
-                // get more memory
-                this.growMemory(this.canvasPixelSize);
-
-                const init = this.state2.init(0, this.canvasW, this.canvasH, this.offset);
+                // init wasm state
+                const init = this.wasm.init(0, this.canvasW, this.canvasH, this.explorerPixelStart, this.hitMapPixelStart);
                 console.log({ init });
-                console.log(this.state2.__rtti_base.value);
-                // update offset with canvasPixel size
-                this.offset += this.canvasPixelSize;
-                console.log('New Offset with canvasPixelSize: ', this.offset);
+                console.log(this.wasm.__rtti_base.value);
             } catch (e) {
                 console.error('ERROR');
                 console.error(e);
@@ -1417,6 +1473,7 @@ export default {
             const state = this;
 
             async function consume(reader) {
+                console.error('CONSUM')
                 // let total = 0;
                 let w = 0;
                 let h = 1; // point to w/h positions in the buffer
@@ -1500,13 +1557,16 @@ export default {
                         console.warn(err);
                         throw Error(err.error.message);
                     }
-                    if (this.wasmMode) this.growMemory(this.canvasPixelSize + +contentLength);
+                    if (this.wasmMode) {
+                        // get full memory for all imgs data
+                        this.offset = this.allocNewMemory(+contentLength);
+                    }
                     await consume(res.body.getReader());
 
                     // test
                     if (this.wasmMode) {
-                        // this.state2.setScale(10);
-                        // this.state2.setTxTy(150, 150);
+                        // this.wasm.setScale(10);
+                        // this.wasm.setTxTy(150, 150);
                         this.draw2();
                     }
 
@@ -1539,7 +1599,7 @@ export default {
                     });
                     console.error('something went wrong with reading img stream:');
                     console.log(e);
-                    console.log(this.state2.memory);
+                    console.log(this.wasm);
                 });
 
             this.updateNodes = false;

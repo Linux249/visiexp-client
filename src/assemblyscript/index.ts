@@ -13,16 +13,6 @@ declare function log(val: f64): f64;
 //  export declare function log(int: u32): void;
 //}
 
-// GEIL - Beliebig viele Knoten pushen°!
-// TODO
-// 1. Init mit out array verbinden,
-
-/*
-  MEMORY:
-  [offset] free memory, 400
-  [size] out pixel buffer = canvasW * vanvsH * 4
-  [imgBytes] each node hat a ptr to his pixels
-*/
 
 class Pic {
     public size: u32;
@@ -45,9 +35,9 @@ class State {
     public tx: i32;
     public ty: i32;
 
-    constructor(public count: u32, public canvasW: u32, public canvasH: u32, public offset: u32) {
+    constructor(public count: u32, public canvasW: u32, public canvasH: u32, public pixelStart: u32, public hitMapStart: u32) {
         //todo add size
-        this.imgMemoryPtr = offset + 4 * (canvasW * canvasH);
+        this.imgMemoryPtr = pixelStart + 4 * (canvasW * canvasH);
         this.tx = Math.ceil(canvasW / 2) as i32;
         this.ty = Math.ceil(canvasH / 2) as i32;
     }
@@ -81,7 +71,7 @@ class State {
     }
 
     public draw(): u32 {
-        for (let i: u32 = this.offset, size: u32 = this.imgMemoryPtr; i < size; i++) {
+        for (let i: u32 = this.pixelStart, size: u32 = this.imgMemoryPtr; i < size; i++) {
             store<u8>(i, <i32>0);
         }
 
@@ -99,17 +89,17 @@ class State {
     }
 
     public clear(): u32 {
-        // for (let i: u32 = this.offset, size: u32 = this.imgMemoryPtr; i < size; ++i) {
+        // for (let i: u32 = this.pixelStart, size: u32 = this.imgMemoryPtr; i < size; ++i) {
         //     store<u8>(i, <i32>0);
         // }
-        return this.offset;
+        return this.pixelStart;
     }
 
     public checkOutArray(): u32 {
         // let c = 0;
 
         let v: u32 = 0;
-        for (let i: u32 = this.offset, size: u32 = this.imgMemoryPtr; i < size; ++i) {
+        for (let i: u32 = this.pixelStart, size: u32 = this.imgMemoryPtr; i < size; ++i) {
             // store<u8>(i + 2, 1)
             v += load<u8>(i);
         }
@@ -156,7 +146,6 @@ class Node {
 
     public draw(): u32 {
         // my start of pixel in buffer
-        // const offset: u32 = state.offset + this.ptr
 
         // const size: u32 = state.imgMemoryPtr;
         // let i: u32 = 0;
@@ -180,7 +169,7 @@ class Node {
         if (x < 0 || y < 0) return -1;
         if (x + w > state.canvasW || y + h > state.canvasH) return -1;
 
-        const startPixel = state.offset + (((y as u32) * state.canvasW + x) as u32) * 4;
+        const startPixel = state.pixelStart + (((y as u32) * state.canvasW + x) as u32) * 4;
         // log(startPixel)
         // loop through each row
         for (let r: u32 = 0; r < h; r += 1) {
@@ -188,11 +177,11 @@ class Node {
                 // loop through each column/field
 
                 // in pixel
-                // #rows have each w pixel, 1 pixel 4 bytes, offset is start
-                // const p: u32 = (r * this.w + c) * 4 + offset
+                // #rows have each w pixel, 1 pixel 4 bytes, pixelStart is start
+                // const p: u32 = (r * this.w + c) * 4 + pixelStart
 
                 // out pixel
-                // const o: u32 = state.offset + (this.y*state.canvasW + this.x) * 4
+                // const o: u32 = state.pixelStart + (this.y*state.canvasW + this.x) * 4
                 // state.count += 1
                 const outPixel: u32 = startPixel + (r * state.canvasW + c) * 4;
                 const inPixel: u32 = 4 * (r * w + c) + ptr;
@@ -243,11 +232,11 @@ export function count(): u32 {
     return state.length;
 }
 
-export function init(count: u32, canvasW: u32, canvasH: u32, offset: u32): number {
+export function init(count: u32, canvasW: u32, canvasH: u32, pixelStart: u32, hitMapStart: u32): number {
     // create state
-    state = new State(count, canvasW, canvasH, offset);
+    state = new State(count, canvasW, canvasH, pixelStart, hitMapStart);
 
-    return state.offset;
+    return state.pixelStart;
 }
 
 // checksum of node x
