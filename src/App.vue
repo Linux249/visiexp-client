@@ -187,7 +187,7 @@ input {
 }
 
 .title {
-    width: 100%;
+    /*width: 100%;*/
     font-weight: bold;
     color: #767676;
     padding: 0.5rem 0.5rem 0.2rem;

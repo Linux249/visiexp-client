@@ -55,6 +55,14 @@ export default {
     },
     methods: {
         async getGroupNeighbours() {
+            if (this.loading) {
+                return this.$notify({
+                    group: 'default',
+                    title: 'Cannot load proposals',
+                    type: 'error',
+                    text: 'wait until finish loading',
+                });
+            }
             try {
                 console.log('getGroupNeighbours');
                 console.log(this.$parent.userId);
@@ -70,7 +78,10 @@ export default {
                 };
 
                 // both objects are empty on init
-                if (Object.keys(store.proposals).length || Object.keys(store.removedProposals).length) {
+                if (
+                    Object.keys(store.proposals).length
+                    || Object.keys(store.removedProposals).length
+                ) {
                     body.negatives = Object.keys(store.proposals).map(key => +key);
                 }
 
@@ -95,6 +106,7 @@ export default {
                     text: e.message,
                 });
             }
+            return null;
         },
 
         resetNeighbours() {

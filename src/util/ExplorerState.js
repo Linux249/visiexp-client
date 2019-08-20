@@ -674,14 +674,9 @@ export default class ExplorerState {
             translateX: tx,
             translateY: ty,
             representImgSize,
-            nonActiveGroupAplha,
             nodeUnderMouse,
         } = this;
-        const zoomStage = Math.floor(this.zoomStage);
 
-        const explorerPixel = new Uint8ClampedArray(explorerW * explorerH * 4);
-        const hitmapPixel = new Uint8ClampedArray(explorerW * explorerH * 4);
-        // console.log({ explorerW, explorerH, tx, ty, scale });
 
         const {
             boarderRankedMode,
@@ -694,7 +689,16 @@ export default class ExplorerState {
             repsMode,
             alphaBase,
             alphaIncrease,
+            groupBorderAllActive,
         } = this.ui;
+
+        const nonActiveGroupAplha = groupBorderAllActive ? 255 : this.nonActiveGroupAplha
+        const zoomStage = Math.floor(this.zoomStage);
+
+        const explorerPixel = new Uint8ClampedArray(explorerW * explorerH * 4);
+        const hitmapPixel = new Uint8ClampedArray(explorerW * explorerH * 4);
+        // console.log({ explorerW, explorerH, tx, ty, scale });
+
 
         const nodes = this.sorted
             ? this.sortedNodes
@@ -774,7 +778,7 @@ export default class ExplorerState {
                             explorerPixel[c] = groupColor[0]; // R
                             explorerPixel[c + 1] = groupColor[1]; // G
                             explorerPixel[c + 2] = groupColor[2]; // B
-                            explorerPixel[c + 3] = 50;
+                            explorerPixel[c + 3] = nonActiveGroupAplha;
                         }
                     } else {
                         // draw left boarder
@@ -1120,7 +1124,7 @@ export default class ExplorerState {
             const color = `rgb(${r},${g},${b})`;
             const id = this.colorHash[color] || null;
             // console.log('wasmPixel',i, x, y, this.ui.hitMapPixel.width, r, g, b, nodeId, color, this.ui.hitMapPixel);
-            return id
+            return this.nodes[id] || null
         }
         // else {
         const pixel = this.hitCtx.getImageData(x, y, 1, 1).data;
@@ -1128,11 +1132,7 @@ export default class ExplorerState {
         const nodeId = this.colorHash[color];
         // console.log({ pixel, x, y });
         // console.timeEnd('findNodeByMousePosition');
-        if (nodeId >= 0) {
-            return this.nodes[nodeId];
-        }
-        return null;
-
+        return this.nodes[nodeId] || null;
         // }
     }
 

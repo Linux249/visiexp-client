@@ -324,7 +324,13 @@
             </classifier>
 
             <div class="area">
+                <div class="row-between">
+
                 <div class="title">Groups</div>
+                    <div class="btn" :class="{active: groupBorderAllActive}" @click="toggleGroupBorderAllActive">
+                        view all
+                    </div>
+                </div>
                 <div class="group-list" v-if="this.savedGroups.length">
                     <div :key="i" class="group-item row-between" v-for="(group, i) in savedGroups">
                         <div
@@ -584,6 +590,7 @@ export default {
         canvasW: 0,
         canvasH: 0,
         cachedNodes: undefined, // cache the nodes if 'updateEmbedding is faster than loading nodes
+        groupBorderAllActive: false,
     }),
     methods: {
         getNode(i) {
@@ -709,6 +716,11 @@ export default {
         sortNodes() {
             this.store.sortNodes();
             this.sorted = this.store.sorted;
+        },
+
+        toggleGroupBorderAllActive() {
+            this.groupBorderAllActive = !this.groupBorderAllActive
+            this.store.triggerDraw()
         },
 
         // drawHeatmap() {
@@ -1551,7 +1563,7 @@ export default {
                                 store.addNode(node);
                                 store.triggerDraw();
 
-                                if (state.wasmMode && nodeId <= 10) {
+                                if (state.wasmMode) {
                                     state.addNode(node);
                                 }
                                 // vue state
