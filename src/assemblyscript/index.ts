@@ -13,6 +13,16 @@ declare function log(val: f64): f64;
 //  export declare function log(int: u32): void;
 //}
 
+function rgbaToU32Int(r: u32, g: u32, b: u32, a: u32): u32 {
+   return r | (g << 8) | (b << 16) | (a << 24)
+}
+
+// const blue: u32 = rgbaToU32Int(56, 130, 255, 255)
+const red: u32 = rgbaToU32Int(255, 0, 0, 255)
+const green: u32 = rgbaToU32Int(0, 255, 0, 255)
+const blue: u32 = rgbaToU32Int(0, 0, 255, 255)
+const purple: u32 = rgbaToU32Int(103, 114, 229, 255)
+
 
 class Pic {
     public size: u32;
@@ -74,9 +84,7 @@ class State {
 
     public draw(): u32 {
         // clear explorerPixel
-        for (let i: u32 = this.explorerStart; i < this.explorerEnd; i++) {
-            store<u8>(i, <i32>0);
-        }
+        this.clear()
 
         let s: u32 = 0;
         for (let x: u32 = 0; x < this.count; x++) {
@@ -88,19 +96,25 @@ class State {
             s += this.nodes[x].draw();
         }
         // return this.checkOutArray()
+        this.drawRect(40, 40, 100, 50, red);
+        this.drawRect(150, 40, 100, 50, green);
+        this.drawRect(260, 40, 100, 50, blue);
         return this.explorerEnd;
     }
 
     public clear(): u32 {
-        // for (let i: u32 = this.explorerStart, size: u32 = this.explorerEnd; i < size; ++i) {
-        //     store<u8>(i, <i32>0);
-        // }
+        // clear explorer pixel
+        for (let i: u32 = this.explorerStart; i < this.explorerEnd; i++) {
+            store<u8>(i, <i32>0);
+        }
+        // clear hitmap pixel
+        for (let i: u32 = this.hitMapStart; i < this.hitMapEnd; i++) {
+            store<u8>(i, <i32>0);
+        }
         return this.explorerStart;
     }
 
     public checkOutArray(): u32 {
-        // let c = 0;
-
         let v: u32 = 0;
         for (let i: u32 = this.explorerStart, size: u32 = this.explorerEnd; i < size; ++i) {
             // store<u8>(i + 2, 1)
@@ -108,6 +122,43 @@ class State {
         }
 
         return v;
+    }
+
+    drawRect(x: u32, y: u32, w: u32, h: u32, color: u32): u32 {
+        const startPixel = this.explorerStart + ((((y - 2) * this.canvasW ) + x - 2) * 4);
+        // log(startPixel)
+
+        let p: u32 = 0
+        // draw top/bottom line
+        for(let i: u32 = 0; i < (w + 4); i+= 1) {
+            // double top line
+            p = startPixel + (i * 4);
+            store<u32>(p, color);
+            p += this.canvasW * 4;
+            store<u32>(p, color);
+
+            // double bottom line: add first 2 for the removed above and 1 for one under
+            p += this.canvasW * 4* (h + 1);
+            store<u32>(p, color);
+            p += this.canvasW * 4;
+            store<u32>(p, color);
+        }
+        // draw left/ right line
+        for(let i: u32 = 2; i < h + 4; i+= 1) {
+            // double left line
+            p = startPixel + (i * this.canvasW * 4);
+            store<u32>(p, color);
+            p += 4;
+            store<u32>(p, color);
+
+            // double right line
+            p += w * 4 + 4;
+            store<u32>(p, color);
+            p += 4;
+            store<u32>(p, color);
+        }
+
+        return 1;
     }
 }
 
@@ -153,30 +204,16 @@ class Node {
     public draw(): u32 {
         // my start of pixel in buffer
 
-        // const size: u32 = state.explorerEnd;
-        // let i: u32 = 0;
-        // log(state.scale)
-        // log(state.tx)
-        // log(state.ty)
-        // log(this.x)
-        // log(this.y)
         const x = Math.floor(this.x * state.scale + state.tx);
         const y = Math.floor(this.y * state.scale + state.ty);
         const w = this.pics[state.zoom].w;
         const h = this.pics[state.zoom].h;
         const ptr = this.pics[state.zoom].ptr;
-        if (!this.id) {
-            log(state.scale);
-            log(state.tx);
-            log(state.ty);
-            log(x);
-            log(y);
-            log(this.r);
-            log(this.g);
-            log(this.b);
-        }
+
         if (x < 0 || y < 0) return -1;
         if (x + w > state.canvasW || y + h > state.canvasH) return -1;
+
+        state.drawRect(x as u32, y as u32, w, h, red)
 
         const startPixel = state.explorerStart + (((y as u32) * state.canvasW + x) as u32) * 4;
         const hitMapPixel = state.hitMapStart + (((y as u32) * state.canvasW + x) as u32) * 4;
@@ -186,14 +223,6 @@ class Node {
             for (let c: u32 = 0; c < w; c += 1) {
                 // loop through each column/field
 
-                // in pixel
-                // #rows have each w pixel, 1 pixel 4 bytes, explorerStart is start
-                // const p: u32 = (r * this.w + c) * 4 + explorerStart
-
-                // out pixel
-                // const o: u32 = state.explorerStart + (this.y*state.canvasW + this.x) * 4
-                // state.count += 1
-                // draw on explorer
                 const outPixel: u32 = startPixel + (r * state.canvasW + c) * 4;
                 const inPixel: u32 = 4 * (r * w + c) + ptr;
                 store<u32>(outPixel, load<u32>(inPixel));
@@ -204,15 +233,6 @@ class Node {
                 store<u8>(outHitMapPixel + 1, this.g);
                 store<u8>(outHitMapPixel + 2, this.b);
                 store<u8>(outHitMapPixel + 3, 255);
-                // const v = load<u8>(inPixel)
-                // if(r === c)log(outPixel)
-                // if(r === c)log(v)
-                // store<u8>(outPixel, v)
-                // store<u8>((outPixel + 1), load<u8>(inPixel + 1 ))
-                // store<u8>((outPixel + 2), load<u8>(inPixel + 2 ))
-                // store<u8>((outPixel + 3), load<u8>(inPixel + 3 ))
-
-                // i++
             }
         }
 
@@ -222,12 +242,12 @@ class Node {
 
 // add a node extern, later export class State and use diretly
 export function addNode(x: f64, y: f64, id: u32, r: u8, g: u8, b: u8): u32 {
-    log(x);
-    log(y);
+    // log(x);
+    // log(y);
     const test = Math.round(x * 1000000) / 1000000;
     const test2 = Math.round(y * 1000000) / 1000000;
-    log(test);
-    log(test2);
+    // log(test);
+    // log(test2);
     // log(<f64><u32>y)
     // log(y as u32)
     return state.addNode(test, test2, id, r, g, b);
