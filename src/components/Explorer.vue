@@ -719,8 +719,8 @@ export default {
         },
 
         toggleGroupBorderAllActive() {
-            this.groupBorderAllActive = !this.groupBorderAllActive
-            this.store.triggerDraw()
+            this.groupBorderAllActive = !this.groupBorderAllActive;
+            this.store.triggerDraw();
         },
 
         // drawHeatmap() {
@@ -861,27 +861,28 @@ export default {
         // },
 
         changeScaleUp() {
-            // const canvas = document.getElementById('canvas');
-            // this.store.zoomStage -= 1; // undoing image resize
-            // const event = {
-            //     deltaY: -1,
-            //     offsetX: Math.round(canvas.width / 2),
-            //     offsetY: Math.round(canvas.height / 2),
-            // };
-            this.store.changeScaleUp();
-            this.store.triggerDraw();
+            const canvas = document.getElementById('canvas');
+            this.store.zoomStage -= 0.2; // undoing image resize
+            const event = {
+                deltaY: -1,
+                offsetX: Math.round(canvas.width / 2),
+                offsetY: Math.round(canvas.height / 2),
+            };
+            this.store.zoom(event);
+            // this.store.changeScaleUp();
+            // this.store.triggerDraw();
         },
 
         changeScaleDown() {
-            // const canvas = document.getElementById('canvas');
-            // this.store.zoomStage += 1; // undoing image resize
-            // const event = {
-            //     deltaY: 1,
-            //     offsetX: Math.round(canvas.width / 2),
-            //     offsetY: Math.round(canvas.height / 2),
-            // };
-            this.store.changeScaleDown();
-            this.store.triggerDraw();
+            this.store.zoomStage += 0.2; // undoing image resize
+            const event = {
+                deltaY: 1,
+                offsetX: Math.round(this.canvasW / 2),
+                offsetY: Math.round(this.canvasH / 2),
+            };
+            this.store.zoom(event);
+            // this.store.changeScaleDown();
+            // this.store.triggerDraw();
         },
 
         changeHeatmapRadius(v) {
@@ -1120,6 +1121,7 @@ export default {
 
         draw2() {
             console.time('DRAW2');
+            console.log(this);
             try {
                 console.warn('DRAW2');
                 // console.log(this.emptyDrawPixel, this.memoryView, this.explorerPixel.data)
@@ -1199,15 +1201,24 @@ export default {
             const canvas = document.getElementById('canvas');
             const parantWidth = canvas.parentNode.clientWidth;
             const parantHeight = canvas.parentNode.clientHeight;
+
+            // update canvas
             canvas.width = parantWidth;
             canvas.height = parantHeight;
+
+            // update state
+            this.canvasW = parantWidth;
+            this.canvasH = parantWidth;
+
+            // update store
             this.store.width = parantWidth;
             this.store.height = parantHeight;
 
-            // update heatmap
+            // update heatmapRect
             this.navHeatmapRect.width = parantWidth / 4;
             this.navHeatmapRect.height = parantHeight / 4;
 
+            // update heatmap
             const navHeatmap = document.getElementById('navHeatmap');
             navHeatmap.width = parantWidth / 4;
             navHeatmap.height = parantHeight / 4;
@@ -1630,7 +1641,7 @@ export default {
                     console.log(
                         'consumed the entire body without keeping the whole thing in memory!',
                     );
-                    console.log(this)
+                    console.log(this);
                 })
                 .catch((e) => {
                     this.$notify({

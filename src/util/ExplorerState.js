@@ -1078,22 +1078,16 @@ export default class ExplorerState {
         // Zoom in = increase = wheel up = negative delta Y
         if (wheelEvent.deltaY < 0) {
             console.log('zoom in');
-            // this.scale2 += 1;
-            // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
             this.zoomStage += 0.2;
             this.changeScaleUp();
         }
 
-        // Zoom out = decrease = wheel down = positiv delta Y
+        // Zoom out = decrease = wheel down = positive delta Y
         if (wheelEvent.deltaY > 0) {
             console.log('zoom out');
-            // this.scale2 -= 1;
-            // this.scaleStage[this.zoomStage] || this.scaleStage[this.scaleStage.length - 1];
             this.zoomStage -= 0.2;
             this.changeScaleDown();
         }
-        // console.log(this.zoomStage);
-        // console.log(this.scale);
 
         const scaleChange = this.scale - oldScale;
         this.translateX -= offsetX * scaleChange;
