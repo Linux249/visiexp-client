@@ -34,7 +34,7 @@ export default class Node {
         // this.pics = {};
 
         // only add imageData in normal mode
-        this.imageData = wasm && data.imageData;
+        this.imageData = data.imageData;
 
         /* try {
             // this.icon = new Image();

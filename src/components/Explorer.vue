@@ -1125,6 +1125,9 @@ export default {
                 // console.log({checkSum, realSum, getNodeXY});
 
                 this.offset += img.data.byteLength;
+
+                // remove image data to free memory
+                node.imageData[i] = undefined
             }
             // this.draw2();
         },

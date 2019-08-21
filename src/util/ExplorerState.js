@@ -275,6 +275,7 @@ export default class ExplorerState {
     }
 
     triggerDraw() {
+        // console.log('trigger draw. valid?: ', this.valid)
         if (this.valid) window.requestAnimationFrame(() => this.draw());
         this.valid = false;
     }
@@ -667,7 +668,7 @@ export default class ExplorerState {
     draw() {
         // console.log('start draw')
         const startTime = window.performance.now();
-        if (this.ui.wasmMode) {
+        if (this.wasm) {
             this.ui.draw2();
             const endTime = window.performance.now();
             const time = endTime - startTime;
@@ -1078,6 +1079,7 @@ export default class ExplorerState {
             console.warn('new max draw time');
             console.warn(this.maxDrawTime);
         }
+        this.valid = true
     }
 
     zoom(wheelEvent) {
