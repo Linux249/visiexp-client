@@ -62,17 +62,9 @@ class State {
     public addNode(x: f64, y: f64, id: u32, r: u8, g: u8, b: u8): u32 {
         this.count += 1;
         // console.log1(this.count)
-        // log(this.count)
-        // // log(w)
-        // // log(h)
-        // log(ptr)
-        // log(x)
-        // log(y)
         const node: Node = new Node(x, y, id, r, g, b);
         // this.nodes.push(new Node(w, h, ptr));
         this.nodes.push(node);
-        // log(node.x)
-        // log(node.y)
 
         return 1;
         //return 0;
@@ -88,11 +80,6 @@ class State {
 
         let s: u32 = 0;
         for (let x: u32 = 0; x < this.count; x++) {
-            // s += this.nodes[x].checkSum()
-            // s += this.nodes[x].x
-            // s += this.nodes[x].y
-            // s += this.nodes[x].w
-            // s += this.nodes[x].h
             s += this.nodes[x].draw();
         }
         // return this.checkOutArray()
@@ -126,7 +113,8 @@ class State {
 
     drawRect(x: u32, y: u32, w: u32, h: u32, color: u32): u32 {
         const startPixel = this.explorerStart + ((((y - 2) * this.canvasW ) + x - 2) * 4);
-        // log(startPixel)
+        if(startPixel < state.explorerStart) return 0;
+        if(startPixel + w + 4 > state.explorerEnd) return 0;
 
         let p: u32 = 0
         // draw top/bottom line
@@ -213,11 +201,11 @@ class Node {
         if (x < 0 || y < 0) return -1;
         if (x + w > state.canvasW || y + h > state.canvasH) return -1;
 
-        state.drawRect(x as u32, y as u32, w, h, red)
+        state.drawRect(x as u32, y as u32, w, h, purple)
 
         const startPixel = state.explorerStart + (((y as u32) * state.canvasW + x) as u32) * 4;
         const hitMapPixel = state.hitMapStart + (((y as u32) * state.canvasW + x) as u32) * 4;
-        // log(startPixel)
+
         // loop through each row
         for (let r: u32 = 0; r < h; r += 1) {
             for (let c: u32 = 0; c < w; c += 1) {
@@ -300,28 +288,36 @@ export function getNodeXY(n: u32): u32 {
 
 export function setScale(s: u32): u32 {
     state.scale = s;
-    log(state.scale);
+    // log(state.scale);
     return state.scale;
 }
 
 export function setTxTy(tx: u32, ty: u32): u32 {
     state.tx = tx;
     state.ty = ty;
-    log(state.tx);
-    log(state.ty);
+    // log(state.tx);
+    // log(state.ty);
     return state.tx + state.ty;
 }
 
 export function setZoom(z: u8): u8 {
     state.zoom = z < 10 ? z : 9;
-    log(state.zoom);
+    // log(state.zoom);
     return state.zoom;
 }
 
 export function addTxTy(tx: i32, ty: i32): u32 {
     state.tx += tx;
     state.ty += ty;
-    log(state.tx);
-    log(state.ty);
+    // log(state.tx);
+    // log(state.ty);
     return state.tx + state.ty;
+}
+
+export function nodeSetX(id: u32, x: f64): f64 {
+    return state.nodes[id].x = x
+}
+
+export function nodeSetY(id: u32, y: f64): f64 {
+    return state.nodes[id].y = y
 }

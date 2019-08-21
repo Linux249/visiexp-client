@@ -325,9 +325,12 @@
 
             <div class="area">
                 <div class="row-between">
-
-                <div class="title">Groups</div>
-                    <div class="btn" :class="{active: groupBorderAllActive}" @click="toggleGroupBorderAllActive">
+                    <div class="title">Groups</div>
+                    <div
+                        class="btn"
+                        :class="{ active: groupBorderAllActive }"
+                        @click="toggleGroupBorderAllActive"
+                    >
                         view all
                     </div>
                 </div>
@@ -1096,7 +1099,14 @@ export default {
         addNode(node) {
             console.warn(node);
             console.warn(`Add Node ${node.index}:`, node);
-            const addNode1 = this.wasm.addNode(node.x, node.y, node.index, node.colorKey[0], node.colorKey[1], node.colorKey[2]);
+            const addNode1 = this.wasm.addNode(
+                node.x,
+                node.y,
+                node.index,
+                node.colorKey[0],
+                node.colorKey[1],
+                node.colorKey[2],
+            );
             // console.log({addNode1});
             // console.log(this.offset);
 
@@ -1116,38 +1126,17 @@ export default {
 
                 this.offset += img.data.byteLength;
             }
-            this.draw2();
+            // this.draw2();
         },
 
         draw2() {
-            console.time('DRAW2');
-            console.log(this);
             try {
                 console.warn('DRAW2');
-                // console.log(this.emptyDrawPixel, this.memoryView, this.explorerPixel.data)
-                // const clear = this.wasm.clear();
-                // console.log({ clear });
-                // console.log(`checksum draw empty: ${this.wasm.checkSum()}`);
-
-                const draw = this.wasm.draw();
-                // console.log({ draw });
-                // console.log(`checksum draw after: ${this.wasm.checkSum()}`);
-
-                // clear canvas
-                // this.explorerCtx.clearRect(0, 0, this.canvasW, this.canvasH)
-
-                // console.log(this.emptyDrawPixel, this.memoryView, this.explorerPixel)
-
-
+                this.wasm.draw();
                 this.explorerCtx.putImageData(this.explorerPixel, 0, 0);
-                // this.explorerCtx.putImageData(this.hitMapPixel, 0, 0);
-                // const checkDraw = this.explorerPixel.data.reduce((a, e) => a + e, 0);
-                // console.log({ checkDraw });
             } catch (e) {
                 console.error(e);
             }
-            console.timeEnd('DRAW2');
-
             return 0;
         },
 
@@ -1182,7 +1171,12 @@ export default {
 
         checkSumExplorer() {
             let checksum = 0;
-            for (let i = this.explorerPixelStart, size = this.explorerPixelStart + this.explorerPixelSize; i < size; i++) {
+            for (
+                let i = this.explorerPixelStart,
+                    size = this.explorerPixelStart + this.explorerPixelSize;
+                i < size;
+                i++
+            ) {
                 checksum += this.wasm.U8[i];
             }
             console.log('checkSumExplorer: ', checksum);
@@ -1190,7 +1184,12 @@ export default {
 
         checkSumHitMap() {
             let checksum = 0;
-            for (let i = this.hitMapPixelStart, size = this.hitMapPixelStart + this.explorerPixelSize; i < size; i++) {
+            for (
+                let i = this.hitMapPixelStart,
+                    size = this.hitMapPixelStart + this.explorerPixelSize;
+                i < size;
+                i++
+            ) {
                 checksum += this.wasm.U8[i];
             }
             console.log('checkSumHitMap: ', checksum);
@@ -1368,7 +1367,13 @@ export default {
                 });
 
                 // init wasm state
-                const init = this.wasm.init(0, this.canvasW, this.canvasH, this.explorerPixelStart, this.hitMapPixelStart);
+                const init = this.wasm.init(
+                    0,
+                    this.canvasW,
+                    this.canvasH,
+                    this.explorerPixelStart,
+                    this.hitMapPixelStart,
+                );
                 console.log({ init });
                 console.log(this.wasm.__rtti_base.value);
             } catch (e) {
@@ -1465,12 +1470,17 @@ export default {
             console.error('Server response with error:');
             console.error(data.message);
             console.error(data);
-            this.$notify({
-                group: 'default',
-                title: 'Error from server',
-                type: 'error',
-                text: data.message,
-            });
+            if (
+                process.env.NODE_ENV !== 'development'
+                || data.message !== 'Error loading full image'
+            ) {
+                this.$notify({
+                    group: 'default',
+                    title: 'Error from server',
+                    type: 'error',
+                    text: data.message,
+                });
+            }
         });
 
         socket.on('disconnect', (reason) => {
@@ -1568,7 +1578,7 @@ export default {
                             } else {
                                 size = 0;
                                 state.nodesRecived += 1;
-                                const node = new Node(nodes[nodeId]);
+                                const node = new Node(nodes[nodeId], state.wasm);
 
                                 // own js state
                                 store.addNode(node);
@@ -1614,13 +1624,6 @@ export default {
                         this.offset = this.allocNewMemory(+contentLength);
                     }
                     await consume(res.body.getReader());
-
-                    // test
-                    if (this.wasmMode) {
-                        // this.wasm.setScale(10);
-                        // this.wasm.setTxTy(150, 150);
-                        this.draw2();
-                    }
 
                     // show heatmap
                     this.toggleShowNavHeatmap();

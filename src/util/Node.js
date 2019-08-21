@@ -1,11 +1,11 @@
 /* eslint no-underscore-dangle: ["error", { "allowAfterThis": true }] */
 export default class Node {
-    constructor(data) {
+    constructor(data, wasm) {
         this.name = data.name;
         // this.links = data.links;
         this.index = data.index;
-        this.x = data.x;
-        this.y = data.y;
+        this._x = data.x;
+        this._y = data.y;
 
         this.colorKey = data.colorKey;
 
@@ -30,6 +30,7 @@ export default class Node {
             this.imgLoading = false;
         };
 
+        this.wasm = wasm
         // this.pics = {};
         this.imageData = data.imageData;
 
@@ -125,12 +126,14 @@ export default class Node {
     /!*
     *!/
 
+     */
     get x() {
         // return this._x - (this.width / 2 / this.scale);
         return this._x;
     }
 
     set x(value) {
+        if(this.wasm) this.wasm.nodeSetX(this.index, value)
         this._x = value;
     }
 
@@ -140,8 +143,11 @@ export default class Node {
     }
 
     set y(value) {
+        if(this.wasm) this.wasm.nodeSetY(this.index, value)
         this._y = value;
     }
+
+    /*
 
     // simple changing the x/y is not possible because
     // they have special getters witch would be use while setting/+= values

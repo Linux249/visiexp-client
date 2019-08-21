@@ -653,9 +653,23 @@ export default class ExplorerState {
     }
 
     draw() {
-        if (this.ui.wasmMode) return;
         // console.log('start draw')
         const startTime = window.performance.now();
+        if (this.ui.wasmMode) {
+            this.ui.draw2();
+            const endTime = window.performance.now();
+            const time = endTime - startTime;
+            if (time > this.maxDrawTime) {
+                this.maxDrawTime = time;
+                console.warn('new max draw time');
+                console.warn(this.maxDrawTime);
+            }
+            console.log(`Draw2: ${time}`);
+            if (this.ui.showLogs || this.performanceTest) this.perfLogs.draw.push(Math.round(time * 1000) / 1000);
+            this.valid = true;
+            if (this.ui.showNavHeatmap) requestAnimationFrame(this.ui.drawNavHeatmapRect);
+            return 0;
+        }
 
         // TODO Performance tests
 
@@ -692,7 +706,7 @@ export default class ExplorerState {
             groupBorderAllActive,
         } = this.ui;
 
-        const nonActiveGroupAplha = groupBorderAllActive ? 255 : this.nonActiveGroupAplha
+        const nonActiveGroupAplha = groupBorderAllActive ? 255 : this.nonActiveGroupAplha;
         const zoomStage = Math.floor(this.zoomStage);
 
         const explorerPixel = new Uint8ClampedArray(explorerW * explorerH * 4);
@@ -765,7 +779,7 @@ export default class ExplorerState {
 
             const nodeIdUnderMouse = nodeUnderMouse && nodeUnderMouse.index === node.index;
 
-            /*
+            /**
                 DRAW not active Groups
              */
             if (node.groupId && !node.group) {
@@ -810,7 +824,7 @@ export default class ExplorerState {
                 }
             }
 
-            /*
+            /**
                 DRAW IMAGE
              */
             // loop through rows in img
@@ -838,7 +852,7 @@ export default class ExplorerState {
                 }
             }
 
-            /*
+            /**
                 DRAW RANK COLOR BORDER
              */
             if (boarderRankedMode) {
@@ -885,7 +899,7 @@ export default class ExplorerState {
                 }
             }
 
-            /*
+            /**
                 DRAW LABEL BORDER
              */
             // Todo get variables via this.ui
@@ -938,7 +952,7 @@ export default class ExplorerState {
                 }
             }
 
-            /*
+            /**
                 DRAW GROUP BORDER
              */
             // TODO Perfomance is maybe bedder without another loop
@@ -994,7 +1008,7 @@ export default class ExplorerState {
             }
         });
 
-        /*
+        /**
             DRAW SCISSORS
          */
         if (this.drawScissors) {
@@ -1054,8 +1068,6 @@ export default class ExplorerState {
             console.warn('new max draw time');
             console.warn(this.maxDrawTime);
         }
-        this.valid = true;
-        if (this.ui.showNavHeatmap) requestAnimationFrame(this.ui.drawNavHeatmapRect);
     }
 
     zoom(wheelEvent) {
@@ -1098,7 +1110,7 @@ export default class ExplorerState {
             this.ui.wasm.setScale(this.scale);
             this.ui.wasm.setTxTy(this.translateX, this.translateY);
             this.ui.wasm.setZoom(Math.floor(this.zoomStage));
-            this.ui.draw2();
+            // this.ui.draw2();
         }
 
         this.updateClustering();
@@ -1118,7 +1130,7 @@ export default class ExplorerState {
             const color = `rgb(${r},${g},${b})`;
             const id = this.colorHash[color] || null;
             // console.log('wasmPixel',i, x, y, this.ui.hitMapPixel.width, r, g, b, nodeId, color, this.ui.hitMapPixel);
-            return this.nodes[id] || null
+            return this.nodes[id] || null;
         }
         // else {
         const pixel = this.hitCtx.getImageData(x, y, 1, 1).data;
@@ -1199,7 +1211,7 @@ export default class ExplorerState {
                 this.translateY += moveY;
                 if (this.ui.wasmMode) {
                     this.ui.wasm.addTxTy(moveX, moveY);
-                    this.ui.draw2();
+                    // this.ui.draw2();
                 }
             } else if (this.draggedNode) {
                 // console.log("draggeNode")
