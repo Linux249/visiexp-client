@@ -1577,7 +1577,7 @@ export default {
                                 size += 1;
                             } else {
                                 size = 0;
-                                state.nodesRecived += 1;
+                                if(nodeId % 20 === 0) state.nodesRecived += 20;
                                 const node = new Node(nodes[nodeId], state.wasm);
 
                                 // own js state
