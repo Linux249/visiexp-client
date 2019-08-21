@@ -10,7 +10,7 @@ export default class Node {
         this.colorKey = data.colorKey;
 
         this._group = false;
-        this.groupId = null;
+        this._groupId = 0;
         this.clique = data.clique;
         this.cliqueLength = data.clique.length;
 
@@ -86,34 +86,6 @@ export default class Node {
         // this.imgData = makeImgageData(this.icon)
     }
 
-    /*
-    get width() {
-        return this._width;
-    }
-
-    set width(value) {
-        this._width = value;
-    }
-
-    get height() {
-        return this._height;
-    }
-
-    set height(value) {
-        this._height = value;
-    }
-
-    get value() {
-        return this._value;
-    }
-
-    set value(v) {
-        if (v < 0.1) this._value = 0.1;
-        else if (v > 1) this._value = 1;
-        else this._value = v;
-    }
-
-     */
     get group() {
         return this._group;
     }
@@ -121,6 +93,15 @@ export default class Node {
     set group(v) {
         if (this.wasm) this.wasm.nodeSetMarked(this.index, v);
         this._group = v;
+    }
+
+    get groupId() {
+        return this._groupId;
+    }
+
+    set groupId(v) {
+        if (this.wasm) this.wasm.nodeSetGroupId(this.index, v);
+        this._groupId = v;
     }
 
     get x() {

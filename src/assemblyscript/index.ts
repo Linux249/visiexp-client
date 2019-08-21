@@ -51,6 +51,7 @@ class State {
     public scissorStartY: u32 = 0;
     public scissorEndX: u32 = 0;
     public scissorEndY: u32 = 0;
+    public activeGroupId: u32 = 0;
 
     constructor(public count: u32, public canvasW: u32, public canvasH: u32, public explorerStart: u32, public hitMapStart: u32) {
         //todo add size
@@ -89,11 +90,9 @@ class State {
             s += this.nodes[x].draw();
         }
 
+        // draw scissor at last
         if (this.scissor) this.drawScissor()
-        // return this.checkOutArray()
-        // this.drawRect(40, 40, 100, 50, red);
-        // this.drawRect(150, 40, 100, 50, green);
-        // this.drawRect(260, 40, 100, 50, blue);
+
         return this.explorerEnd;
     }
 
@@ -179,6 +178,7 @@ class Node {
     //imgByteSize:  u32
     public pics: Pic[] = new Array<Pic>();
     public marked: bool = false;
+    public groupId: u32 = 0;
 
     constructor(
         // public w: u8,
@@ -221,7 +221,12 @@ class Node {
         if (x < 0 || y < 0) return -1;
         if (x + w > state.canvasW || y + h > state.canvasH) return -1;
 
-        if(this.marked) state.drawRect(x as u32, y as u32, w, h, black)
+        // node is just marked
+        if(this.marked && this.groupId === 0) state.drawRect(x as u32, y as u32, w, h, black)
+        // draw as active group
+        if(this.groupId > 0 && state.activeGroupId == this.groupId) state.drawRect(x as u32, y as u32, w, h, blue)
+        // draw as non-active group
+        else if(this.groupId > 0) state.drawRect(x as u32, y as u32, w, h, red)
 
         const startPixel = state.explorerStart + (((y as u32) * state.canvasW + x) as u32) * 4;
         const hitMapPixel = state.hitMapStart + (((y as u32) * state.canvasW + x) as u32) * 4;
@@ -334,18 +339,23 @@ export function addTxTy(tx: i32, ty: i32): u32 {
 }
 
 /** used in setter of Node's x */
-export function nodeSetX(id: u32, x: f64): f64 {
-    return state.nodes[id].x = x
+export function nodeSetX(n: u32, x: f64): f64 {
+    return state.nodes[n].x = x
 }
 
 /** used in setter of Node's y */
-export function nodeSetY(id: u32, y: f64): f64 {
-    return state.nodes[id].y = y
+export function nodeSetY(n: u32, y: f64): f64 {
+    return state.nodes[n].y = y
 }
 
 /** used in setter of Node's group flag - is also active if node has a groupId !== 0'*/
-export function nodeSetMarked(id: u32, flag: bool): bool {
-    return state.nodes[id].marked = flag
+export function nodeSetMarked(n: u32, flag: bool): bool {
+    return state.nodes[n].marked = flag
+}
+
+/** used in node.groupId setter */
+export function nodeSetGroupId(n: u32, id: u32): u32 {
+    return state.nodes[n].groupId = id
 }
 
 /** used in setter of ExplorerState's group flag - is also active if node has a groupId !== 0'*/
@@ -355,9 +365,6 @@ export function stateSetScissior(flag: bool): bool {
 
 /** used in mouseDown handler */
 export function stateSetScissiorStartXY(x: u32, y: u32): bool {
-    // log(1111)
-    // log(x)
-    // log(y)
     state.scissorStartX = x;
     state.scissorStartY = y;
     return true
@@ -365,12 +372,14 @@ export function stateSetScissiorStartXY(x: u32, y: u32): bool {
 
 /** used in mouseMove handler if scissor*/
 export function stateSetScissiorEndXY(x: u32, y: u32): bool {
-    // log(2222)
-    // log(x)
-    // log(y)
     state.scissorEndX = x;
     state.scissorEndY = y;
     return true
+}
+
+/** used in Vue's activeGroup setter*/
+export function stateSetActiveGroup(id: u32): u32 {
+    return state.activeGroupId = id
 }
 
 

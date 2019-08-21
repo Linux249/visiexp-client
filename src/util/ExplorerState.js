@@ -496,15 +496,15 @@ export default class ExplorerState {
         Object.values(this.nodes).forEach((node) => {
             if (node.groupId === groupId) {
                 node.group = false;
-                node.groupId = null;
+                node.groupId = 0;
             }
         });
         this.triggerDraw();
     }
 
-    loadGroupByGroupId(groupId) {
+    selectGroupByGroupId(groupId) {
         Object.values(this.nodes).forEach((node) => {
-            node.group = node.groupId === groupId ? groupId : null;
+            node.group = (node.groupId === groupId);
         });
         this.triggerDraw();
     }
@@ -793,7 +793,7 @@ export default class ExplorerState {
             /**
                 DRAW not active Groups
              */
-            if (node.groupId && !node.group) {
+            if (node.groupId > 0 && !node.group) {
                 for (let imgRow = -2; imgRow <= imgH + 1; imgRow += 1) {
                     const explorerRow = ((imgY + imgRow) * explorerW + imgX) * 4;
                     if (imgRow === -2 || imgRow === -1 || imgRow === imgH + 1 || imgRow === imgH) {

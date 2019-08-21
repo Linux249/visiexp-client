@@ -681,7 +681,7 @@ export default {
          */
         clearGroup() {
             this.store.clearGroup();
-            this.activeGroupId = null;
+            this.activeGroupId = 0;
             this.neighbourMode = false;
             this.target = false;
             this.store.moveGroupToMousePosition = false;
@@ -1033,12 +1033,12 @@ export default {
         selectGroup(i) {
             const { groupId } = this.savedGroups[i];
             if (groupId === this.activeGroupId) {
-                // console.log('unselect');
-                this.setActiveGroup(null);
+                // unselect active group
+                this.setActiveGroup(0);
                 this.store.clearGroup();
             } else {
                 console.log('select');
-                this.store.loadGroupByGroupId(groupId);
+                this.store.selectGroupByGroupId(groupId);
                 this.setActiveGroup(groupId);
             }
         },
@@ -1232,6 +1232,9 @@ export default {
             this.updateNodes = bool;
             // update nav
             this.$root.navheader.loading = bool;
+        },
+        activeGroupId(id) {
+            if(this.wasmMode) this.wasm.stateSetActiveGroup(id)
         },
     },
 
