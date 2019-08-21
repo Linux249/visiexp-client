@@ -30,9 +30,11 @@ export default class Node {
             this.imgLoading = false;
         };
 
-        this.wasm = wasm
+        this.wasm = wasm;
         // this.pics = {};
-        this.imageData = data.imageData;
+
+        // only add imageData in normal mode
+        this.imageData = wasm && data.imageData;
 
         /* try {
             // this.icon = new Image();
@@ -117,7 +119,7 @@ export default class Node {
     }
 
     set group(v) {
-        if(this.wasm) this.wasm.nodeSetMarked(this.index, v)
+        if (this.wasm) this.wasm.nodeSetMarked(this.index, v);
         this._group = v;
     }
 
@@ -127,7 +129,7 @@ export default class Node {
     }
 
     set x(value) {
-        if(this.wasm) this.wasm.nodeSetX(this.index, value)
+        if (this.wasm) this.wasm.nodeSetX(this.index, value);
         this._x = value;
     }
 
@@ -137,7 +139,7 @@ export default class Node {
     }
 
     set y(value) {
-        if(this.wasm) this.wasm.nodeSetY(this.index, value)
+        if (this.wasm) this.wasm.nodeSetY(this.index, value);
         this._y = value;
     }
 

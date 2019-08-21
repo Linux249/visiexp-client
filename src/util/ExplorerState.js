@@ -32,11 +32,11 @@ export default class ExplorerState {
         this._nodeUnderMouse = false; // is set (only!) on mouse move
 
         this._scissors = false;
-        this.drawScissors = false;
-        this.scissorsStartX = 0;
-        this.scissorsStartY = 0;
-        this.scissorsEndX = 0;
-        this.scissorsEndY = 0;
+        this._drawScissors = false;
+        this.scissorStartX = 0;
+        this.scissorStartY = 0;
+        this.scissorEndX = 0;
+        this.scissorEndY = 0;
         this.scissiorColor = [56, 130, 255];
 
         // this._cluster = 100;
@@ -102,6 +102,8 @@ export default class ExplorerState {
         };
         this.performanceTest = false;
         this.datas = [];
+
+        this.wasm = ui.wasm;
     }
 
     get sizeRange() {
@@ -198,6 +200,16 @@ export default class ExplorerState {
 
     set scissors(value) {
         this._scissors = value;
+        this.explorer.style.cursor = value ? 'crosshair' : 'default';
+    }
+
+    get drawScissors() {
+        return this._drawScissors;
+    }
+
+    set drawScissors(value) {
+        this._drawScissors = value;
+        if (this.wasm) this.wasm.stateSetScissior(value);
         this.explorer.style.cursor = value ? 'crosshair' : 'default';
     }
 
@@ -691,7 +703,6 @@ export default class ExplorerState {
             nodeUnderMouse,
         } = this;
 
-
         const {
             boarderRankedMode,
             sizeRankedMode,
@@ -712,7 +723,6 @@ export default class ExplorerState {
         const explorerPixel = new Uint8ClampedArray(explorerW * explorerH * 4);
         const hitmapPixel = new Uint8ClampedArray(explorerW * explorerH * 4);
         // console.log({ explorerW, explorerH, tx, ty, scale });
-
 
         const nodes = this.sorted
             ? this.sortedNodes
@@ -1012,11 +1022,11 @@ export default class ExplorerState {
             DRAW SCISSORS
          */
         if (this.drawScissors) {
-            const explorerX = this.scissorsStartX < this.scissorsEndX ? this.scissorsStartX : this.scissorsEndX;
-            const explorerY = this.scissorsStartY < this.scissorsEndY ? this.scissorsStartY : this.scissorsEndY;
+            const explorerX = this.scissorStartX < this.scissorEndX ? this.scissorStartX : this.scissorEndX;
+            const explorerY = this.scissorStartY < this.scissorEndY ? this.scissorStartY : this.scissorEndY;
 
-            const scissorW = Math.abs(this.scissorsEndX - this.scissorsStartX);
-            const scissorH = Math.abs(this.scissorsEndY - this.scissorsStartY);
+            const scissorW = Math.abs(this.scissorEndX - this.scissorStartX);
+            const scissorH = Math.abs(this.scissorEndY - this.scissorStartY);
 
             // '#3882ff';
             const color = this.scissiorColor;
@@ -1123,10 +1133,10 @@ export default class ExplorerState {
         // console.time('findNodeByMousePosition');
         if (this.ui.wasmMode) {
             // console.log('wasmPixel', this.colorHash);
-            const i = ((this.ui.hitMapPixel.width * y) + x) * 4;
+            const i = (this.ui.hitMapPixel.width * y + x) * 4;
             const r = this.ui.hitMapPixel.data[i];
-            const g = this.ui.hitMapPixel.data[(i + 1)];
-            const b = this.ui.hitMapPixel.data[(i + 2)];
+            const g = this.ui.hitMapPixel.data[i + 1];
+            const b = this.ui.hitMapPixel.data[i + 2];
             const color = `rgb(${r},${g},${b})`;
             const id = this.colorHash[color] || null;
             // console.log('wasmPixel',i, x, y, this.ui.hitMapPixel.width, r, g, b, nodeId, color, this.ui.hitMapPixel);
@@ -1169,8 +1179,9 @@ export default class ExplorerState {
             console.log('Scissors');
             // save start X/Y
             this.drawScissors = true;
-            this.scissorsStartX = this.startX;
-            this.scissorsStartY = this.startY;
+            this.scissorStartX = this.startX;
+            this.scissorStartY = this.startY;
+            if (this.wasm) this.wasm.stateSetScissiorStartXY(this.startX, this.startY);
             this.triggerDraw();
         } else {
             // if nothing is clicked
@@ -1189,8 +1200,9 @@ export default class ExplorerState {
         const mouseY = e.offsetY;
 
         if (this.scissors) {
-            this.scissorsEndX = mouseX;
-            this.scissorsEndY = mouseY;
+            this.scissorEndX = mouseX;
+            this.scissorEndY = mouseY;
+            if (this.wasm) this.wasm.stateSetScissiorEndXY(mouseX, mouseY);
             return this.triggerDraw();
         }
 
@@ -1335,10 +1347,10 @@ export default class ExplorerState {
             // update cluster cause of new embedding
         } else if (this.scissors) {
             this.ui.cuttedNodes = [];
-            const startX = (this.scissorsStartX - this.translateX) / this.scale;
-            const startY = (this.scissorsStartY - this.translateY) / this.scale;
-            const endX = (this.scissorsEndX - this.translateX) / this.scale;
-            const endY = (this.scissorsEndY - this.translateY) / this.scale;
+            const startX = (this.scissorStartX - this.translateX) / this.scale;
+            const startY = (this.scissorStartY - this.translateY) / this.scale;
+            const endX = (this.scissorEndX - this.translateX) / this.scale;
+            const endY = (this.scissorEndY - this.translateY) / this.scale;
             // console.log({startX, startY, endX, endY})
             Object.values(this.nodes).forEach((node) => {
                 // console.log(node)

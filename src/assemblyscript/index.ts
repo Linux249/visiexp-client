@@ -46,6 +46,11 @@ class State {
     public zoom: u8 = 0;
     public tx: i32;
     public ty: i32;
+    public scissor: bool = false;
+    public scissorStartX: u32 = 0;
+    public scissorStartY: u32 = 0;
+    public scissorEndX: u32 = 0;
+    public scissorEndY: u32 = 0;
 
     constructor(public count: u32, public canvasW: u32, public canvasH: u32, public explorerStart: u32, public hitMapStart: u32) {
         //todo add size
@@ -83,6 +88,8 @@ class State {
         for (let x: u32 = 0; x < this.count; x++) {
             s += this.nodes[x].draw();
         }
+
+        if (this.scissor) this.drawScissor()
         // return this.checkOutArray()
         // this.drawRect(40, 40, 100, 50, red);
         // this.drawRect(150, 40, 100, 50, green);
@@ -149,6 +156,21 @@ class State {
 
         return 1;
     }
+
+    drawScissor(): u32 {
+        // find the left top corner of square
+        const x: u32 = this.scissorStartX < this.scissorEndX
+            ? this.scissorStartX : this.scissorEndX;
+        const y: u32 = this.scissorStartY < this.scissorEndY
+            ? this.scissorStartY : this.scissorEndY;
+
+        const w: u32 = this.scissorEndX > this.scissorStartX
+            ? this.scissorEndX - this.scissorStartX : this.scissorStartX - this.scissorEndX;
+        const h: u32 =  this.scissorEndY > this.scissorStartY
+            ? this.scissorEndY - this.scissorStartY : this.scissorStartY - this.scissorEndY;
+
+        return this.drawRect(x, y, w as u32, h as u32, purple)
+    }
 }
 
 let state: State;
@@ -171,10 +193,6 @@ class Node {
     ) {
         // this.imgByteSize =
     }
-
-    // get imgByteSize(): u32 {
-    //     return 4 * this.w * this.h
-    // }
 
     public addPic(w: u8, h: u8, ptr: usize): u32 {
         const pic: Pic = new Pic(w, h, ptr);
@@ -232,8 +250,7 @@ class Node {
 
 // add a node extern, later export class State and use diretly
 export function addNode(x: f64, y: f64, id: u32, r: u8, g: u8, b: u8): u32 {
-    // log(x);
-    // log(y);
+    // why was tis Math way necessary?
     const test = Math.round(x * 1000000) / 1000000;
     const test2 = Math.round(y * 1000000) / 1000000;
     // log(test);
@@ -316,14 +333,44 @@ export function addTxTy(tx: i32, ty: i32): u32 {
     return state.tx + state.ty;
 }
 
+/** used in setter of Node's x */
 export function nodeSetX(id: u32, x: f64): f64 {
     return state.nodes[id].x = x
 }
 
+/** used in setter of Node's y */
 export function nodeSetY(id: u32, y: f64): f64 {
     return state.nodes[id].y = y
 }
 
+/** used in setter of Node's group flag - is also active if node has a groupId !== 0'*/
 export function nodeSetMarked(id: u32, flag: bool): bool {
     return state.nodes[id].marked = flag
 }
+
+/** used in setter of ExplorerState's group flag - is also active if node has a groupId !== 0'*/
+export function stateSetScissior(flag: bool): bool {
+    return state.scissor = flag
+}
+
+/** used in mouseDown handler */
+export function stateSetScissiorStartXY(x: u32, y: u32): bool {
+    // log(1111)
+    // log(x)
+    // log(y)
+    state.scissorStartX = x;
+    state.scissorStartY = y;
+    return true
+}
+
+/** used in mouseMove handler if scissor*/
+export function stateSetScissiorEndXY(x: u32, y: u32): bool {
+    // log(2222)
+    // log(x)
+    // log(y)
+    state.scissorEndX = x;
+    state.scissorEndY = y;
+    return true
+}
+
+
