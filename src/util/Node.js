@@ -9,7 +9,7 @@ export default class Node {
 
         this.colorKey = data.colorKey;
 
-        this.group = false;
+        this._group = false;
         this.groupId = null;
         this.clique = data.clique;
         this.cliqueLength = data.clique.length;
@@ -111,22 +111,16 @@ export default class Node {
         else this._value = v;
     }
 
-    get isActive() {
-        return this._isActive;
-    }
-
-    set isActive(v) {
-        this._isActive = v;
-    }
-
-    // if isActive
-    // scale x to real/current 2d-coords
-    // subtract half width for moving left, width scaled with ImageScale
-    // scale back to Node x/y
-    /!*
-    *!/
-
      */
+    get group() {
+        return this._group;
+    }
+
+    set group(v) {
+        if(this.wasm) this.wasm.nodeSetMarked(this.index, v)
+        this._group = v;
+    }
+
     get x() {
         // return this._x - (this.width / 2 / this.scale);
         return this._x;

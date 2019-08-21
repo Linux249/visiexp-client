@@ -22,6 +22,7 @@ const red: u32 = rgbaToU32Int(255, 0, 0, 255)
 const green: u32 = rgbaToU32Int(0, 255, 0, 255)
 const blue: u32 = rgbaToU32Int(0, 0, 255, 255)
 const purple: u32 = rgbaToU32Int(103, 114, 229, 255)
+const black: u32 = rgbaToU32Int(50, 50, 50, 255)
 
 
 class Pic {
@@ -83,9 +84,9 @@ class State {
             s += this.nodes[x].draw();
         }
         // return this.checkOutArray()
-        this.drawRect(40, 40, 100, 50, red);
-        this.drawRect(150, 40, 100, 50, green);
-        this.drawRect(260, 40, 100, 50, blue);
+        // this.drawRect(40, 40, 100, 50, red);
+        // this.drawRect(150, 40, 100, 50, green);
+        // this.drawRect(260, 40, 100, 50, blue);
         return this.explorerEnd;
     }
 
@@ -155,6 +156,7 @@ let state: State;
 class Node {
     //imgByteSize:  u32
     public pics: Pic[] = new Array<Pic>();
+    public marked: bool = false;
 
     constructor(
         // public w: u8,
@@ -201,7 +203,7 @@ class Node {
         if (x < 0 || y < 0) return -1;
         if (x + w > state.canvasW || y + h > state.canvasH) return -1;
 
-        state.drawRect(x as u32, y as u32, w, h, purple)
+        if(this.marked) state.drawRect(x as u32, y as u32, w, h, black)
 
         const startPixel = state.explorerStart + (((y as u32) * state.canvasW + x) as u32) * 4;
         const hitMapPixel = state.hitMapStart + (((y as u32) * state.canvasW + x) as u32) * 4;
@@ -320,4 +322,8 @@ export function nodeSetX(id: u32, x: f64): f64 {
 
 export function nodeSetY(id: u32, y: f64): f64 {
     return state.nodes[id].y = y
+}
+
+export function nodeSetMarked(id: u32, flag: bool): bool {
+    return state.nodes[id].marked = flag
 }
