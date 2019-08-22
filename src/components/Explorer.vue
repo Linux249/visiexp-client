@@ -916,7 +916,7 @@ export default {
             this.store.scissors = this.scissors;
         },
         reset() {
-            this.loadingNodes = true;
+            // this.loadingNodes = true;
             this.nodesRecived = 0;
             this.nodesTotal = 0;
         },
@@ -1010,20 +1010,25 @@ export default {
         },
 
         saveGroup() {
+            logYellow('saveGroup');
             // save the actually group
             this.groupCounter += 1;
             const groupId = this.groupCounter;
 
             // get the name
             const name = this.groupName || `Group ${groupId}`;
-
+            const colorId = groupId % Object.keys(this.groupColours).length;
             // get the ids of the groupd nodes
             this.savedGroups.push({
                 groupId,
                 name,
                 count: 0,
-                colorId: groupId % Object.keys(this.groupColours).length,
+                colorId,
             });
+            if (this.wasmMode) {
+                const [r, g, b] = this.groupColours[colorId];
+                this.wasm.stateSetGroupColor(groupId, r, g, b);
+            }
 
             this.activeGroupId = groupId;
             this.store.saveGroup(groupId);
@@ -1044,10 +1049,15 @@ export default {
         },
 
         changeGroupColor(e, i) {
-            console.log('changeGroupColor', e.target.value, i);
+            logYellow('changeGroupColor')
+            const group = this.savedGroups[i]
+            console.log(e.target.value, i, group);
+            group.colorId = e.target.value;
             console.log(this.savedGroups[i]);
-            this.savedGroups[i].colorId = e.target.value;
-            console.log(this.savedGroups[i]);
+            if (this.wasmMode) {
+                const [r, g, b] = this.groupColours[e.target.value];
+                this.wasm.stateSetGroupColor(group.groupId, r, g, b);
+            }
             this.store.triggerDraw();
         },
 
@@ -1097,8 +1107,8 @@ export default {
         },
 
         addNode(node) {
-            console.warn(node);
-            console.warn(`Add Node ${node.index}:`, node);
+            // console.warn(node);
+            (node.nodeId % 50) === 0 && console.warn(`Add Node ${node.index}:`, node);
             const addNode1 = this.wasm.addNode(
                 node.x,
                 node.y,
@@ -1112,29 +1122,22 @@ export default {
 
             for (let i = 0; i < 10; i += 1) {
                 const img = node.imageData[i];
-                // console.log(img.data.byteLength, img.width, img.height, this.offset, node.x, node.y);
-                // console.log({ img });
 
                 // add img buffer to memory: Crete a view over the buffer and set use the viewer to set the data
                 this.wasm.U8.set(img.data, this.offset, img.data.buffer.length);
                 this.wasm.addPic(node.index, img.width, img.height, this.offset);
 
-                // const checkSum = img.data.reduce((a, e) => a + e, 0);
-                // const realSum = this.wasm.checkSum(node.index);
-                // const getNodeXY = 0 // this.wasm.getNodeXY(node.index);
-                // console.log({checkSum, realSum, getNodeXY});
-
+                // update offset for the next pic data
                 this.offset += img.data.byteLength;
 
                 // remove image data to free memory
-                node.imageData[i] = undefined
+                node.imageData[i] = undefined;
             }
-            // this.draw2();
         },
 
         draw2() {
             try {
-                console.warn('DRAW2');
+                // console.warn('DRAW2');
                 this.wasm.draw();
                 this.explorerCtx.putImageData(this.explorerPixel, 0, 0);
             } catch (e) {
@@ -1234,7 +1237,7 @@ export default {
             this.$root.navheader.loading = bool;
         },
         activeGroupId(id) {
-            if(this.wasmMode) this.wasm.stateSetActiveGroup(id)
+            if (this.wasmMode) this.wasm.stateSetActiveGroup(id);
         },
     },
 
@@ -1583,7 +1586,7 @@ export default {
                                 size += 1;
                             } else {
                                 size = 0;
-                                if (nodeId % 20 === 0) state.nodesRecived += 20 ;
+                                if (nodeId % 20 === 0) state.nodesRecived += 20;
                                 const node = new Node(nodes[nodeId], state.wasm);
 
                                 // own js state
@@ -1735,6 +1738,7 @@ export default {
         window.removeEventListener('resize', this.handleResize);
         // EventBus.$off('update', this.sendData);
         this.$root.navheader.explorer = false;
+        this.$root.explorer = null;
     },
 };
 </script>

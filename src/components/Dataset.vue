@@ -84,8 +84,15 @@ export default {
         try {
             console.log('load dataset after mounting');
             const res = await fetch(`${apiUrl}/api/v1/dataset/all`);
-            if (!res.ok) throw Error(res.statusText);
-            this.datasets = await res.json();
+            console.log(res)
+            if (!res.ok) {
+                this.$notify({
+                    group: 'default',
+                    title: 'Error loading all datasets',
+                    type: 'error',
+                    text: res.statusText,
+                });
+            } else this.datasets = await res.json();
         } catch (e) {
             console.error(e);
             this.$notify({

@@ -22,7 +22,7 @@ const red: u32 = rgbaToU32Int(255, 0, 0, 255)
 const green: u32 = rgbaToU32Int(0, 255, 0, 255)
 const blue: u32 = rgbaToU32Int(0, 0, 255, 255)
 const purple: u32 = rgbaToU32Int(103, 114, 229, 255)
-const black: u32 = rgbaToU32Int(50, 50, 50, 255)
+const black: u32 = rgbaToU32Int(50, 50, 50, 200)
 
 
 class Pic {
@@ -39,6 +39,8 @@ class Pic {
 
 class State {
     public nodes: Node[] = new Array<Node>();
+    public colors: u32[] = new Array<u32>();
+    public nonActivecolors: u32[] = new Array<u32>();
     public size: u32;
     public explorerEnd: usize;
     public hitMapEnd: usize;
@@ -224,9 +226,9 @@ class Node {
         // node is just marked
         if(this.marked && this.groupId === 0) state.drawRect(x as u32, y as u32, w, h, black)
         // draw as active group
-        if(this.groupId > 0 && state.activeGroupId == this.groupId) state.drawRect(x as u32, y as u32, w, h, blue)
+        if(this.groupId > 0 && state.activeGroupId == this.groupId) state.drawRect(x as u32, y as u32, w, h, state.colors[this.groupId])
         // draw as non-active group
-        else if(this.groupId > 0) state.drawRect(x as u32, y as u32, w, h, red)
+        else if(this.groupId > 0) state.drawRect(x as u32, y as u32, w, h, state.nonActivecolors[this.groupId])
 
         const startPixel = state.explorerStart + (((y as u32) * state.canvasW + x) as u32) * 4;
         const hitMapPixel = state.hitMapStart + (((y as u32) * state.canvasW + x) as u32) * 4;
@@ -380,6 +382,13 @@ export function stateSetScissiorEndXY(x: u32, y: u32): bool {
 /** used in Vue's activeGroup setter*/
 export function stateSetActiveGroup(id: u32): u32 {
     return state.activeGroupId = id
+}
+
+/** used in Vue's activeGroup setter*/
+export function stateSetGroupColor(id: u32, r: u32, g: u32, b: u32): u32 {
+    state.colors[id] = rgbaToU32Int(r, g, b, 255);
+    state.nonActivecolors[id] = rgbaToU32Int(r, g, b, 50);
+    return state.colors[id];
 }
 
 
