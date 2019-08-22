@@ -627,13 +627,13 @@ export default class ExplorerState {
     changeScaleUp() {
         this.scaleFaktor += 0.2;
         // this.scale += 20 * this.scaleFaktor;
-        this.scale += 1 + this.scaleFaktor ** 2;
+        this.scale += 1 + (this.scaleFaktor ** 2);
         this.ui.scale = this.scale; // update ui (options)
     }
 
     changeScaleDown() {
         // this.scale -= 20 * this.scaleFaktor;
-        this.scale -= 1 + this.scaleFaktor ** 2;
+        this.scale -= 1 + (this.scaleFaktor ** 2);
         this.scaleFaktor -= 0.2;
         this.ui.scale = this.scale; // update ui (options)
     }
@@ -1079,7 +1079,7 @@ export default class ExplorerState {
             console.warn('new max draw time');
             console.warn(this.maxDrawTime);
         }
-        this.valid = true
+        this.valid = true;
     }
 
     zoom(wheelEvent) {
@@ -1392,10 +1392,15 @@ export default class ExplorerState {
             const x = (e.offsetX - this.translateX) / this.scale;
             const y = (e.offsetY - this.translateY) / this.scale;
             // move group members to mouse position
+            // let counter = 0;
             Object.values(this.nodes).forEach((node) => {
                 if (node.group) {
-                    node.x += (x - node.x) / 2;
-                    node.y += (y - node.y) / 2;
+                    // counter += 1
+                    // const dX = Math.random() - 0.5
+                    // const dY = Math.random() - 0.5
+                    // console.log({dX, dY})
+                    node.x = x + Math.random() - 0.5;
+                    node.y = y + Math.random() - 0.5;
                 }
             });
             this.createCluster();
