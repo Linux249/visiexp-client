@@ -72,7 +72,7 @@
         </div>
 
         <div class="details">
-            <div class="area info-box" v-if="showHelp && !neighbourMode">
+            <div class="area help-box" v-if="showHelp && !neighbourMode">
                 <div class="title2">Help: Create groups</div>
                 <div class="row v-center">
                     1. Select images with
@@ -97,7 +97,7 @@
                     </div>
                 </div>
             </div>
-            <div class="area info-box" v-if="showHelp && neighbourMode">
+            <div class="area help-box" v-if="showHelp && neighbourMode">
                 <div class="title2">Help: Generate proposals</div>
                 <div class="row v-center">
                     1. Add proposal with
@@ -1832,8 +1832,9 @@ export default {
     padding: 0 0.5rem;
 }
 
-.info-box {
+.help-box {
     padding: 0.5rem;
+    background-color: #f3f3f3;
 }
 
 .active-img {
