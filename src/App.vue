@@ -10,6 +10,7 @@
             :logout="logout"
             :userId="userId"
             :wasmMode="wasmMode"
+            :toggleWasmMode="toggleWasmMode"
             :dataset="dataset"
             :loadOldDataset="loadOldDataset"
             :handleChangeDataset="switchDataset"

@@ -44,6 +44,9 @@
                         <div class="flex">
                             <div @click="triggerChangeDataset(false)" class="btn">start new</div>
                             <div @click="triggerChangeDataset(true)" class="btn">load old</div>
+                            <div class="btn" @click="toggleWasmMode" :class="{ active: wasmMode }">
+                                wasm
+                            </div>
                         </div>
                         <div class="description-small">
                             You can load your trained features or start with new
@@ -65,6 +68,8 @@ export default {
         dataset: String,
         handleChangeDataset: Function,
         selectedImgCount: Number,
+        toggleWasmMode: Function,
+        wasmMode: Boolean,
         // getStore: Function,
     },
     components: {
