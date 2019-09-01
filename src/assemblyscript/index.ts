@@ -181,6 +181,7 @@ class Node {
     public pics: Pic[] = new Array<Pic>();
     public marked: bool = false;
     public groupId: u32 = 0;
+    public isRep: bool = false;
 
     constructor(
         // public w: u8,
@@ -212,16 +213,27 @@ class Node {
     // }
 
     public draw(): u32 {
-        // my start of pixel in buffer
+        /** img size means the position in array of Pics*/
+        let imgSize = state.zoom;
+        if(this.isRep) imgSize += 5;
+        if(imgSize < 0) imgSize = 0;
+        if(imgSize > 9) imgSize = 9;
 
-        const x = Math.floor(this.x * state.scale + state.tx);
-        const y = Math.floor(this.y * state.scale + state.ty);
-        const w = this.pics[state.zoom].w;
-        const h = this.pics[state.zoom].h;
-        const ptr = this.pics[state.zoom].ptr;
+        /** knowing the the size is knowing the size
+         * if image goes over right, bottom board, don't paint it*/
+        const w = this.pics[imgSize].w;
+        const h = this.pics[imgSize].h;
+
+        /** transformed and scaled x,y for the true position in canvas
+         * if outside, return */
+        const x = Math.floor(this.x * state.scale + state.tx - w/2);
+        const y = Math.floor(this.y * state.scale + state.ty - h/2);
 
         if (x < 0 || y < 0) return -1;
         if (x + w > state.canvasW || y + h > state.canvasH) return -1;
+
+        /** pointer to where the image pixel is in memory*/
+        const ptr = this.pics[imgSize].ptr;
 
         // node is just marked
         if(this.marked && this.groupId === 0) state.drawRect(x as u32, y as u32, w, h, black)
@@ -358,6 +370,11 @@ export function nodeSetMarked(n: u32, flag: bool): bool {
 /** used in node.groupId setter */
 export function nodeSetGroupId(n: u32, id: u32): u32 {
     return state.nodes[n].groupId = id
+}
+
+/** used in node.isClustered setter */
+export function nodeSetRep(n: u32, flag: bool): u32 {
+    return state.nodes[n].isRep = flag
 }
 
 /** used in setter of ExplorerState's group flag - is also active if node has a groupId !== 0'*/

@@ -15,7 +15,7 @@ export default class Node {
         this.cliqueLength = data.clique.length;
 
         // this.cluster = data.cluster;
-        this.isClusterd = true;
+        this._isClusterd = true;
         this.isNearly = false;
 
         this.labels = data.labels;
@@ -122,6 +122,15 @@ export default class Node {
     set y(value) {
         if (this.wasm) this.wasm.nodeSetY(this.index, value);
         this._y = value;
+    }
+
+    get isClusterd() {
+        return this._isClusterd;
+    }
+
+    set isClusterd(value) {
+        if (this.wasm) this.wasm.nodeSetRep(this.index, !value);
+        this._isClusterd = value;
     }
 
     /*
