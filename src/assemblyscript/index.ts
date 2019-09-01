@@ -44,7 +44,7 @@ class State {
     public size: u32;
     public explorerEnd: usize;
     public hitMapEnd: usize;
-    public scale: u32 = 20;
+    public scale: f64 = 20;
     public zoom: u8 = 0;
     public tx: i32;
     public ty: i32;
@@ -324,7 +324,7 @@ export function getNodeXY(n: u32): u32 {
     return (state.nodes[n].x + state.nodes[n].y) as u32;
 }
 
-export function setScale(s: u32): u32 {
+export function setScale(s: f64): f64 {
     state.scale = s;
     // log(state.scale);
     return state.scale;

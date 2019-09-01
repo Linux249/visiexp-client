@@ -1117,7 +1117,7 @@ export default class ExplorerState {
         this.translateX -= offsetX * scaleChange;
         this.translateY -= offsetY * scaleChange;
 
-        console.log(this.scale, this.translateX, this.translateY, this.zoomStage);
+        console.log('setScale', this.scale, this.translateX, this.translateY, this.zoomStage);
         if (this.ui.wasmMode) {
             this.ui.wasm.setScale(this.scale);
             this.ui.wasm.setTxTy(this.translateX, this.translateY);
