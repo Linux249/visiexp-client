@@ -1,7 +1,7 @@
 <template>
     <div class="flex-center">
         <div class="middle body">
-            <div class="title">Data set: {{ dataset && dataset.name }}</div>
+            <div class="header">1. Select data set: {{ dataset && dataset.name }}</div>
             <div class="loading">
                 <div class="loader" v-if="loading"></div>
             </div>
@@ -29,7 +29,7 @@
             </div>
             <div class="">
 <!--                <div class="area">-->
-                    <div class="title">Select subset of images or load full data set</div>
+                    <div class="header">2. Select subset of images or load full data set</div>
                     <div class="description-small">{{ `${imgCount}#` }}</div>
                     <div class="row">
                         <range-slider
@@ -42,16 +42,19 @@
                         <div class=""></div>
                         <div class="btn">all</div>
                     </div>
-                    <div class="title">
-                        You can load your trained features or start with new session
+                    <div class="header">
+                        3. Resume last session or start new one
                     </div>
                     <div class="flex">
-                        <div @click="triggerChangeDataset(false)" class="btn">start new</div>
-                        <div @click="triggerChangeDataset(true)" class="btn">resume old</div>
+                        <div @click="triggerChangeDataset(true)" class="btn">resume</div>
+                        <div @click="triggerChangeDataset(false)" class="btn">new</div>
                         <div class="btn" @click="toggleWasmMode" :class="{ active: wasmMode }">
                             wasm
                         </div>
                     </div>
+                <div class="description-small">
+                    If there is no saved session a new one will created automatic on "resume"
+                </div>
 <!--                </div>-->
                 <!--                    </div>-->
             </div>
@@ -139,6 +142,14 @@ export default {
     /*align-self: center;*/
     width: 1000px;
     max-width: 1000px;
+}
+
+.header {
+
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #767676;
+
 }
 
 .item {
