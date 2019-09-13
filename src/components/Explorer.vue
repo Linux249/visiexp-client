@@ -24,6 +24,24 @@
                         <x></x>
                     </div>
                 </div>
+<!--                <div class="row">-->
+                    <div class="row-end">
+                        <div @click="changeScaleDown()" class="btn" v-tooltip="'scale positions down'">
+                            <minimize></minimize>
+                        </div>
+                        <div @click="changeScaleUp()" class="btn" v-tooltip="'scale positions up'">
+                            <maximize></maximize>
+                        </div>
+                    </div>
+                    <div class="row-end">
+                        <div @click="changeImgSize(-1)" class="btn" v-tooltip="'images smaller'">
+                            <img-size-down></img-size-down>
+                        </div>
+                        <div @click="changeImgSize(1)" class="btn" v-tooltip="'images larger'">
+                            <img-size-up></img-size-up>
+                        </div>
+                    </div>
+<!--                </div>-->
             </div>
             <div class="box top left">
                 <div :if="nodesTotal" class="btn">{{ nodesRecived + '/' + nodesTotal }}</div>
@@ -52,41 +70,29 @@
                 </div>
             </div>
             <div class="box bottom right">
-                <div class="row">
-                    <div @click="changeScaleDown()" class="btn" v-tooltip="'scale positions down'">
-                        <minimize></minimize>
-                    </div>
-                    <div @click="changeScaleUp()" class="btn" v-tooltip="'scale positions up'">
-                        <maximize></maximize>
-                    </div>
-                </div>
-                <div class="row">
-                    <div @click="changeImgSize(-1)" class="btn" v-tooltip="'images smaller'">
-                        <img-size-down></img-size-down>
-                    </div>
-                    <div @click="changeImgSize(1)" class="btn" v-tooltip="'images larger'">
-                        <img-size-up></img-size-up>
-                    </div>
-                </div>
+
             </div>
         </div>
 
         <div class="details">
             <div class="area help-box" v-if="showHelp && !neighbourMode">
-                <div class="title2">Help: Create groups</div>
+<!--                <div class="title2">Create groups for learning own embedding</div>-->
+                <div class="title2">Help: General usage</div>
                 <div class="row v-center">
                     1. Select images with
                     <div class="btn dummy">Click</div>
                     /
                     <scissors class="btn dummy"></scissors>
                 </div>
-                <div class="row v-center">
+                <div class="">
                     2. Create groups with
                     <div class="btn dummy">new</div>
+                    to learn own embedding
                 </div>
-                <div class="row v-center">
+                <div class="">
                     3. Get proposals with
                     <plus-circle class="btn dummy"></plus-circle>
+                    to extend groups automatically
                 </div>
                 <div class="row v-center">4. Repeat with different groups</div>
                 <div class="row v-center">
@@ -98,12 +104,13 @@
                 </div>
             </div>
             <div class="area help-box" v-if="showHelp && neighbourMode">
-                <div class="title2">Help: Generate proposals</div>
+                <div class="title2">Help: Extend groups aromatically</div>
                 <div class="row v-center">
                     1. Add proposal with
                     <div class="btn dummy">Click</div>
                     /
                     <scissors class="btn dummy"></scissors>
+                    to group
                 </div>
                 <div class="row v-center">
                     2.
@@ -111,15 +118,10 @@
                         Update
                         <repeat></repeat>
                     </div>
-                    proposals and iterate
+                    to get new proposals
                 </div>
                 <div class="row v-center">
-                    3.
-                    <div class="btn dummy">
-                        Quit
-                        <stop></stop>
-                    </div>
-                    anytime
+                    3. iterate extend groups
                 </div>
             </div>
 
@@ -1834,7 +1836,7 @@ export default {
 
 .help-box {
     padding: 0.5rem;
-    background-color: #f3f3f3;
+    background-color: #1f03ff0d;
 }
 
 .active-img {

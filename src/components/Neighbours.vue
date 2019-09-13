@@ -11,7 +11,7 @@
         <div class="row hint"># proposals in next iteration</div>
         <div class="row">
             <div :class="{ active: loading }" @click="getGroupNeighbours" class="btn">
-                Update
+                Update proposals
                 <repeat v-if="!loading"></repeat>
                 <div class="loader" v-if="loading"></div>
             </div>
