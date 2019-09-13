@@ -24,24 +24,22 @@
                         <x></x>
                     </div>
                 </div>
-<!--                <div class="row">-->
-                    <div class="row-end">
-                        <div @click="changeScaleDown()" class="btn" v-tooltip="'scale positions down'">
-                            <minimize></minimize>
-                        </div>
-                        <div @click="changeScaleUp()" class="btn" v-tooltip="'scale positions up'">
-                            <maximize></maximize>
-                        </div>
+                <div class="row-end">
+                    <div @click="changeScaleDown()" class="btn" v-tooltip="'scale positions down'">
+                        <minimize></minimize>
                     </div>
-                    <div class="row-end">
-                        <div @click="changeImgSize(-1)" class="btn" v-tooltip="'images smaller'">
-                            <img-size-down></img-size-down>
-                        </div>
-                        <div @click="changeImgSize(1)" class="btn" v-tooltip="'images larger'">
-                            <img-size-up></img-size-up>
-                        </div>
+                    <div @click="changeScaleUp()" class="btn" v-tooltip="'scale positions up'">
+                        <maximize></maximize>
                     </div>
-<!--                </div>-->
+                </div>
+                <div class="row-end">
+                    <div @click="changeImgSize(-1)" class="btn" v-tooltip="'images smaller'">
+                        <img-size-down></img-size-down>
+                    </div>
+                    <div @click="changeImgSize(1)" class="btn" v-tooltip="'images larger'">
+                        <img-size-up></img-size-up>
+                    </div>
+                </div>
             </div>
             <div class="box top left">
                 <div :if="nodesTotal" class="btn">{{ nodesRecived + '/' + nodesTotal }}</div>
@@ -69,14 +67,12 @@
                     </div>
                 </div>
             </div>
-            <div class="box bottom right">
-
-            </div>
+            <div class="box bottom right"></div>
         </div>
 
         <div class="details">
             <div class="area help-box" v-if="showHelp && !neighbourMode">
-<!--                <div class="title2">Create groups for learning own embedding</div>-->
+                <!--                <div class="title2">Create groups for learning own embedding</div>-->
                 <div class="title2">Help: General usage</div>
                 <div class="row v-center">
                     1. Select images with
@@ -96,9 +92,8 @@
                 </div>
                 <div class="row v-center">4. Repeat with different groups</div>
                 <div class="row v-center">
-                    5.
-                    <div class="btn dummy">
-                        Update embedding
+                    5. Update embedding
+                    <div class="dummy">
                         <send></send>
                     </div>
                 </div>
@@ -1051,8 +1046,8 @@ export default {
         },
 
         changeGroupColor(e, i) {
-            logYellow('changeGroupColor')
-            const group = this.savedGroups[i]
+            logYellow('changeGroupColor');
+            const group = this.savedGroups[i];
             console.log(e.target.value, i, group);
             group.colorId = e.target.value;
             console.log(this.savedGroups[i]);
@@ -1110,7 +1105,7 @@ export default {
 
         addNode(node) {
             // console.warn(node);
-            (node.nodeId % 50) === 0 && console.warn(`Add Node ${node.index}:`, node);
+            node.nodeId % 50 === 0 && console.warn(`Add Node ${node.index}:`, node);
             const addNode1 = this.wasm.addNode(
                 node.x,
                 node.y,
@@ -1937,34 +1932,10 @@ export default {
     text-decoration: underline;
 }
 
-a {
-    text-decoration: none;
+/**
+ *   Custom scrollbar style
+*/
 
-    display: flex;
-    align-items: center;
-
-    height: 35px;
-
-    font-weight: bold;
-    padding: 0 1em;
-    margin-bottom: 5px;
-    color: #767676;
-}
-
-a:hover {
-    color: #484848;
-}
-
-.router-link-exact-active {
-    /*//background-color: paleturquoise;*/
-    border-bottom: 5px solid paleturquoise;
-    color: #484848;
-    margin-bottom: 0;
-}
-
-/*
-    Custom scrollbar style
-    */
 /* width */
 ::-webkit-scrollbar {
     width: 10px;

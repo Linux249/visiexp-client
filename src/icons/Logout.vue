@@ -2,25 +2,24 @@
     <svg
         fill="none"
         height="20"
-        width="20"
         stroke="currentColor"
         stroke-linecap="round"
         stroke-linejoin="round"
         stroke-width="2"
         viewBox="0 0 24 24"
+        width="20"
         xmlns="http://www.w3.org/2000/svg"
     >
-        <line x1="22" x2="11" y1="2" y2="13"></line>
-        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+        <polyline points="16 17 21 12 16 7"></polyline>
+        <line x1="21" y1="12" x2="9" y2="12"></line>
     </svg>
 </template>
 
 <script>
 export default {
-    name: 'Send',
+    name: 'Logout',
 };
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
