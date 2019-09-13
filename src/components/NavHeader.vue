@@ -3,8 +3,8 @@
         <div class="left-header">
             <div class="title-header"></div>
             <router-link class="title-header" to="/explorer"
-                >Visual Similarity Explorer</router-link
-            >
+                >Visual Similarity Explorer</router-link>
+            <div>{{name}}</div>
             <div class="btn" @click="toggleWasmMode" :class="{ active: wasmMode }">
                 wasm
             </div>
@@ -46,11 +46,14 @@ import Settings from '../icons/Settings';
 
 export default {
     name: 'NavHeader',
-    components: { Send, Help, Logout, Settings },
+    components: {
+        Send, Help, Logout, Settings,
+    },
     props: {
         wasmMode: Boolean,
         toggleWasmMode: Function,
         isAuth: Boolean,
+        name: String,
     },
     data: () => ({
         loading: false,

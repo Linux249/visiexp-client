@@ -1,6 +1,11 @@
 <template>
     <div id="app">
-        <nav-header :isAuth="isAuth" :wasmMode="wasmMode" :toggleWasmMode="toggleWasmMode" />
+        <nav-header
+            :isAuth="isAuth"
+            :wasmMode="wasmMode"
+            :toggleWasmMode="toggleWasmMode"
+            :name="datasetName"
+        />
 
         <router-view
             ref="router"
@@ -37,14 +42,17 @@ export default {
         selectedImgCount: 500, // default
         wasmMode: false,
         loadOldDataset: false,
+        datasetName: '',
     }),
     methods: {
-        switchDataset(newDataset, count, old) {
+        switchDataset(newDataset, name, count, old) {
+            console.log(newDataset, name, count, old)
             console.log('switchDataset');
             console.log(newDataset, count);
             this.dataset = newDataset;
             this.loadOldDataset = old;
             this.selectedImgCount = count;
+            this.datasetName = name;
             this.$router.push('/explorer');
         },
         setAuth(userId) {
@@ -81,8 +89,6 @@ export default {
 </script>
 
 <style>
-
-
 #app {
     font-family: Camphor, Open Sans, Segoe UI, sans-serif;
     text-rendering: optimizeLegibility;

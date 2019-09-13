@@ -86,6 +86,7 @@ export default {
             // imgCount: process.env
             imgCount: this.selectedImgCount,
             selectedDataset: this.dataset,
+            name: '',
         };
     },
     async mounted() {
@@ -101,7 +102,10 @@ export default {
                     type: 'error',
                     text: res.statusText,
                 });
-            } else this.datasets = await res.json();
+            } else {
+                this.datasets = await res.json();
+                this.name = this.datasets[0] && this.datasets[0].name;
+            }
         } catch (e) {
             console.error(e);
             this.$notify({
@@ -116,7 +120,8 @@ export default {
     methods: {
         selectDataset(id) {
             this.selectedDataset = id;
-            const { size } = this.datasets.find(e => e.id === this.selectedDataset);
+            const { size, name } = this.datasets.find(e => e.id === this.selectedDataset);
+            this.name = name;
             this.imgCount = size < 500 ? size : 500;
         },
         changeImgCount({ target }) {
@@ -128,7 +133,7 @@ export default {
         },
         triggerChangeDataset(old) {
             this.error = '';
-            this.handleChangeDataset(this.selectedDataset, this.imgCount, old);
+            this.handleChangeDataset(this.selectedDataset, this.name, this.imgCount, old);
         },
     },
 };
