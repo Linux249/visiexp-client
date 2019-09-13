@@ -2,6 +2,14 @@ module.exports = {
     devServer: {
         proxy: 'http://localhost:3000',
     },
+    // devServer: {
+    //     proxy: {
+    //         '^/api': {
+    //             target: 'http://localhost:3000',
+    //             // pathRewrite: { '^/api': '' },
+    //         },
+    //     },
+    // },
     publicPath: process.env.NODE_ENV === 'production' ? '/visiexp/' : '/',
     configureWebpack: {
         /* module: {
@@ -40,14 +48,15 @@ module.exports = {
                             loader: 'file-loader',
                             options: {
                                 name: 'wasm/[name].[hash].[ext]',
-                            }
-                        }
-                    ]
-                }
+                            },
+                        },
+                    ],
+                },
             ],
         },
         optimization: {
-            occurrenceOrder: true, // To keep filename consistent between different modes (for example building only)
+            // To keep filename consistent between different modes (for example building only)
+            occurrenceOrder: true,
         },
     },
 };
