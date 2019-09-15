@@ -1,14 +1,14 @@
 <template>
     <div class="flex-center">
         <div class="middle body">
-            <div class="title">Data set: {{ dataset && dataset.name }}</div>
-            <div class="loading">
-                <div class="loader" v-if="loading"></div>
-            </div>
-            <div class="flex" v-if="!loading">
-                <div class="item area">
+            <div class="">
+                <div class="header">1. Select data set: {{ dataset && dataset.name }}</div>
+                <div class="loading">
+                    <div class="loader" v-if="loading"></div>
+                </div>
+                <div class="items">
                     <div
-                        class="btn"
+                        class="btn btn-item"
                         :class="{ active: selectedDataset === set.id }"
                         :key="set.id"
                         @click="selectDataset(set.id)"
@@ -20,39 +20,44 @@
                                     {{ `${set.name}` }}
                                 </div>
                             </div>
-                            <div class="description-small">{{ `Size: ${set.size}` }}</div>
+                            <div class="description-small">{{ `Data set size: ${set.size}` }}</div>
                             <div class="description">
                                 {{ set.exists ? set.description : 'Dataset file does not exists' }}
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="item">
-                    <div class="area">
+            </div>
+            <div class="">
+                <div class="header">2. Select subset of images or load full data set</div>
 
-                        <div class="title">No. of images</div>
-                        <div class="between">
-                            <range-slider
-                                :change="changeImgCount"
-                                :max="10000"
-                                :min="500"
-                                :step="500"
-                                :value="imgCount"
-                            ></range-slider>
-                            <div class="btn">{{ `${imgCount}#` }}</div>
-                        </div>
-                        <div class="flex">
-                            <div @click="triggerChangeDataset(false)" class="btn">start new</div>
-                            <div @click="triggerChangeDataset(true)" class="btn">load old</div>
-                            <div class="btn" @click="toggleWasmMode" :class="{ active: wasmMode }">
-                                wasm
-                            </div>
-                        </div>
-                        <div class="description-small">
-                            You can load your trained features or start with new
-                        </div>
+                <div class="row">
+                    <range-slider
+                        :change="changeImgCount"
+                        :max="10000"
+                        :min="500"
+                        :step="500"
+                        :value="imgCount"
+                    ></range-slider>
+                    <div class="description">{{ `${imgCount}/${maxCount}#` }}</div>
+                    <!--                        <div class="btn">all</div>-->
                 </div>
+            </div>
+            <div>
+                <div class="header">
+                    3. Resume last session or start new one
+                </div>
+                <div class="flex">
+                    <div @click="triggerChangeDataset(true)" class="btn">resume</div>
+                    <div @click="triggerChangeDataset(false)" class="btn">new</div>
+                    <div class="btn" @click="toggleWasmMode" :class="{ active: wasmMode }">
+                        wasm
                     </div>
+                </div>
+                <div class="description-small">
+                    If there is no saved session a new one will created automatic on "resume"
+                </div>
+                <!--                    </div>-->
             </div>
         </div>
     </div>
@@ -81,7 +86,9 @@ export default {
             loading: false,
             // imgCount: process.env
             imgCount: this.selectedImgCount,
+            maxCount: 0,
             selectedDataset: this.dataset,
+            name: '',
         };
     },
     async mounted() {
@@ -89,7 +96,7 @@ export default {
         try {
             console.log('load dataset after mounting');
             const res = await fetch(`${apiUrl}/api/v1/dataset/all`);
-            console.log(res)
+            console.log(res);
             if (!res.ok) {
                 this.$notify({
                     group: 'default',
@@ -97,7 +104,11 @@ export default {
                     type: 'error',
                     text: res.statusText,
                 });
-            } else this.datasets = await res.json();
+            } else {
+                this.datasets = await res.json();
+                this.name = this.datasets[0] && this.datasets[0].name;
+                this.maxCount = this.datasets[0] && this.datasets[0].size;
+            }
         } catch (e) {
             console.error(e);
             this.$notify({
@@ -112,7 +123,9 @@ export default {
     methods: {
         selectDataset(id) {
             this.selectedDataset = id;
-            const { size } = this.datasets.find(e => e.id === this.selectedDataset);
+            const { size, name } = this.datasets.find(e => e.id === this.selectedDataset);
+            this.name = name;
+            this.maxCount = size;
             this.imgCount = size < 500 ? size : 500;
         },
         changeImgCount({ target }) {
@@ -124,27 +137,35 @@ export default {
         },
         triggerChangeDataset(old) {
             this.error = '';
-            this.handleChangeDataset(this.selectedDataset, this.imgCount, old);
+            this.handleChangeDataset(this.selectedDataset, this.name, this.imgCount, old);
         },
     },
 };
 </script>
 
 <style scoped>
-.middle {
-    /*display: flex;*/
-    /*justify-content: center;*/
-    /*flex-flow: column;*/
-    /*align-self: center;*/
-    width: 1000px;
-    max-width: 1000px;
-
+.btn-item {
+    padding: 0 8px;
+    margin: 0.3rem;
 }
 
+.middle {
+    width: 1000px;
+    max-width: 1000px;
+}
 
-.item {
+.header {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #767676;
+    padding: 10px 0 4px 8px;
+}
+
+.items {
     flex-grow: 1;
     margin: 3px;
+    display: flex;
+    flex-wrap: wrap;
     /*padding: 2px;*/
 }
 
@@ -159,7 +180,7 @@ export default {
 }
 
 .description-small {
-    padding: 2px;
+    /*padding: 2px;*/
     font-size: 11px;
     font-style: italic;
     font-weight: 400;

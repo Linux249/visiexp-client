@@ -1,25 +1,25 @@
 <template>
-    <div class="">
-        <div class="title">Proposals</div>
+    <div class="area neighbours">
+        <div class="row-between">
+            <div class="title">Proposals</div>
+            <div :class="{ active: loading }" @click="stop" class="btn">
+                <x></x>
+            </div>
+        </div>
         <div class="between">
             <range-slider
                 :change="changeNeighboursThreshold"
                 :value="neighboursThreshold"
             ></range-slider>
-            <div class="btn">{{ `${neighboursThreshold}#` }}</div>
+            <div class="btn dummy">{{ `${neighboursThreshold}#` }}</div>
         </div>
         <div class="row hint"># proposals in next iteration</div>
         <div class="row">
             <div :class="{ active: loading }" @click="getGroupNeighbours" class="btn">
-                Update
+                Update proposals
                 <repeat v-if="!loading"></repeat>
                 <div class="loader" v-if="loading"></div>
             </div>
-            <div :class="{ active: loading }" @click="stop" class="btn">
-                quit
-                <stop></stop>
-            </div>
-            <!--<div class="btn" @click="resetNeighbours">Reset<trash></trash></div>-->
         </div>
     </div>
 </template>
@@ -27,7 +27,7 @@
 <script>
 import RangeSlider from './RangeSlider';
 import Repeat from '../icons/Repeat';
-import Stop from '../icons/Stop';
+import X from '../icons/X';
 import { apiUrl } from '../config/apiUrl';
 
 export default {
@@ -42,7 +42,7 @@ export default {
     components: {
         RangeSlider,
         Repeat,
-        Stop,
+        X,
     },
     data: () => ({
         loading: false,
@@ -117,6 +117,10 @@ export default {
 </script>
 
 <style scoped>
+.neighbours {
+    margin: 0.5rem;
+}
+
 .hint {
     font-size: small;
     font-style: italic;

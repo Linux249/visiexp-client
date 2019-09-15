@@ -24,9 +24,25 @@
                         <x></x>
                     </div>
                 </div>
+                <div class="row-end">
+                    <div @click="changeScaleDown()" class="btn" v-tooltip="'scale positions down'">
+                        <minimize></minimize>
+                    </div>
+                    <div @click="changeScaleUp()" class="btn" v-tooltip="'scale positions up'">
+                        <maximize></maximize>
+                    </div>
+                </div>
+                <div class="row-end">
+                    <div @click="changeImgSize(-1)" class="btn" v-tooltip="'images smaller'">
+                        <img-size-down></img-size-down>
+                    </div>
+                    <div @click="changeImgSize(1)" class="btn" v-tooltip="'images larger'">
+                        <img-size-up></img-size-up>
+                    </div>
+                </div>
             </div>
             <div class="box top left">
-                <div :if="nodesTotal" class="btn">{{ nodesRecived + '/' + nodesTotal }}</div>
+                <div :if="nodesTotal" class="btn dummy">{{ nodesRecived + '/' + nodesTotal }}</div>
             </div>
             <div class="box bottom left">
                 <div
@@ -51,59 +67,45 @@
                     </div>
                 </div>
             </div>
-            <div class="box bottom right">
-                <div class="row">
-                    <div @click="changeScaleDown()" class="btn" v-tooltip="'scale positions down'">
-                        <minimize></minimize>
-                    </div>
-                    <div @click="changeScaleUp()" class="btn" v-tooltip="'scale positions up'">
-                        <maximize></maximize>
-                    </div>
-                </div>
-                <div class="row">
-                    <div @click="changeImgSize(-1)" class="btn" v-tooltip="'images smaller'">
-                        <img-size-down></img-size-down>
-                    </div>
-                    <div @click="changeImgSize(1)" class="btn" v-tooltip="'images larger'">
-                        <img-size-up></img-size-up>
-                    </div>
-                </div>
-            </div>
+            <div class="box bottom right"></div>
         </div>
 
         <div class="details">
             <div class="area help-box" v-if="showHelp && !neighbourMode">
-                <div class="title2">Help: Create groups</div>
+                <!--                <div class="title2">Create groups for learning own embedding</div>-->
+                <div class="title2">Help: General usage</div>
                 <div class="row v-center">
                     1. Select images with
                     <div class="btn dummy">Click</div>
                     /
                     <scissors class="btn dummy"></scissors>
                 </div>
-                <div class="row v-center">
+                <div class="">
                     2. Create groups with
                     <div class="btn dummy">new</div>
+                    to learn own embedding
                 </div>
-                <div class="row v-center">
+                <div class="">
                     3. Get proposals with
                     <plus-circle class="btn dummy"></plus-circle>
+                    to extend groups automatically
                 </div>
                 <div class="row v-center">4. Repeat with different groups</div>
                 <div class="row v-center">
-                    5.
-                    <div class="btn dummy">
-                        Update embedding
+                    5. Update embedding
+                    <div class="dummy">
                         <send></send>
                     </div>
                 </div>
             </div>
             <div class="area help-box" v-if="showHelp && neighbourMode">
-                <div class="title2">Help: Generate proposals</div>
+                <div class="title2">Help: Extend groups aromatically</div>
                 <div class="row v-center">
                     1. Add proposal with
                     <div class="btn dummy">Click</div>
                     /
                     <scissors class="btn dummy"></scissors>
+                    to group
                 </div>
                 <div class="row v-center">
                     2.
@@ -111,19 +113,14 @@
                         Update
                         <repeat></repeat>
                     </div>
-                    proposals and iterate
+                    to get new proposals
                 </div>
                 <div class="row v-center">
-                    3.
-                    <div class="btn dummy">
-                        Quit
-                        <stop></stop>
-                    </div>
-                    anytime
+                    3. iterate extend groups
                 </div>
             </div>
 
-            <div class="area" v-if="$route.params.setup === 'settings'">
+            <div class="area" v-if="showSettings">
                 <div class="title">Settings</div>
                 <div class="row-btn">
                     <div>Save:</div>
@@ -135,14 +132,14 @@
                 </div>
                 <div class="option-title">Image</div>
                 <div class="row-btn">
-                    <div>Alpha (base): {{ alphaBase }}</div>
+                    <div>Transparency (base): {{ alphaBase }}</div>
                     <div class="row">
                         <div @click="changeAlphaBase(-10)" class="btn">-10</div>
                         <div @click="changeAlphaBase(10)" class="btn">+10</div>
                     </div>
                 </div>
                 <div class="row-btn">
-                    <div>Aplha (increase): {{ alphaIncrease }}</div>
+                    <div>Transparency (lapping): {{ alphaIncrease }}</div>
                     <div class="row">
                         <div @click="changeAlphaIncrease(-10)" class="btn">-10</div>
                         <div @click="changeAlphaIncrease(10)" class="btn">+10</div>
@@ -160,7 +157,7 @@
                     </div>
                 </div>
                 <div class="row-btn">
-                    <div>Represent: alpha</div>
+                    <div>Represent: transparency</div>
                     <div
                         :class="{ active: representMaxAlpha }"
                         @click="togglerepresentMaxAlpha"
@@ -194,6 +191,45 @@
                             <div @click="changeZoomStage(1)" class="btn"><plus></plus></div>
                         </div>
                     </div>-->
+
+                <div class="option-title">Heatmap</div>
+                <div class="row-btn">
+                    <div>Radius: {{ heatmapRadius }}</div>
+                    <div class="row">
+                        <div @click="changeHeatmapRadius(-0.1)" class="btn">
+                            <minus></minus>
+                        </div>
+                        <div @click="changeHeatmapRadius(0.1)" class="btn">
+                            <plus></plus>
+                        </div>
+                    </div>
+                </div>
+                <div class="row-btn">
+                    <div>Blur: {{ heatmapBlur }}</div>
+                    <div class="row">
+                        <div @click="changeHeatmapBlur(-1)" class="btn">
+                            <minus></minus>
+                        </div>
+                        <div @click="changeHeatmapBlur(1)" class="btn">
+                            <plus></plus>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="option-title">Cluster</div>
+                <div class="row-btn">
+                    <div>Radius: {{ clusterRadius }}</div>
+                    <div class="row">
+                        <div @click="changeClusterRadius(-1)" class="btn">
+                            <minus></minus>
+                        </div>
+                        <div @click="changeClusterRadius(1)" class="btn">
+                            <plus></plus>
+                        </div>
+                        <div @click="updateCluster()" class="btn">update</div>
+                    </div>
+                </div>
+
                 <div class="option-title">Rank/Clique</div>
                 <div class="row-btn">
                     <div>Sort</div>
@@ -246,43 +282,10 @@
                         {{ '.' + i }}
                     </div>
                 </div>
-                <slider-picker @input="changeColor" style="width: inherit;" v-model="colors" />
-                <div class="option-title">Heatmap</div>
-                <div class="row-btn">
-                    <div>Radius: {{ heatmapRadius }}</div>
-                    <div class="row">
-                        <div @click="changeHeatmapRadius(-1)" class="btn">
-                            <minus></minus>
-                        </div>
-                        <div @click="changeHeatmapRadius(1)" class="btn">
-                            <plus></plus>
-                        </div>
-                    </div>
+                <div class="padding">
+                    <slider-picker @input="changeColor" style="width: inherit;" v-model="colors" />
                 </div>
-                <div class="row-btn">
-                    <div>Blur: {{ heatmapBlur }}</div>
-                    <div class="row">
-                        <div @click="changeHeatmapBlur(-1)" class="btn">
-                            <minus></minus>
-                        </div>
-                        <div @click="changeHeatmapBlur(1)" class="btn">
-                            <plus></plus>
-                        </div>
-                    </div>
-                </div>
-                <div class="option-title">Cluster</div>
-                <div class="row-btn">
-                    <div>Cluster: radius: {{ clusterRadius }}</div>
-                    <div class="row">
-                        <div @click="changeClusterRadius(-1)" class="btn">
-                            <minus></minus>
-                        </div>
-                        <div @click="changeClusterRadius(1)" class="btn">
-                            <plus></plus>
-                        </div>
-                        <div @click="updateCluster()" class="btn">update</div>
-                    </div>
-                </div>
+
                 <div class="option-title">Performance</div>
                 <div class="row-btn">
                     <div>Monitor</div>
@@ -291,19 +294,28 @@
                     </div>
                 </div>
                 <div class="row-btn">
+                    <div>Double Nodes</div>
+                    <div @click="doubleNodes" class="btn">double</div>
+                </div>
+                <div class="row-btn">
+                    <div>Log draw time</div>
+                    <div @click="testPerformance" class="btn">100x</div>
+                </div>
+                <div class="row-btn">
                     <div>Show Hitmap</div>
                     <div :class="{ active: toggle }" @click="toggleShowHitmap" class="btn">
                         {{ toggle ? 'On' : 'Off' }}
                     </div>
                 </div>
-                <div class="row-btn">
-                    <div>Double Nodes</div>
-                    <div @click="doubleNodes" class="btn">double</div>
-                </div>
-                <div class="row-btn">
-                    <div>100xDraw</div>
-                    <div @click="testPerformance" class="btn">TODO</div>
-                </div>
+
+                <div class="option-title">Classifier</div>
+                <classifier
+                    :getStore="getStore"
+                    :labels="labels"
+                    :node="clickedNode"
+                    :nodes="cuttedNodes"
+                >
+                </classifier>
 
                 <!--<div class="row-btn">-->
                 <!--<div>Cluster: tile: {{ clusterTile }}</div>-->
@@ -314,14 +326,6 @@
                 <!--</div>-->
             </div>
 
-            <classifier
-                v-if="$route.params.setup === 'classifier'"
-                :getStore="getStore"
-                :labels="labels"
-                :node="clickedNode"
-                :nodes="cuttedNodes"
-            >
-            </classifier>
 
             <div class="area">
                 <div class="row-between">
@@ -335,59 +339,63 @@
                     </div>
                 </div>
                 <div class="group-list" v-if="this.savedGroups.length">
-                    <div :key="i" class="group-item row-between" v-for="(group, i) in savedGroups">
-                        <div
-                            :class="{ active: group.groupId === activeGroupId }"
-                            @click="selectGroup(i)"
-                            class="btn"
-                        >
-                            {{ `${group.name}` }}
-                        </div>
-                        <div>{{ `#${group.count}` }}</div>
-                        <select
-                            :style="{
-                                width: '3rem',
-                                backgroundColor: `rgb(${groupColours[group.colorId][0]},${
-                                    groupColours[group.colorId][1]
-                                },${groupColours[group.colorId][2]})`,
-                            }"
-                            @change="changeGroupColor($event, i)"
-                            class="btn"
-                        >
-                            <option
-                                :id="group.colorId"
-                                :key="id"
-                                :selected="+group.colorId === +id"
-                                :style="{
-                                    backgroundColor: `rgb(${color[0]},${color[1]},${color[2]})`,
-                                }"
-                                :value="id"
-                                v-for="(color, id) in groupColours"
+                    <div :key="i" v-for="(group, i) in savedGroups">
+                        <div class="group-item row-between">
+                            <div
+                                :class="{ active: group.groupId === activeGroupId }"
+                                @click="selectGroup(i)"
+                                class="btn"
                             >
-                            </option>
-                        </select>
-                        <div
-                            :class="{
-                                active: neighbourMode && group.groupId === activeGroupId,
-                            }"
-                            @click="handleNeighbourMode(i)"
-                            class="btn"
-                        >
-                            <plus-circle
-                                v-if="!(neighbourMode && group.groupId === activeGroupId)"
-                            ></plus-circle>
-                            <stop v-if="neighbourMode && group.groupId === activeGroupId"></stop>
-                        </div>
-                        <div @click="deleteGroup(i)" class="btn">
-                            <trash></trash>
+                                {{ `${group.name}` }}
+                            </div>
+                            <div>{{ `#${group.count}` }}</div>
+                            <select
+                                :style="{
+                                    width: '3rem',
+                                    backgroundColor: `rgb(${groupColours[group.colorId][0]},${
+                                        groupColours[group.colorId][1]
+                                    },${groupColours[group.colorId][2]})`,
+                                }"
+                                @change="changeGroupColor($event, i)"
+                                class="btn"
+                            >
+                                <option
+                                    :id="group.colorId"
+                                    :key="id"
+                                    :selected="+group.colorId === +id"
+                                    :style="{
+                                        backgroundColor: `rgb(${color[0]},${color[1]},${color[2]})`,
+                                    }"
+                                    :value="id"
+                                    v-for="(color, id) in groupColours"
+                                >
+                                </option>
+                            </select>
+                            <div
+                                :class="{
+                                    active: neighbourMode && group.groupId === activeGroupId,
+                                }"
+                                @click="handleNeighbourMode(i)"
+                                class="btn"
+                            >
+                                <plus-circle
+                                    v-if="!(neighbourMode && group.groupId === activeGroupId)"
+                                ></plus-circle>
+                                <stop
+                                    v-if="neighbourMode && group.groupId === activeGroupId"
+                                ></stop>
+                            </div>
+                            <div @click="deleteGroup(i)" class="btn">
+                                <trash></trash>
+                            </div>
                         </div>
                         <neighbours
+                            v-if="neighbourMode && group.groupId === activeGroupId"
                             :activeGroupId="activeGroupId"
                             :changeNeighboursThreshold="changeNeighboursThreshold"
                             :getStore="getStore"
                             :neighboursThreshold="neighboursThreshold"
                             :stop="stopNeighbourMode"
-                            v-if="neighbourMode && group.groupId === activeGroupId"
                         />
                     </div>
                 </div>
@@ -492,6 +500,7 @@ export default {
         // store: null,
         socket: null,
         connectedToSocket: false,
+        showSettings: false,
         updateNodes: false,
         loadingImgs: false,
         nodesTotal: 0,
@@ -889,7 +898,7 @@ export default {
         },
 
         changeHeatmapRadius(v) {
-            this.heatmapRadius += v;
+            this.heatmapRadius = Math.round((this.heatmapRadius + v) * 10) / 10;
             // this.drawHeatmap();
             this.drawNavHeatmap();
         },
@@ -1049,8 +1058,8 @@ export default {
         },
 
         changeGroupColor(e, i) {
-            logYellow('changeGroupColor')
-            const group = this.savedGroups[i]
+            logYellow('changeGroupColor');
+            const group = this.savedGroups[i];
             console.log(e.target.value, i, group);
             group.colorId = e.target.value;
             console.log(this.savedGroups[i]);
@@ -1108,7 +1117,7 @@ export default {
 
         addNode(node) {
             // console.warn(node);
-            (node.nodeId % 50) === 0 && console.warn(`Add Node ${node.index}:`, node);
+            node.nodeId % 50 === 0 && console.warn(`Add Node ${node.index}:`, node);
             const addNode1 = this.wasm.addNode(
                 node.x,
                 node.y,
@@ -1832,9 +1841,13 @@ export default {
     padding: 0 0.5rem;
 }
 
+.padding {
+    padding: 0 0.5rem;
+}
+
 .help-box {
     padding: 0.5rem;
-    background-color: #f3f3f3;
+    background-color: #1f03ff0d;
 }
 
 .active-img {
@@ -1935,34 +1948,10 @@ export default {
     text-decoration: underline;
 }
 
-a {
-    text-decoration: none;
+/**
+ *   Custom scrollbar style
+*/
 
-    display: flex;
-    align-items: center;
-
-    height: 35px;
-
-    font-weight: bold;
-    padding: 0 1em;
-    margin-bottom: 5px;
-    color: #767676;
-}
-
-a:hover {
-    color: #484848;
-}
-
-.router-link-exact-active {
-    /*//background-color: paleturquoise;*/
-    border-bottom: 5px solid paleturquoise;
-    color: #484848;
-    margin-bottom: 0;
-}
-
-/*
-    Custom scrollbar style
-    */
 /* width */
 ::-webkit-scrollbar {
     width: 10px;

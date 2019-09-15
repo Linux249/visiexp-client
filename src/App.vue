@@ -1,6 +1,11 @@
 <template>
     <div id="app">
-        <nav-header :isAuth="isAuth" :wasmMode="wasmMode" :toggleWasmMode="toggleWasmMode" />
+        <nav-header
+            :isAuth="isAuth"
+            :wasmMode="wasmMode"
+            :toggleWasmMode="toggleWasmMode"
+            :name="datasetName"
+        />
 
         <router-view
             ref="router"
@@ -17,6 +22,7 @@
             :selectedImgCount="selectedImgCount"
         />
 
+        <v-dialog />
         <notifications :duration="5000" group="default" position="bottom right"></notifications>
     </div>
 </template>
@@ -37,14 +43,17 @@ export default {
         selectedImgCount: 500, // default
         wasmMode: false,
         loadOldDataset: false,
+        datasetName: '',
     }),
     methods: {
-        switchDataset(newDataset, count, old) {
+        switchDataset(newDataset, name, count, old) {
+            console.log(newDataset, name, count, old);
             console.log('switchDataset');
             console.log(newDataset, count);
             this.dataset = newDataset;
             this.loadOldDataset = old;
             this.selectedImgCount = count;
+            this.datasetName = name;
             this.$router.push('/explorer');
         },
         setAuth(userId) {
@@ -65,24 +74,24 @@ export default {
         },
         checkRoute(to, from, next) {
             this.$nextTick(function () {
-                console.error('checkRoute');
+                console.log('check route before handling');
                 console.log({ auth: this.isAuth, to, from });
-                this.isAuth || to.name === LOGIN ? next() : next({ name: LOGIN });
+                // redirect to LOGIN if not auth and not already routed to /login
+                if (!this.isAuth && !to.name === LOGIN) return next({ name: LOGIN });
+                return next();
             });
         },
     },
     mounted() {
         // add auth checker for route
         this.$router.beforeHooks.push(this.checkRoute);
-        // the init route isn't checked, so do it yourself
+        // the init route isn't checked, so do it here on mount
         if (!this.isAuth && this.$route.path !== `/${LOGIN}`) this.$router.push({ name: LOGIN });
     },
 };
 </script>
 
 <style>
-
-
 #app {
     font-family: Camphor, Open Sans, Segoe UI, sans-serif;
     text-rendering: optimizeLegibility;

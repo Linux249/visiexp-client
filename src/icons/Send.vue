@@ -1,8 +1,8 @@
 <template>
     <svg
         fill="none"
-        height="16"
-        width="16"
+        height="20"
+        width="20"
         stroke="currentColor"
         stroke-linecap="round"
         stroke-linejoin="round"
@@ -22,7 +22,5 @@ export default {
 </script>
 
 <style scoped>
-    svg {
-        padding-left: 4px;
-    }
+
 </style>
