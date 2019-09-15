@@ -21,12 +21,9 @@
             <div @click="handleDataset" class="icon">
                 Dataset
             </div>
-            <router-link
-                v-if="isAuth && explorer"
-                :class="{ active: $route.params.setup === 'settings' }"
-                to="/explorer/settings"
-                ><settings></settings
-            ></router-link>
+            <div :class="{ active: showSettings }" @click="toggleSettings" class="icon">
+                <settings></settings>
+            </div>
             <div :class="{ active: help }" @click="toggleHelp" class="icon">
                 <help></help>
             </div>
@@ -69,6 +66,7 @@ export default {
         loading: false,
         explorer: false,
         help: true,
+        showSettings: false,
     }),
     methods: {
         updateEmbedding() {
@@ -96,6 +94,10 @@ export default {
         toggleHelp() {
             console.log('toggleHelp');
             this.help = this.$root.explorer.showHelp = !this.$root.explorer.showHelp;
+        },
+        toggleSettings() {
+            console.log('toggleHelp');
+            this.showSettings = this.$root.explorer.showSettings = !this.$root.explorer.showSettings;
         },
         handleDataset() {
             this.$modal.show('dialog', {

@@ -3,7 +3,7 @@
         <div class="row-between">
             <div class="title">Proposals</div>
             <div :class="{ active: loading }" @click="stop" class="btn">
-                <stop></stop>
+                <x></x>
             </div>
         </div>
         <div class="between">
@@ -11,7 +11,7 @@
                 :change="changeNeighboursThreshold"
                 :value="neighboursThreshold"
             ></range-slider>
-            <div class="btn">{{ `${neighboursThreshold}#` }}</div>
+            <div class="btn dummy">{{ `${neighboursThreshold}#` }}</div>
         </div>
         <div class="row hint"># proposals in next iteration</div>
         <div class="row">
@@ -27,7 +27,7 @@
 <script>
 import RangeSlider from './RangeSlider';
 import Repeat from '../icons/Repeat';
-import Stop from '../icons/Stop';
+import X from '../icons/X';
 import { apiUrl } from '../config/apiUrl';
 
 export default {
@@ -42,7 +42,7 @@ export default {
     components: {
         RangeSlider,
         Repeat,
-        Stop,
+        X,
     },
     data: () => ({
         loading: false,

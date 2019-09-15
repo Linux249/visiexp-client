@@ -8,7 +8,7 @@
                 </div>
                 <div class="items">
                     <div
-                        class="btn"
+                        class="btn btn-item"
                         :class="{ active: selectedDataset === set.id }"
                         :key="set.id"
                         @click="selectDataset(set.id)"
@@ -144,7 +144,7 @@ export default {
 </script>
 
 <style scoped>
-.btn {
+.btn-item {
     padding: 0 8px;
     margin: 0.3rem;
 }

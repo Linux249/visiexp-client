@@ -120,7 +120,7 @@
                 </div>
             </div>
 
-            <div class="area" v-if="$route.params.setup === 'settings'">
+            <div class="area" v-if="showSettings">
                 <div class="title">Settings</div>
                 <div class="row-btn">
                     <div>Save:</div>
@@ -493,6 +493,7 @@ export default {
         // store: null,
         socket: null,
         connectedToSocket: false,
+        showSettings: false,
         updateNodes: false,
         loadingImgs: false,
         nodesTotal: 0,
