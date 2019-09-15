@@ -132,14 +132,14 @@
                 </div>
                 <div class="option-title">Image</div>
                 <div class="row-btn">
-                    <div>Alpha (base): {{ alphaBase }}</div>
+                    <div>Transparency (base): {{ alphaBase }}</div>
                     <div class="row">
                         <div @click="changeAlphaBase(-10)" class="btn">-10</div>
                         <div @click="changeAlphaBase(10)" class="btn">+10</div>
                     </div>
                 </div>
                 <div class="row-btn">
-                    <div>Aplha (increase): {{ alphaIncrease }}</div>
+                    <div>Transparency (lapping): {{ alphaIncrease }}</div>
                     <div class="row">
                         <div @click="changeAlphaIncrease(-10)" class="btn">-10</div>
                         <div @click="changeAlphaIncrease(10)" class="btn">+10</div>
@@ -157,7 +157,7 @@
                     </div>
                 </div>
                 <div class="row-btn">
-                    <div>Represent: alpha</div>
+                    <div>Represent: transparency</div>
                     <div
                         :class="{ active: representMaxAlpha }"
                         @click="togglerepresentMaxAlpha"
@@ -191,6 +191,45 @@
                             <div @click="changeZoomStage(1)" class="btn"><plus></plus></div>
                         </div>
                     </div>-->
+
+                <div class="option-title">Heatmap</div>
+                <div class="row-btn">
+                    <div>Radius: {{ heatmapRadius }}</div>
+                    <div class="row">
+                        <div @click="changeHeatmapRadius(-0.1)" class="btn">
+                            <minus></minus>
+                        </div>
+                        <div @click="changeHeatmapRadius(0.1)" class="btn">
+                            <plus></plus>
+                        </div>
+                    </div>
+                </div>
+                <div class="row-btn">
+                    <div>Blur: {{ heatmapBlur }}</div>
+                    <div class="row">
+                        <div @click="changeHeatmapBlur(-1)" class="btn">
+                            <minus></minus>
+                        </div>
+                        <div @click="changeHeatmapBlur(1)" class="btn">
+                            <plus></plus>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="option-title">Cluster</div>
+                <div class="row-btn">
+                    <div>Radius: {{ clusterRadius }}</div>
+                    <div class="row">
+                        <div @click="changeClusterRadius(-1)" class="btn">
+                            <minus></minus>
+                        </div>
+                        <div @click="changeClusterRadius(1)" class="btn">
+                            <plus></plus>
+                        </div>
+                        <div @click="updateCluster()" class="btn">update</div>
+                    </div>
+                </div>
+
                 <div class="option-title">Rank/Clique</div>
                 <div class="row-btn">
                     <div>Sort</div>
@@ -243,43 +282,10 @@
                         {{ '.' + i }}
                     </div>
                 </div>
-                <slider-picker @input="changeColor" style="width: inherit;" v-model="colors" />
-                <div class="option-title">Heatmap</div>
-                <div class="row-btn">
-                    <div>Radius: {{ heatmapRadius }}</div>
-                    <div class="row">
-                        <div @click="changeHeatmapRadius(-1)" class="btn">
-                            <minus></minus>
-                        </div>
-                        <div @click="changeHeatmapRadius(1)" class="btn">
-                            <plus></plus>
-                        </div>
-                    </div>
+                <div class="padding">
+                    <slider-picker @input="changeColor" style="width: inherit;" v-model="colors" />
                 </div>
-                <div class="row-btn">
-                    <div>Blur: {{ heatmapBlur }}</div>
-                    <div class="row">
-                        <div @click="changeHeatmapBlur(-1)" class="btn">
-                            <minus></minus>
-                        </div>
-                        <div @click="changeHeatmapBlur(1)" class="btn">
-                            <plus></plus>
-                        </div>
-                    </div>
-                </div>
-                <div class="option-title">Cluster</div>
-                <div class="row-btn">
-                    <div>Cluster: radius: {{ clusterRadius }}</div>
-                    <div class="row">
-                        <div @click="changeClusterRadius(-1)" class="btn">
-                            <minus></minus>
-                        </div>
-                        <div @click="changeClusterRadius(1)" class="btn">
-                            <plus></plus>
-                        </div>
-                        <div @click="updateCluster()" class="btn">update</div>
-                    </div>
-                </div>
+
                 <div class="option-title">Performance</div>
                 <div class="row-btn">
                     <div>Monitor</div>
@@ -288,19 +294,28 @@
                     </div>
                 </div>
                 <div class="row-btn">
+                    <div>Double Nodes</div>
+                    <div @click="doubleNodes" class="btn">double</div>
+                </div>
+                <div class="row-btn">
+                    <div>Log draw time</div>
+                    <div @click="testPerformance" class="btn">100x</div>
+                </div>
+                <div class="row-btn">
                     <div>Show Hitmap</div>
                     <div :class="{ active: toggle }" @click="toggleShowHitmap" class="btn">
                         {{ toggle ? 'On' : 'Off' }}
                     </div>
                 </div>
-                <div class="row-btn">
-                    <div>Double Nodes</div>
-                    <div @click="doubleNodes" class="btn">double</div>
-                </div>
-                <div class="row-btn">
-                    <div>100xDraw</div>
-                    <div @click="testPerformance" class="btn">TODO</div>
-                </div>
+
+                <div class="option-title">Classifier</div>
+                <classifier
+                    :getStore="getStore"
+                    :labels="labels"
+                    :node="clickedNode"
+                    :nodes="cuttedNodes"
+                >
+                </classifier>
 
                 <!--<div class="row-btn">-->
                 <!--<div>Cluster: tile: {{ clusterTile }}</div>-->
@@ -311,14 +326,6 @@
                 <!--</div>-->
             </div>
 
-            <classifier
-                v-if="$route.params.setup === 'classifier'"
-                :getStore="getStore"
-                :labels="labels"
-                :node="clickedNode"
-                :nodes="cuttedNodes"
-            >
-            </classifier>
 
             <div class="area">
                 <div class="row-between">
@@ -891,7 +898,7 @@ export default {
         },
 
         changeHeatmapRadius(v) {
-            this.heatmapRadius += v;
+            this.heatmapRadius = Math.round((this.heatmapRadius + v) * 10) / 10;
             // this.drawHeatmap();
             this.drawNavHeatmap();
         },
@@ -1831,6 +1838,10 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 0 0.5rem;
+}
+
+.padding {
     padding: 0 0.5rem;
 }
 
