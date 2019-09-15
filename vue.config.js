@@ -2,6 +2,11 @@ module.exports = {
     devServer: {
         proxy: 'http://localhost:3000',
     },
+
+    // used for a temporary bug https://stackoverflow.com/questions/57916549/vue-cli-run-build-typeerror-name-undefined
+    css: {
+        sourceMap: true,
+    },
     // devServer: {
     //     proxy: {
     //         '^/api': {
