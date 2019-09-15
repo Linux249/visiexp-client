@@ -332,59 +332,63 @@
                     </div>
                 </div>
                 <div class="group-list" v-if="this.savedGroups.length">
-                    <div :key="i" class="group-item row-between" v-for="(group, i) in savedGroups">
-                        <div
-                            :class="{ active: group.groupId === activeGroupId }"
-                            @click="selectGroup(i)"
-                            class="btn"
-                        >
-                            {{ `${group.name}` }}
-                        </div>
-                        <div>{{ `#${group.count}` }}</div>
-                        <select
-                            :style="{
-                                width: '3rem',
-                                backgroundColor: `rgb(${groupColours[group.colorId][0]},${
-                                    groupColours[group.colorId][1]
-                                },${groupColours[group.colorId][2]})`,
-                            }"
-                            @change="changeGroupColor($event, i)"
-                            class="btn"
-                        >
-                            <option
-                                :id="group.colorId"
-                                :key="id"
-                                :selected="+group.colorId === +id"
-                                :style="{
-                                    backgroundColor: `rgb(${color[0]},${color[1]},${color[2]})`,
-                                }"
-                                :value="id"
-                                v-for="(color, id) in groupColours"
+                    <div :key="i" v-for="(group, i) in savedGroups">
+                        <div class="group-item row-between">
+                            <div
+                                :class="{ active: group.groupId === activeGroupId }"
+                                @click="selectGroup(i)"
+                                class="btn"
                             >
-                            </option>
-                        </select>
-                        <div
-                            :class="{
-                                active: neighbourMode && group.groupId === activeGroupId,
-                            }"
-                            @click="handleNeighbourMode(i)"
-                            class="btn"
-                        >
-                            <plus-circle
-                                v-if="!(neighbourMode && group.groupId === activeGroupId)"
-                            ></plus-circle>
-                            <stop v-if="neighbourMode && group.groupId === activeGroupId"></stop>
-                        </div>
-                        <div @click="deleteGroup(i)" class="btn">
-                            <trash></trash>
+                                {{ `${group.name}` }}
+                            </div>
+                            <div>{{ `#${group.count}` }}</div>
+                            <select
+                                :style="{
+                                    width: '3rem',
+                                    backgroundColor: `rgb(${groupColours[group.colorId][0]},${
+                                        groupColours[group.colorId][1]
+                                    },${groupColours[group.colorId][2]})`,
+                                }"
+                                @change="changeGroupColor($event, i)"
+                                class="btn"
+                            >
+                                <option
+                                    :id="group.colorId"
+                                    :key="id"
+                                    :selected="+group.colorId === +id"
+                                    :style="{
+                                        backgroundColor: `rgb(${color[0]},${color[1]},${color[2]})`,
+                                    }"
+                                    :value="id"
+                                    v-for="(color, id) in groupColours"
+                                >
+                                </option>
+                            </select>
+                            <div
+                                :class="{
+                                    active: neighbourMode && group.groupId === activeGroupId,
+                                }"
+                                @click="handleNeighbourMode(i)"
+                                class="btn"
+                            >
+                                <plus-circle
+                                    v-if="!(neighbourMode && group.groupId === activeGroupId)"
+                                ></plus-circle>
+                                <stop
+                                    v-if="neighbourMode && group.groupId === activeGroupId"
+                                ></stop>
+                            </div>
+                            <div @click="deleteGroup(i)" class="btn">
+                                <trash></trash>
+                            </div>
                         </div>
                         <neighbours
+                            v-if="neighbourMode && group.groupId === activeGroupId"
                             :activeGroupId="activeGroupId"
                             :changeNeighboursThreshold="changeNeighboursThreshold"
                             :getStore="getStore"
                             :neighboursThreshold="neighboursThreshold"
                             :stop="stopNeighbourMode"
-                            v-if="neighbourMode && group.groupId === activeGroupId"
                         />
                     </div>
                 </div>

@@ -1,6 +1,11 @@
 <template>
-    <div class="">
-        <div class="title">Proposals</div>
+    <div class="area neighbours">
+        <div class="row-between">
+            <div class="title">Proposals</div>
+            <div :class="{ active: loading }" @click="stop" class="btn">
+                <stop></stop>
+            </div>
+        </div>
         <div class="between">
             <range-slider
                 :change="changeNeighboursThreshold"
@@ -15,11 +20,6 @@
                 <repeat v-if="!loading"></repeat>
                 <div class="loader" v-if="loading"></div>
             </div>
-            <div :class="{ active: loading }" @click="stop" class="btn">
-                quit
-                <stop></stop>
-            </div>
-            <!--<div class="btn" @click="resetNeighbours">Reset<trash></trash></div>-->
         </div>
     </div>
 </template>
@@ -117,6 +117,10 @@ export default {
 </script>
 
 <style scoped>
+.neighbours {
+    margin: 0.5rem;
+}
+
 .hint {
     font-size: small;
     font-style: italic;

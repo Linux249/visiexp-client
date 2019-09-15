@@ -20,8 +20,4 @@ export default {
 };
 </script>
 
-<style scoped>
-    svg {
-        padding-left: 7px;
-    }
-</style>
+<style scoped></style>
