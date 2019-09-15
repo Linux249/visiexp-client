@@ -2,9 +2,10 @@
     <div class="header">
         <div class="left-header">
             <div class="title-header"></div>
-            <router-link class="title-header" to="/explorer"
-                >Visual Similarity Explorer</router-link>
-            <div>{{name}}</div>
+            <router-link class="title-header" to="/explorer">
+                Visual Similarity Explorer
+            </router-link>
+            <div>{{ name }}</div>
             <div class="btn" @click="toggleWasmMode" :class="{ active: wasmMode }">
                 wasm
             </div>
@@ -16,16 +17,21 @@
                 <send v-if="!loading"></send>
                 <div class="loader" v-if="loading"></div>
             </div>
-            <router-link v-if="isAuth" to="/dataset">Dataset</router-link>
-            <router-link v-if="isAuth && explorer" :class="{ active: $route.params.setup === 'settings' }" to="/explorer/settings"
-            ><settings></settings
+            <!--            <router-link v-if="isAuth" to="/dataset">Dataset</router-link>-->
+            <div @click="handleDataset" class="icon">
+                Dataset
+            </div>
+            <router-link
+                v-if="isAuth && explorer"
+                :class="{ active: $route.params.setup === 'settings' }"
+                to="/explorer/settings"
+                ><settings></settings
             ></router-link>
             <div :class="{ active: help }" @click="toggleHelp" class="icon">
                 <help></help>
             </div>
             <router-link v-if="isAuth" to="/logout"><logout></logout></router-link>
             <router-link v-if="!isAuth" to="/login">Login</router-link>
-
             <!--<div
                 @click="toggleUpdateEmbedding"
                 :class="{ active: autoUpdateEmbedding }"
@@ -43,11 +49,15 @@ import Send from '../icons/Send';
 import Help from '../icons/Help';
 import Logout from '../icons/Logout';
 import Settings from '../icons/Settings';
+import { DATASET } from '../util/modes';
 
 export default {
     name: 'NavHeader',
     components: {
-        Send, Help, Logout, Settings,
+        Send,
+        Help,
+        Logout,
+        Settings,
     },
     props: {
         wasmMode: Boolean,
@@ -64,11 +74,47 @@ export default {
         updateEmbedding() {
             console.log('updateEmbedding');
             console.log(this.$root.explorer);
-            this.$root.explorer.sendData();
+            this.$modal.show('dialog', {
+                title: 'Are you sure?',
+                text: 'It will take a while until the embedding has been updated.',
+                buttons: [
+                    {
+                        title: 'Update embedding',
+                        handler: () => {
+                            this.$root.explorer.sendData();
+                            this.$modal.hide('dialog');
+                        },
+                    },
+                    {
+                        title: 'Cancel',
+                        default: true, // Will be triggered by default if 'Enter' pressed.
+                        // handler: () => {}, // Button click handler
+                    },
+                ],
+            });
         },
         toggleHelp() {
             console.log('toggleHelp');
             this.help = this.$root.explorer.showHelp = !this.$root.explorer.showHelp;
+        },
+        handleDataset() {
+            this.$modal.show('dialog', {
+                title: 'Are you sure?',
+                text: 'You will lose your current groups and the movement of your images',
+                buttons: [
+                    {
+                        title: 'Choose new Dataset',
+                        handler: () => {
+                            this.$modal.hide('dialog');
+                            this.$router.push({ name: DATASET });
+                        },
+                    },
+                    {
+                        title: 'Cancel',
+                        default: true, // Will be triggered by default if 'Enter' pressed.
+                    },
+                ],
+            });
         },
     },
     mounted() {
@@ -101,9 +147,9 @@ export default {
     align-items: center;
 }
 
-
 /*used for header nav links*/
-a, .icon {
+a,
+.icon {
     text-decoration: none;
     cursor: pointer;
 
