@@ -42,7 +42,7 @@
                 </div>
             </div>
             <div class="box top left">
-                <div :if="nodesTotal" class="btn">{{ nodesRecived + '/' + nodesTotal }}</div>
+                <div :if="nodesTotal" class="btn dummy">{{ nodesRecived + '/' + nodesTotal }}</div>
             </div>
             <div class="box bottom left">
                 <div
