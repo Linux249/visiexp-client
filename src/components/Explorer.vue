@@ -12,7 +12,7 @@
                         :class="{ active: target }"
                         @click="selectTarget"
                         class="btn"
-                        v-tooltip="'double click to move marked/group'"
+                        v-tooltip="'double click to move selected'"
                     >
                         <target></target>
                     </div>
@@ -29,18 +29,18 @@
                     </div>
                 </div>
                 <div class="row-end">
-                    <div @click="changeScaleDown()" class="btn" v-tooltip="'scale positions down'">
+                    <div @click="changeScaleDown()" class="btn" v-tooltip="'scale down positions'">
                         <minimize></minimize>
                     </div>
-                    <div @click="changeScaleUp()" class="btn" v-tooltip="'scale positions up'">
+                    <div @click="changeScaleUp()" class="btn" v-tooltip="'scale up positions'">
                         <maximize></maximize>
                     </div>
                 </div>
                 <div class="row-end">
-                    <div @click="changeImgSize(-1)" class="btn" v-tooltip="'images smaller'">
+                    <div @click="changeImgSize(-1)" class="btn" v-tooltip="'decrease images size'">
                         <img-size-down></img-size-down>
                     </div>
-                    <div @click="changeImgSize(1)" class="btn" v-tooltip="'images larger'">
+                    <div @click="changeImgSize(1)" class="btn" v-tooltip="'increase images size'">
                         <img-size-up></img-size-up>
                     </div>
                 </div>
@@ -1158,8 +1158,11 @@ export default {
 
         allocNewMemory(size) {
             // alloc the request memory
+            console.log(this.wasm)
+            console.log(this.wasm.memory)
             const ptr = this.wasm.__alloc(size, 2);
             console.log('allocNewMemory: ', ptr, size);
+            console.log(this.wasm.U8)
 
             // create new view on buffer cause buffer changes everytime
             this.explorerPixel = new ImageData(
