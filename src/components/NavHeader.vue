@@ -13,21 +13,21 @@
         <div class="right-header" v-if="explorer">
             <!--<router-link to="/svm">SVM</router-link>-->
             <!--<router-link v-if="isAuth && explorer" to="/explorer/classifier">Classifier</router-link>-->
-            <div :class="{ active: loading }" @click="updateEmbedding" class="icon">
+            <div :class="{ active: loading }" @click="updateEmbedding" v-tooltip="'update Embedding'" class="icon">
                 <send v-if="!loading"></send>
                 <div class="loader" v-if="loading"></div>
             </div>
             <!--            <router-link v-if="isAuth" to="/dataset">Dataset</router-link>-->
-            <div @click="handleDataset" class="icon">
+            <div @click="handleDataset" class="icon" v-tooltip="'switch dataset'">
                 Dataset
             </div>
-            <div :class="{ active: showSettings }" @click="toggleSettings" class="icon">
+            <div :class="{ active: showSettings }" @click="toggleSettings" class="icon" v-tooltip="'settings'">
                 <settings></settings>
             </div>
-            <div :class="{ active: help }" @click="toggleHelp" class="icon">
+            <div :class="{ active: help }" @click="toggleHelp" class="icon" v-tooltip="help ? 'close help' :'show help'">
                 <help></help>
             </div>
-            <router-link v-if="isAuth" to="/logout"><logout></logout></router-link>
+            <router-link v-if="isAuth" to="/logout" v-tooltip="'logout'"><logout></logout></router-link>
             <router-link v-if="!isAuth" to="/login">Login</router-link>
             <!--<div
                 @click="toggleUpdateEmbedding"

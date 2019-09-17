@@ -1,7 +1,11 @@
 <template>
     <div class="row body">
         <div class="explorer">
-            <canvas class="canvas" id="canvas" ref="canvas" tabindex="0"></canvas>
+            <canvas class="" id="canvas" ref="canvas" tabindex="0"></canvas>
+            <div class="box top left">
+                <div :if="nodesTotal" class="btn dummy">{{ nodesRecived + '/' + nodesTotal }}</div>
+            </div>
+
             <div class="box top right">
                 <div class="row">
                     <div
@@ -41,9 +45,7 @@
                     </div>
                 </div>
             </div>
-            <div class="box top left">
-                <div :if="nodesTotal" class="btn dummy">{{ nodesRecived + '/' + nodesTotal }}</div>
-            </div>
+
             <div class="box bottom left">
                 <div
                     :class="{ active: showNavHeatmap }"
@@ -54,7 +56,7 @@
                     <navmap></navmap>
                 </div>
                 <div :class="{ hide: !showNavHeatmap }" class="navMap">
-                    <canvas class="canvas" id="navHeatmap" tabindex="0"></canvas>
+                    <canvas class="" id="navHeatmap" tabindex="0"></canvas>
                     <canvas id="navHeatmapRect" tabindex="0"></canvas>
                     <div class="box top right">
                         <div class="btn small" @click="toggleShowNavHeatmap">x</div>
@@ -326,7 +328,6 @@
                 <!--</div>-->
             </div>
 
-
             <div class="area">
                 <div class="row-between">
                     <div class="title">Groups</div>
@@ -520,8 +521,8 @@ export default {
         clusterTile: 0, // default - set on mount from CanvasStore class
         representImgSize: 0, // default - set on mount from CanvasStore class
         neighbourImgSize: 0, // default - set on mount from CanvasStore class
-        alphaBase: 100,
-        alphaIncrease: 30,
+        alphaBase: 150,
+        alphaIncrease: 20,
         range: 0,
         cuttedNodes: [], // selected nodes through scissor
         // showOptions: false, // show options menu
@@ -1819,6 +1820,7 @@ export default {
 
 #navHeatmap {
     z-index: 10;
+    border: 2px solid #7776e7;
 }
 
 #navHeatmapRect {
