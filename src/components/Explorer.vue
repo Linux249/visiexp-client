@@ -2,6 +2,10 @@
     <div class="row body">
         <div class="explorer">
             <canvas class="canvas" id="canvas" ref="canvas" tabindex="0"></canvas>
+            <div class="box top left">
+                <div :if="nodesTotal" class="btn dummy">{{ nodesRecived + '/' + nodesTotal }}</div>
+            </div>
+
             <div class="box top right">
                 <div class="row">
                     <div
@@ -41,9 +45,7 @@
                     </div>
                 </div>
             </div>
-            <div class="box top left">
-                <div :if="nodesTotal" class="btn dummy">{{ nodesRecived + '/' + nodesTotal }}</div>
-            </div>
+
             <div class="box bottom left">
                 <div
                     :class="{ active: showNavHeatmap }"
@@ -54,7 +56,7 @@
                     <navmap></navmap>
                 </div>
                 <div :class="{ hide: !showNavHeatmap }" class="navMap">
-                    <canvas class="canvas" id="navHeatmap" tabindex="0"></canvas>
+                    <canvas class="" id="navHeatmap" tabindex="0"></canvas>
                     <canvas id="navHeatmapRect" tabindex="0"></canvas>
                     <div class="box top right">
                         <div class="btn small" @click="toggleShowNavHeatmap">x</div>
@@ -325,7 +327,6 @@
                 <!--</div>-->
                 <!--</div>-->
             </div>
-
 
             <div class="area">
                 <div class="row-between">
@@ -1819,6 +1820,7 @@ export default {
 
 #navHeatmap {
     z-index: 10;
+    border: 2px solid #7776e7;
 }
 
 #navHeatmapRect {

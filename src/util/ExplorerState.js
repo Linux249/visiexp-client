@@ -1127,6 +1127,7 @@ export default class ExplorerState {
 
         this.updateClustering();
         this.triggerDraw();
+        if (this.ui.showNavHeatmap) requestAnimationFrame(this.ui.drawNavHeatmapRect);
 
         return false;
     }
@@ -1227,6 +1228,7 @@ export default class ExplorerState {
                     this.ui.wasm.addTxTy(moveX, moveY);
                     // this.ui.draw2();
                 }
+                if (this.ui.showNavHeatmap) requestAnimationFrame(this.ui.drawNavHeatmapRect);
             } else if (this.draggedNode) {
                 // console.log("draggeNode")
                 // scale the X/Y
