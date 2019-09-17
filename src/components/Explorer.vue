@@ -1,7 +1,7 @@
 <template>
     <div class="row body">
         <div class="explorer">
-            <canvas class="canvas" id="canvas" ref="canvas" tabindex="0"></canvas>
+            <canvas class="" id="canvas" ref="canvas" tabindex="0"></canvas>
             <div class="box top left">
                 <div :if="nodesTotal" class="btn dummy">{{ nodesRecived + '/' + nodesTotal }}</div>
             </div>
@@ -521,8 +521,8 @@ export default {
         clusterTile: 0, // default - set on mount from CanvasStore class
         representImgSize: 0, // default - set on mount from CanvasStore class
         neighbourImgSize: 0, // default - set on mount from CanvasStore class
-        alphaBase: 100,
-        alphaIncrease: 30,
+        alphaBase: 150,
+        alphaIncrease: 20,
         range: 0,
         cuttedNodes: [], // selected nodes through scissor
         // showOptions: false, // show options menu
