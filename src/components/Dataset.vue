@@ -2,7 +2,7 @@
     <div class="flex-center">
         <div class="middle body">
             <div class="">
-                <div class="header">1. Select data set: {{ dataset && dataset.name }}</div>
+                <div class="header">1. Select dataset: {{ dataset && dataset.name }}</div>
                 <div class="loading">
                     <div class="loader" v-if="loading"></div>
                 </div>
@@ -20,7 +20,7 @@
                                     {{ `${set.name}` }}
                                 </div>
                             </div>
-                            <div class="description-small">{{ `Data set size: ${set.size}` }}</div>
+                            <div class="description-small">{{ `Dataset size: ${set.size}` }}</div>
                             <div class="description">
                                 {{ set.exists ? set.description : 'Dataset file does not exists' }}
                             </div>
@@ -29,7 +29,7 @@
                 </div>
             </div>
             <div class="">
-                <div class="header">2. Select subset of images or load full data set</div>
+                <div class="header">2. Select subset or load all images</div>
 
                 <div class="row">
                     <range-slider
@@ -48,14 +48,14 @@
                     3. Resume last session or start new one
                 </div>
                 <div class="flex">
-                    <div @click="triggerChangeDataset(true)" class="btn">resume</div>
                     <div @click="triggerChangeDataset(false)" class="btn">new</div>
+                    <div @click="triggerChangeDataset(true)" class="btn">resume</div>
                     <div class="btn" @click="toggleWasmMode" :class="{ active: wasmMode }">
                         wasm
                     </div>
                 </div>
                 <div class="description-small">
-                    If there is no saved session a new one will created automatic on "resume"
+                    If there is no saved session a new one will be created automatically by clicking "resume"
                 </div>
                 <!--                    </div>-->
             </div>

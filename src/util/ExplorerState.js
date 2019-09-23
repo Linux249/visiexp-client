@@ -1104,6 +1104,7 @@ export default class ExplorerState {
             console.log('zoom in');
             this.zoomStage += 0.2;
             this.changeScaleUp();
+            console.log('zoomstage: ', this.zoomStage)
         }
 
         // Zoom out = decrease = wheel down = positive delta Y
@@ -1385,9 +1386,8 @@ export default class ExplorerState {
 
     /**
      * move all nodes in a group/marked half the way to a point
-     * @param e
+     * @param e event
      */
-
     handleDoubleClick(e) {
         console.log('Double click');
         if (this.moveGroupToMousePosition) {
@@ -1401,8 +1401,9 @@ export default class ExplorerState {
                     // const dX = Math.random() - 0.5
                     // const dY = Math.random() - 0.5
                     // console.log({dX, dY})
-                    node.x = x + Math.random() - 0.5;
-                    node.y = y + Math.random() - 0.5;
+                    // todo based on zoomstage, relative
+                    node.x = x + (Math.random() * 4 - 2)/Math.floor(this.zoomStage + 1);
+                    node.y = y + (Math.random() * 4 - 2)/Math.floor(this.zoomStage + 1);
                 }
             });
             this.createCluster();

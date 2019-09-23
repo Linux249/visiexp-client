@@ -10,25 +10,42 @@
                 wasm
             </div>
         </div>
-        <div class="right-header" v-if="explorer">
+        <div class="right-header">
             <!--<router-link to="/svm">SVM</router-link>-->
             <!--<router-link v-if="isAuth && explorer" to="/explorer/classifier">Classifier</router-link>-->
-            <div :class="{ active: loading }" @click="updateEmbedding" v-tooltip="'update Embedding'" class="icon">
-                <send v-if="!loading"></send>
-                <div class="loader" v-if="loading"></div>
-            </div>
+            <!--            <div-->
+            <!--                v-if="explorer"-->
+            <!--                :class="{ active: loading }"-->
+            <!--                @click="updateEmbedding"-->
+            <!--                v-tooltip="'update Embedding'"-->
+            <!--                class="icon"-->
+            <!--            >-->
+            <!--                <send v-if="!loading"></send>-->
+            <!--                <div class="loader" v-if="loading"></div>-->
+            <!--            </div>-->
             <!--            <router-link v-if="isAuth" to="/dataset">Dataset</router-link>-->
-            <div @click="handleDataset" class="icon" v-tooltip="'switch dataset'">
+            <div v-if="explorer" @click="handleDataset" class="icon" v-tooltip="'switch dataset'">
                 Dataset
             </div>
-            <div :class="{ active: showSettings }" @click="toggleSettings" class="icon" v-tooltip="'settings'">
+            <div
+                v-if="explorer"
+                :class="{ active: showSettings }"
+                @click="toggleSettings"
+                class="icon"
+                v-tooltip="'settings'"
+            >
                 <settings></settings>
             </div>
-            <div :class="{ active: help }" @click="toggleHelp" class="icon" v-tooltip="help ? 'close help' :'show help'">
+            <div
+                v-if="explorer"
+                :class="{ active: help }"
+                @click="toggleHelp"
+                class="icon"
+                v-tooltip="help ? 'close help' : 'show help'"
+            >
                 <help></help>
             </div>
-            <router-link v-if="isAuth" to="/logout" v-tooltip="'logout'"><logout></logout></router-link>
-            <router-link v-if="!isAuth" to="/login">Login</router-link>
+
             <!--<div
                 @click="toggleUpdateEmbedding"
                 :class="{ active: autoUpdateEmbedding }"
@@ -38,6 +55,10 @@
                 <play v-if="!autoUpdateEmbedding"></play>
                 <stop v-if="autoUpdateEmbedding"></stop>
             </div>-->
+            <!--            <router-link v-if="!isAuth" to="/login">Login</router-link>-->
+            <router-link v-if="isAuth" to="/logout" v-tooltip="'logout'">
+                <logout></logout
+            ></router-link>
         </div>
     </div>
 </template>
@@ -73,11 +94,11 @@ export default {
             console.log('updateEmbedding');
             console.log(this.$root.explorer);
             this.$modal.show('dialog', {
-                title: 'Are you sure?',
+                title: 'Update embedding?',
                 text: 'It will take a while until the embedding has been updated.',
                 buttons: [
                     {
-                        title: 'Update embedding',
+                        title: 'Ok',
                         handler: () => {
                             this.$root.explorer.sendData();
                             this.$modal.hide('dialog');
@@ -97,15 +118,16 @@ export default {
         },
         toggleSettings() {
             console.log('toggleHelp');
-            this.showSettings = this.$root.explorer.showSettings = !this.$root.explorer.showSettings;
+            this.showSettings = this.$root.explorer.showSettings = !this.$root.explorer
+                .showSettings;
         },
         handleDataset() {
             this.$modal.show('dialog', {
-                title: 'Are you sure?',
-                text: 'You will lose your current groups and the movement of your images',
+                title: 'Back to dataset selection?',
+                text: 'You will lose your defined groups and your spatial arrangement of images',
                 buttons: [
                     {
-                        title: 'Choose new Dataset',
+                        title: 'Ok',
                         handler: () => {
                             this.$modal.hide('dialog');
                             this.$router.push({ name: DATASET });
@@ -180,21 +202,6 @@ icon:hover {
     color: #484848;
     margin-bottom: 0;
 }
-
-/*.icon {*/
-/*    font-family: Camphor, Open Sans, Segoe UI, sans-serif;*/
-/*    text-rendering: optimizeLegibility;*/
-/*    -webkit-font-smoothing: antialiased;*/
-/*    text-decoration: none;*/
-/*    display: flex;*/
-/*    -webkit-box-align: center;*/
-/*    align-items: center;*/
-/*    height: 35px;*/
-/*    font-weight: bold;*/
-/*    padding: 0 1em;*/
-/*    margin-bottom: 5px;*/
-/*    color: #767676;*/
-/*}*/
 
 .active {
     color: #6772e5;
