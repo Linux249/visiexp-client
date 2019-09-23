@@ -3,10 +3,38 @@
         <div class="explorer">
             <canvas class="" id="canvas" ref="canvas" tabindex="0"></canvas>
             <div class="box top left">
-                <div :if="nodesTotal" class="btn dummy">{{ nodesRecived + '/' + nodesTotal }}</div>
+                <div class="row-end">
+                    <div @click="changeScaleDown()" class="btn" v-tooltip="'scale down positions'">
+                        <minimize></minimize>
+                    </div>
+                    <div @click="changeScaleUp()" class="btn" v-tooltip="'scale up positions'">
+                        <maximize></maximize>
+                    </div>
+                </div>
+                <div class="row-end">
+                    <div @click="changeImgSize(-1)" class="btn" v-tooltip="'decrease images size'">
+                        <img-size-down></img-size-down>
+                    </div>
+                    <div @click="changeImgSize(1)" class="btn" v-tooltip="'increase images size'">
+                        <img-size-up></img-size-up>
+                    </div>
+                </div>
+                <!--                <div :if="nodesTotal" class="btn dummy">{{ nodesRecived + '/' + nodesTotal }}</div>-->
             </div>
 
             <div class="box top right">
+                <div class="row">
+                    <div
+                        class="btn"
+                        :class="{ active: updateNodes }"
+                        @click="handleUpdateEmbedding"
+                        v-tooltip="'update Embedding'"
+                    >
+                        update embedding
+<!--                        <send v-if="!loading"></send>-->
+<!--                        <div class="loader" v-if="updateNodes"></div>-->
+                    </div>
+                </div>
                 <div class="row">
                     <div
                         :class="{ active: target }"
@@ -26,22 +54,6 @@
                     </div>
                     <div @click="clearGroup" class="btn" v-tooltip="'reset selections'">
                         <x></x>
-                    </div>
-                </div>
-                <div class="row-end">
-                    <div @click="changeScaleDown()" class="btn" v-tooltip="'scale down positions'">
-                        <minimize></minimize>
-                    </div>
-                    <div @click="changeScaleUp()" class="btn" v-tooltip="'scale up positions'">
-                        <maximize></maximize>
-                    </div>
-                </div>
-                <div class="row-end">
-                    <div @click="changeImgSize(-1)" class="btn" v-tooltip="'decrease images size'">
-                        <img-size-down></img-size-down>
-                    </div>
-                    <div @click="changeImgSize(1)" class="btn" v-tooltip="'increase images size'">
-                        <img-size-up></img-size-up>
                     </div>
                 </div>
             </div>
@@ -84,12 +96,14 @@
                 </div>
                 <div class="">
                     2. Create groups with
-                    <div class="btn dummy">new</div>
+                    <span class="btn dummy">new</span>
                     to learn own embedding
                 </div>
                 <div class="">
                     3. Get proposals with
-                    <plus-circle class="btn dummy"></plus-circle>
+                    <span class="btn dummy">
+                        <plus-circle></plus-circle>
+                    </span>
                     to extend groups automatically
                 </div>
                 <div class="row v-center">4. Repeat with different groups</div>
@@ -652,6 +666,27 @@ export default {
             return 10;
         },
 
+        handleUpdateEmbedding() {
+            this.$modal.show('dialog', {
+                title: 'Update embedding?',
+                text: 'It will take a while until the embedding has been updated.',
+                buttons: [
+                    {
+                        title: 'Ok',
+                        handler: () => {
+                            this.sendData();
+                            this.$modal.hide('dialog');
+                        },
+                    },
+                    {
+                        title: 'Cancel',
+                        default: true, // Will be triggered by default if 'Enter' pressed.
+                        // handler: () => {}, // Button click handler
+                    },
+                ],
+            });
+        },
+
         // called from socket.on('updateEmbedding')
         updateEmbedding(data) {
             logYellow('Socket: updateEmbedding');
@@ -1158,11 +1193,11 @@ export default {
 
         allocNewMemory(size) {
             // alloc the request memory
-            console.log(this.wasm)
-            console.log(this.wasm.memory)
+            console.log(this.wasm);
+            console.log(this.wasm.memory);
             const ptr = this.wasm.__alloc(size, 2);
             console.log('allocNewMemory: ', ptr, size);
-            console.log(this.wasm.U8)
+            console.log(this.wasm.U8);
 
             // create new view on buffer cause buffer changes everytime
             this.explorerPixel = new ImageData(
@@ -1822,6 +1857,7 @@ export default {
 }
 
 #navHeatmap {
+    background-color: white;
     z-index: 10;
     border: 2px solid #7776e7;
 }

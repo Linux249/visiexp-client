@@ -13,16 +13,16 @@
         <div class="right-header">
             <!--<router-link to="/svm">SVM</router-link>-->
             <!--<router-link v-if="isAuth && explorer" to="/explorer/classifier">Classifier</router-link>-->
-            <div
-                v-if="explorer"
-                :class="{ active: loading }"
-                @click="updateEmbedding"
-                v-tooltip="'update Embedding'"
-                class="icon"
-            >
-                <send v-if="!loading"></send>
-                <div class="loader" v-if="loading"></div>
-            </div>
+            <!--            <div-->
+            <!--                v-if="explorer"-->
+            <!--                :class="{ active: loading }"-->
+            <!--                @click="updateEmbedding"-->
+            <!--                v-tooltip="'update Embedding'"-->
+            <!--                class="icon"-->
+            <!--            >-->
+            <!--                <send v-if="!loading"></send>-->
+            <!--                <div class="loader" v-if="loading"></div>-->
+            <!--            </div>-->
             <!--            <router-link v-if="isAuth" to="/dataset">Dataset</router-link>-->
             <div v-if="explorer" @click="handleDataset" class="icon" v-tooltip="'switch dataset'">
                 Dataset
@@ -56,8 +56,8 @@
                 <stop v-if="autoUpdateEmbedding"></stop>
             </div>-->
             <!--            <router-link v-if="!isAuth" to="/login">Login</router-link>-->
-            <router-link v-if="isAuth" to="/logout" v-tooltip="'logout'"
-                ><logout></logout
+            <router-link v-if="isAuth" to="/logout" v-tooltip="'logout'">
+                <logout></logout
             ></router-link>
         </div>
     </div>

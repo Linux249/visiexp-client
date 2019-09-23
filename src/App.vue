@@ -177,6 +177,11 @@ export default {
     box-shadow: 0 3px 6px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
 }
 
+.btn.dummy {
+    display: inline-flex !important;
+
+}
+
 .btn.dummy:hover {
     cursor: default;
     transform: none;
