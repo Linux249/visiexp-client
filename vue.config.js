@@ -15,6 +15,8 @@ module.exports = {
     //         },
     //     },
     // },
+    // https://github.com/webpack/webpack-dev-server/issues/1809
+
     publicPath: process.env.NODE_ENV === 'production' ? '/visiexp/' : '/',
     configureWebpack: {
         /* module: {

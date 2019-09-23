@@ -6,9 +6,9 @@
                 Visual Similarity Explorer
             </router-link>
             <div>{{ name }}</div>
-            <div class="btn" @click="toggleWasmMode" :class="{ active: wasmMode }">
-                wasm
-            </div>
+<!--            <div class="btn" @click="toggleWasmMode" :class="{ active: wasmMode }">-->
+<!--                wasm-->
+<!--            </div>-->
         </div>
         <div class="right-header">
             <!--<router-link to="/svm">SVM</router-link>-->

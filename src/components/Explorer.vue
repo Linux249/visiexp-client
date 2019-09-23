@@ -108,9 +108,9 @@
                 </div>
                 <div class="row v-center">4. Repeat with different groups</div>
                 <div class="row v-center">
-                    5. Update embedding
-                    <div class="dummy">
-                        <send></send>
+                    5.
+                    <div class="btn dummy">
+                        Update embedding
                     </div>
                 </div>
             </div>
