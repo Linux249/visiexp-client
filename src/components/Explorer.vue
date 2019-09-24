@@ -1114,12 +1114,17 @@ export default {
 
         handleNeighbourMode(i) {
             // set group to active if not already set
-            const { groupId } = this.savedGroups[i];
+            const { groupId, count } = this.savedGroups[i];
             // the button is accessibly even if the group is not active
-            if (groupId !== this.activeGroupId) this.selectGroup(i);
-            // switch to neighbourmode
-            if (this.savedGroups[i].count !== 0) {
-                this.neighbourMode = !this.neighbourMode;
+            if (count !== 0) {
+                if (groupId === this.activeGroupId) {
+                    // toggle similarity mode on/off
+                    this.neighbourMode = !this.neighbourMode;
+                } else {
+                    // switch group and go in similarity mode
+                    this.selectGroup(i);
+                    this.neighbourMode = true;
+                }
                 this.store.triggerDraw();
             } else {
                 this.$notify({
