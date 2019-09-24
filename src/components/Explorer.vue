@@ -542,9 +542,9 @@ export default {
         // showOptions: false, // show options menu
         clusterGrowth: 0,
         showNavHeatmap: false,
-        heatmapRadius: 1,
+        heatmapRadius: 1.5,
         heatmapBlur: 5,
-        navMapScale: 1,
+        navMapScale: 0.75,
         sizeRankedMode: false,
         boarderRankedMode: false,
         clusterMode: false, // flag if first clustering was calculated
@@ -1800,7 +1800,7 @@ export default {
 .explorer {
     position: relative;
     margin: 5px;
-    height: 99%; /* -double margin */
+    height: calc(100% - 10px);
     width: calc(100% - 25rem); /* -details width */
 }
 
@@ -1864,7 +1864,8 @@ export default {
 #navHeatmap {
     background-color: white;
     z-index: 10;
-    border: 2px solid #7776e7;
+    /*border: 1px solid #7776e7;*/
+    box-shadow: 0 2px 2px rgba(50, 50, 93, 0.28), 0 1px 3px rgba(0, 0, 0, 0.18);
 }
 
 #navHeatmapRect {
