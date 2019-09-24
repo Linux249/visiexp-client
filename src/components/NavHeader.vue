@@ -5,11 +5,11 @@
             <router-link class="title-header" to="/explorer">
                 Visual Similarity Explorer
             </router-link>
-            <div>{{ name }}</div>
-<!--            <div class="btn" @click="toggleWasmMode" :class="{ active: wasmMode }">-->
-<!--                wasm-->
-<!--            </div>-->
+            <!--            <div class="btn" @click="toggleWasmMode" :class="{ active: wasmMode }">-->
+            <!--                wasm-->
+            <!--            </div>-->
         </div>
+
         <div class="right-header">
             <!--<router-link to="/svm">SVM</router-link>-->
             <!--<router-link v-if="isAuth && explorer" to="/explorer/classifier">Classifier</router-link>-->
@@ -24,8 +24,9 @@
             <!--                <div class="loader" v-if="loading"></div>-->
             <!--            </div>-->
             <!--            <router-link v-if="isAuth" to="/dataset">Dataset</router-link>-->
+            <div v-if="explorer" class="dataset-name">{{ name }}</div>
             <div v-if="explorer" @click="handleDataset" class="icon" v-tooltip="'switch dataset'">
-                Dataset
+                <database></database>
             </div>
             <div
                 v-if="explorer"
@@ -66,6 +67,7 @@
 import Send from '../icons/Send';
 import Help from '../icons/Help';
 import Logout from '../icons/Logout';
+import Database from '../icons/Database';
 import Settings from '../icons/Settings';
 import { DATASET } from '../util/modes';
 
@@ -76,6 +78,7 @@ export default {
         Help,
         Logout,
         Settings,
+        Database,
     },
     props: {
         wasmMode: Boolean,
@@ -205,5 +208,14 @@ icon:hover {
 
 .active {
     color: #6772e5;
+}
+
+.dataset-name {
+    display: flex;
+    align-items: center;
+
+    color: #767676;
+    /*font-size: 1.3rem;*/
+    font-weight: 500;
 }
 </style>
