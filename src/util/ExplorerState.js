@@ -1331,9 +1331,12 @@ export default class ExplorerState {
         }
         const { nodeUnderMouse } = this;
 
+        /** check if image under mouse is still the same as on last set */
         if (nodeUnderMouse && nodeUnderMouse === this.nodeOnMouseDown) {
-            // check if mouse move just a small delta
-            // => click on a image
+            /**
+             * check if click happens
+             * its ok that mouse moves a small delta
+             */
             if (
                 this.startX <= e.offsetX + 2
                 && this.startX >= e.offsetX - 2
@@ -1347,7 +1350,7 @@ export default class ExplorerState {
                 this.ui.clickedNode = nodeUnderMouse;
 
                 // flag/unflag node as and add/remove from group
-                if (nodeUnderMouse.group) {
+                if (nodeUnderMouse.group || nodeUnderMouse.groupId) {
                     nodeUnderMouse.group = false;
                     nodeUnderMouse.groupId = 0;
                 } else {
