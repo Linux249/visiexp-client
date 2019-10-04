@@ -124,6 +124,7 @@ Guides:
 ##### Bugs:
 - fix mark inactive group elements with click (6628980e)
 - scissor don't mark's inactive group members (c42ae47f)
+- fix wasm mode (cac01fe7)
   
 ##### Enhancements:
 - resize all images border from 2 to 3 pixel (57bad4b0)
