@@ -1242,6 +1242,7 @@ export default {
             console.log(this.wasm.memory);
             const ptr = this.wasm.__alloc(size, 2);
             console.log('allocNewMemory: ', ptr, size);
+            this.wasm.U8 = new Uint8Array(this.wasm.memory.buffer);
             console.log(this.wasm.U8);
 
             // create new view on buffer cause buffer changes everytime
