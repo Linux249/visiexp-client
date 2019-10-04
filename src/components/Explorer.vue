@@ -450,6 +450,30 @@
 
             <logs :getStore="getStore" v-if="showLogs" />
         </div>
+        <modal name="updateDialog" :resizable="true" height="auto" width="450px">
+            <div class="vue-dialog">
+                <div class="dialog-content">
+                    <div class="dialog-c-title">
+                        Update embedding?
+                    </div>
+                    <div class="dialog-c-text">
+                        Specify to which degree the previous embedding should be preserved:
+                        <range-slider
+                            :min="0.1"
+                            :max="1"
+                            :step="0.1"
+                            :value="embeddingDegree"
+                            :change="changeEmbeddingDegree"
+                        ></range-slider> {{embeddingDegree}}
+                        <div class="description-small">It will take a while until the embedding has been updated.</div>
+                    </div>
+                </div>
+                <div class="vue-dialog-buttons">
+                    <button class="vue-dialog-button button" @click="sendData">Ok</button>
+                    <button class="vue-dialog-button button" @click="closeUpdateDialog">Cancel</button>
+                </div>
+            </div>
+        </modal>
     </div>
 </template>
 
@@ -478,9 +502,10 @@ import ImageSizeUp from '../icons/ImageSizeUp';
 import ImageSizeDown from '../icons/ImageSizeDown';
 import Plus from '../icons/Plus';
 import Minus from '../icons/Minus';
+import Trash from '../icons/Trash';
 import Classifier from './Classifier';
 import Logs from './Logs';
-import Trash from '../icons/Trash';
+import RangeSlider from './RangeSlider';
 import { apiUrl } from '../config/apiUrl';
 import wasm from '../assets/wasm/optimized.wasm';
 import { logYellow } from '../util/logging';
@@ -520,6 +545,7 @@ export default {
         Minus,
         Trash,
         Repeat,
+        RangeSlider,
     },
     data: () => ({
         // store: null,
@@ -628,6 +654,7 @@ export default {
         canvasH: 0,
         cachedNodes: undefined, // cache the nodes if 'updateEmbedding is faster than loading nodes
         groupBorderAllActive: false,
+        embeddingDegree: 0.5,
     }),
     methods: {
         getNode(i) {
@@ -639,6 +666,7 @@ export default {
         sendData() {
             console.log('send data clicked');
             console.log(this.$route);
+            this.$modal.hide('updateDialog')
             // console.log(this.store.nodes);
             // console.log(nodes);
             if (!this.updateNodes && this.initPython) {
@@ -661,6 +689,7 @@ export default {
                     datasetId: this.dataset,
                     userId: this.userId,
                     count: this.selectedImgCount,
+                    embeddingDegree: this.embeddingDegree,
                 });
                 return this.$notify({
                     group: 'default',
@@ -677,23 +706,23 @@ export default {
         },
 
         handleUpdateEmbedding() {
-            this.$modal.show('dialog', {
-                title: 'Update embedding?',
-                text: 'It will take a while until the embedding has been updated.',
-                buttons: [
-                    {
-                        title: 'Ok',
-                        handler: () => {
-                            this.sendData();
-                            this.$modal.hide('dialog');
-                        },
-                    },
-                    {
-                        title: 'Cancel',
-                        default: true, // Will be triggered by default if 'Enter' pressed.
-                        // handler: () => {}, // Button click handler
-                    },
-                ],
+            this.$modal.show('updateDialog', {
+                // title: 'Update embedding?',
+                // text: 'It will take a while until the embedding has been updated.',
+                // buttons: [
+                //     {
+                //         title: 'Ok',
+                //         handler: () => {
+                //             this.sendData();
+                //             this.$modal.hide('updateDialog');
+                //         },
+                //     },
+                //     {
+                //         title: 'Cancel',
+                //         default: true, // Will be triggered by default if 'Enter' pressed.
+                //         // handler: () => {}, // Button click handler
+                //     },
+                // ],
             });
         },
 
@@ -1237,6 +1266,15 @@ export default {
 
             // return pointer where new memory starts
             return ptr;
+        },
+
+        changeEmbeddingDegree(e) {
+            console.log('changeEmbeddingDegree')
+            this.embeddingDegree = e.target.value;
+        },
+
+        closeUpdateDialog() {
+            this.$modal.hide('updateDialog');
         },
 
         checkSumExplorer() {

@@ -1,5 +1,11 @@
 # bachelor-vue
 
+# Update code on compvis 10
+```
+npm run deploy
+```
+
+# Other commands
 ## Project setup
 ```
 npm install
@@ -111,3 +117,30 @@ Guides:
 
     TODO Enhancment
         - new Way in a worker
+
+# Changes
+
+#### 4.01.
+##### Bugs:
+- fix mark inactive group elements with click (6628980e)
+- scissor don't mark's inactive group members (c42ae47f)
+  
+##### Enhancements:
+- resize all images border from 2 to 3 pixel (57bad4b0)
+- improve help texts (84cf0a32)
+- rename screenshots button (fdc69d8b)
+- bedder icon and position for move images button (b43bf9b3)
+- groups: (6ed0c77b)
+    - empty input after creating new group
+    - similarity mode button icon now stays the same if active
+    - remove "view all" and "new group" buttons in sim mode
+    
+##### Features:
+- add toggle recalculate clustering button in settings (9392fdf6)
+- user can decide the degree of changes in embedding trough updating 
+
+#### Old:
+improve heatmap (0f0295ac)
++ bedder init scaling
++ bedder radius for 500 pics!
++ smoother border

@@ -8,7 +8,7 @@ import './index.css';
 
 Vue.use(Notifications);
 Vue.use(VTooltip, { defaultDelay: 500, defaultPlacement: 'bottom' });
-Vue.use(VModal, { dialog: true });
+Vue.use(VModal, { dialog: true, dynamic: true, injectModalsContainer: true });
 
 Vue.config.productionTip = false;
 
