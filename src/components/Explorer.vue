@@ -37,20 +37,20 @@
                 </div>
                 <div class="row">
                     <div
-                        :class="{ active: target }"
-                        @click="selectTarget"
-                        class="btn"
-                        v-tooltip="'double click to move selected'"
-                    >
-                        <target></target>
-                    </div>
-                    <div
                         :class="{ active: scissors }"
                         @click="selectScissors"
                         class="btn"
                         v-tooltip="'select many'"
                     >
                         <scissors></scissors>
+                    </div>
+                    <div
+                        :class="{ active: target }"
+                        @click="selectTarget"
+                        class="btn"
+                        v-tooltip="'double click to move selected'"
+                    >
+                        <flag></flag>
                     </div>
                     <div @click="clearGroup" class="btn" v-tooltip="'reset selections'">
                         <x></x>
@@ -461,7 +461,7 @@ import Save from '../icons/Save';
 import Send from '../icons/Send';
 import Help from '../icons/Help';
 import Navmap from '../icons/Map';
-import Target from '../icons/Target';
+import Flag from '../icons/Flag';
 import Maximize from '../icons/Maximize';
 import Minimize from '../icons/Minimize';
 import ImageSizeUp from '../icons/ImageSizeUp';
@@ -496,7 +496,7 @@ export default {
         Send,
         Help,
         Navmap,
-        Target,
+        Flag,
         // Groups,
         Neighbours,
         Logs,
