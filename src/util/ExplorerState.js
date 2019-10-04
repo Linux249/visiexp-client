@@ -1406,9 +1406,15 @@ export default class ExplorerState {
                     && ((node.x > startX && node.x < endX) || (node.x < startX && node.x > endX))
                     && ((node.y < startY && node.y > endY) || (node.y > startY && node.y < endY))
                 ) {
-                    this.ui.cuttedNodes.push(node);
-                    node.group = true;
-                    node.groupId = this.ui.activeGroupId;
+                    // this.ui.cuttedNodes.push(node);
+                    if (this.ui.activeGroupId) {
+                        /** if active groupId than add selected to group */
+                        node.groupId = this.ui.activeGroupId;
+                        node.group = true;
+                    } else if (!node.groupId) {
+                        /** if node not allready has a group marked it */
+                        node.group = true;
+                    }
                     if (this.ui.neighbourMode && this.proposals[node.index]) {
                         this.removedProposals[node.index] = this.proposals[node.index];
                         this.proposals[node.index] = undefined;
