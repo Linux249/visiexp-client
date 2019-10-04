@@ -19,7 +19,6 @@
                         <img-size-up></img-size-up>
                     </div>
                 </div>
-                <!--                <div :if="nodesTotal" class="btn dummy">{{ nodesRecived + '/' + nodesTotal }}</div>-->
             </div>
 
             <div class="box top right">
@@ -81,7 +80,9 @@
                     </div>
                 </div>
             </div>
-            <div class="box bottom right"></div>
+            <div class="box bottom right">
+                <div :if="nodesTotal" class="btn dummy">{{ nodesRecived + '/' + nodesTotal }}</div>
+            </div>
         </div>
 
         <div class="details">

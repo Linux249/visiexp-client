@@ -139,6 +139,7 @@ Guides:
 ##### Features:
 - add toggle recalculate clustering button in settings (9392fdf6)
 - user can decide the degree of changes in embedding trough updating 
+- add loading counter in the right bottom corner
 
 #### Old:
 improve heatmap (0f0295ac)
