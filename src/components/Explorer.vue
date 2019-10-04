@@ -1767,7 +1767,7 @@ export default {
                     console.error('something went wrong with reading img stream:');
                     console.log(e);
                     console.log(this.wasm);
-                    console.log(this.wasm);
+                    console.log(this);
                 });
 
             this.updateNodes = false;
