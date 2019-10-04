@@ -347,6 +347,7 @@
                 <div class="row-between">
                     <div class="title">Groups</div>
                     <div
+                        v-if="!neighbourMode"
                         class="btn"
                         :class="{ active: groupBorderAllActive }"
                         @click="toggleGroupBorderAllActive"
@@ -394,12 +395,7 @@
                                 @click="handleNeighbourMode(i)"
                                 class="btn"
                             >
-                                <plus-circle
-                                    v-if="!(neighbourMode && group.groupId === activeGroupId)"
-                                ></plus-circle>
-                                <stop
-                                    v-if="neighbourMode && group.groupId === activeGroupId"
-                                ></stop>
+                                <plus-circle></plus-circle>
                             </div>
                             <div @click="deleteGroup(i)" class="btn">
                                 <trash></trash>
@@ -415,7 +411,7 @@
                         />
                     </div>
                 </div>
-                <div class="row v-center">
+                <div class="row v-center" v-if="!neighbourMode">
                     <input class="input" type="text" v-model="groupName" />
                     <div @click="saveGroup" class="btn">new</div>
                 </div>
@@ -1079,6 +1075,7 @@ export default {
             this.activeGroupId = groupId;
             this.store.saveGroup(groupId);
             this.store.triggerDraw();
+            this.groupName = '';
         },
 
         selectGroup(i) {
