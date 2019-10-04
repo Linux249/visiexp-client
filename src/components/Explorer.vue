@@ -1210,6 +1210,7 @@ export default {
             console.log(addNode1, this.offset);
             // console.log(this.offset);
 
+            if (!this.wasm.memory.buffer.byteLength) this.wasm.U8 = new Uint8Array(this.wasm.memory.buffer)
             for (let i = 0; i < 10; i += 1) {
                 const img = node.imageData[i];
 
