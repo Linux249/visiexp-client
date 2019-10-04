@@ -504,7 +504,7 @@ export default class ExplorerState {
 
     selectGroupByGroupId(groupId) {
         Object.values(this.nodes).forEach((node) => {
-            node.group = (node.groupId === groupId);
+            node.group = node.groupId === groupId;
         });
         this.triggerDraw();
     }
@@ -627,13 +627,13 @@ export default class ExplorerState {
     changeScaleUp() {
         this.scaleFaktor += 0.2;
         // this.scale += 20 * this.scaleFaktor;
-        this.scale += 1 + (this.scaleFaktor ** 2);
+        this.scale += 1 + this.scaleFaktor ** 2;
         this.ui.scale = this.scale; // update ui (options)
     }
 
     changeScaleDown() {
         // this.scale -= 20 * this.scaleFaktor;
-        this.scale -= 1 + (this.scaleFaktor ** 2);
+        this.scale -= 1 + this.scaleFaktor ** 2;
         this.scaleFaktor -= 0.2;
         this.ui.scale = this.scale; // update ui (options)
     }
@@ -794,11 +794,18 @@ export default class ExplorerState {
                 DRAW not active Groups
              */
             if (node.groupId > 0 && !node.group) {
-                for (let imgRow = -2; imgRow <= imgH + 1; imgRow += 1) {
+                for (let imgRow = -3; imgRow <= imgH + 2; imgRow += 1) {
                     const explorerRow = ((imgY + imgRow) * explorerW + imgX) * 4;
-                    if (imgRow === -2 || imgRow === -1 || imgRow === imgH + 1 || imgRow === imgH) {
+                    if (
+                        imgRow === -3
+                        || imgRow === -2
+                        || imgRow === -1
+                        || imgRow === imgH + 1
+                        || imgRow === imgH + 2
+                        || imgRow === imgH
+                    ) {
                         // draw top line r
-                        for (let imgCol = -2; imgCol < imgW + 2; imgCol += 1) {
+                        for (let imgCol = -3; imgCol < imgW + 3; imgCol += 1) {
                             const c = explorerRow + imgCol * 4;
                             explorerPixel[c] = groupColor[0]; // R
                             explorerPixel[c + 1] = groupColor[1]; // G
@@ -807,11 +814,17 @@ export default class ExplorerState {
                         }
                     } else {
                         // draw left boarder
-                        const l = explorerRow - 8;
+                        const l = explorerRow - 12;
                         explorerPixel[l] = groupColor[0]; // R
                         explorerPixel[l + 1] = groupColor[1]; // G
                         explorerPixel[l + 2] = groupColor[2]; // B
                         explorerPixel[l + 3] = nonActiveGroupAplha;
+
+                        const l1 = explorerRow - 8;
+                        explorerPixel[l1] = groupColor[0]; // R
+                        explorerPixel[l1 + 1] = groupColor[1]; // G
+                        explorerPixel[l1 + 2] = groupColor[2]; // B
+                        explorerPixel[l1 + 3] = nonActiveGroupAplha;
 
                         const l2 = explorerRow - 4;
                         explorerPixel[l2] = groupColor[0]; // R
@@ -820,11 +833,17 @@ export default class ExplorerState {
                         explorerPixel[l2 + 3] = nonActiveGroupAplha;
 
                         // draw right boarder
-                        const r = explorerRow + (imgW + 1) * 4;
+                        const r = explorerRow + (imgW + 2) * 4;
                         explorerPixel[r] = groupColor[0]; // R
                         explorerPixel[r + 1] = groupColor[1]; // G
                         explorerPixel[r + 2] = groupColor[2]; // B
                         explorerPixel[r + 3] = nonActiveGroupAplha;
+
+                        const r1 = explorerRow + (imgW + 1) * 4;
+                        explorerPixel[r1] = groupColor[0]; // R
+                        explorerPixel[r1 + 1] = groupColor[1]; // G
+                        explorerPixel[r1 + 2] = groupColor[2]; // B
+                        explorerPixel[r1 + 3] = nonActiveGroupAplha;
 
                         const r2 = explorerRow + imgW * 4;
                         explorerPixel[r2] = groupColor[0]; // R
@@ -977,11 +996,18 @@ export default class ExplorerState {
 
             const lineColor = node.isNearly ? nearColor : node.group ? groupColor : null;
             if (lineColor) {
-                for (let imgRow = -2; imgRow <= imgH + 1; imgRow += 1) {
+                for (let imgRow = -3; imgRow <= imgH + 2; imgRow += 1) {
                     const explorerRow = ((imgY + imgRow) * explorerW + imgX) * 4;
-                    if (imgRow === -2 || imgRow === -1 || imgRow === imgH + 1 || imgRow === imgH) {
+                    if (
+                        imgRow === -3
+                        || imgRow === -2
+                        || imgRow === -1
+                        || imgRow === imgH + 1
+                        || imgRow === imgH + 2
+                        || imgRow === imgH
+                    ) {
                         // draw top line r
-                        for (let imgCol = -2; imgCol < imgW + 2; imgCol += 1) {
+                        for (let imgCol = -3; imgCol < imgW + 3; imgCol += 1) {
                             const c = explorerRow + imgCol * 4;
                             explorerPixel[c] = lineColor[0]; // R
                             explorerPixel[c + 1] = lineColor[1]; // G
@@ -990,11 +1016,17 @@ export default class ExplorerState {
                         }
                     } else {
                         // draw left boarder
-                        const l = explorerRow - 8;
+                        const l = explorerRow - 12;
                         explorerPixel[l] = lineColor[0]; // R
                         explorerPixel[l + 1] = lineColor[1]; // G
                         explorerPixel[l + 2] = lineColor[2]; // B
                         explorerPixel[l + 3] = 200;
+
+                        const l1 = explorerRow - 8;
+                        explorerPixel[l1] = groupColor[0]; // R
+                        explorerPixel[l1 + 1] = groupColor[1]; // G
+                        explorerPixel[l1 + 2] = groupColor[2]; // B
+                        explorerPixel[l1 + 3] = 200;
 
                         const l2 = explorerRow - 4;
                         explorerPixel[l2] = lineColor[0]; // R
@@ -1003,11 +1035,17 @@ export default class ExplorerState {
                         explorerPixel[l2 + 3] = 200;
 
                         // draw left boarder
-                        const r = explorerRow + (imgW + 1) * 4;
+                        const r = explorerRow + (imgW + 2) * 4;
                         explorerPixel[r] = lineColor[0]; // R
                         explorerPixel[r + 1] = lineColor[1]; // G
                         explorerPixel[r + 2] = lineColor[2]; // B
                         explorerPixel[r + 3] = 200;
+
+                        const r1 = explorerRow + (imgW + 1) * 4;
+                        explorerPixel[r1] = groupColor[0]; // R
+                        explorerPixel[r1 + 1] = groupColor[1]; // G
+                        explorerPixel[r1 + 2] = groupColor[2]; // B
+                        explorerPixel[r1 + 3] = 200;
 
                         const r2 = explorerRow + imgW * 4;
                         explorerPixel[r2] = lineColor[0]; // R
@@ -1104,7 +1142,7 @@ export default class ExplorerState {
             console.log('zoom in');
             this.zoomStage += 0.2;
             this.changeScaleUp();
-            console.log('zoomstage: ', this.zoomStage)
+            console.log('zoomstage: ', this.zoomStage);
         }
 
         // Zoom out = decrease = wheel down = positive delta Y
@@ -1402,8 +1440,8 @@ export default class ExplorerState {
                     // const dY = Math.random() - 0.5
                     // console.log({dX, dY})
                     // todo based on zoomstage, relative
-                    node.x = x + (Math.random() * 4 - 2)/Math.floor(this.zoomStage + 1);
-                    node.y = y + (Math.random() * 4 - 2)/Math.floor(this.zoomStage + 1);
+                    node.x = x + (Math.random() * 4 - 2) / Math.floor(this.zoomStage + 1);
+                    node.y = y + (Math.random() * 4 - 2) / Math.floor(this.zoomStage + 1);
                 }
             });
             this.createCluster();
