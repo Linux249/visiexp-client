@@ -1249,12 +1249,13 @@ export default {
 
         allocNewMemory(size) {
             // alloc the request memory
-            console.log(this.wasm);
-            console.log(this.wasm.memory);
+            // console.log(this.wasm);
+            // console.log(this.wasm.memory);
+            console.log('allocNewMemory for size: ', size);
             const ptr = this.wasm.__alloc(size, 2);
-            console.log('allocNewMemory: ', ptr, size);
+            console.log('total - offset ', ptr)
             this.wasm.U8 = new Uint8Array(this.wasm.memory.buffer);
-            console.log(this.wasm.U8);
+            // console.log(this.wasm.U8);
 
             // create new view on buffer cause buffer changes everytime
             this.explorerPixel = new ImageData(
