@@ -1331,9 +1331,12 @@ export default class ExplorerState {
         }
         const { nodeUnderMouse } = this;
 
+        /** check if image under mouse is still the same as on last set */
         if (nodeUnderMouse && nodeUnderMouse === this.nodeOnMouseDown) {
-            // check if mouse move just a small delta
-            // => click on a image
+            /**
+             * check if click happens
+             * its ok that mouse moves a small delta
+             */
             if (
                 this.startX <= e.offsetX + 2
                 && this.startX >= e.offsetX - 2
@@ -1347,7 +1350,7 @@ export default class ExplorerState {
                 this.ui.clickedNode = nodeUnderMouse;
 
                 // flag/unflag node as and add/remove from group
-                if (nodeUnderMouse.group) {
+                if (nodeUnderMouse.group || nodeUnderMouse.groupId) {
                     nodeUnderMouse.group = false;
                     nodeUnderMouse.groupId = 0;
                 } else {
@@ -1383,7 +1386,7 @@ export default class ExplorerState {
                 }
                 this.draggedNode = false;
                 // update clustering after move one or more nodes
-                return this.createCluster(); // draw triggers in create cluster
+                return this.ui.recalcClustering && this.createCluster(); // draw triggers in create cluster
             }
 
             // todo update instead of recreate supercluster here maybe bedder? how?
@@ -1403,9 +1406,15 @@ export default class ExplorerState {
                     && ((node.x > startX && node.x < endX) || (node.x < startX && node.x > endX))
                     && ((node.y < startY && node.y > endY) || (node.y > startY && node.y < endY))
                 ) {
-                    this.ui.cuttedNodes.push(node);
-                    node.group = true;
-                    node.groupId = this.ui.activeGroupId;
+                    // this.ui.cuttedNodes.push(node);
+                    if (this.ui.activeGroupId) {
+                        /** if active groupId than add selected to group */
+                        node.groupId = this.ui.activeGroupId;
+                        node.group = true;
+                    } else if (!node.groupId) {
+                        /** if node not allready has a group marked it */
+                        node.group = true;
+                    }
                     if (this.ui.neighbourMode && this.proposals[node.index]) {
                         this.removedProposals[node.index] = this.proposals[node.index];
                         this.proposals[node.index] = undefined;
@@ -1444,7 +1453,7 @@ export default class ExplorerState {
                     node.y = y + (Math.random() * 4 - 2) / Math.floor(this.zoomStage + 1);
                 }
             });
-            this.createCluster();
+            if (this.ui.recalcClustering) this.createCluster();
         }
     }
 

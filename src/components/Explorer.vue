@@ -31,8 +31,8 @@
                         v-tooltip="'update Embedding'"
                     >
                         update embedding
-<!--                        <send v-if="!loading"></send>-->
-<!--                        <div class="loader" v-if="updateNodes"></div>-->
+                        <!--                        <send v-if="!loading"></send>-->
+                        <!--                        <div class="loader" v-if="updateNodes"></div>-->
                     </div>
                 </div>
                 <div class="row">
@@ -88,16 +88,16 @@
             <div class="area help-box" v-if="showHelp && !neighbourMode">
                 <!--                <div class="title2">Create groups for learning own embedding</div>-->
                 <div class="title2">Help: General usage</div>
+                <div class="">
+                    1. Create groups with
+                    <span class="btn dummy">new</span>
+                    to learn own embedding
+                </div>
                 <div class="row v-center">
-                    1. Select images with
+                    2. Add images to groups with
                     <div class="btn dummy">Click</div>
                     /
                     <scissors class="btn dummy"></scissors>
-                </div>
-                <div class="">
-                    2. Create groups with
-                    <span class="btn dummy">new</span>
-                    to learn own embedding
                 </div>
                 <div class="">
                     3. Get proposals with
@@ -106,16 +106,15 @@
                     </span>
                     to extend groups automatically
                 </div>
-                <div class="row v-center">4. Repeat with different groups</div>
-                <div class="row v-center">
-                    5.
-                    <div class="btn dummy">
-                        Update embedding
-                    </div>
+                <!--                <div class="row v-center">4. Repeat with different groups</div>-->
+                <div class="">
+                    4.
+                    <span class="btn dummy">Update embedding</span>
+                    based on marked groups
                 </div>
             </div>
             <div class="area help-box" v-if="showHelp && neighbourMode">
-                <div class="title2">Help: Extend groups aromatically</div>
+                <div class="title2">Help: Extend groups automatically</div>
                 <div class="row v-center">
                     1. Add proposal with
                     <div class="btn dummy">Click</div>
@@ -132,20 +131,49 @@
                     to get new proposals
                 </div>
                 <div class="row v-center">
-                    3. iterate extend groups
+                    3. Stop with
+                    <span class="btn dummy">
+                        <x></x>
+                    </span>
+                    anytime
                 </div>
             </div>
 
             <div class="area" v-if="showSettings">
                 <div class="title">Settings</div>
                 <div class="row-btn">
-                    <div>Save:</div>
+                    <div>Screenshots:</div>
                     <div class="row">
                         <div @click="saveCanvas" class="btn">
                             <save></save>
                         </div>
                     </div>
                 </div>
+
+                <div class="option-title">Cluster</div>
+                <div class="row-btn">
+                    <div>Recalculate clustering</div>
+                    <div
+                        :class="{ active: recalcClustering }"
+                        @click="toggleRecalcClustering"
+                        class="btn"
+                    >
+                        {{ recalcClustering ? 'On' : 'Off' }}
+                    </div>
+                </div>
+                <div class="row-btn">
+                    <div>Radius: {{ clusterRadius }}</div>
+                    <div class="row">
+                        <div @click="changeClusterRadius(-1)" class="btn">
+                            <minus></minus>
+                        </div>
+                        <div @click="changeClusterRadius(1)" class="btn">
+                            <plus></plus>
+                        </div>
+                        <div @click="updateCluster()" class="btn">update</div>
+                    </div>
+                </div>
+
                 <div class="option-title">Image</div>
                 <div class="row-btn">
                     <div>Transparency (base): {{ alphaBase }}</div>
@@ -229,20 +257,6 @@
                         <div @click="changeHeatmapBlur(1)" class="btn">
                             <plus></plus>
                         </div>
-                    </div>
-                </div>
-
-                <div class="option-title">Cluster</div>
-                <div class="row-btn">
-                    <div>Radius: {{ clusterRadius }}</div>
-                    <div class="row">
-                        <div @click="changeClusterRadius(-1)" class="btn">
-                            <minus></minus>
-                        </div>
-                        <div @click="changeClusterRadius(1)" class="btn">
-                            <plus></plus>
-                        </div>
-                        <div @click="updateCluster()" class="btn">update</div>
                     </div>
                 </div>
 
@@ -346,6 +360,7 @@
                 <div class="row-between">
                     <div class="title">Groups</div>
                     <div
+                        v-if="!neighbourMode"
                         class="btn"
                         :class="{ active: groupBorderAllActive }"
                         @click="toggleGroupBorderAllActive"
@@ -393,12 +408,7 @@
                                 @click="handleNeighbourMode(i)"
                                 class="btn"
                             >
-                                <plus-circle
-                                    v-if="!(neighbourMode && group.groupId === activeGroupId)"
-                                ></plus-circle>
-                                <stop
-                                    v-if="neighbourMode && group.groupId === activeGroupId"
-                                ></stop>
+                                <plus-circle></plus-circle>
                             </div>
                             <div @click="deleteGroup(i)" class="btn">
                                 <trash></trash>
@@ -414,7 +424,7 @@
                         />
                     </div>
                 </div>
-                <div class="row v-center">
+                <div class="row v-center" v-if="!neighbourMode">
                     <input class="input" type="text" v-model="groupName" />
                     <div @click="saveGroup" class="btn">new</div>
                 </div>
@@ -440,6 +450,30 @@
 
             <logs :getStore="getStore" v-if="showLogs" />
         </div>
+        <modal name="updateDialog" :resizable="true" height="auto" width="450px">
+            <div class="vue-dialog">
+                <div class="dialog-content">
+                    <div class="dialog-c-title">
+                        Update embedding?
+                    </div>
+                    <div class="dialog-c-text">
+                        Specify to which degree the previous embedding should be preserved:
+                        <range-slider
+                            :min="0.1"
+                            :max="1"
+                            :step="0.1"
+                            :value="embeddingDegree"
+                            :change="changeEmbeddingDegree"
+                        ></range-slider> {{embeddingDegree}}
+                        <div class="description-small">It will take a while until the embedding has been updated.</div>
+                    </div>
+                </div>
+                <div class="vue-dialog-buttons">
+                    <button class="vue-dialog-button button" @click="sendData">Ok</button>
+                    <button class="vue-dialog-button button" @click="closeUpdateDialog">Cancel</button>
+                </div>
+            </div>
+        </modal>
     </div>
 </template>
 
@@ -468,9 +502,10 @@ import ImageSizeUp from '../icons/ImageSizeUp';
 import ImageSizeDown from '../icons/ImageSizeDown';
 import Plus from '../icons/Plus';
 import Minus from '../icons/Minus';
+import Trash from '../icons/Trash';
 import Classifier from './Classifier';
 import Logs from './Logs';
-import Trash from '../icons/Trash';
+import RangeSlider from './RangeSlider';
 import { apiUrl } from '../config/apiUrl';
 import wasm from '../assets/wasm/optimized.wasm';
 import { logYellow } from '../util/logging';
@@ -510,6 +545,7 @@ export default {
         Minus,
         Trash,
         Repeat,
+        RangeSlider,
     },
     data: () => ({
         // store: null,
@@ -530,8 +566,8 @@ export default {
         scissors: false,
         target: false,
         activeNode: null,
-        cluster: 5, // default - set on mount from CanvasStore class
         clusterRadius: 0, // default - set on mount from CanvasStore class
+        recalcClustering: true, // default - set on mount from CanvasStore class
         clusterTile: 0, // default - set on mount from CanvasStore class
         representImgSize: 0, // default - set on mount from CanvasStore class
         neighbourImgSize: 0, // default - set on mount from CanvasStore class
@@ -618,6 +654,7 @@ export default {
         canvasH: 0,
         cachedNodes: undefined, // cache the nodes if 'updateEmbedding is faster than loading nodes
         groupBorderAllActive: false,
+        embeddingDegree: 0.5,
     }),
     methods: {
         getNode(i) {
@@ -629,6 +666,7 @@ export default {
         sendData() {
             console.log('send data clicked');
             console.log(this.$route);
+            this.$modal.hide('updateDialog')
             // console.log(this.store.nodes);
             // console.log(nodes);
             if (!this.updateNodes && this.initPython) {
@@ -651,6 +689,7 @@ export default {
                     datasetId: this.dataset,
                     userId: this.userId,
                     count: this.selectedImgCount,
+                    embeddingDegree: this.embeddingDegree,
                 });
                 return this.$notify({
                     group: 'default',
@@ -667,23 +706,23 @@ export default {
         },
 
         handleUpdateEmbedding() {
-            this.$modal.show('dialog', {
-                title: 'Update embedding?',
-                text: 'It will take a while until the embedding has been updated.',
-                buttons: [
-                    {
-                        title: 'Ok',
-                        handler: () => {
-                            this.sendData();
-                            this.$modal.hide('dialog');
-                        },
-                    },
-                    {
-                        title: 'Cancel',
-                        default: true, // Will be triggered by default if 'Enter' pressed.
-                        // handler: () => {}, // Button click handler
-                    },
-                ],
+            this.$modal.show('updateDialog', {
+                // title: 'Update embedding?',
+                // text: 'It will take a while until the embedding has been updated.',
+                // buttons: [
+                //     {
+                //         title: 'Ok',
+                //         handler: () => {
+                //             this.sendData();
+                //             this.$modal.hide('updateDialog');
+                //         },
+                //     },
+                //     {
+                //         title: 'Cancel',
+                //         default: true, // Will be triggered by default if 'Enter' pressed.
+                //         // handler: () => {}, // Button click handler
+                //     },
+                // ],
             });
         },
 
@@ -746,19 +785,19 @@ export default {
             this.store.triggerDraw();
         },
 
-        // changeCluster(v) {
-        //     // console.log("cluster more clicked")
-        //     this.store.cluster += v; // update explorerState
-        //     this.cluster = this.store.cluster; // update ui
-        // },
-
         changeClusterRadius(v) {
             this.store.clusterRadius += v; // update ui
             this.clusterRadius = this.store.clusterRadius;
         },
-        changeClusterTile(v) {
-            this.store.clusterTile += v; // update ui
-            this.clusterTile = this.store.clusterTile;
+
+        // changeClusterTile(v) {
+        //     this.store.clusterTile += v; // update ui
+        //     this.clusterTile = this.store.clusterTile;
+        // },
+
+        toggleRecalcClustering() {
+            this.recalcClustering = !this.recalcClustering;
+            if (this.recalcClustering) this.store.createCluster();
         },
 
         sortNodes() {
@@ -1078,6 +1117,7 @@ export default {
             this.activeGroupId = groupId;
             this.store.saveGroup(groupId);
             this.store.triggerDraw();
+            this.groupName = '';
         },
 
         selectGroup(i) {
@@ -1226,6 +1266,15 @@ export default {
 
             // return pointer where new memory starts
             return ptr;
+        },
+
+        changeEmbeddingDegree(e) {
+            console.log('changeEmbeddingDegree')
+            this.embeddingDegree = e.target.value;
+        },
+
+        closeUpdateDialog() {
+            this.$modal.hide('updateDialog');
         },
 
         checkSumExplorer() {
@@ -1480,7 +1529,6 @@ export default {
         this.store = store;
 
         // set init value from store to UI
-        this.cluster = store.cluster;
         this.clusterRadius = store.clusterRadius;
         this.clusterTile = store.clusterTile;
         this.representImgSize = store.representImgSize;
