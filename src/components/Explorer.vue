@@ -666,7 +666,7 @@ export default {
         sendData() {
             console.log('send data clicked');
             console.log(this.$route);
-            this.$modal.hide('updateDialog')
+            this.$modal.hide('updateDialog');
             // console.log(this.store.nodes);
             // console.log(nodes);
             if (!this.updateNodes && this.initPython) {
@@ -1207,19 +1207,28 @@ export default {
                 node.colorKey[1],
                 node.colorKey[2],
             );
-            console.log(addNode1, this.offset);
+            // console.log(addNode1, this.offset);
             // console.log(this.offset);
+            let secondOffset = 0;
 
-            if (!this.wasm.memory.buffer.byteLength) this.wasm.U8 = new Uint8Array(this.wasm.memory.buffer)
+            // console.log(node.imageData)
+            /** create for each node an extra view because the main view is changing somehow */
+            const totalLength = Object.values(node.imageData).reduce((a, e) => a + e.data.byteLength, 0);
+            const buffer = new Uint8Array(this.wasm.memory.buffer, this.offset, totalLength)
+            // console.log(totalLength, buffer)
+
+            /** recreate main view if's changed somehow */
+            if (!this.wasm.memory.buffer.byteLength) this.wasm.U8 = new Uint8Array(this.wasm.memory.buffer);
             for (let i = 0; i < 10; i += 1) {
                 const img = node.imageData[i];
 
                 // add img buffer to memory: Crete a view over the buffer and set use the viewer to set the data
-                this.wasm.U8.set(img.data, this.offset, img.data.buffer.length);
+                buffer.set(img.data, secondOffset, img.data.buffer.length);
                 this.wasm.addPic(node.index, img.width, img.height, this.offset);
 
                 // update offset for the next pic data
                 this.offset += img.data.byteLength;
+                secondOffset += img.data.byteLength;
 
                 // remove image data to free memory
                 node.imageData[i] = undefined;
