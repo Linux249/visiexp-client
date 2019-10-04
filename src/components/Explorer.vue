@@ -88,16 +88,16 @@
             <div class="area help-box" v-if="showHelp && !neighbourMode">
                 <!--                <div class="title2">Create groups for learning own embedding</div>-->
                 <div class="title2">Help: General usage</div>
+                <div class="">
+                    1. Create groups with
+                    <span class="btn dummy">new</span>
+                    to learn own embedding
+                </div>
                 <div class="row v-center">
-                    1. Select images with
+                    2. Add images to groups with
                     <div class="btn dummy">Click</div>
                     /
                     <scissors class="btn dummy"></scissors>
-                </div>
-                <div class="">
-                    2. Create groups with
-                    <span class="btn dummy">new</span>
-                    to learn own embedding
                 </div>
                 <div class="">
                     3. Get proposals with
@@ -106,16 +106,15 @@
                     </span>
                     to extend groups automatically
                 </div>
-                <div class="row v-center">4. Repeat with different groups</div>
-                <div class="row v-center">
-                    5.
-                    <div class="btn dummy">
-                        Update embedding
-                    </div>
+<!--                <div class="row v-center">4. Repeat with different groups</div>-->
+                <div class="">
+                    4.
+                    <span class="btn dummy">Update embedding</span>
+                    based on marked groups
                 </div>
             </div>
             <div class="area help-box" v-if="showHelp && neighbourMode">
-                <div class="title2">Help: Extend groups aromatically</div>
+                <div class="title2">Help: Extend groups automatically</div>
                 <div class="row v-center">
                     1. Add proposal with
                     <div class="btn dummy">Click</div>
@@ -132,7 +131,9 @@
                     to get new proposals
                 </div>
                 <div class="row v-center">
-                    3. iterate extend groups
+                    3. Stop with <span class="btn dummy">
+                        <x></x>
+                    </span> anytime
                 </div>
             </div>
 
