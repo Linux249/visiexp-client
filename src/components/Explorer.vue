@@ -1269,8 +1269,8 @@ export default {
         },
 
         changeEmbeddingDegree(e) {
-            console.log('changeEmbeddingDegree')
-            this.embeddingDegree = e.target.value;
+            // console.log('changeEmbeddingDegree')
+            this.embeddingDegree = +e.target.value;
         },
 
         closeUpdateDialog() {
