@@ -140,7 +140,7 @@
             <div class="area" v-if="showSettings">
                 <div class="title">Settings</div>
                 <div class="row-btn">
-                    <div>Save:</div>
+                    <div>Screenshots:</div>
                     <div class="row">
                         <div @click="saveCanvas" class="btn">
                             <save></save>
