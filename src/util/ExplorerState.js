@@ -1383,7 +1383,7 @@ export default class ExplorerState {
                 }
                 this.draggedNode = false;
                 // update clustering after move one or more nodes
-                return this.createCluster(); // draw triggers in create cluster
+                return this.ui.recalcClustering && this.createCluster(); // draw triggers in create cluster
             }
 
             // todo update instead of recreate supercluster here maybe bedder? how?
@@ -1444,7 +1444,7 @@ export default class ExplorerState {
                     node.y = y + (Math.random() * 4 - 2) / Math.floor(this.zoomStage + 1);
                 }
             });
-            this.createCluster();
+            if (this.ui.recalcClustering) this.createCluster();
         }
     }
 

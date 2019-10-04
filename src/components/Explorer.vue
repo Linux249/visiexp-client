@@ -31,8 +31,8 @@
                         v-tooltip="'update Embedding'"
                     >
                         update embedding
-<!--                        <send v-if="!loading"></send>-->
-<!--                        <div class="loader" v-if="updateNodes"></div>-->
+                        <!--                        <send v-if="!loading"></send>-->
+                        <!--                        <div class="loader" v-if="updateNodes"></div>-->
                     </div>
                 </div>
                 <div class="row">
@@ -106,7 +106,7 @@
                     </span>
                     to extend groups automatically
                 </div>
-<!--                <div class="row v-center">4. Repeat with different groups</div>-->
+                <!--                <div class="row v-center">4. Repeat with different groups</div>-->
                 <div class="">
                     4.
                     <span class="btn dummy">Update embedding</span>
@@ -131,9 +131,11 @@
                     to get new proposals
                 </div>
                 <div class="row v-center">
-                    3. Stop with <span class="btn dummy">
+                    3. Stop with
+                    <span class="btn dummy">
                         <x></x>
-                    </span> anytime
+                    </span>
+                    anytime
                 </div>
             </div>
 
@@ -147,6 +149,31 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="option-title">Cluster</div>
+                <div class="row-btn">
+                    <div>Recalculate clustering</div>
+                    <div
+                        :class="{ active: recalcClustering }"
+                        @click="toggleRecalcClustering"
+                        class="btn"
+                    >
+                        {{ recalcClustering ? 'On' : 'Off' }}
+                    </div>
+                </div>
+                <div class="row-btn">
+                    <div>Radius: {{ clusterRadius }}</div>
+                    <div class="row">
+                        <div @click="changeClusterRadius(-1)" class="btn">
+                            <minus></minus>
+                        </div>
+                        <div @click="changeClusterRadius(1)" class="btn">
+                            <plus></plus>
+                        </div>
+                        <div @click="updateCluster()" class="btn">update</div>
+                    </div>
+                </div>
+
                 <div class="option-title">Image</div>
                 <div class="row-btn">
                     <div>Transparency (base): {{ alphaBase }}</div>
@@ -230,20 +257,6 @@
                         <div @click="changeHeatmapBlur(1)" class="btn">
                             <plus></plus>
                         </div>
-                    </div>
-                </div>
-
-                <div class="option-title">Cluster</div>
-                <div class="row-btn">
-                    <div>Radius: {{ clusterRadius }}</div>
-                    <div class="row">
-                        <div @click="changeClusterRadius(-1)" class="btn">
-                            <minus></minus>
-                        </div>
-                        <div @click="changeClusterRadius(1)" class="btn">
-                            <plus></plus>
-                        </div>
-                        <div @click="updateCluster()" class="btn">update</div>
                     </div>
                 </div>
 
@@ -527,8 +540,8 @@ export default {
         scissors: false,
         target: false,
         activeNode: null,
-        cluster: 5, // default - set on mount from CanvasStore class
         clusterRadius: 0, // default - set on mount from CanvasStore class
+        recalcClustering: true, // default - set on mount from CanvasStore class
         clusterTile: 0, // default - set on mount from CanvasStore class
         representImgSize: 0, // default - set on mount from CanvasStore class
         neighbourImgSize: 0, // default - set on mount from CanvasStore class
@@ -743,19 +756,19 @@ export default {
             this.store.triggerDraw();
         },
 
-        // changeCluster(v) {
-        //     // console.log("cluster more clicked")
-        //     this.store.cluster += v; // update explorerState
-        //     this.cluster = this.store.cluster; // update ui
-        // },
-
         changeClusterRadius(v) {
             this.store.clusterRadius += v; // update ui
             this.clusterRadius = this.store.clusterRadius;
         },
-        changeClusterTile(v) {
-            this.store.clusterTile += v; // update ui
-            this.clusterTile = this.store.clusterTile;
+
+        // changeClusterTile(v) {
+        //     this.store.clusterTile += v; // update ui
+        //     this.clusterTile = this.store.clusterTile;
+        // },
+
+        toggleRecalcClustering() {
+            this.recalcClustering = !this.recalcClustering;
+            if (this.recalcClustering) this.store.createCluster();
         },
 
         sortNodes() {
@@ -1478,7 +1491,6 @@ export default {
         this.store = store;
 
         // set init value from store to UI
-        this.cluster = store.cluster;
         this.clusterRadius = store.clusterRadius;
         this.clusterTile = store.clusterTile;
         this.representImgSize = store.representImgSize;
