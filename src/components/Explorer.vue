@@ -1198,7 +1198,7 @@ export default {
 
         addNode(node) {
             // console.warn(node);
-            node.nodeId % 50 === 0 && console.warn(`Add Node ${node.index}:`, node);
+            if ((node.nodeId % 50) === 0) console.warn(`Add Node ${node.index}:`, node);
             const addNode1 = this.wasm.addNode(
                 node.x,
                 node.y,
@@ -1207,7 +1207,7 @@ export default {
                 node.colorKey[1],
                 node.colorKey[2],
             );
-            // console.log({addNode1});
+            console.log(addNode1, this.offset);
             // console.log(this.offset);
 
             for (let i = 0; i < 10; i += 1) {
@@ -1766,6 +1766,7 @@ export default {
                     });
                     console.error('something went wrong with reading img stream:');
                     console.log(e);
+                    console.log(this.wasm);
                     console.log(this.wasm);
                 });
 
