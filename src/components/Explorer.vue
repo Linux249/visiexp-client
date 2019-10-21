@@ -12,10 +12,10 @@
                     </div>
                 </div>
                 <div class="row-end">
-                    <div @click="changeImgSize(-1)" class="btn" v-tooltip="'decrease images size'">
+                    <div @click="changeImgSize(-1)" class="btn" v-tooltip="'decrease image size'">
                         <img-size-down></img-size-down>
                     </div>
-                    <div @click="changeImgSize(1)" class="btn" v-tooltip="'increase images size'">
+                    <div @click="changeImgSize(1)" class="btn" v-tooltip="'increase image size'">
                         <img-size-up></img-size-up>
                     </div>
                 </div>
@@ -39,7 +39,7 @@
                         :class="{ active: scissors }"
                         @click="selectScissors"
                         class="btn"
-                        v-tooltip="'select many'"
+                        v-tooltip="'select many images'"
                     >
                         <scissors></scissors>
                     </div>
@@ -47,11 +47,11 @@
                         :class="{ active: target }"
                         @click="selectTarget"
                         class="btn"
-                        v-tooltip="'double click to move selected'"
+                        v-tooltip="'double click to move selected images'"
                     >
                         <flag></flag>
                     </div>
-                    <div @click="clearGroup" class="btn" v-tooltip="'reset selections'">
+                    <div @click="clearGroup" class="btn" v-tooltip="'reset'">
                         <x></x>
                     </div>
                 </div>
@@ -143,7 +143,7 @@
             <div class="area" v-if="showSettings">
                 <div class="title">Settings</div>
                 <div class="row-btn">
-                    <div>Screenshots:</div>
+                    <div>Screenshot:</div>
                     <div class="row">
                         <div @click="saveCanvas" class="btn">
                             <save></save>
@@ -1238,7 +1238,8 @@ export default {
 
         draw2() {
             try {
-                // console.warn('DRAW2');
+                console.warn('DRAW2');
+                console.log(this.explorerPixel)
                 this.wasm.draw();
                 this.explorerCtx.putImageData(this.explorerPixel, 0, 0);
             } catch (e) {

@@ -3,11 +3,12 @@
         <div class="left-header">
             <div class="title-header"></div>
             <router-link class="title-header" to="/explorer">
-                Visual Similarity Explorer
+                Visual Similarity Explorer:
             </router-link>
             <!--            <div class="btn" @click="toggleWasmMode" :class="{ active: wasmMode }">-->
             <!--                wasm-->
             <!--            </div>-->
+            <div v-if="explorer" class="dataset-name">{{ name }}</div>
         </div>
 
         <div class="right-header">
@@ -24,7 +25,7 @@
             <!--                <div class="loader" v-if="loading"></div>-->
             <!--            </div>-->
             <!--            <router-link v-if="isAuth" to="/dataset">Dataset</router-link>-->
-            <div v-if="explorer" class="dataset-name">{{ name }}</div>
+
             <div v-if="explorer" @click="handleDataset" class="icon" v-tooltip="'switch dataset'">
                 <database></database>
             </div>
@@ -215,7 +216,9 @@ icon:hover {
     align-items: center;
 
     color: #767676;
-    /*font-size: 1.3rem;*/
-    font-weight: 500;
+    font-weight: 400;
+    font-size: 1.3rem;
+
+    padding-left: 5px;
 }
 </style>
