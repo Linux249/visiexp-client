@@ -245,14 +245,25 @@ class Node {
         const startPixel = state.explorerStart + (((y as u32) * state.canvasW + x) as u32) * 4;
         const hitMapPixel = state.hitMapStart + (((y as u32) * state.canvasW + x) as u32) * 4;
 
+        const stageAlpha: u8 = (150 + state.zoom * 20) < 255 ? 150 + state.zoom * 20 : 255
         // loop through each row
         for (let r: u32 = 0; r < h; r += 1) {
             for (let c: u32 = 0; c < w; c += 1) {
                 // loop through each column/field
 
+                // get ptr to out memory and the alpha before img draw
                 const outPixel: u32 = startPixel + (r * state.canvasW + c) * 4;
+                const alphaBefore: u8  = load<u8>(outPixel + 3);
+
+                // get image pixel and draw it to out memory
                 const inPixel: u32 = 4 * (r * w + c) + ptr;
                 store<u32>(outPixel, load<u32>(inPixel));
+
+                // set alpha with alpha before the image is drawn or based on zoom lvl
+                store<u8>(outPixel + 3,
+                    alphaBefore ?
+                        (alphaBefore + 30) < 255 ? alphaBefore + 30 : 255
+                        : stageAlpha)
 
                 // draw on hitmap
                 const outHitMapPixel: u32 = hitMapPixel + (r * state.canvasW + c) * 4;
