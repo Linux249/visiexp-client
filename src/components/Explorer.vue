@@ -1215,11 +1215,11 @@ export default {
             // console.log(node.imageData)
             /** create for each node an extra view because the main view is changing somehow */
             const totalLength = Object.values(node.imageData).reduce((a, e) => a + e.data.byteLength, 0);
-            const buffer = new Uint8Array(this.wasm.memory.buffer, this.offset, totalLength)
+            const buffer = new Uint8Array(this.wasm.memory.buffer, this.offset, totalLength);
             // console.log(totalLength, buffer)
 
             /** recreate main view if's changed somehow */
-            if (!this.wasm.memory.buffer.byteLength) this.wasm.U8 = new Uint8Array(this.wasm.memory.buffer);
+            if (!this.wasm.memory.buffer.byteLength) this.createPixelViews()
             for (let i = 0; i < 10; i += 1) {
                 const img = node.imageData[i];
 
@@ -1238,8 +1238,12 @@ export default {
 
         draw2() {
             try {
-                console.warn('DRAW2');
-                console.log(this.explorerPixel)
+                // console.warn('DRAW2');
+                console.log(this.explorerPixel);
+                if (!this.explorerPixel.data.length) {
+                    console.error('explorerPixel removed!');
+                    this.createPixelViews();
+                }
                 this.wasm.draw();
                 this.explorerCtx.putImageData(this.explorerPixel, 0, 0);
             } catch (e) {
@@ -1254,14 +1258,22 @@ export default {
             // console.log(this.wasm.memory);
             console.log('allocNewMemory for size: ', size);
             const ptr = this.wasm.__alloc(size, 2);
-            console.log('total - offset ', ptr)
-            this.wasm.U8 = new Uint8Array(this.wasm.memory.buffer);
+            console.log('total - offset ', ptr);
+
+            this.createPixelViews();
+
+            // return pointer where new memory starts
+            return ptr;
+        },
+
+        createPixelViews() {
+            // this.wasm.U8 = new Uint8Array(this.wasm.memory.buffer);
             // console.log(this.wasm.U8);
 
             // create new view on buffer cause buffer changes everytime
             this.explorerPixel = new ImageData(
                 new Uint8ClampedArray(
-                    this.wasm.U8.buffer,
+                    this.wasm.memory.buffer,
                     this.explorerPixelStart,
                     this.explorerPixelSize,
                 ),
@@ -1270,16 +1282,13 @@ export default {
             );
             this.hitMapPixel = new ImageData(
                 new Uint8ClampedArray(
-                    this.wasm.U8.buffer,
+                    this.wasm.memory.buffer,
                     this.hitMapPixelStart,
                     this.explorerPixelSize,
                 ),
                 this.canvasW,
                 this.canvasH,
             );
-
-            // return pointer where new memory starts
-            return ptr;
         },
 
         changeEmbeddingDegree(e) {
@@ -1299,7 +1308,7 @@ export default {
                 i < size;
                 i++
             ) {
-                checksum += this.wasm.U8[i];
+                // checksum += this.wasm.U8[i];
             }
             console.log('checkSumExplorer: ', checksum);
         },
@@ -1312,7 +1321,7 @@ export default {
                 i < size;
                 i++
             ) {
-                checksum += this.wasm.U8[i];
+                // checksum += this.wasm.U8[i];
             }
             console.log('checkSumHitMap: ', checksum);
         },
