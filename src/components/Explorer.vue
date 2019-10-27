@@ -1219,7 +1219,7 @@ export default {
             // console.log(totalLength, buffer)
 
             /** recreate main view if's changed somehow */
-            if (!this.wasm.memory.buffer.byteLength) this.createPixelViews()
+            if (!this.wasm.memory.buffer.byteLength) this.createPixelViews();
             for (let i = 0; i < 10; i += 1) {
                 const img = node.imageData[i];
 
@@ -1301,7 +1301,7 @@ export default {
         },
 
         checkSumExplorer() {
-            let checksum = 0;
+            const checksum = 0;
             for (
                 let i = this.explorerPixelStart,
                     size = this.explorerPixelStart + this.explorerPixelSize;
@@ -1314,7 +1314,7 @@ export default {
         },
 
         checkSumHitMap() {
-            let checksum = 0;
+            const checksum = 0;
             for (
                 let i = this.hitMapPixelStart,
                     size = this.hitMapPixelStart + this.explorerPixelSize;
@@ -1352,6 +1352,44 @@ export default {
             const navHeatmap = document.getElementById('navHeatmap');
             navHeatmap.width = parantWidth / 4;
             navHeatmap.height = parantHeight / 4;
+        },
+
+        async saveSnapshot() {
+            console.log('saveSnapshot');
+            const nodes = this.store.getNodes();
+            const groups = this.savedGroups;
+            const dataset = this.dataset;
+            console.log(nodes, groups);
+            // dont save if there not all nodes loaded
+            if (!Object.keys(nodes).length || this.loadingImgs) {
+                this.$notify({
+                    group: 'default',
+                    title: 'Cannot save before finish loading',
+                    type: 'error',
+                    text: 'Please wait until all images are loaded',
+                });
+            }
+
+            const data = await fetch(`${apiUrl}/api/v1/snapshots/`, {
+                method: 'POST',
+                headers: { 'Content-type': 'application/json' },
+                body: JSON.stringify({nodes, groups, dataset}),
+            })
+                .then(res => res.json())
+                .catch((e) => {
+                    this.$notify({
+                        group: 'default',
+                        title: 'Error saving snapshot',
+                        type: 'error',
+                        text: e.message,
+                    });
+                });
+            this.$notify({
+                group: 'default',
+                title: 'Snapshot saved',
+                type: 'success',
+                text: data.message,
+            });
         },
     },
 

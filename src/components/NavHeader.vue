@@ -29,6 +29,9 @@
             <div v-if="explorer" @click="handleDataset" class="icon" v-tooltip="'switch dataset'">
                 <database></database>
             </div>
+            <div v-if="explorer" @click="handleSave" class="icon" v-tooltip="'save groups and embedding'">
+                <save></save>
+            </div>
             <div
                 v-if="explorer"
                 :class="{ active: showSettings }"
@@ -69,6 +72,7 @@ import Send from '../icons/Send';
 import Help from '../icons/Help';
 import Logout from '../icons/Logout';
 import Database from '../icons/Database';
+import Save from '../icons/Save';
 import Settings from '../icons/Settings';
 import { DATASET } from '../util/modes';
 
@@ -80,6 +84,7 @@ export default {
         Logout,
         Settings,
         Database,
+        Save,
     },
     props: {
         wasmMode: Boolean,
@@ -135,6 +140,25 @@ export default {
                         handler: () => {
                             this.$modal.hide('dialog');
                             this.$router.push({ name: DATASET });
+                        },
+                    },
+                    {
+                        title: 'Cancel',
+                        default: true, // Will be triggered by default if 'Enter' pressed.
+                    },
+                ],
+            });
+        },
+        handleSave() {
+            this.$modal.show('dialog', {
+                title: 'Save snapshot',
+                text: 'You will save your groups and the current embedding permanently and get load it anytime from dataset menu',
+                buttons: [
+                    {
+                        title: 'Ok',
+                        handler: () => {
+                            this.$modal.hide('dialog');
+                            this.$root.explorer.saveSnapshot();
                         },
                     },
                     {

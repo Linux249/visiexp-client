@@ -120,6 +120,12 @@ Guides:
 
 # Changes
 
+### 27.10.
+#### Features
+- user can now save embedding and groups anytime
+- user can load saved embedding from diffrent datasets  
+
+
 #### 4.01.
 ##### Bugs:
 - fix mark inactive group elements with click (6628980e)
