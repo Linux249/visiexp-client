@@ -9,7 +9,7 @@
 
         <router-view
             ref="router"
-            :key="dataset + selectedImgCount + wasmMode + loadOldDataset"
+            :key="dataset + selectedImgCount + wasmMode"
             :setAuth="setAuth"
             :isAuth="isAuth"
             :logout="logout"
@@ -17,9 +17,10 @@
             :wasmMode="wasmMode"
             :toggleWasmMode="toggleWasmMode"
             :dataset="dataset"
-            :loadOldDataset="loadOldDataset"
             :handleChangeDataset="switchDataset"
             :selectedImgCount="selectedImgCount"
+            :nodesFromSnapshot="nodesFromSnapshot"
+            :groupsFromSnapshot="groupsFromSnapshot"
         />
 
         <v-dialog />
@@ -31,27 +32,30 @@
 import NavHeader from './components/NavHeader';
 import Login from './components/Login';
 import { DATASET, LOGIN } from './util/modes';
+import { logYellow } from './util/logging';
 
 export default {
     name: 'App',
     components: { NavHeader, Login },
     // maybe here is a good place to reset component...
     data: () => ({
-        dataset: '001', // todo reset to 001
+        dataset: null, // todo reset to 001
         userId: null,
         isAuth: false, // todo reset to false
         selectedImgCount: 500, // default
         wasmMode: false,
-        loadOldDataset: false,
         datasetName: '',
+        nodesFromSnapshot: null,
+        groupsFromSnapshot: null,
     }),
     methods: {
-        switchDataset(newDataset, name, count, old) {
-            console.log(newDataset, name, count, old);
-            console.log('switchDataset');
+        switchDataset(newDataset, name, count, groups = null, nodes = null) {
+            logYellow('switchDataset - trigger explorer reload ');
+            console.log(newDataset, name, count, groups, nodes);
             console.log(newDataset, count);
             this.dataset = newDataset;
-            this.loadOldDataset = old;
+            this.nodesFromSnapshot = nodes;
+            this.groupsFromSnapshot = groups;
             this.selectedImgCount = count;
             this.datasetName = name;
             this.$router.push('/explorer');
@@ -73,7 +77,7 @@ export default {
             this.$router.push({ name: LOGIN });
         },
         checkRoute(to, from, next) {
-            this.$nextTick(function () {
+            this.$nextTick(function() {
                 console.log('check route before handling');
                 console.log({ auth: this.isAuth, to, from });
                 // redirect to LOGIN if not auth and not already routed to /login
@@ -179,7 +183,6 @@ export default {
 
 .btn.dummy {
     display: inline-flex !important;
-
 }
 
 .btn.dummy:hover {

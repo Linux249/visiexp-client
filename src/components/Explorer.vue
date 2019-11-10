@@ -27,7 +27,7 @@
                         class="btn"
                         :class="{ active: updateNodes }"
                         @click="handleUpdateEmbedding"
-                        v-tooltip="'update Embedding'"
+                        v-tooltip="'update embedding'"
                     >
                         update embedding
                         <!--                        <send v-if="!loading"></send>-->
@@ -521,7 +521,8 @@ export default {
         selectedImgCount: Number,
         wasmMode: Boolean,
         isAuth: Boolean,
-        loadOldDataset: Boolean,
+        groupsFromSnapshot: Array,
+        nodesFromSnapshot: Object,
     },
     components: {
         Scissors,
@@ -1358,7 +1359,9 @@ export default {
             console.log('saveSnapshot');
             const nodes = this.store.getNodes();
             const groups = this.savedGroups;
-            const dataset = this.dataset;
+            const { dataset } = this;
+            const count = this.selectedImgCount;
+            const userid = this.userId;
             console.log(nodes, groups);
             // dont save if there not all nodes loaded
             if (!Object.keys(nodes).length || this.loadingImgs) {
@@ -1373,7 +1376,9 @@ export default {
             const data = await fetch(`${apiUrl}/api/v1/snapshots/`, {
                 method: 'POST',
                 headers: { 'Content-type': 'application/json' },
-                body: JSON.stringify({nodes, groups, dataset}),
+                body: JSON.stringify({
+                    nodes, groups, dataset, count, userid,
+                }),
             })
                 .then(res => res.json())
                 .catch((e) => {
@@ -1406,6 +1411,7 @@ export default {
 
     async mounted() {
         console.error('Mounted Explorer');
+        console.log(this.nodesFromSnapshot, this.groupsFromSnapshot)
         if (!this.isAuth) return console.error('EXPLORER WITHOUT AUTH');
         // set resize event handler
         window.addEventListener('resize', this.handleResize);
@@ -1425,63 +1431,6 @@ export default {
         this.explorerCtx = canvas.getContext('2d');
         this.canvasW = parantWidth;
         this.canvasH = parantHeight;
-
-        // Test wasm
-        // try {
-        //     const imports = {
-        //         env: {
-        //             // import as @external("env", "logf")
-        //             log1(value) {
-        //                 console.log(`%c from wasm: ${value}`, 'background: #222; color: #bada55');
-        //             },
-        //             abort(msg, file, line, column) {
-        //                 console.error(`abort called at main.ts:${line}:${column}`);
-        //             },
-        //         },
-        //         console: {
-        //             log2(value) {
-        //                 console.log(`%c from wasm: ${value}`, 'background: #222; color: #bada55');
-        //             },
-        //         },
-        //     };
-        //
-        //     // const Module = await import('../assets/wasm/optimized.wasm');
-        //     console.warn('START');
-        //     console.log({ wasm });
-        //     const Module = await instantiateStreaming(fetch(wasm), imports);
-        //     console.log({ Module });
-        //     const { memory } = Module;
-        //
-        //     // reserve static memory for images (aka init later?)
-        //
-        //     /**
-        //      *  What das __alloc do?
-        //      *  __alloc() return a adresse
-        //      *  @param size in bytes
-        //      *  alloc thinks in 32 bytes, each page is 32 normaly and __alloc(33) gives 2 pages
-        //      */
-        //
-        //     // 1. alloc size of canvas to share pixel
-        //     this.canvasPixelSize = this.canvasH * this.canvasW * 4;
-        //     const canvasStart = Module.__alloc(this.canvasPixelSize, 2);
-        //     console.log(canvasStart, this.canvasPixelSize);
-        //     console.log(Module.I32);
-        //     console.log(Module.U8);
-        //
-        //     // checksum should be 0
-        //     let check0 = 0;
-        //     for (let i = canvasStart + 32; i < this.canvasPixelSize - 32; i++) {
-        //         check0 += Module.U8[i];
-        //         if (Module.U8[i] !== 0) console.log(i, Module.U8[i]);
-        //     }
-        //     console.log('Checksum on empty array: ', check0);
-        //
-        //     this.wasm = Module;
-        //     this.memory = memory;
-        //     console.log(memory);
-        //
-        //     console.warn('INIT');
-        // } catch (e) {}
 
         if (this.wasmMode) {
             try {
@@ -1624,7 +1573,8 @@ export default {
                     datasetId: this.dataset,
                     userId: this.userId,
                     count: this.selectedImgCount,
-                    init: this.loadOldDataset ? 'resume' : 'new',
+                    init: this.nodesFromSnapshot ? 'resume' : 'new',
+                    nodesFromSnapshot: this.nodesFromSnapshot,
                 });
                 this.reset();
                 this.$notify({
@@ -1816,6 +1766,9 @@ export default {
                         'consumed the entire body without keeping the whole thing in memory!',
                     );
                     console.log(this);
+                    if(this.nodesFromSnapshot) {
+                        // restore groups from saved data
+                    }
                 })
                 .catch((e) => {
                     this.$notify({

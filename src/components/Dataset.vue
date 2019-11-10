@@ -28,9 +28,26 @@
                     </div>
                 </div>
             </div>
-            <div class="">
+            <div v-if="selectedDataset">
+                <div class="header">2. Start new or load saved snapshot</div>
+                <div class="row">
+                    <div class="btn" @click="handleStartNew" :class="{ active: startNew }">
+                        create new
+                    </div>
+                    <div
+                        class="btn"
+                        @click="handleLoadSnapshots"
+                        :class="{ active: loadSnapshots }"
+                    >
+                        load snapshots
+                    </div>
+                    <div class="btn" @click="toggleWasmMode" :class="{ active: wasmMode }">
+                        wasm
+                    </div>
+                </div>
+            </div>
+            <div v-if="startNew" class="">
                 <div class="header">2. Select subset or load all images</div>
-
                 <div class="row">
                     <range-slider
                         :change="changeImgCount"
@@ -43,21 +60,47 @@
                     <!--                        <div class="btn">all</div>-->
                 </div>
             </div>
-            <div>
+            <div v-if="startNew">
                 <div class="header">
                     3. Resume last session or start new one
                 </div>
                 <div class="flex">
-                    <div @click="triggerChangeDataset(false)" class="btn">new</div>
-                    <div @click="triggerChangeDataset(true)" class="btn">resume</div>
-                    <div class="btn" @click="toggleWasmMode" :class="{ active: wasmMode }">
-                        wasm
-                    </div>
+                    <div @click="startLoadingNewDataset()" class="btn">start</div>
                 </div>
                 <div class="description-small">
-                    If there is no saved session a new one will be created automatically by clicking "resume"
+                    If there is no saved session a new one will be created automatically by clicking
+                    "resume"
                 </div>
                 <!--                    </div>-->
+            </div>
+            <div v-if="loadSnapshots">
+                <div class="header">
+                    3. Load a saved snapshot
+                </div>
+                <div class="loading">
+                    <div class="loader" v-if="loadingSnapshots"></div>
+                </div>
+                <div class="items">
+                    <div
+                        class="btn btn-item"
+                        :key="snap.id"
+                        @click="selectSnapshot(snapI)"
+                        v-for="(snap, snapI) in snapshots"
+                    >
+                        <div>
+                            <div class="row v-center">
+                                <div class="title-dataset">
+                                    {{ `${new Date(snap.createdAt).toDateString()}` }}
+                                </div>
+                            </div>
+                            <div class="description-small">{{ `Images: ${snap.count}` }}</div>
+                            <div class="description">
+                                {{ `Groups: ${snap.groups.length}` }}
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="!this.loadingSnapshots && !this.snapshots.length">No snapshots - create new</div>
+                </div>
             </div>
         </div>
     </div>
@@ -71,6 +114,7 @@ export default {
     name: 'Dataset',
     props: {
         dataset: String,
+        userId: Number,
         handleChangeDataset: Function,
         selectedImgCount: Number,
         toggleWasmMode: Function,
@@ -89,6 +133,10 @@ export default {
             maxCount: 0,
             selectedDataset: this.dataset,
             name: '',
+            snapshots: [],
+            startNew: false,
+            loadSnapshots: false,
+            loadingSnapshots: false,
         };
     },
     async mounted() {
@@ -122,11 +170,17 @@ export default {
     },
     methods: {
         selectDataset(id) {
-            this.selectedDataset = id;
-            const { size, name } = this.datasets.find(e => e.id === this.selectedDataset);
-            this.name = name;
-            this.maxCount = size;
-            this.imgCount = size < 500 ? size : 500;
+            console.log('selectDataset', id);
+            if (this.selectedDataset === id) {
+                this.selectedDataset = null;
+                this.name = '';
+            } else {
+                this.selectedDataset = id;
+                const { size, name } = this.datasets.find(e => e.id === this.selectedDataset);
+                this.name = name;
+                this.maxCount = size;
+                this.imgCount = size < 500 ? size : 500;
+            }
         },
         changeImgCount({ target }) {
             console.log('changeImgCount');
@@ -135,9 +189,45 @@ export default {
             // console.log(size, this.selectedDataset);
             this.imgCount = +target.value <= size ? +target.value : size; // < 500 ? 500 : +target.value;
         },
-        triggerChangeDataset(old) {
-            this.error = '';
-            this.handleChangeDataset(this.selectedDataset, this.name, this.imgCount, old);
+        startLoadingNewDataset() {
+            this.handleChangeDataset(this.selectedDataset, this.name, this.imgCount);
+        },
+        handleStartNew() {
+            console.log('handleStartNew');
+            this.startNew = !this.startNew;
+            this.loadSnapshots = false;
+        },
+        async handleLoadSnapshots() {
+            console.log('handleLoadSnapshots');
+            this.loadSnapshots = !this.loadSnapshots;
+            this.startNew = false;
+            if (this.loadSnapshots) {
+                // start loading
+                this.loadingSnapshots = true;
+                const res = await fetch(
+                    `${apiUrl}/api/v1/snapshots?dataset=${this.dataset}&userid=${this.userId}`,
+                );
+                console.log(res);
+                if (!res.ok) {
+                    this.$notify({
+                        group: 'default',
+                        title: 'Error loading snapshots',
+                        type: 'error',
+                        text: res.statusText,
+                    });
+                } else {
+                    const { snapshots } = await res.json();
+                    this.snapshots = snapshots;
+                    console.log(this.snapshots);
+                }
+                this.loadingSnapshots = false;
+            }
+        },
+
+        selectSnapshot(id) {
+            console.log('selectSnapshot', id, this.snapshots);
+            this.imgCount = this.snapshots[id].count;
+            this.handleChangeDataset(this.selectedDataset, this.name, this.imgCount, true, this.snapshots[id].nodes, this.snapshots[id].groups);
         },
     },
 };
