@@ -1365,7 +1365,7 @@ export default {
             console.log(nodes, groups);
             // dont save if there not all nodes loaded
             if (!Object.keys(nodes).length || this.loadingImgs) {
-                this.$notify({
+                return this.$notify({
                     group: 'default',
                     title: 'Cannot save before finish loading',
                     type: 'error',

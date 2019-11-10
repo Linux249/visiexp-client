@@ -216,8 +216,7 @@ export default {
                         text: res.statusText,
                     });
                 } else {
-                    const { snapshots } = await res.json();
-                    this.snapshots = snapshots;
+                    this.snapshots = await res.json();
                     console.log(this.snapshots);
                 }
                 this.loadingSnapshots = false;
