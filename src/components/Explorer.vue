@@ -1744,7 +1744,7 @@ export default {
                     if (this.nodesFromSnapshot) {
                         // override the current groups with saved groups to
                         logYellow('set groups from snapshot')
-                        this.snapshots = this.groupsFromSnapshot;
+                        this.savedGroups = this.groupsFromSnapshot;
                     }
                 })
                 .catch((e) => {
