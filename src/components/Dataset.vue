@@ -37,7 +37,7 @@
                     <div
                         class="btn"
                         @click="handleLoadSnapshots"
-                        :class="{ active: loadSnapshots }"
+                        :class="{ active: useSnapshots }"
                     >
                         load snapshots
                     </div>
@@ -73,14 +73,14 @@
                 </div>
                 <!--                    </div>-->
             </div>
-            <div v-if="loadSnapshots">
+            <div v-if="useSnapshots">
                 <div class="header">
                     3. Load a saved snapshot
                 </div>
                 <div class="loading">
                     <div class="loader" v-if="loadingSnapshots"></div>
                 </div>
-                <div class="items">
+                <div class="items" v-if="!loadingSnapshots">
                     <div
                         class="btn btn-item"
                         :key="snap.id"
@@ -99,7 +99,7 @@
                             </div>
                         </div>
                     </div>
-                    <div v-if="!this.loadingSnapshots && !this.snapshots.length">No snapshots - create new</div>
+                    <div v-if="!snapshots">No snapshots - create new</div>
                 </div>
             </div>
         </div>
@@ -135,7 +135,7 @@ export default {
             name: '',
             snapshots: [],
             startNew: false,
-            loadSnapshots: false,
+            useSnapshots: false,
             loadingSnapshots: false,
         };
     },
@@ -195,17 +195,17 @@ export default {
         handleStartNew() {
             console.log('handleStartNew');
             this.startNew = !this.startNew;
-            this.loadSnapshots = false;
+            this.useSnapshots = false;
         },
         async handleLoadSnapshots() {
             console.log('handleLoadSnapshots');
-            this.loadSnapshots = !this.loadSnapshots;
+            this.useSnapshots = !this.useSnapshots;
             this.startNew = false;
-            if (this.loadSnapshots) {
+            if (this.useSnapshots) {
                 // start loading
                 this.loadingSnapshots = true;
                 const res = await fetch(
-                    `${apiUrl}/api/v1/snapshots?dataset=${this.dataset}&userid=${this.userId}`,
+                    `${apiUrl}/api/v1/snapshots?dataset=${this.selectedDataset}&userid=${this.userId}`,
                 );
                 console.log(res);
                 if (!res.ok) {
@@ -216,8 +216,9 @@ export default {
                         text: res.statusText,
                     });
                 } else {
-                    this.snapshots = await res.json();
-                    console.log(this.snapshots);
+                    const data = await res.json();
+                    console.log('snapshots from API: ', data);
+                    this.snapshots = data.snapshots
                 }
                 this.loadingSnapshots = false;
             }
@@ -226,7 +227,7 @@ export default {
         selectSnapshot(id) {
             console.log('selectSnapshot', id, this.snapshots);
             this.imgCount = this.snapshots[id].count;
-            this.handleChangeDataset(this.selectedDataset, this.name, this.imgCount, true, this.snapshots[id].nodes, this.snapshots[id].groups);
+            this.handleChangeDataset(this.selectedDataset, this.name, this.imgCount, this.snapshots[id].nodes, this.snapshots[id].groups);
         },
     },
 };

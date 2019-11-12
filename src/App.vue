@@ -49,7 +49,7 @@ export default {
         groupsFromSnapshot: null,
     }),
     methods: {
-        switchDataset(newDataset, name, count, groups = null, nodes = null) {
+        switchDataset(newDataset, name, count, nodes = null, groups = null) {
             logYellow('switchDataset - trigger explorer reload ');
             console.log(newDataset, name, count, groups, nodes);
             console.log(newDataset, count);

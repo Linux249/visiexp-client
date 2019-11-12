@@ -1386,7 +1386,7 @@ export default {
 
     async mounted() {
         console.error('Mounted Explorer');
-        console.log(this.nodesFromSnapshot, this.groupsFromSnapshot)
+        console.log(this.nodesFromSnapshot, this.groupsFromSnapshot);
         if (!this.isAuth) return console.error('EXPLORER WITHOUT AUTH');
         // set resize event handler
         window.addEventListener('resize', this.handleResize);
@@ -1743,8 +1743,7 @@ export default {
                     console.log(this);
                     if (this.nodesFromSnapshot) {
                         // override the current groups with saved groups to
-                        this.groups = this.groupsFromSnapshot
-
+                        this.groups = this.groupsFromSnapshot;
                     }
                 })
                 .catch((e) => {
