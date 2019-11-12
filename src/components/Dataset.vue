@@ -216,9 +216,8 @@ export default {
                         text: res.statusText,
                     });
                 } else {
-                    const data = await res.json();
-                    console.log('snapshots from API: ', data);
-                    this.snapshots = data.snapshots
+                    this.snapshots = await res.json();
+                    console.log('snapshots from API: ', this.snapshots);
                 }
                 this.loadingSnapshots = false;
             }
