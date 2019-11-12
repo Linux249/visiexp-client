@@ -1743,7 +1743,8 @@ export default {
                     console.log(this);
                     if (this.nodesFromSnapshot) {
                         // override the current groups with saved groups to
-                        this.groups = this.groupsFromSnapshot;
+                        logYellow('set groups from snapshot')
+                        this.snapshots = this.groupsFromSnapshot;
                     }
                 })
                 .catch((e) => {
