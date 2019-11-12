@@ -1050,31 +1050,6 @@ export default {
             this.gradient.splice(this.selectedGradient, 1, [rgba.r, rgba.g, rgba.b]);
         },
 
-        /* async toggleUpdateEmbedding() {
-            this.autoUpdateEmbedding = !this.autoUpdateEmbedding;
-            if (this.autoUpdateEmbedding) {
-                console.log('startUpdateEmbedding');
-                console.log(this.socketId);
-
-                try {
-                    const body = JSON.stringify({
-                        nodes: this.store.getNodes(),
-                        socketId: this.socketId,
-                        userId: this.userId,
-                    });
-                    await fetch(`${apiUrl}/api/v1/startUpdateEmbedding`, {
-                        method: 'POST',
-                        headers: { 'Content-type': 'application/json' },
-                        body,
-                    }).then(res => res.text());
-                } catch (e) {
-                    console.error(e);
-                }
-            } else {
-                console.log('stopUpdateEmbedding');
-            }
-        }, */
-
         updateCluster() {
             this.store.createCluster();
         },
@@ -1766,8 +1741,10 @@ export default {
                         'consumed the entire body without keeping the whole thing in memory!',
                     );
                     console.log(this);
-                    if(this.nodesFromSnapshot) {
-                        // restore groups from saved data
+                    if (this.nodesFromSnapshot) {
+                        // override the current groups with saved groups to
+                        this.groups = this.groupsFromSnapshot
+
                     }
                 })
                 .catch((e) => {
