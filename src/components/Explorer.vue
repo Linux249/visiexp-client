@@ -1758,7 +1758,7 @@ export default {
                         logYellow('set groups from snapshot');
                         this.savedGroups = this.groupsFromSnapshot;
                         Object.keys(this.nodesFromSnapshot).forEach(
-                            key => (store.nodes[key].group = this.nodesFromSnapshot[key].group),
+                            key => (store.nodes[key].groupId = this.nodesFromSnapshot[key].groupId),
                         );
                         store.triggerDraw();
                     }
