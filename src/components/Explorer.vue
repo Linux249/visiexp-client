@@ -465,13 +465,18 @@
                             :step="0.1"
                             :value="embeddingDegree"
                             :change="changeEmbeddingDegree"
-                        ></range-slider> {{embeddingDegree}}
-                        <div class="description-small">It will take a while until the embedding has been updated.</div>
+                        ></range-slider>
+                        {{ embeddingDegree }}
+                        <div class="description-small">
+                            It will take a while until the embedding has been updated.
+                        </div>
                     </div>
                 </div>
                 <div class="vue-dialog-buttons">
                     <button class="vue-dialog-button button" @click="sendData">Ok</button>
-                    <button class="vue-dialog-button button" @click="closeUpdateDialog">Cancel</button>
+                    <button class="vue-dialog-button button" @click="closeUpdateDialog">
+                        Cancel
+                    </button>
                 </div>
             </div>
         </modal>
@@ -1175,7 +1180,7 @@ export default {
 
         addNode(node) {
             // console.warn(node);
-            if ((node.nodeId % 50) === 0) console.warn(`Add Node ${node.index}:`, node);
+            if (node.nodeId % 50 === 0) console.warn(`Add Node ${node.index}:`, node);
             const addNode1 = this.wasm.addNode(
                 node.x,
                 node.y,
@@ -1190,7 +1195,10 @@ export default {
 
             // console.log(node.imageData)
             /** create for each node an extra view because the main view is changing somehow */
-            const totalLength = Object.values(node.imageData).reduce((a, e) => a + e.data.byteLength, 0);
+            const totalLength = Object.values(node.imageData).reduce(
+                (a, e) => a + e.data.byteLength,
+                0,
+            );
             const buffer = new Uint8Array(this.wasm.memory.buffer, this.offset, totalLength);
             // console.log(totalLength, buffer)
 
@@ -1352,7 +1360,11 @@ export default {
                 method: 'POST',
                 headers: { 'Content-type': 'application/json' },
                 body: JSON.stringify({
-                    nodes, groups, dataset, count, userid,
+                    nodes,
+                    groups,
+                    dataset,
+                    count,
+                    userid,
                 }),
             })
                 .then(res => res.json())
@@ -1743,8 +1755,12 @@ export default {
                     console.log(this);
                     if (this.nodesFromSnapshot) {
                         // override the current groups with saved groups to
-                        logYellow('set groups from snapshot')
+                        logYellow('set groups from snapshot');
                         this.savedGroups = this.groupsFromSnapshot;
+                        Object.keys(this.nodesFromSnapshot).forEach(
+                            key => (store.nodes[key].group = this.nodesFromSnapshot[key].group),
+                        );
+                        store.triggerDraw();
                     }
                 })
                 .catch((e) => {
